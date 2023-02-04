@@ -1,7 +1,7 @@
 import { Signal } from "@preact/signals-react";
-import { mapValues } from "radash";
+import { mapValues, zip } from "radash";
 import { RenderData } from "./globals";
-import { AnyRecord, HookName } from "./hoc/types";
+import { AnyRecord } from "./hoc/types";
 
 type Falsy = null | undefined | false | 0 | -0 | 0n | "";
 
@@ -68,22 +68,21 @@ type HooksWithReturnTupleOfTwoArgs =
   | "useReducer"
   | "useTransition";
 
-export const hookEqualityChecker = (() => {
-  const HOOKS_WITH_RETURN_TUPLE_OF_TWO_ARGS = new Set([
-    "useState",
-    "useReducer",
-    "useTransition",
-  ] satisfies HooksWithReturnTupleOfTwoArgs[]);
+export const hookEqualityChecker = (prev: unknown, current: unknown) => {
+  if (prev === current) return true;
+  if (
+    Array.isArray(prev) &&
+    prev?.length === 2 &&
+    Array.isArray(current) &&
+    prev?.length === 2
+  ) {
+    return zip(prev, current).every(
+      ([prevItem, currentItem]) => prevItem === currentItem
+    );
+  }
 
-  const twoArgsChecker = (a: [unknown, unknown], b: [unknown, unknown]) =>
-    a[0] === b[0] && a[1] === b[1];
-  const simpleCheck = (a: unknown, b: unknown) => a === b;
-
-  return (hookName: HookName): ((a: any, b: any) => boolean) =>
-    HOOKS_WITH_RETURN_TUPLE_OF_TWO_ARGS.has(hookName as any)
-      ? twoArgsChecker
-      : simpleCheck;
-})();
+  return false;
+};
 export const initRenderData = (): RenderData => ({
   events: [],
   renderResult: null,

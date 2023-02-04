@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@preact/signals-react": "^1.2.2",
     "one-render": "workspace:*",
     "radash": "^10.7.0",
     "react": "^18.2.0",

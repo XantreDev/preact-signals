@@ -103,6 +103,8 @@ const handler: ProxyHandler<React.FC<HookExecutorProps["props"]>> = {
           otherProps
         );
       }
+      // console.log(currentRenderData);
+      // return;
 
       return executeSecondRender(currentRenderData);
     } finally {
@@ -135,7 +137,7 @@ function executeSecondRender(currentRenderData: RenderData) {
     if (!isScopeNeedsRerun.get()) {
       continue;
     }
-    // console.log(eventData);
+    console.log(eventData);
     const currentHookIndex = eventIndex.get();
     hookExecutionMode.set({
       notUseBeforeAndRerunAfterAndEqual: currentHookIndex,

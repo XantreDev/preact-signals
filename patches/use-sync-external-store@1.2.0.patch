@@ -1,0 +1,13 @@
+diff --git a/cjs/use-sync-external-store-shim.development.js b/cjs/use-sync-external-store-shim.development.js
+index c849ab8c215488ba2a54ed1ea2b07370abf27807..458e798dba29a45912d1b6713fb6689a812b68fd 100644
+--- a/cjs/use-sync-external-store-shim.development.js
++++ b/cjs/use-sync-external-store-shim.development.js
+@@ -76,7 +76,7 @@ function is(x, y) {
+ var objectIs = typeof Object.is === 'function' ? Object.is : is;
+ 
+ // dispatch for CommonJS interop named imports.
+-
++console.log('unpack hooks')
+ var useState = React.useState,
+     useEffect = React.useEffect,
+     useLayoutEffect = React.useLayoutEffect,

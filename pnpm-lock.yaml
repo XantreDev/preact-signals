@@ -1,5 +1,10 @@
 lockfileVersion: 5.4
 
+patchedDependencies:
+  use-sync-external-store@1.2.0:
+    hash: tnthid727dxyql36q33gxscy44
+    path: patches/use-sync-external-store@1.2.0.patch
+
 importers:
 
   .:
@@ -30,6 +35,7 @@ importers:
 
   packages/one-render-test:
     specifiers:
+      '@preact/signals-react': ^1.2.2
       '@vitejs/plugin-react-swc': ^3.0.0
       one-render: workspace:*
       radash: ^10.7.0
@@ -38,6 +44,7 @@ importers:
       swr: ^2.0.3
       vite: ^4.0.0
     dependencies:
+      '@preact/signals-react': 1.2.2_react@18.2.0
       one-render: link:../one-render
       radash: 10.7.0
       react: 18.2.0
@@ -258,7 +265,7 @@ packages:
     dependencies:
       '@preact/signals-core': 1.2.3
       react: 18.2.0
-      use-sync-external-store: 1.2.0_react@18.2.0
+      use-sync-external-store: 1.2.0_tnthid727dxyql36q33gxscy44_react@18.2.0
     dev: false
 
   /@swc/core-darwin-arm64/1.3.27:
@@ -558,7 +565,7 @@ packages:
       react: ^16.11.0 || ^17.0.0 || ^18.0.0
     dependencies:
       react: 18.2.0
-      use-sync-external-store: 1.2.0_react@18.2.0
+      use-sync-external-store: 1.2.0_tnthid727dxyql36q33gxscy44_react@18.2.0
     dev: false
 
   /type-fest/3.5.3:
@@ -572,13 +579,14 @@ packages:
     hasBin: true
     dev: true
 
-  /use-sync-external-store/1.2.0_react@18.2.0:
+  /use-sync-external-store/1.2.0_tnthid727dxyql36q33gxscy44_react@18.2.0:
     resolution: {integrity: sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
       react: 18.2.0
     dev: false
+    patched: true
 
   /vite/4.0.4:
     resolution: {integrity: sha512-xevPU7M8FU0i/80DMR+YhgrzR5KS2ORy1B4xcX/cXLsvnUWvfHuqMmVU6N0YiJ4JWGRJJsLCgjEzKjG9/GKoSw==}

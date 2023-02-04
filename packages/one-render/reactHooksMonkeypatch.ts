@@ -1,6 +1,5 @@
 import React from "react";
 
-import { memo } from "radash";
 import {
   eventIndex,
   hookExecutionMode,
@@ -43,8 +42,8 @@ const getCurrentHookData = () => {
 
 type AnyFunction = (...args: any[]) => any;
 
-const getProxyHandler = memo(<T extends HookName>(name: T) => {
-  const resultEqualityChecker = hookEqualityChecker(name);
+const getProxyHandler = <T extends HookName>(name: T) => {
+  const resultEqualityChecker = hookEqualityChecker;
 
   const executeHook = (target: AnyFunction, args: any[], thisArg: any): any => {
     const currentLevel = hookScopeLevel.get();
@@ -111,7 +110,7 @@ const getProxyHandler = memo(<T extends HookName>(name: T) => {
   const proxyHandler: ProxyHandler<AnyFunction> = {
     apply(target, thisArg, args) {
       try {
-        console.log(name, args);
+        // console.log(name);
         return executeHook(target, args, thisArg);
       } finally {
         eventIndex.actions.increment();
@@ -120,7 +119,7 @@ const getProxyHandler = memo(<T extends HookName>(name: T) => {
   };
 
   return proxyHandler;
-});
+};
 
 const hookNames = Object.keys(React).filter((key) =>
   hookRegExp.test(key)
@@ -129,3 +128,4 @@ hookNames.forEach((hookName) => {
   const hook = React[hookName];
   React[hookName] = new Proxy(hook, getProxyHandler(hookName)) as any;
 });
+console.log('monkey patched')

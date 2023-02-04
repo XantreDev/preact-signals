@@ -1,12 +1,15 @@
+import { computed } from "@preact/signals-react";
 import { hookScope, withOneRender } from "one-render";
 import { useTodoQuery } from "../hooks/useTodoQuery";
 
 export const HookScopeResults = withOneRender(() => {
   const results = hookScope(() => {
-    console.log(useTodoQuery().isLoading);
+    return useTodoQuery().data;
   });
 
   console.log(results);
 
-  return null;
+  const stringified = computed(() => JSON.stringify(results.value));
+
+  return <div>{stringified}</div>;
 });

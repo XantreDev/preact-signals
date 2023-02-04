@@ -8,7 +8,7 @@ export const Swr = withOneRender(() => {
   });
 
   hookScope(() => {
-    console.log(useTodoQuery());
+    console.log(useTodoQuery().data);
   });
   return null;
 });
