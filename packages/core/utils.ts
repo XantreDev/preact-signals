@@ -1,5 +1,4 @@
-import { Signal } from "@preact/signals-react";
-import { mapValues, zip } from "radash";
+import { mapValues } from "radash";
 import { RenderData } from "./globals";
 import { AnyRecord } from "./hoc/types";
 
@@ -38,6 +37,30 @@ export const createGlobal = <T>(initialState: T) => {
   };
 };
 
+import { zip } from "radash";
+
+type Nil = null | undefined;
+export const unwrap = <T>(value: T | Nil, message?: string): T => {
+  if (value === undefined || value === null) throw new Error(message);
+
+  return value;
+};
+export const hookEqualityChecker = (prev: unknown, current: unknown) => {
+  if (prev === current) return true;
+  if (
+    Array.isArray(prev) &&
+    prev?.length === 2 &&
+    Array.isArray(current) &&
+    prev?.length === 2
+  ) {
+    return zip(prev, current).every(
+      ([prevItem, currentItem]) => prevItem === currentItem
+    );
+  }
+
+  return false;
+};
+
 export const createGlobalWithActions = <
   T,
   Actions extends Record<string, (state: T) => T>
@@ -56,39 +79,14 @@ export const createGlobalWithActions = <
   };
 };
 
-export const unwrap = <T>(value: T | Nil, message?: string): T => {
-  if (value === undefined || value === null) throw new Error(message);
-
-  return value;
-};
-
-type Nil = null | undefined;
 type HooksWithReturnTupleOfTwoArgs =
   | "useState"
   | "useReducer"
   | "useTransition";
 
-export const hookEqualityChecker = (prev: unknown, current: unknown) => {
-  if (prev === current) return true;
-  if (
-    Array.isArray(prev) &&
-    prev?.length === 2 &&
-    Array.isArray(current) &&
-    prev?.length === 2
-  ) {
-    return zip(prev, current).every(
-      ([prevItem, currentItem]) => prevItem === currentItem
-    );
-  }
-
-  return false;
-};
 export const initRenderData = (): RenderData => ({
   events: [],
   renderResult: null,
 });
 
 export const createObject = <T extends AnyRecord>() => Object.create(null) as T;
-
-export const isSignal = (value: unknown): value is Signal<any> =>
-  value instanceof Signal;

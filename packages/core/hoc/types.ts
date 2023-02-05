@@ -1,4 +1,4 @@
-import { Signal } from "@preact/signals-react";
+import type { Signal } from "@preact/signals-react";
 import type * as React from "react";
 
 type PickHooks<T extends Record<string, unknown>> = {

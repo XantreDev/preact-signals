@@ -1,5 +1,6 @@
 import { Signal, signal } from "@preact/signals-react";
-import { createObject, isSignal } from "../utils";
+import { isSignal } from "../signalUtils";
+import { createObject } from "../utils";
 import { AnyRecord } from "./types";
 
 const COMPLEX_HOOK_RESULTS = new WeakSet<object>();

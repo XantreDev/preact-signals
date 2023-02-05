@@ -1,8 +1,9 @@
 {
-  "name": "one-render-test",
+  "name": "@one-render/test",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "private": "true",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -10,7 +11,7 @@
   },
   "dependencies": {
     "@preact/signals-react": "^1.2.2",
-    "one-render": "workspace:*",
+    "@one-render/core": "workspace:*",
     "radash": "^10.7.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

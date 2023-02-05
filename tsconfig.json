@@ -17,8 +17,10 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "paths": {
-      "one-render": ["./packages/one-render/index.ts"]
+      "@one-render/core": ["./packages/core/index.ts"],
+      "@one-render/components": ["./packages/components/index.ts"]
     }
   },
+  "exclude": ["**/node_modules"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

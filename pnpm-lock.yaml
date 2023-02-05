@@ -19,7 +19,19 @@ importers:
       type-fest: 3.5.3
       typescript: 4.9.4
 
-  packages/one-render:
+  packages/components:
+    specifiers:
+      '@preact/signals-react': ^1.2.2
+      radash: ^10.7.0
+      react: ^18.2.0
+      react-dom: ^18.2.0
+    dependencies:
+      '@preact/signals-react': 1.2.2_react@18.2.0
+      radash: 10.7.0
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+
+  packages/core:
     specifiers:
       '@preact/signals-react': ^1.2.2
       flatted: ^3.2.7
@@ -33,19 +45,19 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
 
-  packages/one-render-test:
+  packages/web-test:
     specifiers:
+      '@one-render/core': workspace:*
       '@preact/signals-react': ^1.2.2
       '@vitejs/plugin-react-swc': ^3.0.0
-      one-render: workspace:*
       radash: ^10.7.0
       react: ^18.2.0
       react-dom: ^18.2.0
       swr: ^2.0.3
       vite: ^4.0.0
     dependencies:
+      '@one-render/core': link:../core
       '@preact/signals-react': 1.2.2_react@18.2.0
-      one-render: link:../one-render
       radash: 10.7.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0

@@ -1,5 +1,5 @@
+import { hookScope, withOneRender } from "@one-render/core";
 import { computed } from "@preact/signals-react";
-import { hookScope, withOneRender } from "one-render";
 import { useTodoQuery } from "../hooks/useTodoQuery";
 
 export const HookScopeResults = withOneRender(() => {

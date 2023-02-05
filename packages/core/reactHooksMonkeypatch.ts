@@ -128,4 +128,4 @@ hookNames.forEach((hookName) => {
   const hook = React[hookName];
   React[hookName] = new Proxy(hook, getProxyHandler(hookName)) as any;
 });
-console.log('monkey patched')
+console.log("monkey patched");

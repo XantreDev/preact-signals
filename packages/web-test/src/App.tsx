@@ -1,14 +1,14 @@
-import { withOneRender } from "one-render";
+import { withOneRender } from "@one-render/core";
 import "./App.css";
-import { HookScopeResults } from "./components/HookScopeResults";
+import { Swr } from "./components/Swr";
 
 const App = withOneRender(() => {
   return (
     <div className="App">
       {/* <SimpleHooks /> */}
       {/* <Bench /> */}
-      {/* <Swr /> */}
-      <HookScopeResults />
+      <Swr />
+      {/* <HookScopeResults /> */}
       <h1>All is ok</h1>
     </div>
   );
