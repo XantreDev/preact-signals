@@ -1,0 +1,12 @@
+{
+  "name": "@one-render/globals",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.ts",
+  "dependencies": {
+    "@one-render/utils": "workspace:*"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import "../reactHooksMonkeypatch";
 import { wrapToOneRender } from "./oneRenderParent";
 import { scopedHooksChild } from "./scopedHooks";
 

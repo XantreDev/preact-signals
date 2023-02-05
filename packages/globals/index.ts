@@ -1,8 +1,21 @@
-import React from "react";
-import { LazyNode } from "./hoc/lazyResults";
-import { HookName } from "./hoc/types";
-import { createGlobal, createGlobalWithActions } from "./utils";
+import type { HookName } from "@one-render/monkeypatch";
+import { createGlobal, createGlobalWithActions } from "@one-render/utils";
 
+export interface SignalLike<T = any> {
+  value: T;
+  peek(): T;
+  subscribe(fn: (value: T) => void): () => void;
+}
+
+export const initRenderData = (): RenderData => ({
+  events: [],
+  renderResult: null,
+});
+
+export type LazyNode = {
+  update(newValue: any): void;
+  result: SignalLike | Record<any, SignalLike>;
+};
 export type EventsQueueItem =
   | {
       type: "hook";
@@ -18,6 +31,7 @@ export type EventsQueueItem =
       type: "leave-from-scope";
       lazyNode: LazyNode;
     };
+
 export type Identifier = Record<never, unknown>;
 
 export type RenderData = {

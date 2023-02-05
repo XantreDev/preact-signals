@@ -1,0 +1,15 @@
+{
+  "name": "@one-render/utils",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "radash": "^10.7.0"
+  }
+}

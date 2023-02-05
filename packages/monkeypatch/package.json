@@ -1,0 +1,18 @@
+{
+  "name": "@one-render/monkeypatch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {},
+  "dependencies": {
+    "@one-render/globals": "workspace:*",
+    "@one-render/utils": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

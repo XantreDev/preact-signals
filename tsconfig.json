@@ -16,9 +16,13 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+    "baseUrl": "./",
     "paths": {
       "@one-render/core": ["./packages/core/index.ts"],
-      "@one-render/components": ["./packages/components/index.ts"]
+      "@one-render/components": ["./packages/components/index.ts"],
+      "@one-render/utils": ["./packages/utils/index.ts"],
+      "@one-render/globals": ["./packages/globals/index.ts"],
+      "@one-render/monkeypatch": ["./packages/monkeypatch/index.ts"]
     }
   },
   "exclude": ["**/node_modules"],

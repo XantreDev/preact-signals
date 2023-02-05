@@ -8,9 +8,9 @@ import {
   isScopeNeedsRerun,
   rendersData,
   renderUniqueObject
-} from "./globals";
-import { HookName } from "./hoc/types";
-import { hookEqualityChecker, unwrap } from "./utils";
+} from "@one-render/globals";
+import { hookEqualityChecker, unwrap } from "@one-render/utils";
+import { HookName } from "./types";
 
 const hookRegExp = /^use\w/;
 
@@ -129,3 +129,5 @@ hookNames.forEach((hookName) => {
   React[hookName] = new Proxy(hook, getProxyHandler(hookName)) as any;
 });
 console.log("monkey patched");
+
+export type { HookName } from "./types";

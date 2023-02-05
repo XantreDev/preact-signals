@@ -1,18 +1,19 @@
-import React from "react";
 import {
   eventIndex,
   EventsQueueItem,
   hookExecutionMode,
   hookScopeLevel,
+  initRenderData,
   isInsideOneRenderComponent,
   isScopeNeedsRerun,
   RenderData,
   rendersData,
   renderUniqueObject
-} from "../globals";
-import { createGlobal, initRenderData, unwrap } from "../utils";
+} from "@one-render/globals";
+import { createGlobal, unwrap } from "@one-render/utils";
+import React from "react";
+import { Simplify } from "type-fest";
 import { Brand, BrandString, lazyNode } from "./lazyResults";
-import "./oneRenderParent";
 import { HookExecutorProps, Signalify, SignalifyObject } from "./types";
 
 const hookScopeRunMode = createGlobal<"first" | "rerun">("first");
@@ -32,7 +33,9 @@ const getRenderDataFromHookScope = () =>
     "renderData should exist in hookScope"
   );
 
-export const hookScope = <T>(callback: () => T): HookScopeResult<T> => {
+export const hookScope = <T>(
+  callback: () => T
+): Simplify<HookScopeResult<T>> => {
   if (!isInsideOneRenderComponent.get()) {
     throw new Error("hookScopes allowed only in one render components");
   }

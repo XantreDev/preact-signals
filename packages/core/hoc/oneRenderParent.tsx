@@ -1,11 +1,22 @@
+import { LazyNode } from "@one-render/globals";
 import React from "react";
-import { beforeUnmountActions } from "../globals";
+import { complex, lazyNode } from "./lazyResults";
 import { ExecutorSpecificProps, HookExecutorProps } from "./types";
 
 export const wrapToOneRender = <Props,>(
   Component: React.FC<HookExecutorProps<Props>>
 ) => {
   const uniqueRenderObjects = new WeakMap<object, object>();
+  const propsWrapper = new WeakMap<object, LazyNode>();
+  const getPropsWrapper = (uniqueRenderObject: object, props: any) =>
+    propsWrapper.get(uniqueRenderObject) ??
+    (() => {
+      const wrapper = lazyNode(props);
+      propsWrapper.set(uniqueRenderObject, wrapper);
+
+      return wrapper;
+    })();
+
   const getUniqueRenderObject = (props: object) =>
     uniqueRenderObjects.get(props) ??
     /* Really first render */
@@ -15,34 +26,39 @@ export const wrapToOneRender = <Props,>(
       return uniqueRenderObjects;
     })();
 
-  class Wrapper extends React.Component<any, ExecutorSpecificProps> {
-    shouldComponentUpdate(): // nextProps: Readonly<{}>,
-    // nextState: Readonly<{}>,
-    // nextContext: any
-    boolean {
+  class Wrapper extends React.Component<
+    any,
+    ExecutorSpecificProps & { propsWrapper: LazyNode }
+  > {
+    shouldComponentUpdate(newProps: any) {
+      this.state.propsWrapper.update(newProps);
+
       return false;
     }
 
     constructor(props: any) {
       super(props);
       const uniqueRenderObject = getUniqueRenderObject(props);
+      const propsWrapper = getPropsWrapper(uniqueRenderObject, complex(props));
       this.state = {
         uniqueRenderObject,
+        propsWrapper,
       };
-      if (!beforeUnmountActions.get(uniqueRenderObject)) {
-        beforeUnmountActions.set(uniqueRenderObject, []);
-      }
-    }
-    componentWillUnmount(): void {
-      beforeUnmountActions
-        .get(this.state.uniqueRenderObject)
-        ?.forEach((unmountAction) => unmountAction());
     }
 
     render(): React.ReactNode {
-      return <Component {...this.state} props={this.props} />;
+      return (
+        <Component
+          {...this.state}
+          props={this.state.propsWrapper.result as any}
+        />
+      );
     }
   }
+
+  Object.assign(Wrapper, {
+    displayName: "OneRenderWrapper",
+  });
 
   return { Wrapper } as const;
 };

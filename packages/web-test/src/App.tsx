@@ -1,17 +1,19 @@
 import { withOneRender } from "@one-render/core";
 import "./App.css";
-import { Swr } from "./components/Swr";
+import { ComponentsTest } from "./components/ComponentsTest";
 
 const App = withOneRender(() => {
   return (
     <div className="App">
       {/* <SimpleHooks /> */}
       {/* <Bench /> */}
-      <Swr />
+      {/* <Swr /> */}
       {/* <HookScopeResults /> */}
+      <ComponentsTest />
       <h1>All is ok</h1>
     </div>
   );
 });
+App.displayName = "App";
 
 export default App;

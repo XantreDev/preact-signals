@@ -21,11 +21,15 @@ importers:
 
   packages/components:
     specifiers:
+      '@one-render/core': workspace:*
+      '@one-render/globals': workspace:*
       '@preact/signals-react': ^1.2.2
       radash: ^10.7.0
       react: ^18.2.0
       react-dom: ^18.2.0
     dependencies:
+      '@one-render/core': link:../core
+      '@one-render/globals': link:../globals
       '@preact/signals-react': 1.2.2_react@18.2.0
       radash: 10.7.0
       react: 18.2.0
@@ -33,20 +37,52 @@ importers:
 
   packages/core:
     specifiers:
+      '@one-render/globals': workspace:*
+      '@one-render/monkeypatch': workspace:*
+      '@one-render/utils': workspace:*
       '@preact/signals-react': ^1.2.2
-      flatted: ^3.2.7
       radash: ^10.7.0
       react: ^18.2.0
       react-dom: ^18.2.0
+      type-fest: ^3.5.3
     dependencies:
+      '@one-render/globals': link:../globals
+      '@one-render/monkeypatch': link:../monkeypatch
+      '@one-render/utils': link:../utils
       '@preact/signals-react': 1.2.2_react@18.2.0
-      flatted: 3.2.7
       radash: 10.7.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
+    devDependencies:
+      type-fest: 3.5.3
+
+  packages/globals:
+    specifiers:
+      '@one-render/utils': workspace:*
+    dependencies:
+      '@one-render/utils': link:../utils
+
+  packages/monkeypatch:
+    specifiers:
+      '@one-render/globals': workspace:*
+      '@one-render/utils': workspace:*
+      react: ^18.2.0
+      react-dom: ^18.2.0
+    dependencies:
+      '@one-render/globals': link:../globals
+      '@one-render/utils': link:../utils
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+
+  packages/utils:
+    specifiers:
+      radash: ^10.7.0
+    dependencies:
+      radash: 10.7.0
 
   packages/web-test:
     specifiers:
+      '@one-render/components': workspace:*
       '@one-render/core': workspace:*
       '@preact/signals-react': ^1.2.2
       '@vitejs/plugin-react-swc': ^3.0.0
@@ -56,6 +92,7 @@ importers:
       swr: ^2.0.3
       vite: ^4.0.0
     dependencies:
+      '@one-render/components': link:../components
       '@one-render/core': link:../core
       '@preact/signals-react': 1.2.2_react@18.2.0
       radash: 10.7.0
@@ -451,10 +488,6 @@ packages:
       '@esbuild/win32-ia32': 0.16.17
       '@esbuild/win32-x64': 0.16.17
     dev: true
-
-  /flatted/3.2.7:
-    resolution: {integrity: sha512-5nqDSxl8nn5BSNxyR3n4I6eDmbolI6WT+QqR547RwxQapgjQBmtktdP+HTBb/a/zLsbzERTONyUB5pefh5TtjQ==}
-    dev: false
 
   /fsevents/2.3.2:
     resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}

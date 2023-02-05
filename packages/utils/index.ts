@@ -1,27 +1,8 @@
-import { mapValues } from "radash";
-import { RenderData } from "./globals";
-import { AnyRecord } from "./hoc/types";
+import { mapValues, zip } from "radash";
+
+type AnyRecord = Record<any, any>;
 
 type Falsy = null | undefined | false | 0 | -0 | 0n | "";
-
-/**
- * https://github.com/rayepps/radash/blob/7c6b986d19c68f19ccf5863d518eb19ec9aa4ab8/src/object.ts#L53
- * Map over all the keys to create a new object
- */
-// export const mapValues = <
-//   TValue,
-//   TKey extends string | number | symbol,
-//   TNewValue
-// >(
-//   obj: Record<TKey, TValue>,
-//   mapFunc: (value: TValue, key: TKey) => TNewValue
-// ): Record<TKey, TNewValue> => {
-//   const keys = Object.keys(obj) as TKey[];
-//   return keys.reduce((acc, key) => {
-//     acc[key] = mapFunc(obj[key], key);
-//     return acc;
-//   }, {} as Record<TKey, TNewValue>);
-// };
 
 export const createGlobal = <T>(initialState: T) => {
   const ref = { current: initialState };
@@ -36,8 +17,6 @@ export const createGlobal = <T>(initialState: T) => {
     set,
   };
 };
-
-import { zip } from "radash";
 
 type Nil = null | undefined;
 export const unwrap = <T>(value: T | Nil, message?: string): T => {
@@ -78,15 +57,5 @@ export const createGlobalWithActions = <
     ) as Record<keyof Actions, () => void>,
   };
 };
-
-type HooksWithReturnTupleOfTwoArgs =
-  | "useState"
-  | "useReducer"
-  | "useTransition";
-
-export const initRenderData = (): RenderData => ({
-  events: [],
-  renderResult: null,
-});
 
 export const createObject = <T extends AnyRecord>() => Object.create(null) as T;
