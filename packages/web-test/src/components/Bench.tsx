@@ -1,4 +1,4 @@
-import { hookScope, withOneRender } from "@/core";
+import { hookScope, withOneRender } from "@one-render/way";
 import { zip } from "radash";
 import { memo, useEffect, useRef, useState } from "react";
 

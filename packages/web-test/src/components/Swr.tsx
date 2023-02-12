@@ -1,4 +1,4 @@
-import { hookScope, withOneRender } from "@/core";
+import { hookScope, withOneRender } from "@one-render/way";
 import { useState } from "react";
 import { useTodoQuery } from "../hooks/useTodoQuery";
 
