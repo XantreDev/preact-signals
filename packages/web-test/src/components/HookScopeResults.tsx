@@ -1,4 +1,4 @@
-import { hookScope, withOneRender } from "@one-render/core";
+import { hookScope, withOneRender } from "@/core";
 import { computed } from "@preact/signals-react";
 import { useTodoQuery } from "../hooks/useTodoQuery";
 

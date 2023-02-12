@@ -1,4 +1,4 @@
-import { withOneRender } from "@one-render/core";
+import { withOneRender } from "@/core";
 import "./App.css";
 import { ComponentsTest } from "./components/ComponentsTest";
 

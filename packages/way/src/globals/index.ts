@@ -1,5 +1,5 @@
-import type { HookName } from "@one-render/monkeypatch";
-import { createGlobal, createGlobalWithActions } from "@one-render/utils";
+import type { HookName } from "@/monkeypatch";
+import { createGlobal, createGlobalWithActions } from "@/utils";
 
 export interface SignalLike<T = any> {
   value: T;

@@ -1,5 +1,5 @@
-import { For, Show } from "@one-render/components";
-import { hookScope, withOneRender } from "@one-render/core";
+import { For, Show } from "@/components";
+import { hookScope, withOneRender } from "@/core";
 import { computed } from "@preact/signals-react";
 import { useTodosQuery } from "../hooks/useTodoQuery";
 

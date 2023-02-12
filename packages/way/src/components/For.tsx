@@ -1,10 +1,7 @@
-import { isSignal, Signalify } from "@one-render/core";
+import { isSignal, Signalify } from "@/core";
 import { signal, useSignalEffect } from "@preact/signals-react";
 import { objectify } from "radash";
-import {
-  cloneElement, useRef,
-  useState
-} from "react";
+import { cloneElement, useRef, useState } from "react";
 import { SignalLike } from "./type";
 
 type KeyExtractor<T> = (item: T) => React.Key;
@@ -24,11 +21,6 @@ export type ForProps<T> = {
   children: ForChildren<T>;
 };
 
-declare global {
-  var process: {
-    env: { NODE_ENV: "development" | "production" };
-  };
-}
 /**
  * @description Sorry for key extractors, I think Solid mapArray can be adopted
  * this should be used for reactive lists, but for constant lists just map can be used

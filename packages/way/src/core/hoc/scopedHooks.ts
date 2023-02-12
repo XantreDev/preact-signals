@@ -9,8 +9,8 @@ import {
   RenderData,
   rendersData,
   renderUniqueObject
-} from "@one-render/globals";
-import { createGlobal, unwrap } from "@one-render/utils";
+} from "@/globals";
+import { createGlobal, unwrap } from "@/utils";
 import React from "react";
 import { Simplify } from "type-fest";
 import { Brand, BrandString, lazyNode } from "./lazyResults";

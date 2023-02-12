@@ -8,9 +8,9 @@ import {
   isScopeNeedsRerun,
   rendersData,
   renderUniqueObject
-} from "@one-render/globals";
-import { hookEqualityChecker, unwrap } from "@one-render/utils";
-import { HookName } from "./types";
+} from "@/globals";
+import { hookEqualityChecker, unwrap } from "@/utils";
+import { HookName } from "./type";
 
 const hookRegExp = /^use\w/;
 
@@ -130,4 +130,4 @@ hookNames.forEach((hookName) => {
 });
 console.log("monkey patched");
 
-export type { HookName } from "./types";
+export type { HookName } from "./type";

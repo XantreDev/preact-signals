@@ -1,4 +1,4 @@
-import { LazyNode } from "@one-render/globals";
+import { LazyNode } from "@/globals";
 import React from "react";
 import { complex, lazyNode } from "./lazyResults";
 import { ExecutorSpecificProps, HookExecutorProps } from "./types";

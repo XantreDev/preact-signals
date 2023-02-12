@@ -1,4 +1,4 @@
-import { hookScope, withOneRender } from "@one-render/core";
+import { hookScope, withOneRender } from "@/core";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 
 export const SimpleHooks = withOneRender(() => {

@@ -3,14 +3,35 @@
   "version": "0.0.1",
   "description": "Simple hoc for one render of components",
   "type": "module",
-  "main": "./dist/foo.umd.js",
-  "module": "./dist/foo.module.mjs",
-  "exports": "./dist/foo.modern.mjs",
+  "main": "./dist/way.js",
+  "module": "./dist/way.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/way.js",
+      "require": "./dist/way.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "source": "./src/index.ts",
+  "scripts": {
+    "clean": "rimraf dist",
+    "build:way": "microbundle --raw",
+    "build": "pnpm clean && pnpm build:way"
+  },
+  "dependencies": {
+    "radash": "^10.7.0"
+  },
+  "peerDependencies": {
+    "@preact/signals-react": "^1.2.2",
+    "react": "17.*.* || 18.*.*"
+  },
   "devDependencies": {
-    "@one-render/components": "workspace:*",
-    "@one-render/core": "workspace:*",
-    "@one-render/monkeypatch": "workspace:*"
+    "microbundle": "^0.15.1",
+    "rimraf": "^4.1.2",
+    "type-fest": "^3.5.3",
+    "typescript": "^4.9.3",
+    "typescript-transform-paths": "^3.4.6"
   },
   "keywords": [],
   "author": "XanterGodlike",

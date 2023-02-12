@@ -1,4 +1,4 @@
-import { createObject } from "@one-render/utils";
+import { createObject } from "@/utils";
 import { Signal, signal } from "@preact/signals-react";
 import { isSignal } from "../signalUtils";
 import { AnyRecord } from "./types";
