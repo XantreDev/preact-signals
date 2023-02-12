@@ -15,3 +15,6 @@ export type Signalify<T> = Simplify<T extends Signal<any> ? T : Signal<T>>;
 export type SignalifyObject<T> = T extends Record<string, any>
   ? { [Key in keyof T]: Signalify<T[Key]> }
   : T;
+export type UnsignalifyObject<T> = T extends Record<string, any>
+  ? { [Key in keyof T]: T[Key] extends Signal<infer S> ? S : T[Key] }
+  : T;
