@@ -12,14 +12,14 @@ import {
 } from "@/globals";
 import { createGlobal, unwrap } from "@/utils";
 import React from "react";
-import { Simplify } from "type-fest";
-import { Brand, BrandString, lazyNode } from "./lazyResults";
+import { Simplify, UnwrapOpaque } from "type-fest";
+import { CreateComplexOpaque, lazyNode } from "./lazyResults";
 import { HookExecutorProps, Signalify, SignalifyObject } from "./types";
 
 const hookScopeRunMode = createGlobal<"first" | "rerun">("first");
 
-type HookScopeResult<T> = T extends Brand
-  ? SignalifyObject<Omit<T, BrandString>>
+type HookScopeResult<T> = T extends CreateComplexOpaque<Record<string, any>>
+  ? SignalifyObject<UnwrapOpaque<T>>
   : Signalify<T>;
 
 const getRenderDataFromHookScope = () =>

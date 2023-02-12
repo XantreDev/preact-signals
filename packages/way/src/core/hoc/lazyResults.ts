@@ -1,16 +1,16 @@
 import { createObject } from "@/utils";
 import { Signal, signal } from "@preact/signals-react";
+import { Opaque } from "type-fest";
 import { isSignal } from "../signalUtils";
 import { AnyRecord } from "./types";
 
 const COMPLEX_HOOK_RESULTS = new WeakSet<object>();
 
 // Only type thing
-export type BrandString = "__complex";
-export type Brand = Record<BrandString, true>;
+export type CreateComplexOpaque<T> = Opaque<T, "__complex">
 
 export const complex = <T extends AnyRecord>(data: T) => (
-  COMPLEX_HOOK_RESULTS.add(data), data as T & Brand
+  COMPLEX_HOOK_RESULTS.add(data), data as CreateComplexOpaque<T>
 );
 
 type LazyPropNode = {
@@ -23,7 +23,7 @@ export type LazyNode = {
   result: Signal | Record<any, Signal>;
 };
 
-const isComplex = (item: unknown): item is Brand =>
+const isComplex = (item: unknown): item is CreateComplexOpaque<unknown> =>
   typeof item === "object" && !!item && COMPLEX_HOOK_RESULTS.has(item);
 
 export const lazyNode = <T>(_results: T): LazyNode => {
