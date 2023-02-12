@@ -16,13 +16,14 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "rootDir": "./src",
-    "composite": true,
     "outDir": "./dist",
-    "emitDeclarationOnly": true,
+    "noEmit": true,
+    // "emitDeclarationOnly": true,
+    // "declaration": true,
     "plugins": [
       {
         "transform": "typescript-transform-paths",
-        // "afterDeclarations": true
+        "afterDeclarations": true
       }
     ],
     "paths": {
