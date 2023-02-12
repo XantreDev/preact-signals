@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "radash": "^10.7.0",
-    "@one-render/monkeypatch": "workspace:*",
     "@one-render/globals": "workspace:*",
     "@one-render/utils": "workspace:*"
   },

@@ -2,10 +2,7 @@ import { isSignal, Signalify } from "@one-render/core";
 import { signal, useSignalEffect } from "@preact/signals-react";
 import { objectify } from "radash";
 import {
-  cloneElement,
-  useDebugValue,
-  useLayoutEffect,
-  useRef,
+  cloneElement, useRef,
   useState
 } from "react";
 import { SignalLike } from "./type";
@@ -47,24 +44,24 @@ export const For = <T,>({
     each.peek().map(renderToNode(children, keyExtractor))
   );
 
-  if (process.env.NODE_ENV !== "production") {
-    useDebugValue("hooks for hot reload");
-    const prevChildren = useRef(children);
-    const prevKeyExtractor = useRef(keyExtractor);
+  // if (process.env.NODE_ENV !== "production") {
+  //   useDebugValue("hooks for hot reload");
+  //   const prevChildren = useRef(children);
+  //   const prevKeyExtractor = useRef(keyExtractor);
 
-    useLayoutEffect(() => {
-      if (
-        prevChildren.current === children &&
-        prevKeyExtractor.current === keyExtractor
-      ) {
-        return;
-      }
+  //   useLayoutEffect(() => {
+  //     if (
+  //       prevChildren.current === children &&
+  //       prevKeyExtractor.current === keyExtractor
+  //     ) {
+  //       return;
+  //     }
 
-      prevChildren.current = children;
-      prevKeyExtractor.current = keyExtractor;
-      setNodes(each.peek().map(renderToNode(children, keyExtractor)));
-    }, [children, each, keyExtractor]);
-  }
+  //     prevChildren.current = children;
+  //     prevKeyExtractor.current = keyExtractor;
+  //     setNodes(each.peek().map(renderToNode(children, keyExtractor)));
+  //   }, [children, each, keyExtractor]);
+  // }
   useSignalEffect(() => {
     const eachArray = each.value;
 
