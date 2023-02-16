@@ -8,7 +8,6 @@ export type ShowProps<T> = {
 };
 
 export const Show = <T,>({ children, when, fallback }: ShowProps<T>) => {
-  console.log('show render')
   const childrenCache = useRef(
     typeof children === "function" ? null : children
   );

@@ -3,26 +3,53 @@
   "version": "0.0.5",
   "description": "Simple hoc for one render of components",
   "type": "module",
-  "main": "./dist/way.js",
-  "module": "./dist/way.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "exports": {
     ".": {
-      "import": "./dist/way.js",
-      "require": "./dist/way.cjs",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./monkeypatch": {
+      "types": "./dist/monkeypatch.d.ts",
+      "import": "./dist/monkeypatch.js",
+      "require": "./dist/monkeypatch.cjs"
     }
   },
-  "source": "./src/index.ts",
+  "//./monkeypatch": {
+    "types": "./dist/monkeypatch.d.ts",
+    "import": "./dist/monkeypatch.js",
+    "require": "./dist/monkeypatch.cjs"
+  },
+  "//nanobundle": {
+    "exports": {
+      ".": {
+        "types": "./lib/index.d.ts",
+        "import": "./lib/index.js",
+        "require": "./lib/index.cjs"
+      },
+      "./monkeypatch": {
+        "types": "./lib/monkeypatch.d.ts",
+        "import": "./lib/monkeypatch.js",
+        "require": "./lib/monkeypatch.cjs"
+      }
+    }
+  },
   "scripts": {
     "clean": "rimraf dist",
-    "build:way": "microbundle --raw",
-    "build": "pnpm clean && pnpm build:way",
+    "build:microbundle": "microbundle --raw ./src/*.ts",
+    "//build:microbundle": "microbundle --raw",
+    "build:nanobundle": "nanobundle build",
+    "watch": "microbundle watch ./src/*.ts",
+    "build": "pnpm clean && pnpm build:microbundle",
+    "build2": "pnpm clean && pnpm build:nanobundle",
     "prepare": "ts-patch install -s"
   },
   "dependencies": {
     "radash": "^10.7.0",
-    "type-fest": "^3.5.3"
+    "type-fest": "^3.5.3",
+    "@one-render/monkeypatch": "workspace:*"
   },
   "peerDependencies": {
     "@preact/signals-react": "^1.2.2",
@@ -30,6 +57,7 @@
   },
   "devDependencies": {
     "microbundle": "^0.15.1",
+    "nanobundle": "^1.5.0",
     "rimraf": "^4.1.2",
     "ts-patch": "^2.1.0",
     "typescript": "^4.9.3",

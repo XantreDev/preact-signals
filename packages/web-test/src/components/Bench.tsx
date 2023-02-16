@@ -16,12 +16,16 @@ type RerenderProps = {
   onRerender: () => void;
 };
 
-const BenchRerenderOneRender = withOneRender(
-  ({ onRerender }: RerenderProps) => {
+const BenchRerenderOneRender = withOneRender<RerenderProps>(
+  ({ onRerender }) => {
     const createHookScope = (delay: number) => {
+      hookScope(() =>
+        useEffect(() => {
+          onRerender.peek()();
+        })
+      );
       hookScope(() => {
         const [state, setState] = useState(0);
-        onRerender();
 
         useEffect(() => {
           const interval = setInterval(() => setState(increment), delay);

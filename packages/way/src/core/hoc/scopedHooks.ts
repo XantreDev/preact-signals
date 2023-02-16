@@ -10,7 +10,7 @@ import {
   rendersData,
   renderUniqueObject
 } from "@/globals";
-import { createGlobal, unwrap } from "@/utils";
+import { createGlobal, unwrap } from "@one-render/monkeypatch";
 import React from "react";
 import { Simplify, UnwrapOpaque } from "type-fest";
 import { CreateComplexOpaque, lazyNode } from "./lazyResults";
@@ -140,7 +140,6 @@ function executeSecondRender(currentRenderData: RenderData) {
     if (!isScopeNeedsRerun.get()) {
       continue;
     }
-    console.log(eventData);
     const currentHookIndex = eventIndex.get();
     hookExecutionMode.set({
       notUseBeforeAndRerunAfterAndEqual: currentHookIndex,

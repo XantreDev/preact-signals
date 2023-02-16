@@ -1,15 +1,15 @@
 import { withOneRender } from "@one-render/way";
 import "./App.css";
-import { ComponentsTest } from "./components/ComponentsTest";
+import { SimpleHooks } from "./components/SimpleHooks";
 
 const App = withOneRender(() => {
   return (
     <div className="App">
-      {/* <SimpleHooks /> */}
+      <SimpleHooks />
       {/* <Bench /> */}
       {/* <Swr /> */}
       {/* <HookScopeResults /> */}
-      <ComponentsTest />
+      {/* <ComponentsTest /> */}
       <h1>All is ok</h1>
     </div>
   );

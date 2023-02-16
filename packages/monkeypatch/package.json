@@ -1,0 +1,40 @@
+{
+  "name": "@one-render/monkeypatch",
+  "version": "0.0.1",
+  "description": "Internal package for react monkeypatch",
+  "type": "module",
+  "source": "./src/index.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build:microbundle": "microbundle --raw",
+    "watch": "microbundle watch",
+    "build": "pnpm clean && pnpm build:microbundle",
+    "prepare": "ts-patch install -s"
+  },
+  "dependencies": {
+    "radash": "^10.7.0",
+    "type-fest": "^3.5.3"
+  },
+  "peerDependencies": {
+    "react": "17.*.* || 18.*.*"
+  },
+  "devDependencies": {
+    "microbundle": "^0.15.1",
+    "rimraf": "^4.1.2",
+    "ts-patch": "^2.1.0",
+    "typescript": "^4.9.3",
+    "typescript-transform-paths": "^3.4.6"
+  },
+  "keywords": [],
+  "author": "XanterGodlike",
+  "license": "MIT"
+}

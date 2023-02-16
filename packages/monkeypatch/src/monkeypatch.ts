@@ -9,10 +9,17 @@ import {
   rendersData,
   renderUniqueObject
 } from "@/globals";
-import { hookEqualityChecker, unwrap } from "@/utils";
+import { hookEqualityChecker } from "@/utils";
 import { HookName } from "./type";
 
 const hookRegExp = /^use\w/;
+
+type Nil = null | undefined;
+export const unwrap = <T>(value: T | Nil, message?: string): T => {
+  if (value === undefined || value === null) throw new Error(message);
+
+  return value;
+};
 
 const getCurrentRenderData = () => {
   const identifier = unwrap(renderUniqueObject.get());
@@ -79,7 +86,6 @@ const getProxyHandler = <T extends HookName>(name: T) => {
 
     const currentHookData = getCurrentHookData();
     if (currentHookData.type !== "hook") {
-      console.log({ currentExecutionMode, currentHookData });
       throw new Error("expected type of event should be a hook");
     }
 
@@ -110,7 +116,6 @@ const getProxyHandler = <T extends HookName>(name: T) => {
   const proxyHandler: ProxyHandler<AnyFunction> = {
     apply(target, thisArg, args) {
       try {
-        // console.log(name);
         return executeHook(target, args, thisArg);
       } finally {
         eventIndex.actions.increment();
@@ -130,4 +135,4 @@ hookNames.forEach((hookName) => {
 });
 console.log("monkey patched");
 
-export type { HookName } from "./type";
+export type { HookName };
