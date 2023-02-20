@@ -7,7 +7,7 @@ import { AnyRecord } from "./types";
 const COMPLEX_HOOK_RESULTS = new WeakSet<object>();
 
 // Only type thing
-export type CreateComplexOpaque<T> = Opaque<T, "__complex">
+export type CreateComplexOpaque<T> = Opaque<T, "__complex">;
 
 export const complex = <T extends AnyRecord>(data: T) => (
   COMPLEX_HOOK_RESULTS.add(data), data as CreateComplexOpaque<T>
@@ -46,6 +46,7 @@ export const lazyNode = <T>(_results: T): LazyNode => {
 
   const handler: ProxyHandler<typeof object> = {
     get(__, propName: any) {
+      console.log(propName);
       {
         const node = lazyMap[propName];
         if (node) {
@@ -54,11 +55,11 @@ export const lazyNode = <T>(_results: T): LazyNode => {
       }
 
       const node = createObject<LazyPropNode>();
+      lazyMap[propName] = node;
 
       const resultValue = (results as any)[propName];
 
       const s = isSignal(resultValue) ? resultValue : signal(resultValue);
-      delete (results as any)[propName];
       const change = (newValue: any) => {
         s.value = newValue;
       };

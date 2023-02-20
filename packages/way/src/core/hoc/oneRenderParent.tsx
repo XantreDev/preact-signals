@@ -1,4 +1,5 @@
 import { LazyNode } from "@/globals";
+import { createObject } from "@/utils";
 import React from "react";
 import { complex, lazyNode } from "./lazyResults";
 import { ExecutorSpecificProps, HookExecutorProps } from "./types";
@@ -6,25 +7,25 @@ import { ExecutorSpecificProps, HookExecutorProps } from "./types";
 export const wrapToOneRender = <Props,>(
   Component: React.FC<HookExecutorProps<Props>>
 ) => {
-  const uniqueRenderObjects = new WeakMap<object, object>();
-  const propsWrapper = new WeakMap<object, LazyNode>();
-  const getPropsWrapper = (uniqueRenderObject: object, props: any) =>
-    propsWrapper.get(uniqueRenderObject) ??
-    (() => {
-      const wrapper = lazyNode(props);
-      propsWrapper.set(uniqueRenderObject, wrapper);
+  // const uniqueRenderObjects = new WeakMap<object, object>();
+  // const propsWrapper = new WeakMap<object, LazyNode>();
+  // const getPropsWrapper = (uniqueRenderObject: object, props: any) =>
+  //   propsWrapper.get(uniqueRenderObject) ??
+  //   (() => {
+  //     const wrapper = lazyNode(props);
+  //     propsWrapper.set(uniqueRenderObject, wrapper);
 
-      return wrapper;
-    })();
+  //     return wrapper;
+  //   })();
 
-  const getUniqueRenderObject = (props: object) =>
-    uniqueRenderObjects.get(props) ??
-    /* Really first render */
-    (() => {
-      const uniqueObject = Object.create(null);
-      uniqueRenderObjects.set(props, uniqueObject);
-      return uniqueRenderObjects;
-    })();
+  // const getUniqueRenderObject = (props: object) =>
+  //   uniqueRenderObjects.get(props) ??
+  //   /* Really first render */
+  //   (() => {
+  //     const uniqueObject = Object.create(null);
+  //     uniqueRenderObjects.set(props, uniqueObject);
+  //     return uniqueRenderObjects;
+  //   })();
 
   class Wrapper extends React.Component<
     any,
@@ -38,8 +39,12 @@ export const wrapToOneRender = <Props,>(
 
     constructor(props: any) {
       super(props);
-      const uniqueRenderObject = getUniqueRenderObject(props);
-      const propsWrapper = getPropsWrapper(uniqueRenderObject, complex(props));
+      // console.log(props)
+
+
+      const uniqueRenderObject = createObject();
+      const propsWrapper = lazyNode(complex(props));
+
       this.state = {
         uniqueRenderObject,
         propsWrapper,

@@ -1,6 +1,6 @@
 {
   "name": "@one-render/way",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Simple hoc for one render of components",
   "type": "module",
   "main": "./dist/index.js",

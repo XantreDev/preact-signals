@@ -1,14 +1,16 @@
 import { withOneRender } from "@one-render/way";
 import "./App.css";
-import { SimpleHooks } from "./components/SimpleHooks";
+import { RenderUIFor } from "./components/RenderUI";
 
 const App = withOneRender(() => {
   return (
     <div className="App">
-      <SimpleHooks />
+      {/* <SimpleHooks /> */}
       {/* <Bench /> */}
       {/* <Swr /> */}
       {/* <HookScopeResults /> */}
+      {/* <RenderUI /> */}
+      <RenderUIFor />
       {/* <ComponentsTest /> */}
       <h1>All is ok</h1>
     </div>

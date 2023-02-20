@@ -1,10 +1,12 @@
 import { isSignal, Signalify } from "@/core";
+import { Unsignalify } from "@/core/hoc/types";
+import { unsignalify } from "@/utils";
 import { signal, useSignalEffect } from "@preact/signals-react";
 import { objectify } from "radash";
 import { cloneElement, useRef, useState } from "react";
 import { SignalLike } from "./type";
 
-type KeyExtractor<T> = (item: T) => React.Key;
+type KeyExtractor<T> = (item: Unsignalify<T>) => React.Key;
 
 type ForNode<T> = {
   value: Signalify<T>;
@@ -64,7 +66,7 @@ export const For = <T,>({
 
     const map = objectify(nodes, (item) => item.key);
     const newState = eachArray.map((value) => {
-      const key = keyExtractor(value);
+      const key = keyExtractor(unsignalify(value));
 
       const currentNode = map[key];
       if (!currentNode) {
@@ -86,7 +88,8 @@ const renderToNode =
   <T,>(children: ForChildren<T>, keyExtractor: KeyExtractor<T>) =>
   (_value: T) => {
     const value = (isSignal(_value) ? _value : signal(_value)) as Signalify<T>;
-    const key = keyExtractor(value.peek());
+    console.log("before render");
+    const key = keyExtractor(unsignalify(_value));
     const renderResult = children(value);
     const clonedNode = cloneElement(
       renderResult,
