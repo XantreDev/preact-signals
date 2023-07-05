@@ -1,0 +1,15 @@
+{
+  "componentInterfaces": {
+    "module": "react",
+    "apply": "SignalifyComponent",
+    "interfaces": ["ReactHTML", "ReactSVG"]
+  },
+  "componentMapPropsInterfaces": [
+    {
+      "declaration": "global",
+      "namespace": "JSX",
+      "interface": "IntrinsicElements",
+      "apply": "SignalifyProps"
+    }
+  ]
+}

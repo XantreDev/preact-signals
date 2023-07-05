@@ -1,0 +1,49 @@
+{
+  "name": "@preact-signals/components",
+  "version": "0.0.1",
+  "description": "Simple hoc for one render of components",
+  "type": "module",
+  "module": "./dist/esm/index.js",
+  "main": "./dist/cjs/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "source": "./src/index.ts",
+  "react-native": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/index.js",
+      "main": "./dist/cjs/index.js"
+    }
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build:esm": "tsc --outDir ./dist/esm",
+    "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
+    "watch": "pnpm build:esm -- -w & pnpm build:cjs -- -w",
+    "build": "pnpm clean && pnpm build:esm && pnpm build:cjs",
+    "prepare": "ts-patch install -s"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "@preact/signals-react": ">=1.2.0",
+    "react": "17.*.* || 18.*.*"
+  },
+  "peerDependenciesMeta": {
+    "@preact/signals-react": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "type-fest": "^3.12.0",
+    "rimraf": "^4.1.2",
+    "ts-patch": "^2.1.0",
+    "typescript": "^5.0.2",
+    "typescript-transform-paths": "^3.4.6"
+  },
+  "keywords": [],
+  "author": "XanterGodlike",
+  "license": "MIT"
+}
