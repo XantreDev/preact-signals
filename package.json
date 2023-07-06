@@ -11,17 +11,7 @@
   "scripts": {
     "build": "turbo run build --filter=./packages/*",
     "watch": "turbo run watch",
+    "changeset": "changeset",
     "release": "pnpm build && changeset publish"
-  },
-  "//pnpm": {
-    "overrides": {
-      "preact-test>components-for-test>react": "preact",
-      "preact-test>components-for-test>react-dom": "preact",
-      "preact-test>components-for-test>@preact/signals-react": "@preact/signals"
-    }
-  },
-  "dependencies": {
-    "@preact/signals": "^1.1.4",
-    "preact": "^10.15.1"
   }
 }
