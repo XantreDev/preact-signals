@@ -17,10 +17,9 @@ export const TestShow = () => {
       >
         <div>odd</div>
       </Show>
-      {useComputed(() => counter.value % 2 === 0) ? (
-        <div>even</div>
-      ) : (
-        <div>odd</div>
+      {/* works ok in react but is not reactive in preact */}
+      {useComputed(() =>
+        counter.value % 2 === 0 ? <div>even</div> : <div>odd</div>
       )}
     </div>
   );

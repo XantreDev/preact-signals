@@ -21,7 +21,7 @@ export type MatchProps<T extends AnyAccessorOrSignal> = {
 
 const matchSymbol = Symbol("match");
 export const Match = Object.assign(
-  <const T extends AnyAccessorOrSignal>(props: MatchProps<T>) => null,
+  <const T extends AnyAccessorOrSignal>(_props: MatchProps<T>) => null,
   {
     [matchSymbol]: true,
   }
@@ -44,6 +44,23 @@ declare var process: {
   };
 };
 
+/**
+ * @example 
+ * // when prop can be callback or signal
+ * <Switch>
+ *  <Match when={() => isLoading.value}>
+ *    <Loader />
+ *  </Match>
+ *  <Match when={() => isError.value}>
+ *    There are an error
+ *  </Match>
+ *  <Match when={() => data.value}>
+ *    {(contentAccessor) => (
+ *      contentAccessor().id === 10 ? 1 : 2
+ *    )}
+ *  </Match>
+ * </Switch>
+ */
 export const Switch = (props: SwitchProps): ReadonlySignal<RenderResult> => {
   if (
     process.env.NODE_ENV === "development" &&

@@ -4,7 +4,8 @@
     "noEmit": false,
     "outDir": "./dist",
     "emitDeclarationOnly": false,
-    "sourceMap": true
+    "sourceMap": true,
+    "jsx": "preserve"
   },
   "extends": "../../tsconfig.json",
   "include": ["src"],

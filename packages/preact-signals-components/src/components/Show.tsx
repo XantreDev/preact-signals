@@ -12,11 +12,6 @@ export type ShowProps<T extends AccessorOrSignal<any>> = {
   children: JSX.Element | ((item: GetTruthyValue<T>) => RenderResult);
 };
 
-declare var process: {
-  env: {
-    NODE_ENV?: "production" | "development";
-  };
-};
 export const Show = <const T extends AccessorOrSignal<any>>(
   props: ShowProps<T>
 ): ReadonlySignal<RenderResult> => {

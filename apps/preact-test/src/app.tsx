@@ -1,8 +1,6 @@
 import { Test } from "components-for-test";
-import "./App.css";
+import "./app.css";
 
-function App() {
+export function App() {
   return <Test />;
 }
-
-export default App;
