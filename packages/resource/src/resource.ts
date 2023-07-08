@@ -286,10 +286,17 @@ const _fetch: Resource<any, any, any, any>["_fetch"] = function (
       this.state$.value = "pending";
     }
     this.error$.value = undefined;
-    const result: unknown | Promise<unknown> = fetcher(data.source, {
-      value: removeNoInit(this.value$.peek()),
-      refetching: data.refetching,
-    });
+    let result: unknown | Promise<unknown>;
+    try {
+      result = fetcher(data.source, {
+        value: removeNoInit(this.value$.peek()),
+        refetching: data.refetching,
+      });
+    } catch (e) {
+      this.state$.value = "errored";
+      this.error$.value = e;
+      return;
+    }
     if (!isPromise(result)) {
       this.value$.value = result;
       this.state$.value = "ready";

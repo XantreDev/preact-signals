@@ -7,6 +7,7 @@ export const TestSwitch = () => {
 
   return (
     <div>
+      <h1>TestSwitch</h1>
       <Counter counter={counter} />
       <Switch>
         <Match when={() => counter.value % 3 === 0}>0</Match>

@@ -380,4 +380,22 @@ describe("resource", () => {
     expect(fetcher).toHaveBeenCalledTimes(1);
     dispose();
   });
+  for (const type of ["sync", "async"] as const) {
+    it(`should handle ${type} errors`, async () => {
+      const error = new Error("bebe");
+      const fetcher = vi.fn((): number | Promise<number> => {
+        if (type === "sync") {
+          throw error;
+        }
+        return Promise.reject(error);
+      });
+      r = resource({
+        fetcher,
+      });
+      await sleep();
+      expect(fetcher).toHaveBeenCalled();
+      expect(r.error).toBe(error);
+      expect(r.state).toBe("errored");
+    });
+  }
 });
