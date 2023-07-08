@@ -1,6 +1,6 @@
 {
   "name": "@preact-signals/resource",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": false,
   "publishConfig": {
     "access": "public"
