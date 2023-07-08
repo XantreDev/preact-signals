@@ -5,10 +5,10 @@
   "publishConfig": {
     "access": "public"
   },
-  "description": "Component for more readable usage of preact signals",
+  "description": "A collection of components for Preact that integrate seamlessly with Preact Signals, enabling reactive programming patterns. The package provides 'Show', 'Switch', and 'Match' components, offering a declarative way to manage conditional rendering based on reactive signals.",
   "sideEffects": false,
   "repository": {
-    "url": "https://github.com/XantreGodlike/preact-signals-utils",
+    "url": "https://github.com/XantreGodlike/preact-signals/tree/main/packages/preact-signals-components",
     "type": "git"
   },
   "author": {
@@ -56,6 +56,18 @@
     "concurrently": "^8.2.0",
     "type-fest": "^3.12.0"
   },
-  "keywords": [],
+  "keywords": [
+    "preact",
+    "react",
+    "solid",
+    "components",
+    "preact signals",
+    "reactivity",
+    "reactive programming",
+    "frontend",
+    "show",
+    "match",
+    "switch"
+  ],
   "license": "MIT"
 }

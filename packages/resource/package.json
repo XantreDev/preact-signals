@@ -5,7 +5,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "description": "Utils for @preact/signals",
+  "description": "A reactive utility for React/Preact that simplifies the handling of data fetching and state management. Powered by Preact Signals, it provides hooks and functions to create reactive resources and manage their state seamlessly.",
   "sideEffects": false,
   "repository": {
     "url": "https://github.com/XantreGodlike/preact-signals/tree/main/packages/resource",
@@ -62,6 +62,22 @@
   "dependencies": {
     "@preact-signals/utils": "workspace:*"
   },
-  "keywords": [],
+  "keywords": [
+    "preact",
+    "react",
+    "solid",
+    "reactive",
+    "data fetching",
+    "state management",
+    "preact signals",
+    "reactivity",
+    "resources",
+    "reactive programming",
+    "hooks",
+    "async",
+    "fetch",
+    "api",
+    "frontend"
+  ],
   "license": "MIT"
 }
