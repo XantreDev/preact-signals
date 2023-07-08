@@ -1,6 +1,6 @@
 # `@preact-signals/resource`
 
-`@preact-signals/resource` is a powerful reactive utility for managing data fetching and its related state in React/Preact. By wrapping asynchronous functions with a reactive pattern, it allows you to seamlessly integrate data fetching into your Preact application. 
+`@preact-signals/resource` is a powerful reactive utility for managing data fetching and its related state in React/Preact. By wrapping asynchronous functions with a reactive pattern, it allows you to seamlessly integrate data fetching into your Preact application.
 
 ## Installation
 
@@ -17,7 +17,7 @@ pnpm i @preact-signals/resource
 
 ## API Overview
 
-`@preact-signals/resource` provides the following main functions: 
+`@preact-signals/resource` provides the following main functions:
 
 - `createResource`
 - `useResource`
@@ -27,6 +27,7 @@ pnpm i @preact-signals/resource
 `createResource` is a utility function to wrap a repeated promise in a reactive pattern. It accepts an options object which should at least include a `fetcher` function. This `fetcher` function should return a Promise that fetches the necessary data. Optionally, a `source` can be provided which can trigger the `fetcher` whenever it changes.
 
 The `createResource` function returns an array containing a `ResourceState` object and a set of actions (`mutate`, `refetch`, `dispose`)
+
 ```typescript
 import { createResource } from "@preact-signals/resource";
 
@@ -106,7 +107,9 @@ const Component = () => {
 
   return (
     <>
-      <button onClick={() => todosResource.refetch()}>Refresh Todos</button>
+      <button onClick={() => (userId.value = userId.peek() === 1 ? 2 : 1)}>
+        Switch User
+      </button>
       <Switch>
         <Match when={() => todosResource.loading}>Loading...</Match>
         <Match when={() => todosResource.error}>Error</Match>
