@@ -94,6 +94,9 @@ importers:
       '@preact-signals/components':
         specifier: workspace:*
         version: link:../preact-signals-components
+      '@preact-signals/resource':
+        specifier: workspace:*
+        version: link:../resource
       '@preact/signals-react':
         specifier: ^1.3
         version: 1.3.3(react@18.2.0)

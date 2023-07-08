@@ -15,6 +15,7 @@ describe("resource", () => {
     r = resource({
       fetcher,
     });
+    // internal
     expect(r).toHaveProperty("pr");
     expect(r).toHaveProperty("error$");
     expect(r).toHaveProperty("state$");
@@ -34,6 +35,7 @@ describe("resource", () => {
     expect(r).toHaveProperty("_refetch");
     expect(r).toHaveProperty("_mutate");
 
+    // public
     expect(r).toHaveProperty("disposed");
     expect(r).toHaveProperty("dispose");
     expect(r).toHaveProperty("mutate");
@@ -357,5 +359,25 @@ describe("resource", () => {
       refetching: true,
       value: 220,
     });
+  });
+  it("should handle mutate", () => {
+    const fetcher = vi.fn(fetcherF);
+    r = resource({
+      fetcher,
+    });
+    const result: number[] = [];
+    const dispose = effect(() => {
+      result.push(r()!);
+    });
+
+    expect(fetcher).toHaveBeenCalled();
+    expect(fetcher).toHaveBeenCalledWith(true, {
+      refetching: false,
+      value: undefined,
+    });
+
+    r.mutate(10);
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    dispose();
   });
 });

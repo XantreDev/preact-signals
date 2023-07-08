@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@preact-signals/components": "workspace:*",
+    "@preact-signals/resource": "workspace:*",
     "@preact/signals-react": "^1.3"
   },
   "peerDependencies": {

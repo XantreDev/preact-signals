@@ -1,33 +1,44 @@
 import { Accessor, AnyAccessorOrSignal } from "@preact-signals/utils";
-import { ResourceOptions, ResourceReturn, resource } from "./resource";
+import {
+  ResourceActions,
+  ResourceOptions,
+  ResourceState,
+  resource,
+} from "./resource";
 
+export type CreateResourceReturn<
+  TResult,
+  TRefreshing = unknown
+  // TSuspense extends boolean = false
+> = [
+  ResourceState<TResult>,
+  ResourceActions<TResult | undefined, TRefreshing> & {
+    /** @internal */ dispose: () => void;
+  }
+];
 /**
  * Creates a resource that wraps a repeated promise in a reactive pattern:
  * ```typescript
  * // Without source
- * const [resource, { mutate, refetch }] = createResource(fetcher, options);
+ * const [resource, { mutate, refetch }] = createResource({
+ *  fetcher: () => fetch("https://swapi.dev/api/people/1").then((r) => r.json()),
+ * });
  * // With source
- * const [resource, { mutate, refetch }] = createResource(source, fetcher, options);
+ * const [resource, { mutate, refetch }] = createResource({
+ *   source: () => userId.value,
+ *   fetcher: (userId) => fetch(`https://swapi.dev/api/people/${userId}`).then((r) => r.json()),
+ * });
  * ```
- * @param source - reactive data function which has its non-nullish and non-false values passed to the fetcher, optional
- * @param fetcher - function that receives the source (true if source not provided), the last or initial value, and whether the resource is being refetched, and returns a value or a Promise:
- * ```typescript
- * const fetcher: ResourceFetcher<S, T, R> = (
- *   sourceOutput: S,
- *   info: { value: T | undefined, refetching: R | boolean }
- * ) => T | Promise<T>;
- * ```
- * @param options - an optional object with the initialValue and the name (for debugging purposes); see {@link ResourceOptions}
+ * @param options - Contains all options for creating resource
  *
  * @returns ```typescript
- * [Resource<T>, { mutate: Setter<T>, refetch: () => void }]
+ * [ResourceState<TResult>, { mutate: Setter<T>, refetch: () => void }]
  * ```
  *
- * * Setting an `initialValue` in the options will mean that both the prev() accessor and the resource should never return undefined (if that is wanted, you need to extend the type with undefined)
+ * * Setting an `initialValue` in the options will mean that resource will be created in `ready` state
  * * `mutate` allows to manually overwrite the resource without calling the fetcher
  * * `refetch` will re-run the fetcher without changing the source, and if called with a value, that value will be passed to the fetcher via the `refetching` property on the fetcher's second parameter
  *
- * @description https://www.solidjs.com/docs/latest/api#createresource
  */
 export function createResource<
   TResult,
@@ -35,13 +46,14 @@ export function createResource<
   TRefreshing = boolean
 >(
   options: ResourceOptions<TResult, TSource, TRefreshing>
-): ResourceReturn<TResult, TRefreshing> {
+): CreateResourceReturn<TResult, TRefreshing> {
   const result = resource(options);
   return [
     result,
     {
       mutate: result.mutate,
       refetch: result.refetch,
+      dispose: result.dispose,
     },
   ];
 }

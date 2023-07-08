@@ -6,6 +6,7 @@ import {
   AnyAccessorOrSignal,
   GetTruthyValue,
   RenderResult,
+  isExplicitFalsy,
 } from "../type";
 import { toAccessor, toValue, useComputed, useSignalOf } from "../utils";
 
@@ -85,7 +86,7 @@ export const Switch = (props: SwitchProps): ReadonlySignal<RenderResult> => {
     if (matches.value.length === 0) {
       return fallback.value ?? null;
     }
-    const item = matches.value.find((item) => toValue(item.props.when));
+    const item = matches.value.find((item) => !isExplicitFalsy(toValue(item.props.when)));
     if (!item) {
       return fallback.value ?? null;
     }

@@ -103,11 +103,23 @@ export type ResourceOptions<
   TRefreshing = boolean,
   TSourceData extends GetTruthyValue<TSource> = GetTruthyValue<TSource>
 > = {
+  /**
+   * Optional. An initial value for the resource. If is provided resource will be in ready state.
+   */
   initialValue?: TResult;
+  /**
+   * Optional. A function or signal that can be used as a source for fetching the resource.
+   * This can be useful if you need to base your fetch operation on the value of another signal or even resource
+   */
   source?: TSource;
+  /**
+   * lazy: Optional. If true, the resource will not be fetched until access of ResourceState properties.
+   */
   lazy?: boolean;
+  /**
+   * A function that is used to fetch or refresh the resource.
+   */
   fetcher: ResourceFetcher<TSourceData, TResult, TRefreshing>;
-  // storage?: (init: TSourceData | undefined) => Signal<TSourceData>;
 };
 
 // export type InitializedResourceOptions<T, S = unknown> = ResourceOptions<T> & {
@@ -117,12 +129,6 @@ export type ResourceOptions<
 //   InitializedResource<T>,
 //   ResourceActions<T, R>
 // ];
-
-export type ResourceReturn<
-  TResult,
-  TRefreshing = unknown
-  // TSuspense extends boolean = false
-> = [ResourceState<TResult>, ResourceActions<TResult | undefined, TRefreshing>];
 
 export type Resource<
   TResult,
@@ -387,7 +393,6 @@ Object.defineProperty(Resource.prototype, "initialized", {
 });
 
 // public api
-Resource.prototype.dispose = dispose;
 Object.defineProperties(Resource.prototype, {
   latest: {
     get(this: Resource<any, any, any, any>) {
@@ -422,6 +427,11 @@ Object.defineProperties(Resource.prototype, {
   },
 
   // binding to not miss this
+  dispose: {
+    get(this: Resource<any, any, any, any>) {
+      return dispose.bind(this);
+    },
+  },
   refetch: {
     get(this: Resource<any, any, any, any>) {
       return this._refetch.bind(this);
@@ -434,6 +444,9 @@ Object.defineProperties(Resource.prototype, {
   },
 });
 
+/**
+ * More preact signals like resource api
+ */
 export const resource = <
   TResult,
   TSource extends AnyAccessorOrSignal = Accessor<true>,
