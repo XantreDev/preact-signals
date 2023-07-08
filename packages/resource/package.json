@@ -1,11 +1,11 @@
 {
-  "name": "@preact-signals/components",
-  "version": "0.1.0",
+  "name": "@preact-signals/resource",
+  "version": "0.0.1",
   "private": false,
   "publishConfig": {
     "access": "public"
   },
-  "description": "Component for more readable usage of preact signals",
+  "description": "Utils for @preact/signals",
   "sideEffects": false,
   "repository": {
     "url": "https://github.com/XantreGodlike/preact-signals-utils",
@@ -33,13 +33,14 @@
     "clean": "rimraf dist",
     "build:esm": "tsc --outDir ./dist/esm",
     "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
-    "prepublish": "cp ../../README.md ./README.md",
     "lint": "tsc --noEmit",
+    "test": "vitest",
     "watch": "concurrently \"pnpm build:esm -w\" \"pnpm build:cjs -w\"",
     "build": "pnpm clean && concurrently \"pnpm build:esm\" \"pnpm build:cjs\""
   },
   "peerDependencies": {
     "@preact/signals-react": ">=1.2.0",
+    "@preact/signals-core": ">=1.2.0",
     "react": "17.*.* || 18.*.*"
   },
   "peerDependenciesMeta": {
@@ -51,11 +52,15 @@
     }
   },
   "devDependencies": {
-    "@preact-signals/utils": "workspace:*",
+    "@preact/signals-core": "^1.2.3",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "concurrently": "^8.2.0",
-    "type-fest": "^3.12.0"
+    "type-fest": "^3.12.0",
+    "vitest": "^0.33.0"
+  },
+  "dependencies": {
+    "@preact-signals/utils": "workspace:*"
   },
   "keywords": [],
   "license": "MIT"

@@ -1,5 +1,3 @@
-import "@preact/signals-react";
-
 import {
   ReadonlySignal,
   Signal,

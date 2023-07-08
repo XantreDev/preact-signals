@@ -18,6 +18,7 @@
     "emitDeclarationOnly": true,
     "composite": true,
 
+    "preserveWatchOutput": true,
     "jsx": "react-jsx"
   },
   "exclude": ["**/node_modules"],
