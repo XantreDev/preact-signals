@@ -4,9 +4,9 @@ import { ExplicitFalsy } from "./explicitFalsy";
 export interface Accessor<T> {
   (): T;
 }
-export type AccessorOrSignal<T> = ReadonlySignal<T> | Accessor<T>;
+export type Reactive<T> = ReadonlySignal<T> | Accessor<T>;
 
-export type AnyAccessorOrSignal = AccessorOrSignal<any>;
+export type AnyReactive = Reactive<any>;
 
 export type GetTruthyValue<T, TFalsy = ExplicitFalsy> = T extends Accessor<
   infer U | TFalsy

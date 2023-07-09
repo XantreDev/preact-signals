@@ -1,5 +1,6 @@
 export * from "./explicitFalsy";
+export * from "./reactive";
 export * from "./setter";
-export * from "./type";
+export type * from "./type";
 export * from "./untracked";
 

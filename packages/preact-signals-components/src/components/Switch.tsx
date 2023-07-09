@@ -1,14 +1,16 @@
-import { ReadonlySignal } from "@preact/signals-react";
-import { isValidElement } from "react";
 import {
   Accessor,
   AccessorOrSignal,
   AnyAccessorOrSignal,
   GetTruthyValue,
-  RenderResult,
   isExplicitFalsy,
-} from "../type";
-import { toAccessor, toValue, useComputed, useSignalOf } from "../utils";
+  toAccessor,
+  toValue,
+} from "@preact-signals/utils";
+import { ReadonlySignal, useComputed } from "@preact/signals-react";
+import { isValidElement } from "react";
+import { RenderResult } from "../type";
+import { useSignalOf } from "../utils";
 
 export type MatchProps<T extends AnyAccessorOrSignal> = {
   when: T;
@@ -46,7 +48,7 @@ declare var process: {
 };
 
 /**
- * @example 
+ * @example
  * // when prop can be callback or signal
  * <Switch>
  *  <Match when={() => isLoading.value}>
@@ -86,7 +88,9 @@ export const Switch = (props: SwitchProps): ReadonlySignal<RenderResult> => {
     if (matches.value.length === 0) {
       return fallback.value ?? null;
     }
-    const item = matches.value.find((item) => !isExplicitFalsy(toValue(item.props.when)));
+    const item = matches.value.find(
+      (item) => !isExplicitFalsy(toValue(item.props.when))
+    );
     if (!item) {
       return fallback.value ?? null;
     }

@@ -5,12 +5,12 @@ import {
   useSignal,
 } from "@preact/signals-react";
 import { useRef } from "react";
-import { AccessorOrSignal } from "../type";
 
 export { useComputed, useSignal };
 type AnyRecord = Record<any, any>;
 
 export const createObject = <T extends AnyRecord>() => Object.create(null) as T;
+
 const isSignal = <T>(value: T | ReadonlySignal<T>): value is Signal<T> =>
   value instanceof Signal;
 
@@ -31,19 +31,8 @@ export const useLiveSignal = <T>(maybeSignal: T | ReadonlySignal<T>) => {
     return isSignal(value) ? value.value : (value as T);
   });
 };
-
-export const toAccessor = <T>(signalOrAccessor: AccessorOrSignal<T>) =>
-  typeof signalOrAccessor === "function"
-    ? signalOrAccessor
-    : () => signalOrAccessor.value;
-
-export const toValue = <T>(signalOrAccessor: AccessorOrSignal<T>) =>
-  typeof signalOrAccessor === "function"
-    ? signalOrAccessor()
-    : signalOrAccessor.value;
-
 export const useComputedOfAccessorOrSignal = <T>(
-  accessorOrSignal: AccessorOrSignal<T>
+  accessorOrSignal: Reactive<T>
 ) => useComputed(toAccessor(accessorOrSignal));
 
 const empty = Symbol("empty");
