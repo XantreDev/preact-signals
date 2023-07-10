@@ -1,4 +1,4 @@
-import { Accessor, AnyAccessorOrSignal } from "@preact-signals/utils";
+import { Accessor, AnyReactive } from "@preact-signals/utils";
 import { useEffect, useRef } from "react";
 import { CreateResourceReturn, createResource } from "./createResource";
 import { ResourceOptions } from "./resource";
@@ -10,7 +10,7 @@ import { ResourceOptions } from "./resource";
  */
 export const useResource = <
   TResult,
-  TSource extends AnyAccessorOrSignal = Accessor<true>,
+  TSource extends AnyReactive = Accessor<true>,
   TRefreshing = boolean
 >(
   options: ResourceOptions<TResult, TSource, TRefreshing>

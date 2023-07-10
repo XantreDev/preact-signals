@@ -1,6 +1,6 @@
 import {
   Accessor,
-  AnyAccessorOrSignal,
+  AnyReactive,
   GetTruthyValue,
   GetValue,
   Setter,
@@ -99,7 +99,7 @@ export type ResourceFetcherInfo<TSourceData, TRefreshing = unknown> = {
 
 export type ResourceOptions<
   TResult,
-  TSource extends AnyAccessorOrSignal = Accessor<true>,
+  TSource extends AnyReactive = Accessor<true>,
   TRefreshing = boolean,
   TSourceData extends GetTruthyValue<TSource> = GetTruthyValue<TSource>
 > = {
@@ -132,7 +132,7 @@ export type ResourceOptions<
 
 export type Resource<
   TResult,
-  TSource extends AnyAccessorOrSignal = Accessor<true>,
+  TSource extends AnyReactive = Accessor<true>,
   TRefreshing = boolean,
   TSourceData extends GetTruthyValue<TSource> = GetTruthyValue<TSource>
 > = ResourceState<TResult> & {
@@ -190,7 +190,7 @@ export type Resource<
 
 function Resource<
   TResult,
-  TSource extends AnyAccessorOrSignal = Accessor<true>,
+  TSource extends AnyReactive = Accessor<true>,
   TRefreshing = boolean,
   TSourceData extends GetTruthyValue<TSource> = GetTruthyValue<TSource>
 >(options: ResourceOptions<TResult, TSource, TRefreshing, TSourceData>) {
@@ -456,7 +456,7 @@ Object.defineProperties(Resource.prototype, {
  */
 export const resource = <
   TResult,
-  TSource extends AnyAccessorOrSignal = Accessor<true>,
+  TSource extends AnyReactive = Accessor<true>,
   TRefreshing = boolean,
   TSourceData extends GetTruthyValue<TSource> = GetTruthyValue<TSource>
 >(

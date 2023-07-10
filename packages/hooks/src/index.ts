@@ -1,6 +1,12 @@
 import { AnyReactive, GetValue, unwrapReactive } from "@preact-signals/utils";
-import { ReadonlySignal, Signal, computed, signal } from "@preact/signals-core";
-import { useRef } from "react";
+import {
+  ReadonlySignal,
+  Signal,
+  computed,
+  effect,
+  signal,
+} from "@preact/signals-core";
+import { Context, useContext, useEffect, useRef } from "react";
 
 /**
  *
@@ -44,4 +50,12 @@ export const useSignalOfState = <T>(state: T): ReadonlySignal<T> => {
   }
 
   return s;
+};
+
+export const useSignalContext = <T>(context: Context<T>) =>
+  useSignalOfState(useContext(context));
+
+type Dispose = () => void;
+export const useSignalEffectOnce = (_effect: () => void | Dispose) => {
+  useEffect(() => effect(_effect), []);
 };

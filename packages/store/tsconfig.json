@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "rootDir": "./src",
+    "noEmit": false,
+    "outDir": "./dist",
+    "emitDeclarationOnly": false,
+    "sourceMap": true
+  },
+  "extends": "../../tsconfig.json",
+  "include": ["src"],
+  "exclude": ["**/node_modules"]
+}

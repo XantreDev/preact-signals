@@ -1,8 +1,8 @@
-import { AccessorOrSignal } from "@preact-signals/utils";
+import { Reactive } from "@preact-signals/utils";
 import {
-  QueryClient,
-  QueryKey,
-  QueryObserverOptions,
+    QueryClient,
+    QueryKey,
+    QueryObserverOptions,
 } from "@tanstack/query-core";
 import { Context } from "react";
 
@@ -31,7 +31,7 @@ export type BaseQueryOptions$<
   TData = TQueryFnData,
   TQueryData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey
-> = AccessorOrSignal<
+> = Reactive<
   StaticBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
 >;
 

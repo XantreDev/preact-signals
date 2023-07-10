@@ -1,26 +1,26 @@
 // import { useComputed } from "@preact/signals-react";
 // import {
-//   AccessorOrSignal,
+//   Reactive,
 //   GetValue,
 //   RenderResult
 // } from "../type";
-// import { useComputedOfAccessorOrSignal } from "../utils";
+// import { useComputedOfReactive } from "../utils";
 
 // export type KeyExtractor<T> = (item: T, index: number) => string | number;
-// export type ForProps<T extends AccessorOrSignal<any[]>> = {
-//   each: AccessorOrSignal<T[]>;
+// export type ForProps<T extends Reactive<any[]>> = {
+//   each: Reactive<T[]>;
 //   fallback?: RenderResult;
 //   keyExtractor: KeyExtractor<GetValue<T>>;
 //   children: (accessor: GetValue<T>, index: number) => RenderResult;
 // };
 
-// export const For = <T extends AccessorOrSignal<any[]>>({
+// export const For = <T extends Reactive<any[]>>({
 //   children,
 //   each,
 //   fallback,
 //   keyExtractor,
 // }: ForProps<T>): JSX.Element => {
-//   const eachComputed = useComputedOfAccessorOrSignal(each);
+//   const eachComputed = useComputedOfReactive(each);
 
 //   return useComputed(() => {
 //     eachComputed.value.length === 0

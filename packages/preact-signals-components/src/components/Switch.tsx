@@ -1,18 +1,18 @@
+import { useComputedOnce, useSignalOfState } from "@preact-signals/hooks";
 import {
   Accessor,
-  AccessorOrSignal,
-  AnyAccessorOrSignal,
+  AnyReactive,
   GetTruthyValue,
+  Reactive,
+  accessorOfReactive,
   isExplicitFalsy,
-  toAccessor,
-  toValue,
+  unwrapReactive,
 } from "@preact-signals/utils";
-import { ReadonlySignal, useComputed } from "@preact/signals-react";
+import { ReadonlySignal } from "@preact/signals-react";
 import { isValidElement } from "react";
 import { RenderResult } from "../type";
-import { useSignalOf } from "../utils";
 
-export type MatchProps<T extends AnyAccessorOrSignal> = {
+export type MatchProps<T extends AnyReactive> = {
   when: T;
   /**
    * shouldn't change during the lifecycle of the component
@@ -24,7 +24,7 @@ export type MatchProps<T extends AnyAccessorOrSignal> = {
 
 const matchSymbol = Symbol("match");
 export const Match = Object.assign(
-  <const T extends AnyAccessorOrSignal>(_props: MatchProps<T>) => null,
+  <const T extends AnyReactive>(_props: MatchProps<T>) => null,
   {
     [matchSymbol]: true,
   }
@@ -79,23 +79,23 @@ export const Switch = (props: SwitchProps): ReadonlySignal<RenderResult> => {
       "every child of switch should be Match and have when and children props"
     );
   }
-  const matches = useSignalOf(
-    props.children as { props: MatchProps<AccessorOrSignal<unknown>> }[]
+  const matches = useSignalOfState(
+    props.children as { props: MatchProps<Reactive<unknown>> }[]
   );
-  const fallback = useSignalOf<RenderResult>(props.fallback ?? null);
+  const fallback = useSignalOfState<RenderResult>(props.fallback ?? null);
 
-  return useComputed(() => {
+  return useComputedOnce(() => {
     if (matches.value.length === 0) {
       return fallback.value ?? null;
     }
     const item = matches.value.find(
-      (item) => !isExplicitFalsy(toValue(item.props.when))
+      (item) => !isExplicitFalsy(unwrapReactive(item.props.when))
     );
     if (!item) {
       return fallback.value ?? null;
     }
     return typeof item.props.children === "function"
-      ? item.props.children(toAccessor(item.props.when))
+      ? item.props.children(accessorOfReactive(item.props.when))
       : item.props.children;
-  });
+  }) as ReadonlySignal<ReadonlySignal>;
 };

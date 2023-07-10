@@ -151,6 +151,9 @@ importers:
         specifier: 17.*.* || 18.*.*
         version: 18.2.0
     devDependencies:
+      '@preact-signals/hooks':
+        specifier: workspace:*
+        version: link:../hooks
       '@preact-signals/utils':
         specifier: workspace:*
         version: link:../utils

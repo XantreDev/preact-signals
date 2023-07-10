@@ -1,4 +1,4 @@
-import { Accessor, AnyAccessorOrSignal } from "@preact-signals/utils";
+import { Accessor, AnyReactive } from "@preact-signals/utils";
 import {
   ResourceActions,
   ResourceOptions,
@@ -42,7 +42,7 @@ export type CreateResourceReturn<
  */
 export function createResource<
   TResult,
-  TSource extends AnyAccessorOrSignal = Accessor<true>,
+  TSource extends AnyReactive = Accessor<true>,
   TRefreshing = boolean
 >(
   options: ResourceOptions<TResult, TSource, TRefreshing>

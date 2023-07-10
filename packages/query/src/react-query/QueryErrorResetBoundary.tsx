@@ -1,53 +1,56 @@
-'use client'
-import * as React from 'react'
+"use client";
+import { useSignalContext } from "@preact-signals/hooks";
+import * as React from "react";
 
 // CONTEXT
 
 export interface QueryErrorResetBoundaryValue {
-  clearReset: () => void
-  isReset: () => boolean
-  reset: () => void
+  clearReset: () => void;
+  isReset: () => boolean;
+  reset: () => void;
 }
 
 function createValue(): QueryErrorResetBoundaryValue {
-  let isReset = false
+  let isReset = false;
   return {
     clearReset: () => {
-      isReset = false
+      isReset = false;
     },
     reset: () => {
-      isReset = true
+      isReset = true;
     },
     isReset: () => {
-      return isReset
+      return isReset;
     },
-  }
+  };
 }
 
-const QueryErrorResetBoundaryContext = React.createContext(createValue())
+const QueryErrorResetBoundaryContext = React.createContext(createValue());
 
 // HOOK
 
+export const useQueryErrorResetBoundary$ = () =>
+  useSignalContext(QueryErrorResetBoundaryContext);
 export const useQueryErrorResetBoundary = () =>
-  React.useContext(QueryErrorResetBoundaryContext)
+  React.useContext(QueryErrorResetBoundaryContext);
 
 // COMPONENT
 
 export interface QueryErrorResetBoundaryProps {
   children:
     | ((value: QueryErrorResetBoundaryValue) => React.ReactNode)
-    | React.ReactNode
+    | React.ReactNode;
 }
 
 export const QueryErrorResetBoundary = ({
   children,
 }: QueryErrorResetBoundaryProps) => {
-  const [value] = React.useState(() => createValue())
+  const [value] = React.useState(() => createValue());
   return (
     <QueryErrorResetBoundaryContext.Provider value={value}>
-      {typeof children === 'function'
+      {typeof children === "function"
         ? (children as Function)(value)
         : children}
     </QueryErrorResetBoundaryContext.Provider>
-  )
-}
+  );
+};
