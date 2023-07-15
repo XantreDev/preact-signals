@@ -1,8 +1,7 @@
 import { render } from "@testing-library/react";
 import * as React from "react";
-import { beforeAll, describe, expect, test, vi, it } from "vitest";
+import { beforeAll, describe, expect, test, vi } from "vitest";
 
-import * as coreModule from "@tanstack/query-core";
 import {
   Hydrate,
   QueryCache,
@@ -11,8 +10,9 @@ import {
   dehydrate,
   useHydrate,
   useQuery,
-} from "@tanstack/react-query";
-import { createQueryClient, sleep } from "./utils";
+} from "@preact-signals/query";
+import * as coreModule from "@tanstack/query-core";
+import { createQueryClient, sleep } from "../utils";
 
 describe("React hydration", () => {
   const fetchData: (value: string) => Promise<string> = (value) =>

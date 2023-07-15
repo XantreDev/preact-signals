@@ -10,8 +10,8 @@ import {
   QueryClientProvider,
   useInfiniteQuery,
   useQuery,
-} from "..";
-import { createQueryClient, queryKey, sleep } from "./utils";
+} from "../../react-query";
+import { createQueryClient, queryKey, sleep } from "../utils";
 
 describe("Server Side Rendering", () => {
   it("should not trigger fetch", () => {

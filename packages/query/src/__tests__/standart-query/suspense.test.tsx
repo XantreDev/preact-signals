@@ -2,7 +2,7 @@ import { fireEvent, waitFor } from "@testing-library/react";
 import * as React from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { describe, expect, it, vi } from "vitest";
-import type { UseInfiniteQueryResult, UseQueryResult } from "..";
+import type { UseInfiniteQueryResult, UseQueryResult } from "../../react-query";
 import {
   QueryCache,
   QueryErrorResetBoundary,
@@ -10,8 +10,8 @@ import {
   useQueries,
   useQuery,
   useQueryErrorResetBoundary,
-} from "..";
-import { createQueryClient, queryKey, renderWithClient, sleep } from "./utils";
+} from "../../react-query";
+import { createQueryClient, queryKey, renderWithClient, sleep } from "../utils";
 
 describe("useQuery's in Suspense mode", () => {
   const queryCache = new QueryCache();

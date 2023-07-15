@@ -2,6 +2,7 @@
 import * as React from "react";
 
 import { useSignalOfState } from "@preact-signals/hooks";
+import { ReadonlySignal } from "@preact/signals-core";
 import type { QueryClient } from "@tanstack/query-core";
 import type { ContextOptions } from "./types";
 
@@ -56,8 +57,9 @@ export const useQueryClient = ({ context }: ContextOptions = {}) => {
   return queryClient;
 };
 
-export const useQueryClient$ = (options?: ContextOptions) =>
-  useSignalOfState(useQueryClient(options));
+export const useQueryClient$ = (
+  options?: ContextOptions
+): ReadonlySignal<QueryClient> => useSignalOfState(useQueryClient(options));
 
 type QueryClientProviderPropsBase = {
   client: QueryClient;

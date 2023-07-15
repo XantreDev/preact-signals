@@ -2,8 +2,8 @@ import { fireEvent, waitFor } from "@testing-library/react";
 import * as React from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
+import * as QueriesObserverModule from "@tanstack/query-core/queriesObserver";
 import { describe, expect, it } from "vitest";
-import * as QueriesObserverModule from "../../../query-core/src/queriesObserver";
 
 import type { QueryFunctionContext } from "@tanstack/query-core";
 import type {
@@ -13,8 +13,8 @@ import type {
   QueryObserverResult,
   UseQueryOptions,
   UseQueryResult,
-} from "..";
-import { QueriesObserver, QueryCache, useQueries } from "..";
+} from "../../react-query";
+import { QueriesObserver, QueryCache, useQueries } from "../../react-query";
 import {
   createQueryClient,
   expectType,
@@ -22,7 +22,7 @@ import {
   queryKey,
   renderWithClient,
   sleep,
-} from "./utils";
+} from "../utils";
 
 describe("useQueries", () => {
   const queryCache = new QueryCache();

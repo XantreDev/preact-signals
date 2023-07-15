@@ -3,10 +3,13 @@
     "rootDir": "./src",
     "noEmit": false,
     "outDir": "./dist/esm",
+    "paths": {
+      "@tanstack/query-core": ["./node_modules/@tanstack/query-core/src"]
+    },
     "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
-  "exclude": ["vitest.config.ts"],
-  "extends": "../../tsconfig.json",
+  "extends": ["../../tsconfig.json"],
+  "exclude": ["**/node_modules", "./dist/**/*", "./*.ts", "*/__tests__/**/*"],
 
   "references": [
     {

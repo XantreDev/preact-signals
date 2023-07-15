@@ -2,8 +2,12 @@ import * as utils from "@tanstack/query-core";
 import { act, render } from "@testing-library/react";
 import * as React from "react";
 import { vi } from "vitest";
-import type { ContextOptions, MutationOptions, QueryClientConfig } from "..";
-import { QueryClient, QueryClientProvider } from "..";
+import type {
+  ContextOptions,
+  MutationOptions,
+  QueryClientConfig,
+} from "../react-query";
+import { QueryClient, QueryClientProvider } from "../react-query";
 
 export function renderWithClient(
   client: QueryClient,

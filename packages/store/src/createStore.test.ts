@@ -1,6 +1,7 @@
-import { computed } from "@preact/signals-core";
-import { describe, expect, it } from "vitest";
+import { computed, effect } from "@preact/signals-core";
+import { describe, expect, it, vi } from "vitest";
 import { createStore } from "./index";
+import { createStoreSetter } from "./setStoreState";
 
 describe("store", () => {
   it("store has correct value", () => {
@@ -65,5 +66,63 @@ describe("store", () => {
     expect(derived.value).toBe(0);
     store.count = 10;
     expect(derived.value).toBe(10);
+  });
+});
+
+describe("store setter", () => {
+  it("should update store", () => {
+    const store = createStore({
+      count: 0,
+    });
+
+    createStoreSetter(store)({
+      count: 1,
+    });
+
+    expect(store.count).toBe(1);
+  });
+  it("should batch signal updates", () => {
+    const store = createStore({
+      a: 0,
+      b: 0,
+    });
+    const results: number[] = [];
+
+    const dispose = effect(() => {
+      results.push(store.a + store.b);
+    });
+
+    createStoreSetter(store)({
+      a: 1,
+      b: 10,
+    });
+
+    expect(results).toEqual([0, 11]);
+    dispose();
+  });
+
+  it("should don't update store if value is the same", () => {
+    const store = createStore({
+      count: 0,
+    });
+
+    const setter = createStoreSetter(store);
+    const fn = vi.fn(() => {
+      store.count;
+    });
+    const dispose = effect(fn);
+
+    expect(fn).toHaveBeenCalledOnce();
+    setter({
+      count: 0,
+    });
+    expect(fn).toHaveBeenCalledOnce();
+
+    setter({
+      count: 0,
+    });
+    expect(fn).toHaveBeenCalledOnce();
+
+    dispose();
   });
 });

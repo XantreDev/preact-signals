@@ -1,5 +1,6 @@
 "use client";
 import { useSignalContext } from "@preact-signals/hooks";
+import { ReadonlySignal } from "@preact/signals-core";
 import * as React from "react";
 
 // CONTEXT
@@ -29,8 +30,9 @@ const QueryErrorResetBoundaryContext = React.createContext(createValue());
 
 // HOOK
 
-export const useQueryErrorResetBoundary$ = () =>
-  useSignalContext(QueryErrorResetBoundaryContext);
+export const useQueryErrorResetBoundary$ =
+  (): ReadonlySignal<QueryErrorResetBoundaryValue> =>
+    useSignalContext(QueryErrorResetBoundaryContext);
 export const useQueryErrorResetBoundary = () =>
   React.useContext(QueryErrorResetBoundaryContext);
 
@@ -44,7 +46,7 @@ export interface QueryErrorResetBoundaryProps {
 
 export const QueryErrorResetBoundary = ({
   children,
-}: QueryErrorResetBoundaryProps) => {
+}: QueryErrorResetBoundaryProps): JSX.Element => {
   const [value] = React.useState(() => createValue());
   return (
     <QueryErrorResetBoundaryContext.Provider value={value}>

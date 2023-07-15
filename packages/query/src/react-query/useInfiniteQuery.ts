@@ -1,8 +1,8 @@
 'use client'
 import type {
-  QueryObserver,
   QueryFunction,
   QueryKey,
+  QueryObserver,
 } from '@tanstack/query-core'
 import { InfiniteQueryObserver, parseQueryArgs } from '@tanstack/query-core'
 import type { UseInfiniteQueryOptions, UseInfiniteQueryResult } from './types'

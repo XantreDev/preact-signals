@@ -41,7 +41,8 @@
   "peerDependencies": {
     "@preact/signals-core": ">=1.2.0",
     "react": "17.*.* || 18.*.*",
-    "@preact-signals/utils": "workspace:*"
+    "@preact-signals/utils": "workspace:*",
+    "@preact-signals/hooks": "workspace:*"
   },
   "peerDependenciesMeta": {
     "@preact/signals-core": {
@@ -52,6 +53,8 @@
     }
   },
   "devDependencies": {
+    "@preact/signals-core": ">=1.2.0",
+    "@preact-signals/hooks": "workspace:*",
     "@preact-signals/utils": "workspace:*",
     "@types/react": "^18",
     "@types/react-dom": "^18",

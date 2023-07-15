@@ -1,18 +1,18 @@
-import * as MutationCacheModule from "@query-core/src/mutationCache.ts";
 import { QueryClient } from "@tanstack/query-core";
-import { MutationCache } from "@tanstack/react-query";
+import * as MutationCacheModule from "@tanstack/query-core/mutationCache";
 import { fireEvent, waitFor } from "@testing-library/react";
 import * as React from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { describe, expect, it, vi } from "vitest";
-import { useIsMutating } from "../useIsMutating";
-import { useMutation } from "../useMutation";
+import { MutationCache } from "../../react-query";
+import { useIsMutating } from "../../react-query/useIsMutating";
+import { useMutation } from "../../react-query/useMutation";
 import {
   createQueryClient,
   renderWithClient,
   setActTimeout,
   sleep,
-} from "./utils";
+} from "../utils";
 
 describe("useIsMutating", () => {
   it("should return the number of fetching mutations", async () => {

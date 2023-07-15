@@ -1,3 +1,4 @@
+import { useSignalEffectOnce } from "@preact-signals/hooks";
 import { untracked } from "@preact-signals/utils";
 import { useMemo, useRef } from "react";
 import { createStore } from "./createStore";
@@ -17,15 +18,15 @@ export const useStore = <T extends Record<string | number, any>>(
   ] as const;
 };
 
-// export const useComputedStore$ = <T extends Record<string | number, any>>(
-// storeUpdater: () => T
-// ) => {
-// const [store, setStore] = useStore(storeUpdater);
-//
-// useSignalEffectOnce(() => {
-// setStore(storeUpdater());
-// });
-//
-// return store as Readonly<typeof store>;
-// };
+export const useComputedStore$ = <T extends Record<string | number, any>>(
+  storeUpdater: () => T
+) => {
+  const [store, setStore] = useStore(storeUpdater);
+
+  useSignalEffectOnce(() => {
+    setStore(storeUpdater());
+  });
+
+  return store as Readonly<typeof store>;
+};
 //

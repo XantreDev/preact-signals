@@ -6,15 +6,15 @@ import type {
   InfiniteData,
   QueryFunctionContext,
   UseInfiniteQueryResult,
-} from "..";
-import { QueryCache, useInfiniteQuery } from "..";
+} from "../../react-query";
+import { QueryCache, useInfiniteQuery } from "../../react-query";
 import {
   createQueryClient,
   queryKey,
   renderWithClient,
   setActTimeout,
   sleep,
-} from "./utils";
+} from "../utils";
 
 interface Result {
   items: number[];

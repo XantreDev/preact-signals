@@ -4,9 +4,9 @@ import * as React from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 import { describe, expect, it, vi } from "vitest";
-import type { QueryClient } from "..";
-import { MutationCache, QueryCache, useMutation } from "..";
-import type { UseMutationResult } from "../types";
+import type { QueryClient } from "../../react-query";
+import { MutationCache, QueryCache, useMutation } from "../../react-query";
+import type { UseMutationResult } from "../../react-query/types";
 import {
   createQueryClient,
   mockNavigatorOnLine,
@@ -14,7 +14,7 @@ import {
   renderWithClient,
   setActTimeout,
   sleep,
-} from "./utils";
+} from "../utils";
 
 describe("useMutation", () => {
   const queryCache = new QueryCache();

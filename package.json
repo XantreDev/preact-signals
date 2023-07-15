@@ -11,7 +11,7 @@
   "scripts": {
     "build": "turbo run build --filter=./packages/*",
     "watch": "turbo run watch --parallel",
-    "test": "turbo run test",
+    "test": "turbo run test --parallel",
     "lint": "turbo run lint",
     "changeset": "changeset",
     "release": "pnpm build && changeset publish"

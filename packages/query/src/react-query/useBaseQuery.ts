@@ -75,6 +75,7 @@ export function useBaseQuery<
 
   const result = observer.getOptimisticResult(defaultedOptions);
 
+  // console.log("useBaseQuery", observer);
   useSyncExternalStore(
     React.useCallback(
       (onStoreChange) => {
@@ -90,7 +91,12 @@ export function useBaseQuery<
       },
       [observer, isRestoring]
     ),
-    () => observer.getCurrentResult(),
+    () => {
+      if (typeof observer.getCurrentQuery !== "function") {
+        console.log("useBaseQuery", observer);
+      }
+      return observer.getCurrentResult();
+    },
     () => observer.getCurrentResult()
   );
 
