@@ -1,4 +1,10 @@
-import { AnyReactive, GetValue, unwrapReactive } from "@preact-signals/utils";
+import {
+  AnyReactive,
+  GetValue,
+  toSolidLikeSignal,
+  untracked,
+  unwrapReactive,
+} from "@preact-signals/utils";
 import {
   ReadonlySignal,
   Signal,
@@ -22,13 +28,26 @@ export const useComputedOnce = <T>(compute: () => T) => {
   return c.current!;
 };
 
-const useSignal = <T>(value: T) => {
+export const _useSignal = <T>(value: T) => {
   const signalRef = useRef<null | Signal<T>>(null);
   if (!signalRef.current) {
     signalRef.current = signal(value);
   }
 
   return signalRef.current!;
+};
+
+export const useInitSignal = <T>(init: () => T) => {
+  const signalRef = useRef<null | Signal<T>>(null);
+  if (!signalRef.current) {
+    signalRef.current = signal(untracked(init));
+  }
+
+  return signalRef.current!;
+};
+
+export const useSolidSignal = <T>(value: T) => {
+  const s = _useSignal(value);
 };
 
 const useComputed = <T>(compute: () => T) => {
@@ -44,7 +63,7 @@ export const useSignalOfReactive = <T extends AnyReactive>(
   useComputed(() => /** __PURE__ */ unwrapReactive(reactive));
 
 export const useSignalOfState = <T>(state: T): ReadonlySignal<T> => {
-  const s = useSignal(state);
+  const s = _useSignal(state);
   if (s.peek() !== state) {
     s.value = state;
   }
@@ -59,3 +78,6 @@ type Dispose = () => void;
 export const useSignalEffectOnce = (_effect: () => void | Dispose) => {
   useEffect(() => effect(_effect), []);
 };
+
+export const useSignalState = <T>(value: T) =>
+  toSolidLikeSignal(_useSignal(value));

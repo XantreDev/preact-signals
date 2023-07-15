@@ -2,11 +2,18 @@
   "compilerOptions": {
     "rootDir": "./src",
     "noEmit": false,
-    "outDir": "./dist",
+    "outDir": "./dist/esm",
     "emitDeclarationOnly": false,
-    "sourceMap": true
+    "sourceMap": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
   "extends": "../../tsconfig.json",
-  "include": ["src"],
-  "exclude": ["**/node_modules"]
+  "references": [
+    {
+      "path": "../utils"
+    },
+    {
+      "path": "../hooks"
+    }
+  ]
 }

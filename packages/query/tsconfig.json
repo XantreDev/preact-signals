@@ -2,11 +2,27 @@
   "compilerOptions": {
     "rootDir": "./src",
     "noEmit": false,
-    "outDir": "./dist",
-    "emitDeclarationOnly": false,
-    "sourceMap": true
+    "outDir": "./dist/esm",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
+  "exclude": ["vitest.config.ts"],
   "extends": "../../tsconfig.json",
-  "include": ["src"],
-  "exclude": ["**/node_modules"]
+
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "../resource"
+    },
+    {
+      "path": "../hooks"
+    },
+    {
+      "path": "../store"
+    },
+    {
+      "path": "../utils"
+    }
+  ]
 }

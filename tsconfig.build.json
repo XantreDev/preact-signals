@@ -1,0 +1,46 @@
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "useDefineForClassFields": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "declaration": true,
+    "emitDeclarationOnly": false,
+    "composite": true,
+    "incremental": true,
+    "preserveWatchOutput": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "sourceMap": true
+  },
+  "references": [
+    {
+      "path": "./packages/utils"
+    },
+    {
+      "path": "./packages/hooks"
+    },
+    {
+      "path": "./packages/preact-signals-components"
+    },
+    {
+      "path": "./packages/resource"
+    },
+    {
+      "path": "./packages/store"
+    },
+    {
+      "path": "./packages/query"
+    }
+  ]
+}

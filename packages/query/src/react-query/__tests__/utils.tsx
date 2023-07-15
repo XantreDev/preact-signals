@@ -1,121 +1,122 @@
-import * as React from 'react'
-import { act, render } from '@testing-library/react'
-import type { ContextOptions, QueryClientConfig, MutationOptions } from '..'
-import { QueryClient, QueryClientProvider } from '..'
-import * as utils from '@tanstack/query-core'
+import * as utils from "@tanstack/query-core";
+import { act, render } from "@testing-library/react";
+import * as React from "react";
+import { vi } from "vitest";
+import type { ContextOptions, MutationOptions, QueryClientConfig } from "..";
+import { QueryClient, QueryClientProvider } from "..";
 
 export function renderWithClient(
   client: QueryClient,
   ui: React.ReactElement,
-  options: ContextOptions = {},
+  options: ContextOptions = {}
 ): ReturnType<typeof render> {
   const { rerender, ...result } = render(
     <QueryClientProvider client={client} context={options.context}>
       {ui}
-    </QueryClientProvider>,
-  )
+    </QueryClientProvider>
+  );
   return {
     ...result,
     rerender: (rerenderUi: React.ReactElement) =>
       rerender(
         <QueryClientProvider client={client} context={options.context}>
           {rerenderUi}
-        </QueryClientProvider>,
+        </QueryClientProvider>
       ),
-  } as any
+  } as any;
 }
 
 export const Blink = ({
   duration,
   children,
 }: {
-  duration: number
-  children: React.ReactNode
+  duration: number;
+  children: React.ReactNode;
 }) => {
-  const [shouldShow, setShouldShow] = React.useState<boolean>(true)
+  const [shouldShow, setShouldShow] = React.useState<boolean>(true);
 
   React.useEffect(() => {
-    setShouldShow(true)
-    const timeout = setActTimeout(() => setShouldShow(false), duration)
+    setShouldShow(true);
+    const timeout = setActTimeout(() => setShouldShow(false), duration);
     return () => {
-      clearTimeout(timeout)
-    }
-  }, [duration, children])
+      clearTimeout(timeout);
+    };
+  }, [duration, children]);
 
-  return shouldShow ? <>{children}</> : <>off</>
-}
+  return shouldShow ? <>{children}</> : <>off</>;
+};
 
 export function createQueryClient(config?: QueryClientConfig): QueryClient {
-  jest.spyOn(console, 'error').mockImplementation(() => undefined)
-  return new QueryClient({ logger: mockLogger, ...config })
+  vi.spyOn(console, "error").mockImplementation(() => undefined);
+  return new QueryClient({ logger: mockLogger, ...config });
 }
 
 export function mockVisibilityState(value: DocumentVisibilityState) {
-  return jest.spyOn(document, 'visibilityState', 'get').mockReturnValue(value)
+  return vi.spyOn(document, "visibilityState", "get").mockReturnValue(value);
 }
 
 export function mockNavigatorOnLine(value: boolean) {
-  return jest.spyOn(navigator, 'onLine', 'get').mockReturnValue(value)
+  return vi.spyOn(navigator, "onLine", "get").mockReturnValue(value);
 }
 
 export const mockLogger = {
-  log: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
-}
+  log: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+};
 
-let queryKeyCount = 0
+let queryKeyCount = 0;
 export function queryKey(): Array<string> {
-  queryKeyCount++
-  return [`query_${queryKeyCount}`]
+  queryKeyCount++;
+  return [`query_${queryKeyCount}`];
 }
 
 export function sleep(timeout: number): Promise<void> {
   return new Promise((resolve, _reject) => {
-    setTimeout(resolve, timeout)
-  })
+    setTimeout(resolve, timeout);
+  });
 }
 
 export function setActTimeout(fn: () => void, ms?: number) {
   return setTimeout(() => {
     act(() => {
-      fn()
-    })
-  }, ms)
+      fn();
+    });
+  }, ms);
 }
 
 /**
  * Assert the parameter is of a specific type.
  */
 export function expectType<T>(_: T): void {
-  return undefined
+  return undefined;
 }
 
 /**
  * Assert the parameter is not typed as `any`
  */
 export function expectTypeNotAny<T>(_: 0 extends 1 & T ? never : T): void {
-  return undefined
+  return undefined;
 }
 
 export function executeMutation(
   queryClient: QueryClient,
-  options: MutationOptions<any, any, any, any>,
+  options: MutationOptions<any, any, any, any>
 ): Promise<unknown> {
-  return queryClient.getMutationCache().build(queryClient, options).execute()
+  return queryClient.getMutationCache().build(queryClient, options).execute();
 }
 
 // This monkey-patches the isServer-value from utils,
 // so that we can pretend to be in a server environment
 export function setIsServer(isServer: boolean) {
-  const original = utils.isServer
-  Object.defineProperty(utils, 'isServer', {
+  const original = utils.isServer;
+  Object.defineProperty(utils, "isServer", {
     get: () => isServer,
-  })
+  });
 
   return () => {
-    Object.defineProperty(utils, 'isServer', {
+    Object.defineProperty(utils, "isServer", {
       get: () => original,
-    })
-  }
+    });
+  };
 }

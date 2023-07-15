@@ -5,12 +5,12 @@
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
     "rimraf": "^5.0.1",
-    "turbo": "latest",
+    "turbo": "^1.10.7",
     "typescript": "^5.0.2"
   },
   "scripts": {
     "build": "turbo run build --filter=./packages/*",
-    "watch": "turbo run watch",
+    "watch": "turbo run watch --parallel",
     "test": "turbo run test",
     "lint": "turbo run lint",
     "changeset": "changeset",

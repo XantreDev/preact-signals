@@ -1,26 +1,21 @@
 {
   "compilerOptions": {
-    "target": "ES2021",
-    "useDefineForClassFields": true,
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "allowJs": false,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "declaration": true,
-    "emitDeclarationOnly": true,
-    "composite": true,
-
-    "preserveWatchOutput": true,
-    "jsx": "react-jsx"
+    "paths": {
+      "@preact-signals/utils": ["./packages/utils/src"],
+      "@preact-signals/hooks": ["./packages/hooks/src"],
+      "@preact-signals/components": [
+        "./packages/preact-signals-components/src"
+      ],
+      "@preact-signals/resource": ["./packages/resource/src"],
+      "@preact-signals/store": ["./packages/store/src"]
+    }
   },
-  "exclude": ["**/node_modules"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "exclude": ["**/node_modules", "packages/*/dist/**"],
+  "extends": "./tsconfig.build.json",
+  "references": [
+    { "path": "./tsconfig.node.json" },
+    {
+      "path": "./tsconfig.build.json"
+    }
+  ]
 }

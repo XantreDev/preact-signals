@@ -1,20 +1,14 @@
-import { Reactive } from "@preact-signals/utils";
-import {
-    QueryClient,
-    QueryKey,
-    QueryObserverOptions,
+import type { Reactive } from "@preact-signals/utils";
+import type {
+  InfiniteQueryObserverOptions,
+  InfiniteQueryObserverResult,
+  QueryKey,
+  QueryObserverOptions,
 } from "@tanstack/query-core";
-import { Context } from "react";
+import type { ContextOptions } from "./react-query";
 
-export interface ContextOptions {
-  /**
-   * Use this to pass your Solid Query context. Otherwise, `defaultContext` will be used.
-   */
-  context?: Context<QueryClient | undefined>;
-}
-
-type PreactSignalQueryKey = () => unknown[];
-type AnyPreactSignalQueryKey = () => any[];
+export type PreactSignalQueryKey = unknown[];
+export type AnyPreactSignalQueryKey = any[];
 
 export interface StaticBaseQueryOptions<
   TQueryFnData = unknown,
@@ -35,20 +29,72 @@ export type BaseQueryOptions$<
   StaticBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
 >;
 
-export interface CreateQueryOptions<
+export interface StaticQueryOptions<
   TQueryFnData = unknown,
   TError = unknown,
   TData = TQueryFnData,
   TQueryKey extends AnyPreactSignalQueryKey = PreactSignalQueryKey
 > extends Omit<
-    BaseQueryOptions$<
-      TQueryFnData,
-      TError,
-      TData,
-      TQueryFnData,
-      ReturnType<TQueryKey>
-    >,
+    BaseQueryOptions$<TQueryFnData, TError, TData, TQueryFnData, TQueryKey>,
     "queryKey"
   > {
   queryKey?: TQueryKey;
 }
+
+export type QueryOptions$<
+  TQueryFnData = unknown,
+  TError = unknown,
+  TData = TQueryFnData,
+  TQueryKey extends AnyPreactSignalQueryKey = PreactSignalQueryKey
+> = Reactive<StaticQueryOptions<TQueryFnData, TError, TData, TQueryKey>>;
+
+export interface StaticInfiniteQueryOptions<
+  TQueryFnData = unknown,
+  TError = unknown,
+  TData = TQueryFnData,
+  TQueryData = TQueryFnData,
+  TQueryKey extends PreactSignalQueryKey = PreactSignalQueryKey
+> extends ContextOptions,
+    Omit<
+      InfiniteQueryObserverOptions<
+        TQueryFnData,
+        TError,
+        TData,
+        TQueryData,
+        TQueryKey
+      >,
+      "queryKey"
+    > {
+  queryKey?: TQueryKey;
+}
+
+export type InfiniteQueryOptions$<
+  TQueryFnData = unknown,
+  TError = unknown,
+  TData = TQueryFnData,
+  TQueryData = TQueryFnData,
+  TQueryKey extends PreactSignalQueryKey = PreactSignalQueryKey
+> = Reactive<
+  StaticInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+>;
+
+export type InfiniteQueryResult<
+  TData = unknown,
+  TError = unknown
+> = InfiniteQueryObserverResult<TData, TError>;
+
+export type UseInfiniteQuery$ = <
+  TQueryFnData = unknown,
+  TError = unknown,
+  TData = TQueryFnData,
+  TQueryData = TQueryFnData,
+  TQueryKey extends PreactSignalQueryKey = PreactSignalQueryKey
+>(
+  options: InfiniteQueryOptions$<
+    TQueryFnData,
+    TError,
+    TData,
+    TQueryData,
+    TQueryKey
+  >
+) => InfiniteQueryResult<TData, TError>;

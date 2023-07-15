@@ -25,6 +25,6 @@
       "react-dom": ["./node_modules/preact/compat/"]
     }
   },
-  "include": ["src"],
+  
   "references": [{ "path": "./tsconfig.node.json" }]
 }

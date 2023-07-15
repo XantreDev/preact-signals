@@ -32,6 +32,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "build:esm": "tsc --outDir ./dist/esm",
+    "test": "vitest",
     "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
     "lint": "tsc --noEmit",
     "watch": "concurrently \"pnpm build:esm -w\" \"pnpm build:cjs -w\"",
@@ -39,7 +40,8 @@
   },
   "peerDependencies": {
     "@preact/signals-core": ">=1.2.0",
-    "react": "17.*.* || 18.*.*"
+    "react": "17.*.* || 18.*.*",
+    "@preact-signals/utils": "workspace:*"
   },
   "peerDependenciesMeta": {
     "@preact/signals-core": {
@@ -50,10 +52,12 @@
     }
   },
   "devDependencies": {
+    "@preact-signals/utils": "workspace:*",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "concurrently": "^8.2.0",
-    "type-fest": "^3.12.0"
+    "type-fest": "^3.12.0",
+    "vitest": "^0.33.0"
   },
   "keywords": [],
   "license": "MIT"
