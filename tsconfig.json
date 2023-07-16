@@ -23,7 +23,7 @@
     "sourceMap": true,
     "paths": {
       "@preact-signals/utils": ["./packages/utils/src"],
-      "@preact-signals/hooks": ["./packages/hooks/src"],
+      "@preact-signals/hooks/*": ["./packages/hooks/src/*"],
       "@preact-signals/components": [
         "./packages/preact-signals-components/src"
       ],
