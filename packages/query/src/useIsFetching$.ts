@@ -27,7 +27,7 @@ export const useIsFetching$ = <T extends Reactive<QueryFilters | null>>(
   const filters = () => unwrapReactive(_filters) ?? EMPTY_OBJECT;
 
   const $isFetching = useObserverSignal(() => ({
-    getCurrent: () => $queryClient.value.isFetching(filters()),
+    getCurrent: () => isFetching($queryClient.value, filters()),
     subscribe: (emit) =>
       $queryCache().subscribe(() => {
         emit(isFetching($queryClient.value, filters()));

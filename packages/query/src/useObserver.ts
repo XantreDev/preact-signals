@@ -1,4 +1,8 @@
-import { useInitSignal, useSignalEffectOnce } from "@preact-signals/hooks";
+import {
+  useInitSignal,
+  useSignalEffectOnce,
+  useSignalOfReactive,
+} from "@preact-signals/hooks";
 import { Accessor } from "@preact-signals/utils";
 import { ReadonlySignal } from "@preact/signals-core";
 
@@ -10,11 +14,15 @@ type Observer<T> = {
 };
 
 export const useObserverSignal = <T>(
-  observer: Accessor<Observer<T>>
+  createObserver: Accessor<Observer<T>>
 ): ReadonlySignal<T> => {
-  const s = useInitSignal(() => observer().getCurrent());
+  const observer = useSignalOfReactive(createObserver);
+  const s = useInitSignal(() => observer.value.getCurrent());
+  useSignalEffectOnce(() => {
+    s.value = observer.value.getCurrent();
+  });
   useSignalEffectOnce(() =>
-    observer().subscribe((value) => {
+    observer.value.subscribe((value) => {
       s.value = value;
     })
   );
