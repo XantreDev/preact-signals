@@ -62,6 +62,9 @@ export const createBaseQuery =
     //       : Object.assign({}, state.data),
     // });
     let latestTask = useRef<null | (() => void)>();
+    useSignalEffectOnce(() =>
+      setState($observer.value.getOptimisticResult($defaultedOptions.value))
+    );
 
     useSignalEffectOnce(() =>
       $observer.value.subscribe((result) => {
