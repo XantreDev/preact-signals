@@ -63,9 +63,8 @@ export const createBaseQuery =
     // });
     let latestTask = useRef<null | (() => void)>();
 
-    useSignalEffectOnce(() => {
-      const observer = $observer.value;
-      observer.subscribe((result) => {
+    useSignalEffectOnce(() =>
+      $observer.value.subscribe((result) => {
         latestTask.current = () =>
           batch(() => {
             setState(result);
@@ -82,10 +81,8 @@ export const createBaseQuery =
           latestTask.current();
           latestTask.current = null;
         });
-      });
-
-      return () => observer.destroy();
-    });
+      })
+    );
 
     return state;
     // return useMemo(

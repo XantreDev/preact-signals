@@ -1,6 +1,8 @@
+import { ReadonlySignal, effect, signal } from "@preact/signals-core";
 import * as utils from "@tanstack/query-core";
 import { act, render } from "@testing-library/react";
 import * as React from "react";
+import { createElement, useEffect, useState } from "react";
 import { vi } from "vitest";
 import type {
   ContextOptions,
@@ -8,6 +10,49 @@ import type {
   QueryClientConfig,
 } from "../react-query";
 import { QueryClient, QueryClientProvider } from "../react-query";
+
+export const queueSignal = <T,>() => {
+  const noValue = Symbol("no-value");
+  const $signal = signal<T | typeof noValue>(noValue);
+  const queue = [] as T[];
+
+  const dispose = effect(() => {
+    if ($signal.value === noValue) return;
+    queue.push($signal.value);
+  });
+
+  return {
+    queue,
+    emit: (value: T) => {
+      $signal.value = value;
+    },
+    dispose,
+  };
+};
+
+// for some reason signals runtime is not working with tests
+export const useSignalState = <T,>(signal: ReadonlySignal<T>): T => {
+  const [state, setState] = useState(signal.value);
+
+  useEffect(() => effect(() => setState(signal.value)), [signal]);
+
+  return state;
+};
+export const fetchTime = (ms: number) => async () => {
+  await sleep(ms);
+
+  return "data";
+};
+
+export const createHooksComponentElement = (hooks: () => unknown) => {
+  const Component = () => {
+    hooks();
+
+    return null;
+  };
+
+  return createElement(Component);
+};
 
 export function renderWithClient(
   client: QueryClient,
