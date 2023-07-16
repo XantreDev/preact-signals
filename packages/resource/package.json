@@ -39,14 +39,10 @@
     "build": "pnpm clean && concurrently \"pnpm build:esm\" \"pnpm build:cjs\""
   },
   "peerDependencies": {
-    "@preact/signals-react": ">=1.2.0",
     "@preact/signals-core": ">=1.2.0",
     "react": "17.*.* || 18.*.*"
   },
   "peerDependenciesMeta": {
-    "@preact/signals-react": {
-      "optional": true
-    },
     "react": {
       "optional": true
     }

@@ -1,23 +1,25 @@
 import { useSignalEffectOnce } from "@preact-signals/hooks";
 import { untracked } from "@preact-signals/utils";
 import { effect, signal } from "@preact/signals-core";
-import { QueryClient } from "@tanstack/query-core";
-import React from "react";
 import { describe } from "vitest";
 import { useQuery } from "../react-query";
 import { useIsFetching$ } from "../useIsFetching$";
-import { renderWithClient } from "./utils";
+import { createQueryClient, queryKey, renderWithClient, sleep } from "./utils";
 
 describe("useIsFetching$", () => {
-  it("should show current amount of fetching queries", () => {
-    const queryClient = new QueryClient();
-    const key = ["test"];
+  it("should show current amount of fetching queries", async () => {
+    const queryClient = createQueryClient();
+    const key1 = queryKey();
+    const key2 = queryKey();
     let renderTimes = 0;
     const $fetchingState = signal<null | number>(null);
-    const Component2 = () => {
-      const isFetching = useIsFetching$(() => ({
-        queryKey: key,
-      }));
+    const dispose = effect(() => {
+      if ($fetchingState.value === null) return;
+      result.push($fetchingState.value);
+    });
+
+    const Component1 = () => {
+      const isFetching = useIsFetching$(() => null);
       $fetchingState.value = untracked(isFetching);
       useSignalEffectOnce(() => {
         $fetchingState.value = isFetching();
@@ -26,27 +28,36 @@ describe("useIsFetching$", () => {
       renderTimes++;
       return null;
     };
-    const Component = () => {
+    const Component2 = () => {
       useQuery({
-        queryKey: key,
-        queryFn: () => Promise.resolve("data"),
+        queryKey: key1,
+        queryFn: async () => {
+          await sleep(10);
+          return "data";
+        },
       });
 
+      useQuery({
+        queryKey: key2,
+        queryFn: async () => {
+          await sleep(10);
+          return "data";
+        },
+      });
       return null;
     };
     const result: number[] = [];
-    const dispose = effect(() => {
-      if ($fetchingState.value === null) return;
-      result.push($fetchingState.value);
-    });
     renderWithClient(
       queryClient,
       <>
-        <Component />
+        <Component1 />
         <Component2 />
       </>
     );
+    await sleep(20);
     expect(renderTimes).toBe(1);
+
+    expect(result).toEqual([0, 1, 2, 1, 0]);
 
     dispose();
   });

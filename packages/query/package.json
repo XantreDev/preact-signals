@@ -43,14 +43,10 @@
     "@preact-signals/resource": "workspace:*",
     "@preact-signals/store": "workspace:*",
     "@preact/signals-core": ">=1.2.0",
-    "@preact/signals-react": ">=1.2.0",
     "@tanstack/query-core": "^4.29.23",
     "react": "17.*.* || 18.*.*"
   },
   "peerDependenciesMeta": {
-    "@preact/signals-react": {
-      "optional": true
-    },
     "react": {
       "optional": true
     }
