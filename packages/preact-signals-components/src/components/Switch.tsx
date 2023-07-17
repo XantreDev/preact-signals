@@ -8,7 +8,6 @@ import {
   isExplicitFalsy,
   unwrapReactive,
 } from "@preact-signals/utils";
-import { ReadonlySignal } from "@preact/signals-react";
 import { isValidElement } from "react";
 import { RenderResult } from "../type";
 
@@ -64,7 +63,7 @@ declare var process: {
  *  </Match>
  * </Switch>
  */
-export const Switch = (props: SwitchProps): ReadonlySignal<RenderResult> => {
+export const Switch = (props: SwitchProps): JSX.Element => {
   if (
     process.env.NODE_ENV === "development" &&
     !props.children.every(
@@ -97,5 +96,5 @@ export const Switch = (props: SwitchProps): ReadonlySignal<RenderResult> => {
     return typeof item.props.children === "function"
       ? item.props.children(accessorOfReactive(item.props.when))
       : item.props.children;
-  }) as ReadonlySignal<ReadonlySignal>;
+  }).value as JSX.Element;
 };

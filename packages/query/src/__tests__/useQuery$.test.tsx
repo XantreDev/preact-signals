@@ -1,5 +1,6 @@
 import { useSignalEffectOnce } from "@preact-signals/hooks";
 import { untracked } from "@preact-signals/utils";
+import { signal } from "@preact/signals-core";
 import { render } from "@testing-library/react";
 import { describe, it, vi } from "vitest";
 import { QueryClientProvider } from "../react-query";
@@ -73,6 +74,76 @@ describe("useQuery$()", () => {
     await sleep(20);
     expect(queue).toEqual([undefined, "data", undefined, "data"]);
     expect(queryFn).toHaveBeenCalledTimes(2);
+    dispose();
+  });
+  it("query options is reactive", async () => {
+    const key = queryKey();
+
+    const queryFn = fetchTime(10);
+    const isEnabled = signal(false);
+    const { dispose, emit, queue } = queueSignal();
+    const toState = (data: Record<any, any>) => ({
+      data: data.data,
+      status: data.status,
+      isFetching: data.isFetching,
+    });
+    renderWithClient(
+      createQueryClient(),
+      <>
+        {createHooksComponentElement(() => {
+          const data = useQuery$(() => ({
+            queryKey: key,
+            queryFn,
+            enabled: isEnabled.value,
+          }));
+
+          emit(untracked(() => toState(data)));
+          useSignalEffectOnce(() => {
+            emit(toState(data));
+          });
+        })}
+      </>
+    );
+
+    await sleep(20);
+    expect(queue).toEqual([
+      {
+        data: undefined,
+        isFetching: false,
+        status: "loading",
+      },
+      // double emit because of useSignalEffectOnce
+      {
+        data: undefined,
+        isFetching: false,
+        status: "loading",
+      },
+    ]);
+    isEnabled.value = true;
+    await sleep(20);
+
+    expect(queue).toEqual([
+      {
+        data: undefined,
+        isFetching: false,
+        status: "loading",
+      },
+      {
+        data: undefined,
+        isFetching: false,
+        status: "loading",
+      },
+      {
+        data: undefined,
+        isFetching: true,
+        status: "loading",
+      },
+      {
+        data: "data",
+        isFetching: false,
+        status: "success",
+      },
+    ]);
     dispose();
   });
 });
