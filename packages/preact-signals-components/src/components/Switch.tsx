@@ -8,7 +8,7 @@ import {
   isExplicitFalsy,
   unwrapReactive,
 } from "@preact-signals/utils";
-import { isValidElement } from "react";
+import { Children, isValidElement } from "react";
 import { RenderResult } from "../type";
 
 export type MatchProps<T extends AnyReactive> = {
@@ -33,11 +33,11 @@ export type SwitchProps = {
   /**
    * shouldn't change during the lifecycle of the component
    */
-  fallback?: JSX.Element;
+  fallback?: RenderResult;
   /**
    * shouldn't change during the lifecycle of the component
    */
-  children: JSX.Element[];
+  children: JSX.Element | JSX.Element[];
 };
 
 declare var process: {
@@ -66,12 +66,14 @@ declare var process: {
 export const Switch = (props: SwitchProps): JSX.Element => {
   if (
     process.env.NODE_ENV === "development" &&
-    !props.children.every(
+    !Children.toArray(props.children).every(
       (item) =>
+        item &&
+        isValidElement(item) &&
         "when" in item.props &&
         "children" in item.props &&
-        item.type[matchSymbol] &&
-        isValidElement(item)
+        // @ts-expect-error we are not sure it here
+        item.type[matchSymbol]
     )
   ) {
     throw new Error(
