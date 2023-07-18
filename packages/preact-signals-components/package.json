@@ -34,6 +34,7 @@
     "build:esm": "tsc --outDir ./dist/esm",
     "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
     "lint": "tsc --noEmit",
+    "test": "vitest",
     "watch": "concurrently \"pnpm build:esm -w\" \"pnpm build:cjs -w\"",
     "build": "pnpm clean && concurrently \"pnpm build:esm\" \"pnpm build:cjs\""
   },
@@ -54,9 +55,13 @@
     "@preact-signals/utils": "workspace:*"
   },
   "devDependencies": {
+    "@preact/signals-core": ">=1.2.0",
+    "@preact/signals-react": ">=1.2.0",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "concurrently": "^8.2.0",
+    "happy-dom": "^10.5.1",
+    "react-dom": "^18.2.0",
     "type-fest": "^3.12.0"
   },
   "keywords": [

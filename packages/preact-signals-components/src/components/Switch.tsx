@@ -81,7 +81,9 @@ export const Switch = (props: SwitchProps): JSX.Element => {
     );
   }
   const matches = useSignalOfState(
-    props.children as { props: MatchProps<Reactive<unknown>> }[]
+    Children.toArray(props.children) as {
+      props: MatchProps<Reactive<unknown>>;
+    }[]
   );
   const fallback = useSignalOfState<RenderResult>(props.fallback ?? null);
 
