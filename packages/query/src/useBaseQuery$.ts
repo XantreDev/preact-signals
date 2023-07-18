@@ -32,7 +32,7 @@ export const createBaseQuery =
   ) => {
     const $options = useSignalOfReactive(options);
     const $queryClient = useQueryClient$({
-      context: $options.value.context,
+      context: useComputedOnce(() => $options.value.context).value,
     });
     const $isRestoring = useIsRestoring$();
     const $defaultedOptions = useComputedOnce(() => {
@@ -61,7 +61,7 @@ export const createBaseQuery =
     //       ? neverResolves<typeof state.data>()
     //       : Object.assign({}, state.data),
     // });
-    let latestTask = useRef<null | (() => void)>();
+    const latestTask = useRef<null | (() => void)>();
     useSignalEffectOnce(() =>
       setState($observer.value.getOptimisticResult($defaultedOptions.value))
     );
