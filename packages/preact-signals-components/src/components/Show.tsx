@@ -25,9 +25,10 @@ export const Show = <const T extends Reactive<any>>(
 
   return useComputedOnce(() =>
     isExplicitFalsy(when.value)
-      ? typeof children.value === "function"
-        ? children.value(when.value)
-        : children.value
-      : fallback.value
+      ? fallback.value
+      : typeof children.value === "function"
+      ? // @ts-expect-error reading value
+        children.value(when.value)
+      : children.value
   ).value as JSX.Element;
 };
