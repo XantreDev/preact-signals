@@ -14,3 +14,7 @@ function setter<T>(this: Signal<T>, value: Setter<T>) {
 
 export const setterOfSignal = <T>(signal: Signal<T>): Setter<T> =>
   setter.bind(signal) as Setter<T>;
+
+export const toggleSignal = (sig: Signal<boolean>) => {
+  sig.value = !sig.peek();
+};
