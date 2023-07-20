@@ -7,10 +7,5 @@
     "sourceMap": true,
     "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
-  "extends": "../../tsconfig.json",
-  "references": [
-    {
-      "path": "../internal-utils"
-    }
-  ]
+  "extends": "../../tsconfig.json"
 }
