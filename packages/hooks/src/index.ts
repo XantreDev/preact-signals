@@ -1,3 +1,4 @@
+import { useComputed, useSignal } from "@preact-signals/hooks/shims";
 import {
   AnyReactive,
   GetValue,
@@ -7,7 +8,6 @@ import {
 } from "@preact-signals/utils";
 import { ReadonlySignal, Signal, effect, signal } from "@preact/signals-core";
 import { Context, useContext, useEffect, useRef } from "react";
-import { useComputed, useSignal } from "./shims";
 
 export { useComputedOnce } from "./useComputedOnce";
 

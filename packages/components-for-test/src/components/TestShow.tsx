@@ -1,5 +1,5 @@
-import { Show } from "@preact-signals/components";
 import { useComputed, useSignal } from "@preact/signals-react";
+import { Show } from "packages/components/src";
 import { Counter } from "./Counter";
 
 export const TestShow = () => {

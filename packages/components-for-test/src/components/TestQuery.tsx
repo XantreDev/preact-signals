@@ -1,10 +1,10 @@
-import { Match, Switch } from "@preact-signals/components";
 import {
-  QueryClient,
-  QueryClientProvider,
-  useQuery$,
+    QueryClient,
+    QueryClientProvider,
+    useQuery$,
 } from "@preact-signals/query";
 import { useSignalEffect } from "@preact/signals-react";
+import { Match, Switch } from "packages/components/src";
 import { PropsWithChildren } from "react";
 import { Todo, fetchTodos } from "../utils";
 

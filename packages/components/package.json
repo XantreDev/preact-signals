@@ -8,7 +8,7 @@
   "description": "A collection of components for Preact that integrate seamlessly with Preact Signals, enabling reactive programming patterns. The package provides 'Show', 'Switch', and 'Match' components, offering a declarative way to manage conditional rendering based on reactive signals.",
   "sideEffects": false,
   "repository": {
-    "url": "https://github.com/XantreGodlike/preact-signals/tree/main/packages/preact-signals-components",
+    "url": "https://github.com/XantreGodlike/preact-signals/tree/main/packages/components",
     "type": "git"
   },
   "author": {
