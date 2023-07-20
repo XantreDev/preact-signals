@@ -3,6 +3,7 @@ import {
   useSignalEffectOnce,
   useSignalOfReactive,
 } from "@preact-signals/hooks";
+import { useStore } from "@preact-signals/store";
 import { Accessor } from "@preact-signals/utils";
 import { ReadonlySignal } from "@preact/signals-core";
 
@@ -28,4 +29,19 @@ export const useObserverSignal = <T>(
   );
 
   return s;
+};
+
+export const useObserverStore = <T extends Record<any, any>>(
+  createObserverStore: Accessor<Observer<T>>
+): T => {
+  const observer = useSignalOfReactive(createObserverStore);
+  const [store, setStore] = useStore(() => observer.value.getCurrent());
+
+  useSignalEffectOnce(() => {
+    setStore(observer.value.getCurrent());
+  });
+
+  useSignalEffectOnce(() => observer.value.subscribe(setStore));
+
+  return store;
 };

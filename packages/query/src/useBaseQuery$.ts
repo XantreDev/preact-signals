@@ -3,15 +3,13 @@ import {
   useSignalEffectOnce,
   useSignalOfReactive,
 } from "@preact-signals/hooks";
-import { useStore } from "@preact-signals/store";
-import { batch } from "@preact/signals-core";
 import type { QueryKey, QueryObserver } from "@tanstack/query-core";
-import { useRef } from "react";
 import { useQueryClient$ } from "./react-query/QueryClientProvider";
 import { useQueryErrorResetBoundary$ } from "./react-query/QueryErrorResetBoundary";
 import { useClearResetErrorBoundary$ } from "./react-query/errorBoundaryUtils";
 import { useIsRestoring$ } from "./react-query/isRestoring";
 import { BaseQueryOptions$ } from "./types";
+import { useObserverStore } from "./useObserver";
 
 export const createBaseQuery =
   (Observer: typeof QueryObserver) =>
@@ -46,12 +44,18 @@ export const createBaseQuery =
     const $observer = useComputedOnce(
       () => new Observer($queryClient.value, $defaultedOptions.peek())
     );
-    const [state, setState] = useStore(() =>
-      $observer.value.getOptimisticResult($defaultedOptions.value)
-    );
     useSignalEffectOnce(() => {
       $observer.value.setOptions($defaultedOptions.value);
     });
+
+    const state = useObserverStore(() => ({
+      getCurrent: () =>
+        $observer.value.getOptimisticResult($defaultedOptions.value),
+      subscribe: (emit) =>
+        $observer.value.subscribe((newValue) => {
+          emit(newValue);
+        }),
+    }));
     useClearResetErrorBoundary$(useQueryErrorResetBoundary$());
 
     // const [dataResource, { refetch, mutate }] = useResource({
@@ -61,31 +65,6 @@ export const createBaseQuery =
     //       ? neverResolves<typeof state.data>()
     //       : Object.assign({}, state.data),
     // });
-    const latestTask = useRef<null | (() => void)>();
-    useSignalEffectOnce(() =>
-      setState($observer.value.getOptimisticResult($defaultedOptions.value))
-    );
-
-    useSignalEffectOnce(() =>
-      $observer.value.subscribe((result) => {
-        latestTask.current = () =>
-          batch(() => {
-            setState(result);
-            // console.log("new observer", result);
-            // mutate(() => result.data);
-            // refetch();
-          });
-
-        queueMicrotask(() => {
-          if (!latestTask.current) {
-            return;
-          }
-
-          latestTask.current();
-          latestTask.current = null;
-        });
-      })
-    );
 
     return state;
     // return useMemo(

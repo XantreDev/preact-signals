@@ -3,8 +3,9 @@
     "composite": true,
     "module": "ESNext",
     "moduleResolution": "Node",
+    "rootDir": "./",
     "allowSyntheticDefaultImports": true
   },
-  "include": ["vite.config.ts", "vite-setup.ts"],
+  "include": ["./*.ts"],
   "extends": ["../../tsconfig.json"]
 }
