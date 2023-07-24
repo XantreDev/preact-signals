@@ -11,7 +11,7 @@
 
   "references": [
     {
-      "path": "../utils"
+      "path": "../internal-utils"
     },
     {
       "path": "../hooks"
