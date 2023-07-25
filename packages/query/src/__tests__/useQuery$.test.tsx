@@ -1,5 +1,5 @@
 import { useSignalEffectOnce } from "@preact-signals/hooks";
-import { untracked } from "@preact-signals/utils";
+import { untrackedPolyfill } from "@preact-signals/utils";
 import { signal } from "@preact/signals-core";
 import { render } from "@testing-library/react";
 import { describe, it, vi } from "vitest";
@@ -28,7 +28,7 @@ describe("useQuery$()", () => {
             queryKey: key,
             queryFn,
           }));
-          emit(untracked(() => data.data));
+          emit(untrackedPolyfill(() => data.data));
           useSignalEffectOnce(() => {
             emit(data.data);
           });
@@ -55,7 +55,7 @@ describe("useQuery$()", () => {
         queryFn,
       }));
 
-      emit(untracked(() => data.data));
+      emit(untrackedPolyfill(() => data.data));
       useSignalEffectOnce(() => {
         emit(data.data);
       });
@@ -97,7 +97,7 @@ describe("useQuery$()", () => {
             enabled: isEnabled.value,
           }));
 
-          emit(untracked(() => toState(data)));
+          emit(untrackedPolyfill(() => toState(data)));
           useSignalEffectOnce(() => {
             emit(toState(data));
           });

@@ -7,8 +7,8 @@ const dummyContextComputed = computed(
 );
 let untrackedDepth = 0;
 
-type Untracked = <T>(callback: () => T) => T;
-export const untracked: Untracked =
+export type Untracked = <T>(callback: () => T) => T;
+export const untrackedPolyfill: Untracked =
   (signals as { untracked?: Untracked }).untracked ??
   (<T>(callback: () => T): T => {
     if (untrackedDepth > 0) {

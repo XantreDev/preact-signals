@@ -1,4 +1,4 @@
-import { untracked } from "@preact-signals/internal-utils";
+import { untrackedPolyfill } from "@preact-signals/internal-utils";
 import { useMemo, useRef } from "react";
 import { useSignalEffectOnce } from "../hooks";
 import { createStore } from "./createStore";
@@ -9,7 +9,7 @@ export const useStore = <T extends Record<string | number, any>>(
 ) => {
   const storeRef = useRef<T | null>();
   if (!storeRef.current) {
-    storeRef.current = createStore(untracked(storeCreator));
+    storeRef.current = createStore(untrackedPolyfill(storeCreator));
   }
 
   return [

@@ -1,18 +1,14 @@
-// import { useComputed } from "@preact/signals-react";
-// import {
-//   Reactive,
-//   GetValue,
-//   RenderResult
-// } from "../type";
-// import { useComputedOfReactive } from "../utils";
+import type { GetValue, Reactive } from "@preact-signals/internal-utils";
+import { RenderResult } from "../type";
 
-// export type KeyExtractor<T> = (item: T, index: number) => string | number;
-// export type ForProps<T extends Reactive<any[]>> = {
-//   each: Reactive<T[]>;
-//   fallback?: RenderResult;
-//   keyExtractor: KeyExtractor<GetValue<T>>;
-//   children: (accessor: GetValue<T>, index: number) => RenderResult;
-// };
+export type KeyExtractor<T> = (item: T, index: number) => React.Key;
+export type ForProps<T extends Reactive<any[]>> = {
+  each: Reactive<T[]>;
+  fallback?: RenderResult;
+  children: (accessor: GetValue<T>, index: number) => RenderResult;
+} & GetValue<T>[number] extends object
+  ? { keyExtractor: KeyExtractor<GetValue<T>> }
+  : { keyExtractor?: KeyExtractor<GetValue<T>> };
 
 // export const For = <T extends Reactive<any[]>>({
 //   children,

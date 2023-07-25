@@ -1,10 +1,10 @@
 import { useComputed, useSignal } from "@preact-signals/hooks-shim";
 import {
-    AnyReactive,
-    GetValue,
-    toSolidLikeSignal,
-    untracked,
-    unwrapReactive,
+  AnyReactive,
+  GetValue,
+  toSolidLikeSignal,
+  untrackedPolyfill,
+  unwrapReactive,
 } from "@preact-signals/internal-utils";
 import { ReadonlySignal, Signal, effect, signal } from "@preact/signals-core";
 import { Context, useContext, useEffect, useRef } from "react";
@@ -14,7 +14,7 @@ export { useComputedOnce } from "./useComputedOnce";
 export const useInitSignal = <T>(init: () => T) => {
   const signalRef = useRef<null | Signal<T>>(null);
   if (!signalRef.current) {
-    signalRef.current = signal(untracked(init));
+    signalRef.current = signal(untrackedPolyfill(init));
   }
 
   return signalRef.current!;
