@@ -1,5 +1,5 @@
 import { ReadonlySignal, Signal } from "@preact/signals-core";
-import { Call, Fn, Objects } from "hotscript";
+import type { Call, Fn, Objects } from "hotscript";
 import { createTransformProps } from "react-fast-hoc";
 import { Opaque, UnwrapOpaque } from "type-fest";
 import { Uncached } from "./$";

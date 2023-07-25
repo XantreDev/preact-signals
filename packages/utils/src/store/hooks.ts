@@ -29,4 +29,3 @@ export const useComputedStore$ = <T extends Record<string | number, any>>(
 
   return store as Readonly<typeof store>;
 };
-//

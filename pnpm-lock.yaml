@@ -151,9 +151,6 @@ importers:
 
   packages/query:
     dependencies:
-      '@preact-signals/utils':
-        specifier: workspace:*
-        version: link:../utils
       '@tanstack/query-core':
         specifier: 4.29.23
         version: 4.29.23
@@ -161,6 +158,9 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(react@18.2.0)
     devDependencies:
+      '@preact-signals/utils':
+        specifier: workspace:*
+        version: link:../utils
       '@preact/signals-core':
         specifier: ^1.2.3
         version: 1.2.3
