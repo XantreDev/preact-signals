@@ -46,6 +46,12 @@
       "types": "./dist/esm/components/index.d.ts",
       "import": "./dist/esm/components/index.js",
       "main": "./dist/cjs/components/index.js"
+    },
+    "./hoc": {
+      "react-native": "./src/hoc.ts",
+      "types": "./dist/esm/hoc.d.ts",
+      "import": "./dist/esm/hoc.js",
+      "main": "./dist/cjs/hoc.js"
     }
   },
   "scripts": {
