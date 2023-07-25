@@ -2,7 +2,7 @@ import { Match, Switch } from "@preact-signals/utils/components";
 import { useSignal } from "@preact/signals-react";
 import { Counter } from "./Counter";
 
-export const TestSwitch = () => {
+export const TestSwitch = (): JSX.Element => {
   const counter = useSignal(0);
 
   return (

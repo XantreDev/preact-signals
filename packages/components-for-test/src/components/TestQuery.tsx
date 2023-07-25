@@ -40,7 +40,7 @@ const Test = () => {
   );
 };
 
-export const TestQuery = () => (
+export const TestQuery = (): JSX.Element => (
   <Provider>
     <Test />
   </Provider>

@@ -10,7 +10,7 @@
     "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
   "extends": ["../../tsconfig.json"],
-  "exclude": ["**/node_modules", "./dist/**/*", "./*.ts"],
+  "exclude": ["**/node_modules", "./dist/**/*", "./*.ts", "**/__tests__/**"],
 
   "references": [
     {

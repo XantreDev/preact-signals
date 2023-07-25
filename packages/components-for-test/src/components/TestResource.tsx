@@ -2,7 +2,7 @@ import { Match, Switch } from "@preact-signals/utils/components";
 import { useResource } from "@preact-signals/utils/resource";
 import { fetchTodos } from "../utils";
 
-export const TestResource = () => {
+export const TestResource = (): JSX.Element => {
   const [resource, { refetch }] = useResource({
     fetcher: fetchTodos,
   });
