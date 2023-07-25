@@ -26,7 +26,26 @@
     ".": {
       "types": "./dist/esm/index.d.ts",
       "import": "./dist/esm/index.js",
+      "react-native": "./src/index.ts",
       "main": "./dist/cjs/index.js"
+    },
+    "./hooks": {
+      "types": "./dist/esm/hooks/index.d.ts",
+      "import": "./dist/esm/hooks/index.js",
+      "react-native": "./src/hooks/index.ts",
+      "main": "./dist/cjs/hooks/index.js"
+    },
+    "./store": {
+      "types": "./dist/esm/store/index.d.ts",
+      "react-native": "./src/store/index.ts",
+      "import": "./dist/esm/store/index.js",
+      "main": "./dist/cjs/store/index.js"
+    },
+    "./components": {
+      "react-native": "./src/components/index.ts",
+      "types": "./dist/esm/components/index.d.ts",
+      "import": "./dist/esm/components/index.js",
+      "main": "./dist/cjs/components/index.js"
     }
   },
   "scripts": {
@@ -51,7 +70,7 @@
     }
   },
   "dependencies": {
-    "@preact-signals/hooks": "workspace:*",
+    "@preact-signals/hooks-shim": "workspace:*",
     "@preact-signals/internal-utils": "workspace:*",
     "react-fast-hoc": "^0.1"
   },
@@ -60,6 +79,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "concurrently": "^8.2.0",
+    "happy-dom": "^10.5.2",
     "hotscript": "^1.0.13",
     "react": "^18",
     "react-dom": "^18",

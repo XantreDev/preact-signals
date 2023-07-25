@@ -1,16 +1,16 @@
 import {
-  useComputedOnce,
-  useSignalEffectOnce,
-  useSignalOfReactive,
-} from "@preact-signals/hooks";
+    useComputedOnce,
+    useSignalEffectOnce,
+    useSignalOfReactive,
+} from "@preact-signals/utils/hooks";
 import { MutationObserver, MutationObserverResult } from "@tanstack/query-core";
 import { useMemo } from "react";
 import { EMPTY_ARRAY } from "./constants";
 import { useQueryClient$ } from "./react-query/QueryClientProvider";
 import {
-  MutationOptions$,
-  MutationResult,
-  MutationResultMutateFunction,
+    MutationOptions$,
+    MutationResult,
+    MutationResultMutateFunction,
 } from "./types";
 import { useObserverStore } from "./useObserver";
 

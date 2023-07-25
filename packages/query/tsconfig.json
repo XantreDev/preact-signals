@@ -4,7 +4,8 @@
     "noEmit": false,
     "outDir": "./dist/esm",
     "paths": {
-      "@tanstack/query-core/*": ["./node_modules/@tanstack/query-core/src/*"]
+      "@tanstack/query-core/*": ["./node_modules/@tanstack/query-core/src/*"],
+      "@preact-signals/utils/*": ["./packages/utils/src/*"]
     },
     "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
@@ -14,15 +15,6 @@
   "references": [
     {
       "path": "./tsconfig.node.json"
-    },
-    {
-      "path": "../resource"
-    },
-    {
-      "path": "../hooks"
-    },
-    {
-      "path": "../store"
     },
     {
       "path": "../utils"

@@ -1,5 +1,5 @@
-import { useResource } from "@preact-signals/resource";
-import { Match, Switch } from "packages/components/src";
+import { Match, Switch } from "@preact-signals/utils/components";
+import { useResource } from "@preact-signals/utils/resource";
 import { fetchTodos } from "../utils";
 
 export const TestResource = () => {

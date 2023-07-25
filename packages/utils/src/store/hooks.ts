@@ -1,6 +1,6 @@
-import { useSignalEffectOnce } from "@preact-signals/hooks";
 import { untracked } from "@preact-signals/internal-utils";
 import { useMemo, useRef } from "react";
+import { useSignalEffectOnce } from "../hooks";
 import { createStore } from "./createStore";
 import { createStoreSetter } from "./setStoreState";
 

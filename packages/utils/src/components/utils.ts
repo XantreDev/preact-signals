@@ -1,4 +1,4 @@
-import { useComputed, useSignal } from "@preact-signals/hooks/shims";
+import { useComputed, useSignal } from "@preact-signals/hooks-shim";
 import { ReadonlySignal, Signal } from "@preact/signals-core";
 import { useRef } from "react";
 

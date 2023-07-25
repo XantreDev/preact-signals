@@ -11,13 +11,10 @@
 
   "references": [
     {
-      "path": "../preact-signals-components"
-    },
-    {
-      "path": "../resource"
-    },
-    {
       "path": "../query"
+    },
+    {
+      "path": "../utils"
     }
   ]
 }

@@ -22,12 +22,11 @@
     "baseUrl": ".",
     "sourceMap": true,
     "paths": {
-      "@preact-signals/utils": ["./packages/utils/src"],
+      "@preact-signals/utils/*": [
+        "./packages/utils/src/*"
+      ],
       "@preact-signals/internal-utils": ["./packages/internal-utils/src"],
-      "@preact-signals/hooks/*": ["./packages/hooks/src/*"],
-      "@preact-signals/components": ["packages/components/src"],
-      "@preact-signals/resource": ["./packages/resource/src"],
-      "@preact-signals/store": ["./packages/store/src"]
+      "@preact-signals/hooks-shim/*": ["./packages/hooks-shim/src/*"]
     }
   },
   "exclude": ["**/node_modules", "packages/*/dist/**/*"]

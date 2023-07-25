@@ -1,15 +1,15 @@
 "use client";
-import {
-  useSignalEffectOnce,
-  useSignalOfReactive,
-} from "@preact-signals/hooks";
 import { Reactive } from "@preact-signals/utils";
+import {
+    useSignalEffectOnce,
+    useSignalOfReactive,
+} from "@preact-signals/utils/hooks";
 import type {
-  DefaultedQueryObserverOptions,
-  Query,
-  QueryKey,
-  QueryObserverResult,
-  UseErrorBoundary,
+    DefaultedQueryObserverOptions,
+    Query,
+    QueryKey,
+    QueryObserverResult,
+    UseErrorBoundary,
 } from "@tanstack/query-core";
 import * as React from "react";
 import type { QueryErrorResetBoundaryValue } from "./QueryErrorResetBoundary";

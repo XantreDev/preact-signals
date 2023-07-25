@@ -1,13 +1,13 @@
 import {
-  useComputedOnce,
-  useSignalOfReactive,
-  useSignalOfState,
-} from "@preact-signals/hooks";
-import {
   GetTruthyValue,
   Reactive,
   isExplicitFalsy,
 } from "@preact-signals/internal-utils";
+import {
+  useComputedOnce,
+  useSignalOfReactive,
+  useSignalOfState,
+} from "../../hooks";
 import { RenderResult } from "../type";
 
 export type ShowProps<T extends Reactive<any>> = {

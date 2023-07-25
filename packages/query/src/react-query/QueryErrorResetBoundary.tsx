@@ -1,5 +1,5 @@
 "use client";
-import { useSignalContext } from "@preact-signals/hooks";
+import { useSignalContext } from "@preact-signals/utils/hooks";
 import { ReadonlySignal } from "@preact/signals-core";
 import * as React from "react";
 

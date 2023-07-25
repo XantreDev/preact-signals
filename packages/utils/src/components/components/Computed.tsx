@@ -1,5 +1,5 @@
-import { useComputedOnce } from "@preact-signals/hooks";
 import { Accessor } from "@preact-signals/internal-utils";
+import { useComputedOnce } from "../../hooks";
 import { RenderResult } from "../type";
 
 export type ComputedProps = {

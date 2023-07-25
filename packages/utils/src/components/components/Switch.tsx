@@ -1,4 +1,3 @@
-import { useComputedOnce, useSignalOfState } from "@preact-signals/hooks";
 import {
   Accessor,
   AnyReactive,
@@ -9,6 +8,7 @@ import {
   unwrapReactive,
 } from "@preact-signals/internal-utils";
 import { Children, isValidElement } from "react";
+import { useComputedOnce, useSignalOfState } from "../../hooks";
 import { RenderResult } from "../type";
 
 export type MatchProps<T extends AnyReactive> = {

@@ -2,7 +2,7 @@ import {
   useComputedOnce,
   useSignalEffectOnce,
   useSignalOfReactive,
-} from "@preact-signals/hooks";
+} from "@preact-signals/utils/hooks";
 import type { QueryKey, QueryObserver } from "@tanstack/query-core";
 import { useQueryClient$ } from "./react-query/QueryClientProvider";
 import { useQueryErrorResetBoundary$ } from "./react-query/QueryErrorResetBoundary";

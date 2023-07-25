@@ -7,14 +7,5 @@
     "sourceMap": true,
     "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
-  "exclude": ["**/node_modules", "**/dist", "./*.ts"],
-  "extends": "../../tsconfig.json",
-  "references": [
-    {
-      "path": "../utils"
-    },
-    {
-      "path": "../hooks"
-    }
-  ]
+  "extends": "../../tsconfig.json"
 }

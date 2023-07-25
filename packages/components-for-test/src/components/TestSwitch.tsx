@@ -1,5 +1,5 @@
+import { Match, Switch } from "@preact-signals/utils/components";
 import { useSignal } from "@preact/signals-react";
-import { Match, Switch } from "packages/components/src";
 import { Counter } from "./Counter";
 
 export const TestSwitch = () => {

@@ -14,7 +14,7 @@
       "path": "../internal-utils"
     },
     {
-      "path": "../hooks"
+      "path": "../hooks-shim"
     },
     {
       "path": "./tsconfig.node.json"

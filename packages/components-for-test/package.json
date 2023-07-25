@@ -27,8 +27,7 @@
     "build": "pnpm clean && pnpm build:esm && pnpm build:cjs"
   },
   "dependencies": {
-    "@preact-signals/components": "workspace:*",
-    "@preact-signals/resource": "workspace:*",
+    "@preact-signals/utils": "workspace:*",
     "@preact-signals/query": "workspace:*",
     "@preact/signals-react": "^1.3"
   },

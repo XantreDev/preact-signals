@@ -1,10 +1,10 @@
-import { useComputed, useSignal } from "@preact-signals/hooks/shims";
+import { useComputed, useSignal } from "@preact-signals/hooks-shim";
 import {
-  AnyReactive,
-  GetValue,
-  toSolidLikeSignal,
-  untracked,
-  unwrapReactive,
+    AnyReactive,
+    GetValue,
+    toSolidLikeSignal,
+    untracked,
+    unwrapReactive,
 } from "@preact-signals/internal-utils";
 import { ReadonlySignal, Signal, effect, signal } from "@preact/signals-core";
 import { Context, useContext, useEffect, useRef } from "react";
