@@ -1,20 +1,19 @@
 import { signal } from "@preact/signals-core";
 import { describe, expect, it, vi } from "vitest";
+import { createRenderer } from "../../__tests__/utils";
 import { Match, Switch } from "../components";
-import { createRenderer, sleep } from "./utils";
 
 describe("Switch()", () => {
-  const { reactRoot, root } = createRenderer();
+  const { reactRoot, root, act } = createRenderer();
 
   it("should render", async () => {
-    reactRoot().render(
+    await reactRoot().render(
       <Switch>
         <Match when={() => 1}>
           <div>1</div>
         </Match>
       </Switch>
     );
-    await sleep(0);
 
     const content = root.firstChild;
     expect(content).is.instanceOf(HTMLDivElement);
@@ -22,7 +21,7 @@ describe("Switch()", () => {
   });
 
   it("should render only first match", async () => {
-    reactRoot().render(
+    await reactRoot().render(
       <Switch>
         <Match when={() => 1}>
           <div>1</div>
@@ -33,15 +32,13 @@ describe("Switch()", () => {
       </Switch>
     );
 
-    await sleep(0);
-
     const content = root.firstChild;
     expect(content).is.instanceOf(HTMLDivElement);
     expect(content).has.property("textContent", "1");
   });
 
   it("should render only first match", async () => {
-    reactRoot().render(
+    await reactRoot().render(
       <Switch>
         <Match when={() => true}>
           <div>1</div>
@@ -52,8 +49,6 @@ describe("Switch()", () => {
       </Switch>
     );
 
-    await sleep(0);
-
     const content = root.firstChild;
     expect(content).is.instanceOf(HTMLDivElement);
     expect(content).has.property("textContent", "1");
@@ -63,13 +58,11 @@ describe("Switch()", () => {
     const ref = {};
 
     const children = vi.fn((value) => <div>{ref === value() ? 1 : 0}</div>);
-    reactRoot().render(
+    await reactRoot().render(
       <Switch>
         <Match when={() => ref}>{children}</Match>
       </Switch>
     );
-
-    await sleep(0);
 
     expect(children).toHaveBeenCalledOnce();
 
@@ -81,7 +74,7 @@ describe("Switch()", () => {
   it("should be reactive", async () => {
     const sig = signal(0);
 
-    reactRoot().render(
+    await reactRoot().render(
       <Switch>
         <Match when={() => sig.value % 3 === 0}>220</Match>
         <Match when={() => sig.value % 3 === 1}>221</Match>
@@ -89,26 +82,24 @@ describe("Switch()", () => {
       </Switch>
     );
 
-    await sleep(0);
     const content = root.firstChild;
     expect(content).is.instanceOf(Text);
     expect(content).has.property("data", "220");
+    await act(() => {
+      sig.value = 1;
+    });
 
-    sig.value = 1;
-
-    await sleep(0);
     expect(content).is.instanceOf(Text);
     expect(content).has.property("data", "221");
   });
 
   it("should use fallback in case of no match", async () => {
-    reactRoot().render(
+    await reactRoot().render(
       <Switch fallback={<div>fallback</div>}>
         <Match when={() => false}>220</Match>
       </Switch>
     );
 
-    await sleep(0);
     const content = root.firstChild;
     expect(content).is.instanceOf(HTMLDivElement);
     expect(content).has.property("textContent", "fallback");
@@ -117,45 +108,50 @@ describe("Switch()", () => {
   it("should pass not explicit falsy values", async () => {
     const sig = signal<unknown>(0);
 
-    const expectResult = async () => {
-      await sleep(0);
+    const expectResult = () => {
       const content = root.firstChild;
       expect(content).is.instanceOf(Text);
       expect(content).has.property("data", "220");
     };
 
-    const expectFallback = async () => {
-      await sleep(0);
+    const expectFallback = () => {
       const content = root.firstChild;
       expect(content).is.instanceOf(Text);
       expect(content).has.property("data", "fallback");
     };
 
-    reactRoot().render(
+    await reactRoot().render(
       <Switch fallback={"fallback"}>
         <Match when={() => sig.value}>220</Match>
       </Switch>
     );
     try {
-      await expectResult();
+      expectResult();
 
-      sig.value = false;
+      await act(() => {
+        sig.value = false;
+      });
+      expectFallback();
 
-      await expectFallback();
+      await act(() => {
+        sig.value = 1;
+      });
+      expectResult();
 
-      sig.value = 1;
+      await act(() => {
+        sig.value = null;
+      });
+      expectFallback();
 
-      await expectResult();
+      await act(() => {
+        sig.value = undefined;
+      });
+      expectFallback();
 
-      sig.value = null;
-
-      await expectFallback();
-
-      sig.value = undefined;
-      await expectFallback();
-
-      sig.value = [];
-      await expectResult();
+      await act(() => {
+        sig.value = [];
+      });
+      expectResult();
     } catch (e) {
       console.log("failed with: ", sig.peek());
       throw e;

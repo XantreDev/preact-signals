@@ -1,18 +1,16 @@
 import { signal } from "@preact/signals-core";
 import { describe, expect, it, vi } from "vitest";
+import { createRenderer } from "../../__tests__/utils";
 import { Show } from "../components";
-import { createRenderer, sleep } from "./utils";
 
 describe("Show()", () => {
-  const { reactRoot, root } = createRenderer();
+  const { reactRoot, root, act } = createRenderer();
   it("should render children when truthy", async () => {
-    reactRoot().render(
+    await reactRoot().render(
       <Show when={() => true}>
         <div>1</div>
       </Show>
     );
-
-    await sleep(0);
 
     const content = root.firstChild;
     expect(content).is.instanceOf(HTMLDivElement);
@@ -20,13 +18,11 @@ describe("Show()", () => {
   });
 
   it("should render fallback when falsy", async () => {
-    reactRoot().render(
+    await reactRoot().render(
       <Show fallback="2" when={() => false}>
         <div>1</div>
       </Show>
     );
-
-    await sleep(0);
 
     const content = root.firstChild;
     expect(content).is.instanceOf(Text);
@@ -38,21 +34,21 @@ describe("Show()", () => {
       checkSignals ? "signals" : "callback"
     })`, async () => {
       const sig = signal(true);
-      reactRoot().render(
+      await reactRoot().render(
         <Show fallback="2" when={checkSignals ? sig : () => sig.value}>
           <div>1</div>
         </Show>
       );
 
-      await sleep(0);
       {
         const content = root.firstChild;
         expect(content).is.instanceOf(HTMLDivElement);
         expect(content).has.property("textContent", "1");
       }
 
-      sig.value = false;
-      await sleep(0);
+      await act(() => {
+        sig.value = false;
+      });
 
       {
         const content = root.firstChild;
@@ -66,9 +62,7 @@ describe("Show()", () => {
     const sig = signal(true);
     const renderFn = vi.fn((value: unknown) => <div>{value!.toString()}</div>);
 
-    reactRoot().render(<Show when={() => sig.value}>{renderFn}</Show>);
-
-    await sleep(0);
+    await reactRoot().render(<Show when={() => sig.value}>{renderFn}</Show>);
 
     expect(renderFn).toHaveBeenCalledOnce();
     expect(renderFn).toHaveBeenCalledWith(true);
@@ -77,8 +71,9 @@ describe("Show()", () => {
     expect(content).is.instanceOf(HTMLDivElement);
     expect(content).has.property("textContent", "true");
 
-    sig.value = false;
-    await sleep(0);
+    await act(() => {
+      sig.value = false;
+    });
 
     expect(renderFn).toHaveBeenCalledOnce();
     expect(renderFn).not.toHaveBeenCalledWith(false);

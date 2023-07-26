@@ -19,5 +19,14 @@ export const createRenderer = () => {
     root.innerHTML = "";
     reactRoot = createRoot(root);
   });
-  return { root, reactRoot: () => reactRoot, act };
+  return {
+    root,
+    reactRoot: () => ({
+      ...reactRoot,
+      render: async (data: React.ReactNode) => {
+        await act(() => reactRoot.render(data));
+      },
+    }),
+    act,
+  };
 };
