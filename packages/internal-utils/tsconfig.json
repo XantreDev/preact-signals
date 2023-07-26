@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "rootDir": "./src",
+    "noEmit": false,
+    "outDir": "./dist/esm",
+    "emitDeclarationOnly": false,
+    "sourceMap": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+  },
+  "extends": "../../tsconfig.json"
+}

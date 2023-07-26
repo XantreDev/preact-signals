@@ -26,13 +26,39 @@
     ".": {
       "types": "./dist/esm/index.d.ts",
       "import": "./dist/esm/index.js",
+      "react-native": "./src/index.ts",
       "main": "./dist/cjs/index.js"
+    },
+    "./hooks": {
+      "types": "./dist/esm/hooks/index.d.ts",
+      "import": "./dist/esm/hooks/index.js",
+      "react-native": "./src/hooks/index.ts",
+      "main": "./dist/cjs/hooks/index.js"
+    },
+    "./store": {
+      "types": "./dist/esm/store/index.d.ts",
+      "react-native": "./src/store/index.ts",
+      "import": "./dist/esm/store/index.js",
+      "main": "./dist/cjs/store/index.js"
+    },
+    "./components": {
+      "react-native": "./src/components/index.ts",
+      "types": "./dist/esm/components/index.d.ts",
+      "import": "./dist/esm/components/index.js",
+      "main": "./dist/cjs/components/index.js"
+    },
+    "./hoc": {
+      "react-native": "./src/hoc.ts",
+      "types": "./dist/esm/hoc.d.ts",
+      "import": "./dist/esm/hoc.js",
+      "main": "./dist/cjs/hoc.js"
     }
   },
   "scripts": {
     "clean": "rimraf dist",
     "build:esm": "tsc --outDir ./dist/esm",
     "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
+    "test": "vitest",
     "lint": "tsc --noEmit",
     "watch": "concurrently \"pnpm build:esm -w\" \"pnpm build:cjs -w\"",
     "build": "pnpm clean && concurrently \"pnpm build:esm\" \"pnpm build:cjs\""
@@ -49,10 +75,20 @@
       "optional": true
     }
   },
+  "dependencies": {
+    "@preact-signals/hooks-shim": "workspace:*",
+    "@preact-signals/internal-utils": "workspace:*",
+    "react-fast-hoc": "^0.1"
+  },
   "devDependencies": {
+    "@preact/signals-react": "latest",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "concurrently": "^8.2.0",
+    "happy-dom": "^10.5.2",
+    "hotscript": "^1.0.13",
+    "react": "^18",
+    "react-dom": "^18",
     "type-fest": "^3.12.0"
   },
   "keywords": [],

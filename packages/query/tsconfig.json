@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "rootDir": "./src",
+    "noEmit": false,
+    "outDir": "./dist/esm",
+    "paths": {
+      "@tanstack/query-core/*": ["./node_modules/@tanstack/query-core/src/*"],
+      "@preact-signals/utils/*": ["./packages/utils/src/*"]
+    },
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+  },
+  "extends": ["../../tsconfig.json"],
+  "exclude": ["**/node_modules", "./dist/**/*", "./*.ts", "**/__tests__/**"],
+
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "../utils"
+    }
+  ]
+}

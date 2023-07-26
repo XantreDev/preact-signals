@@ -1,0 +1,101 @@
+{
+  "name": "@preact-signals/query",
+  "version": "0.1.0",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "A reactive utility for React/Preact that simplifies the handling of data fetching and state management. Powered by Preact Signals, it provides hooks and functions to create reactive resources and manage their state seamlessly.",
+  "sideEffects": false,
+  "repository": {
+    "url": "https://github.com/XantreGodlike/preact-signals/tree/main/packages/query",
+    "type": "git"
+  },
+  "author": {
+    "email": "valerik007.vs@gmail.com",
+    "name": "Valerii Smirnov",
+    "url": "https://github.com/XantreGodlike"
+  },
+  "type": "module",
+  "module": "./dist/esm/index.js",
+  "main": "./dist/cjs/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "source": "./src/index.ts",
+  "react-native": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "main": "./dist/cjs/index.js"
+    }
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build:esm": "tsc --outDir ./dist/esm",
+    "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
+    "lint": "tsc --noEmit",
+    "test": "vitest",
+    "watch": "concurrently \"pnpm build:esm -w\" \"pnpm build:cjs -w\"",
+    "build": "pnpm clean && concurrently \"pnpm build:esm\" \"pnpm build:cjs\""
+  },
+  "peerDependencies": {
+    "@preact-signals/utils": "workspace:*",
+    "@preact/signals-core": ">=1.2.0",
+    "react": "17.*.* || 18.*.*",
+    "react-dom": "^18.2.0"
+  },
+  "peerDependenciesMeta": {
+    "@preact/signals-core": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@preact-signals/utils": "workspace:*",
+    "@preact/signals-core": "^1.2.3",
+    "@preact/signals-react": ">=1.2.0",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.0.0",
+    "@types/jsdom": "^21.1.1",
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@types/testing-library__jest-dom": "^5.14.8",
+    "@types/use-sync-external-store": "^0.0.3",
+    "@vitest/browser": "^0.33.0",
+    "concurrently": "^8.2.0",
+    "jsdom": "^22.1.0",
+    "react": "18.2.0",
+    "react-dom": "^18.2.0",
+    "react-error-boundary": "^4.0.10",
+    "type-fest": "^3.13.0",
+    "vitest": "^0.33.0",
+    "webdriverio": "^8.13.1"
+  },
+  "dependencies": {
+    "@tanstack/query-core": "4.29.23",
+    "use-sync-external-store": "^1.2.0"
+  },
+  "keywords": [
+    "preact",
+    "react",
+    "solid",
+    "reactive",
+    "data fetching",
+    "state management",
+    "preact signals",
+    "reactivity",
+    "resources",
+    "reactive programming",
+    "hooks",
+    "async",
+    "fetch",
+    "api",
+    "frontend"
+  ],
+  "license": "MIT"
+}

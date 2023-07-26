@@ -2,12 +2,19 @@
   "compilerOptions": {
     "rootDir": "./src",
     "noEmit": false,
-    "outDir": "./dist",
+    "outDir": "./dist/esm",
     "emitDeclarationOnly": false,
     "sourceMap": true,
     "jsx": "preserve"
   },
   "extends": "../../tsconfig.json",
-  "include": ["src"],
-  "exclude": ["**/node_modules"]
+
+  "references": [
+    {
+      "path": "../query"
+    },
+    {
+      "path": "../utils"
+    }
+  ]
 }

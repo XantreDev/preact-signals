@@ -1,11 +1,13 @@
+import { TestQuery } from "./TestQuery";
 import { TestResource } from "./TestResource";
 import { TestShow } from "./TestShow";
 import { TestSwitch } from "./TestSwitch";
 
-export const Test = () => (
+export const Test = (): JSX.Element => (
   <>
     <TestShow />
     <TestSwitch />
     <TestResource />
+    <TestQuery />
   </>
 );

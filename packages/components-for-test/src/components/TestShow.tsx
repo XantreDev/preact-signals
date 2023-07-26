@@ -1,8 +1,8 @@
-import { Show } from "@preact-signals/components";
+import { Show } from "@preact-signals/utils/components";
 import { useComputed, useSignal } from "@preact/signals-react";
 import { Counter } from "./Counter";
 
-export const TestShow = () => {
+export const TestShow = (): JSX.Element => {
   const counter = useSignal(0);
 
   return (

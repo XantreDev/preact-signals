@@ -1,0 +1,55 @@
+{
+  "name": "@preact-signals/internal-utils",
+  "version": "0.1.0",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "Utils for `preact-signals` package scope",
+  "sideEffects": false,
+  "repository": {
+    "url": "https://github.com/XantreGodlike/preact-signals-utils",
+    "type": "git"
+  },
+  "author": {
+    "email": "valerik007.vs@gmail.com",
+    "name": "Valerii Smirnov",
+    "url": "https://github.com/XantreGodlike"
+  },
+  "type": "module",
+  "module": "./dist/esm/index.js",
+  "main": "./dist/cjs/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "source": "./src/index.ts",
+  "react-native": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "main": "./dist/cjs/index.js"
+    }
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build:esm": "tsc --outDir ./dist/esm",
+    "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
+    "test": "vitest",
+    "lint": "tsc --noEmit",
+    "watch": "concurrently \"pnpm build:esm -w\" \"pnpm build:cjs -w\"",
+    "build": "pnpm clean && concurrently \"pnpm build:esm\" \"pnpm build:cjs\""
+  },
+  "peerDependencies": {
+    "@preact/signals-core": ">=1.2.0"
+  },
+  "peerDependenciesMeta": {
+    "@preact/signals-core": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "type-fest": "^3.12.0"
+  },
+  "keywords": [],
+  "license": "MIT"
+}

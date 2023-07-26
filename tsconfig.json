@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "target": "ES2021",
-    "useDefineForClassFields": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": false,
     "skipLibCheck": true,
@@ -15,12 +14,20 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "declaration": true,
-    "emitDeclarationOnly": true,
+    "emitDeclarationOnly": false,
     "composite": true,
-
+    "incremental": true,
     "preserveWatchOutput": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "sourceMap": true,
+    "paths": {
+      "@preact-signals/utils/*": [
+        "./packages/utils/src/*"
+      ],
+      "@preact-signals/internal-utils": ["./packages/internal-utils/src"],
+      "@preact-signals/hooks-shim/*": ["./packages/hooks-shim/src/*"]
+    }
   },
-  "exclude": ["**/node_modules"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "exclude": ["**/node_modules", "packages/*/dist/**/*"]
 }

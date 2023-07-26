@@ -1,19 +1,10 @@
-import { Match, Switch } from "@preact-signals/components";
-import { useResource } from "@preact-signals/resource";
+import { Match, Switch } from "@preact-signals/utils/components";
+import { useResource } from "@preact-signals/utils/resource";
+import { fetchTodos } from "../utils";
 
-type Todo = {
-  userId: number;
-  id: number;
-  title: string;
-  completed: boolean;
-};
-
-export const TestResource = () => {
+export const TestResource = (): JSX.Element => {
   const [resource, { refetch }] = useResource({
-    fetcher: () =>
-      fetch("https://jsonplaceholder.typicode.com/todos").then<Todo[]>(
-        (response) => response.json()
-      ),
+    fetcher: fetchTodos,
   });
 
   return (
