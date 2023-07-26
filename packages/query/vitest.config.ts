@@ -11,6 +11,7 @@ export default defineConfig({
     alias: {
       "@preact-signals/query": "./src/index.ts",
       "@tanstack/query-core": "./node_modules/@tanstack/query-core/src",
+      "@preact-signals/hooks-shim": "@preact/signals-react",
       "@preact/signals-core": "@preact/signals-react",
     },
   },

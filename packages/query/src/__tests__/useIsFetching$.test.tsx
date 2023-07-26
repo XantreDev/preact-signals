@@ -1,5 +1,5 @@
-import { useSignalEffectOnce } from "@preact-signals/hooks";
 import { untrackedPolyfill } from "@preact-signals/utils";
+import { useSignalEffectOnce } from "@preact-signals/utils/hooks";
 import { signal } from "@preact/signals-core";
 import { describe } from "vitest";
 import { useQuery } from "../react-query";
