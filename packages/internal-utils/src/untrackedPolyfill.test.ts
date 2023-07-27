@@ -1,4 +1,4 @@
-import { computed, signal } from "@preact/signals-core";
+import { computed, signal } from "@preact/signals-react";
 import { describe, expect, it } from "vitest";
 import { untrackedPolyfill } from "./untrackedPolyfill";
 
@@ -7,9 +7,12 @@ describe("untracked()", () => {
     const sig = signal(0);
 
     const c = computed(() => untrackedPolyfill(() => sig.value));
+    const c2 = computed(() => sig.value);
     expect(c.value).toBe(0);
+    expect(c2.value).toBe(0);
     sig.value = 10;
     expect(c.value).toBe(0);
+    expect(c2.value).toBe(10);
   });
   it("should not track when nested", () => {
     const sig = signal(0);

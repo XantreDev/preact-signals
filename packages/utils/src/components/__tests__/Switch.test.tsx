@@ -1,4 +1,4 @@
-import { signal } from "@preact/signals-core";
+import { signal } from "@preact/signals-react";
 import { describe, expect, it, vi } from "vitest";
 import { createRenderer } from "../../__tests__/utils";
 import { Match, Switch } from "../components";

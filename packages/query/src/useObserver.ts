@@ -1,11 +1,11 @@
 import { Accessor } from "@preact-signals/utils";
 import {
-  useInitSignal,
-  useSignalEffectOnce,
-  useSignalOfReactive,
+    useInitSignal,
+    useSignalEffectOnce,
+    useSignalOfReactive,
 } from "@preact-signals/utils/hooks";
 import { useStore } from "@preact-signals/utils/store";
-import { ReadonlySignal } from "@preact/signals-core";
+import { ReadonlySignal } from "@preact/signals-react";
 
 type Dispose = () => void;
 

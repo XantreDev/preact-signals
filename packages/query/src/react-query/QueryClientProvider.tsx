@@ -2,7 +2,7 @@
 import * as React from "react";
 
 import { useSignalOfState } from "@preact-signals/utils/hooks";
-import { ReadonlySignal } from "@preact/signals-core";
+import { ReadonlySignal } from "@preact/signals-react";
 import type { QueryClient } from "@tanstack/query-core";
 import type { ContextOptions } from "./types";
 

@@ -1,4 +1,4 @@
-import { Signal } from "@preact/signals-core";
+import { Signal } from "@preact/signals-react";
 import { Setter } from "./type";
 
 function setter<T>(this: Signal<T>, value: Setter<T>) {

@@ -1,4 +1,4 @@
-import { signal } from "@preact/signals-core";
+import { signal } from "@preact/signals-react";
 
 export const __storeState = Symbol("store-state");
 const handler: ProxyHandler<any> = {

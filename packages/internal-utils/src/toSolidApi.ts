@@ -1,4 +1,4 @@
-import { Signal } from "@preact/signals-core";
+import { Signal } from "@preact/signals-react";
 import { accessorOfSignal } from "./getter";
 import { setterOfSignal } from "./setter";
 import { Accessor, Setter } from "./type";

@@ -47,6 +47,12 @@
       "import": "./dist/esm/components/index.js",
       "main": "./dist/cjs/components/index.js"
     },
+    "./resource": {
+      "react-native": "./src/resource/index.ts",
+      "types": "./dist/esm/resource/index.d.ts",
+      "import": "./dist/esm/resource/index.js",
+      "main": "./dist/cjs/resource/index.js"
+    },
     "./hoc": {
       "react-native": "./src/hoc.ts",
       "types": "./dist/esm/hoc.d.ts",
@@ -64,19 +70,15 @@
     "build": "pnpm clean && concurrently \"pnpm build:esm\" \"pnpm build:cjs\""
   },
   "peerDependencies": {
-    "@preact/signals-core": ">=1.2.0",
-    "react": "17.*.* || 18.*.*"
+    "react": "17.*.* || 18.*.*",
+    "@preact/signals-react": ">=1.2"
   },
   "peerDependenciesMeta": {
-    "@preact/signals-core": {
-      "optional": true
-    },
     "react": {
       "optional": true
     }
   },
   "dependencies": {
-    "@preact-signals/hooks-shim": "workspace:*",
     "@preact-signals/internal-utils": "workspace:*",
     "react-fast-hoc": "^0.1"
   },

@@ -22,11 +22,8 @@
     "baseUrl": ".",
     "sourceMap": true,
     "paths": {
-      "@preact-signals/utils/*": [
-        "./packages/utils/src/*"
-      ],
-      "@preact-signals/internal-utils": ["./packages/internal-utils/src"],
-      "@preact-signals/hooks-shim/*": ["./packages/hooks-shim/src/*"]
+      "@preact-signals/utils/*": ["./packages/utils/src/*"],
+      "@preact-signals/internal-utils": ["./packages/internal-utils/src"]
     }
   },
   "exclude": ["**/node_modules", "packages/*/dist/**/*"]

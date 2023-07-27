@@ -1,5 +1,5 @@
-import * as signals from "@preact/signals-core";
-import { computed, signal } from "@preact/signals-core";
+import * as signals from "@preact/signals-react";
+import { computed, signal } from "@preact/signals-react";
 
 const callbackSignal = signal<null | (() => any)>(null);
 const dummyContextComputed = computed(
@@ -14,12 +14,16 @@ export const untrackedPolyfill: Untracked =
     if (untrackedDepth > 0) {
       return callback();
     }
-    callbackSignal.value = callback;
+    signals.effect(() => {
+      callbackSignal.value = callback;
+    })();
     untrackedDepth++;
     try {
       return dummyContextComputed.peek();
     } finally {
       untrackedDepth--;
-      callbackSignal.value = null;
+      signals.effect(() => {
+        callbackSignal.value = null;
+      })();
     }
   });

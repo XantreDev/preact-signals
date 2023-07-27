@@ -27,12 +27,12 @@
     "build": "pnpm clean && pnpm build:esm && pnpm build:cjs"
   },
   "dependencies": {
-    "@preact-signals/utils": "workspace:*",
-    "@preact-signals/query": "workspace:*",
-    "@preact/signals-react": "^1.3"
+    "@preact-signals/utils": "workspace:*"
   },
   "peerDependencies": {
-    "react": "17.*.* || 18.*.*"
+    "react": "17.*.* || 18.*.*",
+    "@preact-signals/query": "workspace:*",
+    "@preact/signals-react": "^1.3"
   },
   "peerDependenciesMeta": {
     "react": {
@@ -40,6 +40,8 @@
     }
   },
   "devDependencies": {
+    "@preact-signals/query": "workspace:*",
+    "@preact/signals-react": "^1.3",
     "react": "^18",
     "react-dom": "^18",
     "@types/react": "^18",

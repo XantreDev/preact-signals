@@ -1,8 +1,9 @@
 import { untrackedPolyfill } from "@preact-signals/utils";
 import { useSignalEffectOnce } from "@preact-signals/utils/hooks";
-import { signal } from "@preact/signals-core";
+import { signal } from "@preact/signals-react";
 import { render } from "@testing-library/react";
-import { describe, it, vi } from "vitest";
+import React from "react";
+import { describe, expect, it, vi } from "vitest";
 import { QueryClientProvider } from "../react-query";
 import { useQuery$ } from "../useQuery$";
 import {

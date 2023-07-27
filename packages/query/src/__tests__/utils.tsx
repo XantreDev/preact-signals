@@ -1,13 +1,13 @@
-import { ReadonlySignal, effect, signal } from "@preact/signals-core";
+import { ReadonlySignal, effect, signal } from "@preact/signals-react";
 import * as utils from "@tanstack/query-core";
 import { act, render } from "@testing-library/react";
 import * as React from "react";
 import { createElement, useEffect, useState } from "react";
 import { vi } from "vitest";
 import type {
-  ContextOptions,
-  MutationOptions,
-  QueryClientConfig,
+    ContextOptions,
+    MutationOptions,
+    QueryClientConfig,
 } from "../react-query";
 import { QueryClient, QueryClientProvider } from "../react-query";
 

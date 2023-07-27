@@ -7,14 +7,11 @@
     "sourceMap": true,
     "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
-  "exclude": ["**/dist/**", "**/node_modules/**", "vitest.config.ts"],
+  "exclude": ["**/dist/**", "**/node_modules/**", "vitest.config.ts", "**/*.test.*"],
   "extends": "../../tsconfig.json",
   "references": [
     {
       "path": "../internal-utils"
-    },
-    {
-      "path": "../hooks-shim"
     },
     {
       "path": "./tsconfig.node.json"

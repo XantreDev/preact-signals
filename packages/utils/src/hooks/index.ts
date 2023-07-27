@@ -1,4 +1,3 @@
-import { useComputed, useSignal } from "@preact-signals/hooks-shim";
 import {
   AnyReactive,
   GetValue,
@@ -6,7 +5,7 @@ import {
   untrackedPolyfill,
   unwrapReactive,
 } from "@preact-signals/internal-utils";
-import { ReadonlySignal, Signal, effect, signal } from "@preact/signals-core";
+import { ReadonlySignal, Signal, effect, signal, useComputed, useSignal } from "@preact/signals-react";
 import { Context, useContext, useEffect, useRef } from "react";
 
 export { useComputedOnce } from "./useComputedOnce";

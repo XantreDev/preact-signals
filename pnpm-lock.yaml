@@ -88,16 +88,16 @@ importers:
 
   packages/components-for-test:
     dependencies:
-      '@preact-signals/query':
-        specifier: workspace:*
-        version: link:../query
       '@preact-signals/utils':
         specifier: workspace:*
         version: link:../utils
+    devDependencies:
+      '@preact-signals/query':
+        specifier: workspace:*
+        version: link:../query
       '@preact/signals-react':
         specifier: ^1.3
         version: 1.3.3(react@18.2.0)
-    devDependencies:
       '@types/react':
         specifier: ^18
         version: 18.2.15
@@ -117,34 +117,11 @@ importers:
         specifier: ^3.12.0
         version: 3.13.0
 
-  packages/hooks-shim:
-    dependencies:
-      '@preact/signals-core':
-        specifier: '>=1.2.0'
-        version: 1.2.3
-      react:
-        specifier: 17.*.* || 18.*.*
-        version: 18.2.0
-    devDependencies:
-      '@types/react':
-        specifier: ^18
-        version: 18.2.15
-      '@types/react-dom':
-        specifier: ^18
-        version: 18.2.7
-      concurrently:
-        specifier: ^8.2.0
-        version: 8.2.0
-      type-fest:
-        specifier: ^3.12.0
-        version: 3.13.0
-
   packages/internal-utils:
-    dependencies:
-      '@preact/signals-core':
-        specifier: '>=1.2.0'
-        version: 1.2.3
     devDependencies:
+      '@preact/signals-react':
+        specifier: latest
+        version: 1.3.4(react@18.2.0)
       concurrently:
         specifier: ^8.2.0
         version: 8.2.0
@@ -164,9 +141,6 @@ importers:
       '@preact-signals/utils':
         specifier: workspace:*
         version: link:../utils
-      '@preact/signals-core':
-        specifier: ^1.2.3
-        version: 1.2.3
       '@preact/signals-react':
         specifier: '>=1.2.0'
         version: 1.3.3(react@18.2.0)
@@ -243,15 +217,9 @@ importers:
 
   packages/utils:
     dependencies:
-      '@preact-signals/hooks-shim':
-        specifier: workspace:*
-        version: link:../hooks-shim
       '@preact-signals/internal-utils':
         specifier: workspace:*
         version: link:../internal-utils
-      '@preact/signals-core':
-        specifier: '>=1.2.0'
-        version: 1.2.3
       react-fast-hoc:
         specifier: ^0.1
         version: 0.1.0(hotscript@1.0.13)(react@18.2.0)
@@ -1148,6 +1116,7 @@ packages:
 
   /@preact/signals-core@1.2.3:
     resolution: {integrity: sha512-Kui4p7PMcEQevBgsTO0JBo3gyQ88Q3qzEvsVCuSp11t0JcN4DmGCTJcGRVSCq7Bn7lGxJBO+57jNSzDoDJ+QmA==}
+    dev: false
 
   /@preact/signals-core@1.3.1:
     resolution: {integrity: sha512-DL+3kDssZ3UOMz9HufwSYE/gK0+TnT1jzegfF5rstgyPrnyfjz4BHAoxmzQA6Mkp4UlKe8qjsgl3v5a/obzNig==}
