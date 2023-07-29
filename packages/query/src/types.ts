@@ -14,6 +14,7 @@ import type { ContextOptions } from "./react-query";
 export type PreactSignalQueryKey = unknown[];
 export type AnyPreactSignalQueryKey = any[];
 
+export type NotSupportedInQuery$ = "onError" | "onSettled" | "onSuccess";
 export interface StaticBaseQueryOptions<
   TQueryFnData = unknown,
   TError = unknown,
@@ -21,7 +22,10 @@ export interface StaticBaseQueryOptions<
   TQueryData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey
 > extends ContextOptions,
-    QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey> {}
+    Omit<
+      QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>,
+      NotSupportedInQuery$
+    > {}
 
 export type BaseQueryOptions$<
   TQueryFnData = unknown,

@@ -830,7 +830,7 @@ describe("useInfiniteQuery", () => {
 
     renderWithClient(queryClient, <Page />);
 
-    await sleep(300);
+    await sleep(400);
 
     expect(states.length).toBe(5);
     expect(states[0]).toMatchObject({
