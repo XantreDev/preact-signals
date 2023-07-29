@@ -7,6 +7,7 @@ import type {
   MutationObserverResult,
   QueryKey,
   QueryObserverOptions,
+  QueryObserverResult,
 } from "@tanstack/query-core";
 import { OverrideProperties } from "type-fest";
 import type { ContextOptions } from "./react-query";
@@ -15,6 +16,7 @@ export type PreactSignalQueryKey = unknown[];
 export type AnyPreactSignalQueryKey = any[];
 
 export type NotSupportedInQuery$ = "onError" | "onSettled" | "onSuccess";
+export type SafeDataField<T> = { dataSafe: T | undefined };
 export interface StaticBaseQueryOptions<
   TQueryFnData = unknown,
   TError = unknown,
@@ -48,6 +50,11 @@ export interface StaticQueryOptions<
   > {
   queryKey?: TQueryKey;
 }
+
+export type UseBaseQueryResult$<
+  TData = unknown,
+  TError = unknown
+> = QueryObserverResult<TData, TError> & SafeDataField<TData>;
 
 export type QueryOptions$<
   TQueryFnData = unknown,
@@ -89,7 +96,7 @@ export type InfiniteQueryOptions$<
 export type InfiniteQueryResult<
   TData = unknown,
   TError = unknown
-> = InfiniteQueryObserverResult<TData, TError>;
+> = InfiniteQueryObserverResult<TData, TError> & SafeDataField<TData>;
 
 export type UseInfiniteQuery$ = <
   TQueryFnData = unknown,

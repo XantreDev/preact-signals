@@ -125,4 +125,29 @@ describe("store setter", () => {
 
     dispose();
   });
+
+  it("shouldn't update store if value is the same", () => {
+    const store = createStore({
+      count: 0,
+    });
+
+    const setter = createStoreSetter(store);
+    const fn = vi.fn(() => {
+      store.count;
+    });
+    const dispose = effect(fn);
+
+    expect(fn).toHaveBeenCalledOnce();
+    setter({
+      count: 0,
+    });
+    expect(fn).toHaveBeenCalledOnce();
+
+    setter({
+      count: 0,
+    });
+    expect(fn).toHaveBeenCalledOnce();
+
+    dispose();
+  });
 });

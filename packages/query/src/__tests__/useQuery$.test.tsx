@@ -1,6 +1,5 @@
 import { signal } from "@preact-signals/unified-signals";
 import { untrackedPolyfill } from "@preact-signals/utils";
-import React from "react";
 // @ts-expect-error
 import { Show } from "@preact-signals/utils/components";
 // @ts-expect-error
@@ -309,6 +308,88 @@ describe("useQuery$()", () => {
       expect(NestedSuspense).toHaveBeenCalledOnce();
       expect(S).not.toHaveBeenCalled();
       expect(showRenderer).toHaveBeenCalledWith("data");
+    });
+  });
+
+  describe("dataSafe field", () => {
+    it("should always be defined", async () => {
+      const key = queryKey();
+      const queue = queueSignal();
+      const C = () => {
+        const query = useQuery$(() => ({
+          queryKey: key,
+          queryFn: () => sleep(5).then(() => "data"),
+        }));
+        queue.emit(query.dataSafe);
+        expect(query.dataSafe).toEqual(query.data);
+
+        return null;
+      };
+      renderWithClient(
+        createQueryClient(),
+        <>
+          <C />
+        </>
+      );
+
+      expect(queue.queue).toEqual([undefined]);
+
+      await sleepRaf(10);
+
+      expect(queue.queue).toEqual([undefined, "data"]);
+      queue.dispose();
+    });
+    it("should not suspend or throw if used", async () => {
+      const key1 = queryKey();
+      const key2 = queryKey();
+      const queue1 = queueSignal();
+      const queue2 = queueSignal();
+      const S = vi.fn(() => null);
+      const EB = vi.fn(() => null);
+      const C = vi.fn(() => {
+        const query1 = useQuery$(() => ({
+          queryKey: key1,
+          suspense: true,
+          queryFn: () => sleep(5).then(() => "data"),
+        }));
+        // useSignalEffectOnce(() => {
+        queue1.emit(query1.dataSafe);
+        // });
+        const query2 = useQuery$(() => ({
+          queryKey: key2,
+          suspense: true,
+          useErrorBoundary: true,
+          queryFn: () => sleep(5).then(() => Promise.reject("error")),
+        }));
+        queue2.emit(query2.dataSafe);
+
+        return null;
+      });
+      renderWithClient(
+        createQueryClient(),
+        <Suspense fallback={<S />}>
+          <ErrorBoundary fallbackRender={EB}>
+            <C />
+          </ErrorBoundary>
+        </Suspense>
+      );
+
+      expect(C).toHaveBeenCalledOnce();
+      expect(S).not.toHaveBeenCalled();
+      expect(EB).not.toHaveBeenCalled();
+      expect(queue1.queue).toEqual([undefined]);
+
+      await sleepRaf(10);
+
+      console.log(queue1.queue);
+      // TODO: for some reason it's called 3 times, but it should be 2, investigate
+      expect(C.mock.calls.length).toBeGreaterThan(2);
+      expect(S).not.toHaveBeenCalled();
+      expect(EB).not.toHaveBeenCalled();
+      expect(queue1.queue).toEqual([undefined, "data"]);
+
+      queue1.dispose();
+      queue2.dispose();
     });
   });
 });

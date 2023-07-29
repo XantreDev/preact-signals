@@ -3,7 +3,11 @@ import {
   useSignalEffectOnce,
   useSignalOfReactive,
 } from "@preact-signals/utils/hooks";
-import type { QueryKey, QueryObserver } from "@tanstack/query-core";
+import type {
+  QueryKey,
+  QueryObserver,
+  QueryObserverResult,
+} from "@tanstack/query-core";
 import { useMemo } from "react";
 import { useQueryClient$ } from "./react-query/QueryClientProvider";
 import { useQueryErrorResetBoundary$ } from "./react-query/QueryErrorResetBoundary";
@@ -14,8 +18,15 @@ import {
 } from "./react-query/errorBoundaryUtils";
 import { useIsRestoring$ } from "./react-query/isRestoring";
 import { ensureStaleTime, shouldSuspend } from "./react-query/suspense";
-import { BaseQueryOptions$ } from "./types";
+import { BaseQueryOptions$, UseBaseQueryResult$ } from "./types";
 import { useObserverStore } from "./useObserver";
+
+const addDataSafe = <TData, TError>(
+  res: QueryObserverResult<TData, TError>
+): UseBaseQueryResult$<TData, TError> =>
+  Object.assign(res, {
+    dataSafe: undefined,
+  });
 
 export const createBaseQuery =
   (Observer: typeof QueryObserver) =>
@@ -33,7 +44,7 @@ export const createBaseQuery =
       TQueryData,
       TQueryKey
     >
-  ) => {
+  ): UseBaseQueryResult$<TData, TError> => {
     const $options = useSignalOfReactive(options);
     const $queryClient = useQueryClient$({
       context: useComputedOnce(() => $options.value.context).value,
@@ -59,10 +70,14 @@ export const createBaseQuery =
 
     const state = useObserverStore(() => ({
       getCurrent: () =>
-        $observer.value.getOptimisticResult($defaultedOptions.value),
+        addDataSafe(
+          $observer.value.getOptimisticResult(
+            $defaultedOptions.value
+          ) as UseBaseQueryResult$<TData, TError>
+        ),
       subscribe: (emit) =>
         $observer.value.subscribe((newValue) => {
-          emit(newValue);
+          emit(addDataSafe(newValue));
         }),
     }));
     useClearResetErrorBoundary$($errorBoundary);
@@ -96,16 +111,18 @@ export const createBaseQuery =
       }
       return state.data;
     });
-
     return useMemo(
       () =>
         new Proxy(state, {
           get(target, prop) {
-            if (prop !== "data") {
-              // @ts-expect-error
-              return Reflect.get(...arguments);
+            if (prop === "data") {
+              return dataComputed.value;
             }
-            return dataComputed.value;
+            if (prop === "dataSafe") {
+              return target.data;
+            }
+            // @ts-expect-error
+            return Reflect.get(...arguments);
           },
         }),
       []
