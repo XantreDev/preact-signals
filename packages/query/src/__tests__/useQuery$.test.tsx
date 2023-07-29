@@ -1,6 +1,9 @@
 import { signal } from "@preact-signals/unified-signals";
 import { untrackedPolyfill } from "@preact-signals/utils";
+import React from "react";
+// @ts-expect-error
 import { Show } from "@preact-signals/utils/components";
+// @ts-expect-error
 import { useSignalEffectOnce } from "@preact-signals/utils/hooks";
 import { render } from "@testing-library/react";
 import { Suspense } from "react";
@@ -9,13 +12,14 @@ import { describe, expect, it, vi } from "vitest";
 import { QueryClientProvider } from "../react-query";
 import { useQuery$ } from "../useQuery$";
 import {
-    createHooksComponentElement,
-    createQueryClient,
-    fetchTime,
-    queryKey,
-    queueSignal,
-    renderWithClient,
-    sleep,
+  createHooksComponentElement,
+  createQueryClient,
+  fetchTime,
+  queryKey,
+  queueSignal,
+  renderWithClient,
+  sleep,
+  sleepRaf,
 } from "./utils";
 
 describe("useQuery$()", () => {
@@ -41,7 +45,7 @@ describe("useQuery$()", () => {
     );
 
     expect(queue).toEqual([undefined]);
-    await sleep(20);
+    await sleepRaf(20);
     expect(queue).toEqual([undefined, "data"]);
     expect(queryFn).toHaveBeenCalledTimes(1);
     dispose();
@@ -69,13 +73,13 @@ describe("useQuery$()", () => {
     );
 
     expect(queue).toEqual([undefined]);
-    await sleep(20);
+    await sleepRaf(20);
     expect(queue).toEqual([undefined, "data"]);
 
     rerender(
       <QueryClientProvider client={secondClient}>{content}</QueryClientProvider>
     );
-    await sleep(20);
+    await sleepRaf(20);
     expect(queue).toEqual([undefined, "data", undefined, "data"]);
     expect(queryFn).toHaveBeenCalledTimes(2);
     dispose();
@@ -109,7 +113,7 @@ describe("useQuery$()", () => {
       </>
     );
 
-    await sleep(20);
+    await sleepRaf(20);
     expect(queue).toEqual([
       {
         data: undefined,
@@ -124,7 +128,7 @@ describe("useQuery$()", () => {
       },
     ]);
     isEnabled.value = true;
-    await sleep(20);
+    await sleepRaf(20);
 
     expect(queue).toEqual([
       {
@@ -173,7 +177,7 @@ describe("useQuery$()", () => {
       expect(renderTimes).toBe(1);
       expect(S).not.toHaveBeenCalled();
 
-      await sleep(10);
+      await sleepRaf(10);
 
       expect(renderTimes).toBe(1);
       expect(S).not.toHaveBeenCalled();
@@ -205,7 +209,7 @@ describe("useQuery$()", () => {
       expect(queue.queue).toEqual([]);
       expect(S).toHaveBeenCalledOnce();
 
-      await sleep(20);
+      await sleepRaf(20);
 
       expect(renderTimes).toBe(2);
       expect(queue.queue).toEqual(["data"]);
@@ -217,7 +221,7 @@ describe("useQuery$()", () => {
       const S = vi.fn(() => null);
       const EB = vi.fn(() => null);
       const queryFn = vi.fn(async (): Promise<string> => {
-        await sleep(5);
+        await sleepRaf(5);
 
         return Promise.reject("error");
       });
@@ -254,7 +258,7 @@ describe("useQuery$()", () => {
       expect(S).toHaveBeenCalledOnce();
       expect(errorQueue.queue).toEqual([null]);
 
-      await sleep(60);
+      await sleepRaf(60);
 
       expect(queryFn).toHaveBeenCalledOnce();
       // react randomly reexecute EB components, there's no guaranty
@@ -300,7 +304,7 @@ describe("useQuery$()", () => {
       expect(NestedSuspense).toHaveBeenCalledOnce();
       expect(showRenderer).not.toHaveBeenCalled();
 
-      await sleep(10);
+      await sleepRaf(10);
 
       expect(NestedSuspense).toHaveBeenCalledOnce();
       expect(S).not.toHaveBeenCalled();

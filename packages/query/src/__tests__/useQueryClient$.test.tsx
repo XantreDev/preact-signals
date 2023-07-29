@@ -1,4 +1,5 @@
 import { untrackedPolyfill } from "@preact-signals/utils";
+// @ts-expect-error
 import { useSignalEffectOnce } from "@preact-signals/utils/hooks";
 import { render } from "@testing-library/react";
 import React from "react";

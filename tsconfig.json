@@ -30,4 +30,9 @@
     }
   },
   "exclude": ["**/node_modules", "packages/*/dist/**/*"]
+  //   "references": [
+  //     {
+  //       "path": "./packages/utils"
+  //     }
+  //   ]
 }

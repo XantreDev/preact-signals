@@ -1,19 +1,20 @@
 import { signal } from "@preact-signals/unified-signals";
 import { untrackedPolyfill } from "@preact-signals/utils";
+// @ts-expect-error
 import { useSignalEffectOnce } from "@preact-signals/utils/hooks";
 import React from "react";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { useQuery } from "../react-query";
 import { useIsFetching$ } from "../useIsFetching$";
 import {
-    createHooksComponentElement,
-    createQueryClient,
-    fetchTime,
-    queryKey,
-    queueSignal,
-    renderWithClient,
-    sleep,
-    useSignalState,
+  createHooksComponentElement,
+  createQueryClient,
+  fetchTime,
+  queryKey,
+  queueSignal,
+  renderWithClient,
+  sleep,
+  useSignalState,
 } from "./utils";
 
 const fetch10ms = fetchTime(10);
