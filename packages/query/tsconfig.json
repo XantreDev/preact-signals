@@ -18,6 +18,9 @@
     },
     {
       "path": "../utils"
+    },
+    {
+      "path": "../unified-signals"
     }
   ]
 }

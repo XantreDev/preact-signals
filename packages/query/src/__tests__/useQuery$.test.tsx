@@ -1,7 +1,7 @@
+import { signal } from "@preact-signals/unified-signals";
 import { untrackedPolyfill } from "@preact-signals/utils";
 import { Show } from "@preact-signals/utils/components";
 import { useSignalEffectOnce } from "@preact-signals/utils/hooks";
-import { signal } from "@preact/signals-react";
 import { render } from "@testing-library/react";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
@@ -9,13 +9,13 @@ import { describe, expect, it, vi } from "vitest";
 import { QueryClientProvider } from "../react-query";
 import { useQuery$ } from "../useQuery$";
 import {
-  createHooksComponentElement,
-  createQueryClient,
-  fetchTime,
-  queryKey,
-  queueSignal,
-  renderWithClient,
-  sleep,
+    createHooksComponentElement,
+    createQueryClient,
+    fetchTime,
+    queryKey,
+    queueSignal,
+    renderWithClient,
+    sleep,
 } from "./utils";
 
 describe("useQuery$()", () => {

@@ -1,6 +1,6 @@
 "use client";
+import { ReadonlySignal } from "@preact-signals/unified-signals";
 import { useSignalContext } from "@preact-signals/utils/hooks";
-import { ReadonlySignal } from "@preact/signals-react";
 import * as React from "react";
 
 const IsRestoringContext = React.createContext(false);

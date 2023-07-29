@@ -1,8 +1,8 @@
 "use client";
 import * as React from "react";
 
+import { ReadonlySignal } from "@preact-signals/unified-signals";
 import { useSignalOfState } from "@preact-signals/utils/hooks";
-import { ReadonlySignal } from "@preact/signals-react";
 import type { QueryClient } from "@tanstack/query-core";
 import type { ContextOptions } from "./types";
 

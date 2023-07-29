@@ -17,8 +17,6 @@ import { ensureStaleTime, shouldSuspend } from "./react-query/suspense";
 import { BaseQueryOptions$ } from "./types";
 import { useObserverStore } from "./useObserver";
 
-function noop() {}
-
 export const createBaseQuery =
   (Observer: typeof QueryObserver) =>
   <
@@ -52,10 +50,6 @@ export const createBaseQuery =
 
       return defaulted;
     });
-    // ensurePreventErrorBoundaryRetry(
-    //   $defaultedOptions.peek(),
-    //   $errorBoundary.peek()
-    // );
     const $observer = useComputedOnce(
       () => new Observer($queryClient.value, $defaultedOptions.peek())
     );
