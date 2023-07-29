@@ -1,4 +1,4 @@
-import { computed, effect } from "@preact/signals-react";
+import { computed, effect } from "@preact-signals/unified-signals";
 import { describe, expect, it, vi } from "vitest";
 import { createStore } from "./index";
 import { createStoreSetter } from "./setStoreState";

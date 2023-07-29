@@ -16,10 +16,6 @@
   "extends": "../../tsconfig.json",
   "references": [
     {
-      "path": "../polyfills"
-    },
-    { "path": "../unified-signals" },
-    {
       "path": "./tsconfig.node.json"
     }
   ]

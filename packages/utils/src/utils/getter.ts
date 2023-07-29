@@ -1,4 +1,4 @@
-import { ReadonlySignal } from "@preact/signals-react";
+import { ReadonlySignal } from "@preact-signals/unified-signals";
 import { Accessor } from "./type";
 
 function accessor(this: ReadonlySignal<unknown>) {

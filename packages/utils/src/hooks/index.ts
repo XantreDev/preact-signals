@@ -5,7 +5,7 @@ import {
   signal,
   useComputed,
   useSignal,
-} from "@preact/signals-react";
+} from "@preact-signals/unified-signals";
 import { Context, useContext, useEffect, useRef } from "react";
 import {
   AnyReactive,

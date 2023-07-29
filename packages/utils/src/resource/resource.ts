@@ -5,7 +5,7 @@ import {
   computed,
   effect,
   signal,
-} from "@preact/signals-react";
+} from "@preact-signals/unified-signals";
 import {
   Accessor,
   AnyReactive,

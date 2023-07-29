@@ -1,4 +1,4 @@
-import { ReadonlySignal } from "@preact/signals-react";
+import { ReadonlySignal } from "@preact-signals/unified-signals";
 import { ExplicitFalsy } from "./explicitFalsy";
 
 export interface Accessor<T> {

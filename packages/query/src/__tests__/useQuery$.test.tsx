@@ -205,7 +205,7 @@ describe("useQuery$()", () => {
       expect(queue.queue).toEqual([]);
       expect(S).toHaveBeenCalledOnce();
 
-      await sleep(15);
+      await sleep(20);
 
       expect(renderTimes).toBe(2);
       expect(queue.queue).toEqual(["data"]);

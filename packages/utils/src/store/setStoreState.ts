@@ -1,4 +1,4 @@
-import { batch } from "@preact/signals-react";
+import { batch } from "@preact-signals/unified-signals";
 
 export const createStoreSetter =
   <T extends Record<string | number, any>>(store: T) =>

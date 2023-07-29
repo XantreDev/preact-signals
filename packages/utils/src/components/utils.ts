@@ -1,4 +1,4 @@
-import { ReadonlySignal, Signal, useComputed, useSignal } from "@preact/signals-react";
+import { ReadonlySignal, Signal, useComputed, useSignal } from "@preact-signals/unified-signals";
 import { useRef } from "react";
 
 const isSignal = <T>(value: T | ReadonlySignal<T>): value is Signal<T> =>

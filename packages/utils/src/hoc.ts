@@ -1,4 +1,4 @@
-import { ReadonlySignal, Signal } from "@preact/signals-react";
+import { ReadonlySignal, Signal } from "@preact-signals/unified-signals";
 import type { Call, Fn, Objects } from "hotscript";
 import { createTransformProps } from "react-fast-hoc";
 import { Opaque, UnwrapOpaque } from "type-fest";

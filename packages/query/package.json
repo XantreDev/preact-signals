@@ -40,6 +40,7 @@
   },
   "peerDependencies": {
     "@preact-signals/utils": "workspace:*",
+    "@preact-signals/unified-signals": "workspace:*",
     "@preact/signals-react": ">=1.2.0",
     "react": "17.*.* || 18.*.*",
     "react-dom": "^18.2.0"
@@ -54,6 +55,7 @@
   },
   "devDependencies": {
     "@preact-signals/utils": "workspace:*",
+    "@preact-signals/unified-signals": "workspace:*",
     "@preact/signals-react": ">=1.2.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.0.0",

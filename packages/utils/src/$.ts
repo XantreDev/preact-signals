@@ -1,4 +1,4 @@
-import { ReadonlySignal, computed, useComputed } from "@preact/signals-react";
+import { ReadonlySignal, computed, useComputed } from "@preact-signals/unified-signals";
 import { Accessor } from "./utils";
 
 declare class Uncached<T> {
@@ -57,3 +57,4 @@ export const computedOf$ = <T>($value: Uncached<T>): ReadonlySignal<T> =>
   computesCache.get($value._accessor)!);
 
 export { Uncached };
+

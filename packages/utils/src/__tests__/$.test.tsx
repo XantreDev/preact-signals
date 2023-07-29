@@ -1,4 +1,4 @@
-import { computed, signal } from "@preact/signals-react";
+import { computed, signal } from "@preact-signals/unified-signals";
 import { describe, expect, it, vi } from "vitest";
 
 import { $ } from "../$";
