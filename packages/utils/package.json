@@ -79,7 +79,7 @@
     }
   },
   "dependencies": {
-    "@preact-signals/internal-utils": "workspace:*",
+    "@preact-signals/polyfills": "workspace:*",
     "react-fast-hoc": "^0.1"
   },
   "devDependencies": {

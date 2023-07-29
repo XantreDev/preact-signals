@@ -1,5 +1,5 @@
-import { Accessor } from "@preact-signals/internal-utils";
 import { ReadonlySignal, computed, useComputed } from "@preact/signals-react";
+import { Accessor } from "./utils";
 
 declare class Uncached<T> {
   constructor(accessor: Accessor<T>);

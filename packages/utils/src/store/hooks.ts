@@ -1,6 +1,6 @@
-import { untrackedPolyfill } from "@preact-signals/internal-utils";
 import { useMemo, useRef } from "react";
 import { useSignalEffectOnce } from "../hooks";
+import { untrackedPolyfill } from "../utils";
 import { createStore } from "./createStore";
 import { createStoreSetter } from "./setStoreState";
 

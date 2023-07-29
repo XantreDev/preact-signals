@@ -1,5 +1,5 @@
-import { Accessor, AnyReactive } from "@preact-signals/internal-utils";
 import { useEffect, useRef } from "react";
+import { Accessor, AnyReactive } from "../utils";
 import { CreateResourceReturn, createResource } from "./createResource";
 import { ResourceOptions } from "./resource";
 

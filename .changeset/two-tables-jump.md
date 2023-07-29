@@ -1,5 +1,5 @@
 ---
-"@preact-signals/internal-utils": minor
+"@preact-signals/polyfills": minor
 ---
 
 untracked reimplemented

@@ -117,7 +117,7 @@ importers:
         specifier: ^3.12.0
         version: 3.13.0
 
-  packages/internal-utils:
+  packages/polyfills:
     devDependencies:
       '@preact/signals-react':
         specifier: latest
@@ -217,9 +217,9 @@ importers:
 
   packages/utils:
     dependencies:
-      '@preact-signals/internal-utils':
+      '@preact-signals/polyfills':
         specifier: workspace:*
-        version: link:../internal-utils
+        version: link:../polyfills
       react-fast-hoc:
         specifier: ^0.1
         version: 0.1.0(hotscript@1.0.13)(react@18.2.0)

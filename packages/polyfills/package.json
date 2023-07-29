@@ -1,5 +1,5 @@
 {
-  "name": "@preact-signals/internal-utils",
+  "name": "@preact-signals/polyfills",
   "version": "0.1.0",
   "private": false,
   "publishConfig": {

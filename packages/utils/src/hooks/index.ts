@@ -1,12 +1,19 @@
 import {
+  ReadonlySignal,
+  Signal,
+  effect,
+  signal,
+  useComputed,
+  useSignal,
+} from "@preact/signals-react";
+import { Context, useContext, useEffect, useRef } from "react";
+import {
   AnyReactive,
   GetValue,
   toSolidLikeSignal,
   untrackedPolyfill,
   unwrapReactive,
-} from "@preact-signals/internal-utils";
-import { ReadonlySignal, Signal, effect, signal, useComputed, useSignal } from "@preact/signals-react";
-import { Context, useContext, useEffect, useRef } from "react";
+} from "../utils";
 
 export { useComputedOnce } from "./useComputedOnce";
 

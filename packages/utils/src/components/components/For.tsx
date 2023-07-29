@@ -1,10 +1,10 @@
-import type { GetValue, Reactive } from "@preact-signals/internal-utils";
 import { Fragment, cloneElement, createElement, isValidElement } from "react";
 import {
   useComputedOnce,
   useSignalOfReactive,
   useSignalOfState,
 } from "../../hooks";
+import type { GetValue, Reactive } from "../../utils";
 import { RenderResult } from "../type";
 
 type GetArrItemValue<T extends Reactive<any[]>> = GetValue<T>[number];

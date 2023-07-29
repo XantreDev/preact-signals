@@ -7,11 +7,16 @@
     "sourceMap": true,
     "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
-  "exclude": ["**/dist/**", "**/node_modules/**", "vitest.config.ts", "**/*.test.*"],
+  "exclude": [
+    "**/dist/**",
+    "**/node_modules/**",
+    "vitest.config.ts",
+    "**/*.test.*"
+  ],
   "extends": "../../tsconfig.json",
   "references": [
     {
-      "path": "../internal-utils"
+      "path": "../polyfills"
     },
     {
       "path": "./tsconfig.node.json"

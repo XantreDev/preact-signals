@@ -1,4 +1,4 @@
-import { Accessor, AnyReactive } from "@preact-signals/internal-utils";
+import { Accessor, AnyReactive } from "../utils";
 import {
   ResourceActions,
   ResourceOptions,

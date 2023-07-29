@@ -1,3 +1,3 @@
-export * from "@preact-signals/internal-utils";
 export * from "./$";
+export * from "./utils";
 

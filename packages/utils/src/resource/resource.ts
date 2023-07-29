@@ -1,20 +1,20 @@
 import {
-    Accessor,
-    AnyReactive,
-    GetTruthyValue,
-    GetValue,
-    Setter,
-    isExplicitFalsy,
-    setterOfSignal,
-} from "@preact-signals/internal-utils";
-import {
-    ReadonlySignal,
-    Signal,
-    batch,
-    computed,
-    effect,
-    signal,
+  ReadonlySignal,
+  Signal,
+  batch,
+  computed,
+  effect,
+  signal,
 } from "@preact/signals-react";
+import {
+  Accessor,
+  AnyReactive,
+  GetTruthyValue,
+  GetValue,
+  Setter,
+  isExplicitFalsy,
+  setterOfSignal,
+} from "../utils";
 import { NO_INIT } from "./constants";
 import { isPromise, removeNoInit } from "./utils";
 
