@@ -381,7 +381,6 @@ describe("useQuery$()", () => {
 
       await sleepRaf(10);
 
-      console.log(queue1.queue);
       // TODO: for some reason it's called 3 times, but it should be 2, investigate
       expect(C.mock.calls.length).toBeGreaterThan(2);
       expect(S).not.toHaveBeenCalled();

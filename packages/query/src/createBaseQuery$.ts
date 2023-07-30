@@ -5,8 +5,7 @@ import {
 } from "@preact-signals/utils/hooks";
 import type {
   QueryKey,
-  QueryObserver,
-  QueryObserverResult,
+  QueryObserver
 } from "@tanstack/query-core";
 import { useMemo } from "react";
 import { useQueryClient$ } from "./react-query/QueryClientProvider";
@@ -20,13 +19,6 @@ import { useIsRestoring$ } from "./react-query/isRestoring";
 import { ensureStaleTime, shouldSuspend } from "./react-query/suspense";
 import { BaseQueryOptions$, UseBaseQueryResult$ } from "./types";
 import { useObserverStore } from "./useObserver";
-
-const addDataSafe = <TData, TError>(
-  res: QueryObserverResult<TData, TError>
-): UseBaseQueryResult$<TData, TError> =>
-  Object.assign(res, {
-    dataSafe: undefined,
-  });
 
 export const createBaseQuery =
   (Observer: typeof QueryObserver) =>
@@ -70,29 +62,16 @@ export const createBaseQuery =
 
     const state = useObserverStore(() => ({
       getCurrent: () =>
-        addDataSafe(
-          $observer.value.getOptimisticResult(
-            $defaultedOptions.value
-          ) as UseBaseQueryResult$<TData, TError>
-        ),
+        $observer.value.getOptimisticResult(
+          $defaultedOptions.value
+        ) as UseBaseQueryResult$<TData, TError>,
       subscribe: (emit) =>
         $observer.value.subscribe((newValue) => {
-          emit(addDataSafe(newValue));
+          emit(newValue as UseBaseQueryResult$<TData, TError>);
         }),
     }));
     useClearResetErrorBoundary$($errorBoundary);
 
-    // const [dataResource, { refetch, mutate }] = useResource({
-    //   // this is not proper behavior
-    //   fetcher: () =>
-    //     state.isFetching || !state.isLoading
-    //       ? neverResolves<typeof state.data>()
-    //       : Object.assign({}, state.data),
-    // });
-    //
-    // untrackedPolyfill(() => {
-    //   console.log("initial state", Object.assign({}, state));
-    // });
     const dataComputed = useComputedOnce(() => {
       if (
         getHasError({
@@ -111,6 +90,7 @@ export const createBaseQuery =
       }
       return state.data;
     });
+    state.dataSafe = undefined;
     return useMemo(
       () =>
         new Proxy(state, {
