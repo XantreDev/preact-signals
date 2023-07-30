@@ -1,21 +1,21 @@
 import { useMemo, useRef } from "react";
 import { useSignalEffectOnce } from "../hooks";
 import { untrackedPolyfill } from "../utils";
-import { createStore } from "./createStore";
-import { createStoreSetter } from "./setStoreState";
+import { FlatStore, createFlatStore } from "./createFlatStore";
+import { FlatStoreSetter, createFlatStoreSetter } from "./setter";
 
 export const useStore = <T extends Record<string | number, any>>(
   storeCreator: () => T
-) => {
-  const storeRef = useRef<T | null>();
+): [FlatStore<T>, FlatStoreSetter<T>] => {
+  const storeRef = useRef<FlatStore<T> | null>();
   if (!storeRef.current) {
-    storeRef.current = createStore(untrackedPolyfill(storeCreator));
+    storeRef.current = createFlatStore(untrackedPolyfill(storeCreator));
   }
 
   return [
     storeRef.current!,
-    useMemo(() => createStoreSetter(storeRef.current!), []),
-  ] as const;
+    useMemo(() => createFlatStoreSetter(storeRef.current!), []),
+  ];
 };
 
 export const useComputedStore$ = <T extends Record<string | number, any>>(

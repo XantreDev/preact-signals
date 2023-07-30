@@ -35,11 +35,11 @@
       "react-native": "./src/hooks/index.ts",
       "main": "./dist/cjs/hooks/index.js"
     },
-    "./store": {
-      "types": "./dist/esm/store/index.d.ts",
-      "react-native": "./src/store/index.ts",
-      "import": "./dist/esm/store/index.js",
-      "main": "./dist/cjs/store/index.js"
+    "./flat-store": {
+      "types": "./dist/esm/flat-store/index.d.ts",
+      "react-native": "./src/flat-store/index.ts",
+      "import": "./dist/esm/flat-store/index.js",
+      "main": "./dist/cjs/flat-store/index.js"
     },
     "./components": {
       "react-native": "./src/components/index.ts",

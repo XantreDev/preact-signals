@@ -5,7 +5,7 @@ import {
     useSignalEffectOnce,
     useSignalOfReactive,
 } from "@preact-signals/utils/hooks";
-import { useStore } from "@preact-signals/utils/store";
+import { useStore } from "@preact-signals/utils/flat-store";
 
 type Dispose = () => void;
 

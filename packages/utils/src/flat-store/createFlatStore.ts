@@ -1,4 +1,5 @@
 import { signal } from "@preact-signals/unified-signals";
+import { Opaque } from "type-fest";
 
 export const __storeState = Symbol("store-state");
 const handler: ProxyHandler<any> = {
@@ -58,5 +59,13 @@ const handler: ProxyHandler<any> = {
     };
   },
 };
-export const createStore = <T extends Record<any, any>>(initialState: T): T =>
+
+export type FlatStore<T extends Record<any, any>> = Opaque<
+  T,
+  "@preact-signals/utils;flatStore"
+>;
+
+export const createFlatStore = <T extends Record<any, any>>(
+  initialState: T
+): FlatStore<T> =>
   new Proxy(Object.assign({ [__storeState]: {} }, initialState), handler);

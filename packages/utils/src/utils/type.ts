@@ -27,3 +27,7 @@ export interface Setter<T> {
   (value: Exclude<T, Function>): T;
   (value: Exclude<T, Function> | ((prev: T) => T)): T;
 }
+
+export type CreateFunction<TArgs extends readonly any[], TResult> = (
+  ...args: TArgs
+) => TResult;

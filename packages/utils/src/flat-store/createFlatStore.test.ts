@@ -1,11 +1,11 @@
 import { computed, effect } from "@preact-signals/unified-signals";
 import { describe, expect, it, vi } from "vitest";
-import { createStore } from "./index";
-import { createStoreSetter } from "./setStoreState";
+import { createFlatStore } from "./index";
+import { createFlatStoreSetter } from "./setter";
 
 describe("store", () => {
   it("store has correct value", () => {
-    const store = createStore({
+    const store = createFlatStore({
       count: 0,
     });
 
@@ -15,7 +15,7 @@ describe("store", () => {
   });
 
   it("prop can be deleted", () => {
-    const store = createStore<{ count?: number }>({
+    const store = createFlatStore<{ count?: number }>({
       count: 0,
     });
 
@@ -23,7 +23,7 @@ describe("store", () => {
     expect(store.count).toBeUndefined();
   });
   it("store can have methods", () => {
-    const store = createStore({
+    const store = createFlatStore({
       count: 0,
       increment() {
         this.count++;
@@ -34,7 +34,7 @@ describe("store", () => {
     expect(store.count).toBe(1);
   });
   it("store methods can be deleted", () => {
-    const store = createStore<{
+    const store = createFlatStore<{
       count: number;
       increment?(): void;
     }>({
@@ -48,7 +48,7 @@ describe("store", () => {
     expect(store.increment).toBeUndefined();
   });
   it("store can be updated", () => {
-    const store = createStore({
+    const store = createFlatStore({
       count: 0,
     });
 
@@ -57,7 +57,7 @@ describe("store", () => {
   });
 
   it("should be reactive", () => {
-    const store = createStore({
+    const store = createFlatStore({
       count: 0,
     });
 
@@ -71,18 +71,18 @@ describe("store", () => {
 
 describe("store setter", () => {
   it("should update store", () => {
-    const store = createStore({
+    const store = createFlatStore({
       count: 0,
     });
 
-    createStoreSetter(store)({
+    createFlatStoreSetter(store)({
       count: 1,
     });
 
     expect(store.count).toBe(1);
   });
   it("should batch signal updates", () => {
-    const store = createStore({
+    const store = createFlatStore({
       a: 0,
       b: 0,
     });
@@ -92,7 +92,7 @@ describe("store setter", () => {
       results.push(store.a + store.b);
     });
 
-    createStoreSetter(store)({
+    createFlatStoreSetter(store)({
       a: 1,
       b: 10,
     });
@@ -102,11 +102,11 @@ describe("store setter", () => {
   });
 
   it("should don't update store if value is the same", () => {
-    const store = createStore({
+    const store = createFlatStore({
       count: 0,
     });
 
-    const setter = createStoreSetter(store);
+    const setter = createFlatStoreSetter(store);
     const fn = vi.fn(() => {
       store.count;
     });
@@ -127,11 +127,11 @@ describe("store setter", () => {
   });
 
   it("shouldn't update store if value is the same", () => {
-    const store = createStore({
+    const store = createFlatStore({
       count: 0,
     });
 
-    const setter = createStoreSetter(store);
+    const setter = createFlatStoreSetter(store);
     const fn = vi.fn(() => {
       store.count;
     });
