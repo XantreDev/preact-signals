@@ -118,6 +118,10 @@ importers:
         version: 3.13.0
 
   packages/polyfills:
+    dependencies:
+      '@preact-signals/unified-signals':
+        specifier: workspace:*
+        version: link:../unified-signals
     devDependencies:
       '@preact/signals-react':
         specifier: latest

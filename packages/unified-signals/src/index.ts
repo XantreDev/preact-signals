@@ -30,6 +30,5 @@ export {
   signal,
   useComputed,
   useSignal,
-  useSignalEffect
+  useSignalEffect,
 };
-

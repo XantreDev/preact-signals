@@ -1,9 +1,5 @@
-import * as signals from "@preact/signals-react";
+import * as signals from "@preact-signals/unified-signals";
 
-// const callbackSignal = signal<null | (() => any)>(null);
-// const dummyContextComputed = computed(
-//   () => callbackSignal.value && callbackSignal.value()
-// );
 let untrackedDepth = 0;
 
 const untrackedEffect = <T>(callback: () => T): T => {
@@ -27,20 +23,16 @@ export type Untracked = <T>(callback: () => T) => T;
 export const untrackedPolyfill: Untracked =
   (signals as { untracked?: Untracked }).untracked ??
   (<T>(callback: () => T): T => {
-    if (untrackedDepth > 0) {
-      return callback();
-    }
-    // signals.effect(() => {
-    //   callbackSignal.value = callback;
-    // })();
     untrackedDepth++;
     try {
+      if (process.env.NODE_ENV === "development" && untrackedDepth > 100_000) {
+        throw new Error("untracked depth exceeded: 100_000");
+      }
+      if (untrackedDepth > 1) {
+        return callback();
+      }
       return untrackedEffect(callback);
-      // return dummyContextComputed.peek();
     } finally {
       untrackedDepth--;
-      // signals.effect(() => {
-      //   callbackSignal.value = null;
-      // })();
     }
   });

@@ -38,8 +38,8 @@
     "watch": "concurrently \"pnpm build:esm -w\" \"pnpm build:cjs -w\"",
     "build": "pnpm clean && concurrently \"pnpm build:esm\" \"pnpm build:cjs\""
   },
-  "peerDependencies": {
-    "@preact/signals-react": ">=1.2.0"
+  "dependencies": {
+    "@preact-signals/unified-signals": "workspace:*"
   },
   "devDependencies": {
     "@preact/signals-react": "latest",

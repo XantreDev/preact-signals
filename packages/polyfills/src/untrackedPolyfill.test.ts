@@ -1,4 +1,4 @@
-import { computed, effect, signal } from "@preact/signals-react";
+import { computed, effect, signal } from "@preact-signals/unified-signals";
 import { describe, expect, it, vi } from "vitest";
 import { untrackedPolyfill } from "./untrackedPolyfill";
 
