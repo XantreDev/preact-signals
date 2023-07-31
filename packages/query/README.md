@@ -17,10 +17,77 @@ pnpm i @preact-signals/query
 
 ## API Overview
 
-`@preact-signals/query` provides the same API that `@tanstack/react-query` provides plus some additional hooks that plays wheel with hooks, usually this hooks has `$` suffix:
+`react-query` signals friednly
 
-TODO: add API overview
+`@preact-signals/query` is drop in replacement for `@tanstack/react-query`. This library provides additional hooks that plays well with preact signals. This kind of hooks usually has `$` suffix:
 
-## License
+- [`useQuery$`, `useInfiniteQuery$`](#query)
+- `useMutation$`
+- `useQueryClient$`
+- `useIsFetching$`
+
+# Query hooks: `useQuery$, useInfiniteQuery$`
+
+```ts
+// returns flat-store
+function useQuery$<
+  TQueryFnData = unknown,
+  TError = unknown,
+  TData = TQueryFnData,
+  TQueryKey extends QueryKey = QueryKey
+>(
+  // options will be executed for first time and then will be used when reactivity is triggered
+  options: () => StaticQueryOptions<TQueryFnData, TError, TData, TQueryKey>
+): UseQueryResult$<TData, TError>;
+```
+
+`useQuery$` is replacement for `useQuery` from `@tanstack/react-query`. It returns flat-store that can be used to subscribe to changes.
+
+Differences from standard `useQuery`:
+
+- `options` is function that returns `StaticQueryOptions` instead of `QueryOptions`. This is because `options` will be executed only once and then will be used when reactivity is triggered.
+- returns flat-store. You shouldn't destructure it
+- `suspense` is working on demand. It means that suspense will be triggered in place when `data` field actually read. Internally suspense throws error, so we have `dataSafe` field.
+- `useErrorBoundary` also works on demand. It means that error boundary will be triggered in place when `data` field actually read.
+
+## Example
+
+```tsx
+const isUserRegistered = useSignal(false);
+
+const query = useQuery$(() => ({
+  queryKey: ["user"],
+  queryFn: () => fetchUser(),
+  enabled: isUserRegistered.value,
+}));
+
+return (
+  <>
+    <button onClick={() => (isUserRegistered.value = !isUserRegistered.value)}>
+      Register
+    </button>
+    <Show when={() => query.data}>
+      {({ data }) => <div>Name: {data.name}</div>}
+    </Show>
+  </>
+);
+```
+
+## `useMutation$`
+
+Works with the same as principals as query$ hooks. But here are gotchas:
+
+- `useErrorBoundary` is not supported yet
+
+## useQueryClient$
+
+Returns client wrapped in signals
+
+## Filter hooks (useIsFetching, useIsMutating)
+
+'
+Receives reactive callback that returns filter options
+
+### License
 
 `@preact-signals/query` is licensed under the [MIT License](./LICENSE).

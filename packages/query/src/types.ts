@@ -1,3 +1,4 @@
+import { FlatStore } from "@preact-signals/utils/flat-store";
 import type {
   InfiniteQueryObserverOptions,
   InfiniteQueryObserverResult,
@@ -40,15 +41,13 @@ export interface StaticQueryOptions<
     "queryKey"
   > {}
 
-export type UseBaseQueryResult$<
-  TData = unknown,
-  TError = unknown
-> = QueryObserverResult<TData, TError> & SafeDataField<TData>;
+export type UseBaseQueryResult$<TData = unknown, TError = unknown> = FlatStore<
+  QueryObserverResult<TData, TError> & SafeDataField<TData>
+>;
 
-export type UseQueryResult$<
-  TData = unknown,
-  TError = unknown
-> = UseBaseQueryResult$<TData, TError> & SafeDataField<TData>;
+export type UseQueryResult$<TData = unknown, TError = unknown> = FlatStore<
+  UseBaseQueryResult$<TData, TError> & SafeDataField<TData>
+>;
 
 export type UseQuery$ = <
   TQueryFnData = unknown,
@@ -57,7 +56,7 @@ export type UseQuery$ = <
   TQueryKey extends QueryKey = QueryKey
 >(
   options: () => StaticQueryOptions<TQueryFnData, TError, TData, TQueryKey>
-) => QueryObserverResult<TData, TError> & SafeDataField<TData>;
+) => UseQueryResult$<TData, TError>;
 export interface StaticInfiniteQueryOptions<
   TQueryFnData = unknown,
   TError = unknown,
@@ -76,10 +75,9 @@ export interface StaticInfiniteQueryOptions<
       "queryKey"
     > {}
 
-export type InfiniteQueryResult$<
-  TData = unknown,
-  TError = unknown
-> = InfiniteQueryObserverResult<TData, TError> & SafeDataField<TData>;
+export type InfiniteQueryResult$<TData = unknown, TError = unknown> = FlatStore<
+  InfiniteQueryObserverResult<TData, TError> & SafeDataField<TData>
+>;
 
 export type UseInfiniteQuery$ = <
   TQueryFnData = unknown,
@@ -129,16 +127,23 @@ export type MutationResult$<
   TError = unknown,
   TVariables = void,
   TContext = unknown
-> = OverrideProperties<
-  MutationObserverResult<TData, TError, TVariables, TContext>,
-  {
-    mutate: MutationResultMutateFunction$<TData, TError, TVariables, TContext>;
+> = FlatStore<
+  OverrideProperties<
+    MutationObserverResult<TData, TError, TVariables, TContext>,
+    {
+      mutate: MutationResultMutateFunction$<
+        TData,
+        TError,
+        TVariables,
+        TContext
+      >;
+    }
+  > & {
+    mutateAsync: MutationResultMutateAsyncFunction$<
+      TData,
+      TError,
+      TVariables,
+      TContext
+    >;
   }
-> & {
-  mutateAsync: MutationResultMutateAsyncFunction$<
-    TData,
-    TError,
-    TVariables,
-    TContext
-  >;
-};
+>;
