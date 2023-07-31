@@ -3,10 +3,7 @@ import {
   useSignalEffectOnce,
   useSignalOfReactive,
 } from "@preact-signals/utils/hooks";
-import type {
-  QueryKey,
-  QueryObserver
-} from "@tanstack/query-core";
+import type { QueryKey, QueryObserver } from "@tanstack/query-core";
 import { useMemo } from "react";
 import { useQueryClient$ } from "./react-query/QueryClientProvider";
 import { useQueryErrorResetBoundary$ } from "./react-query/QueryErrorResetBoundary";
@@ -17,7 +14,7 @@ import {
 } from "./react-query/errorBoundaryUtils";
 import { useIsRestoring$ } from "./react-query/isRestoring";
 import { ensureStaleTime, shouldSuspend } from "./react-query/suspense";
-import { BaseQueryOptions$, UseBaseQueryResult$ } from "./types";
+import { StaticBaseQueryOptions, UseBaseQueryResult$ } from "./types";
 import { useObserverStore } from "./useObserver";
 
 export const createBaseQuery =
@@ -29,7 +26,7 @@ export const createBaseQuery =
     TQueryData,
     TQueryKey extends QueryKey = QueryKey
   >(
-    options: BaseQueryOptions$<
+    options: () => StaticBaseQueryOptions<
       TQueryFnData,
       TError,
       TData,

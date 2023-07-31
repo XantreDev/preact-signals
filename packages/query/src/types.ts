@@ -1,4 +1,3 @@
-import type { Accessor } from "@preact-signals/utils";
 import type {
   InfiniteQueryObserverOptions,
   InfiniteQueryObserverResult,
@@ -9,11 +8,13 @@ import type {
   QueryObserverOptions,
   QueryObserverResult,
 } from "@tanstack/query-core";
-import { OverrideProperties } from "type-fest";
+import { OverrideProperties, SetOptional } from "type-fest";
 import type { ContextOptions } from "./react-query";
 
 export type NotSupportedInQuery$ = "onError" | "onSettled" | "onSuccess";
 export type SafeDataField<T> = { dataSafe: T | undefined };
+
+// For some reason in cannot use Accessor in generic types, because it inherits wrong
 
 export type Remove<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
@@ -29,27 +30,15 @@ export interface StaticBaseQueryOptions<
       NotSupportedInQuery$
     > {}
 
-export type BaseQueryOptions$<
-  TQueryFnData = unknown,
-  TError = unknown,
-  TData = TQueryFnData,
-  TQueryData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
-> = Accessor<
-  StaticBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
->;
-
 export interface StaticQueryOptions<
   TQueryFnData = unknown,
   TError = unknown,
   TData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey
-> extends Omit<
+> extends SetOptional<
     QueryObserverOptions<TQueryFnData, TError, TData, TQueryFnData, TQueryKey>,
     "queryKey"
-  > {
-  queryKey?: TQueryKey;
-}
+  > {}
 
 export type UseBaseQueryResult$<
   TData = unknown,
@@ -67,7 +56,7 @@ export type UseQuery$ = <
   TData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey
 >(
-  options: Accessor<StaticQueryOptions<TQueryFnData, TError, TData, TQueryKey>>
+  options: () => StaticQueryOptions<TQueryFnData, TError, TData, TQueryKey>
 ) => QueryObserverResult<TData, TError> & SafeDataField<TData>;
 export interface StaticInfiniteQueryOptions<
   TQueryFnData = unknown,
@@ -76,7 +65,7 @@ export interface StaticInfiniteQueryOptions<
   TQueryData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey
 > extends ContextOptions,
-    Omit<
+    SetOptional<
       InfiniteQueryObserverOptions<
         TQueryFnData,
         TError,
@@ -85,9 +74,7 @@ export interface StaticInfiniteQueryOptions<
         TQueryKey
       >,
       "queryKey"
-    > {
-  queryKey?: TQueryKey;
-}
+    > {}
 
 export type InfiniteQueryResult$<
   TData = unknown,
@@ -101,14 +88,12 @@ export type UseInfiniteQuery$ = <
   TQueryData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey
 >(
-  options: Accessor<
-    StaticInfiniteQueryOptions<
-      TQueryFnData,
-      TError,
-      TData,
-      TQueryData,
-      TQueryKey
-    >
+  options: () => StaticInfiniteQueryOptions<
+    TQueryFnData,
+    TError,
+    TData,
+    TQueryData,
+    TQueryKey
   >
 ) => InfiniteQueryResult$<TData, TError>;
 
