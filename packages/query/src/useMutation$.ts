@@ -1,16 +1,17 @@
+import { Accessor } from "@preact-signals/utils";
 import {
-    useComputedOnce,
-    useSignalEffectOnce,
-    useSignalOfReactive,
+  useComputedOnce,
+  useSignalEffectOnce,
+  useSignalOfReactive,
 } from "@preact-signals/utils/hooks";
 import { MutationObserver, MutationObserverResult } from "@tanstack/query-core";
 import { useMemo } from "react";
 import { EMPTY_ARRAY } from "./constants";
 import { useQueryClient$ } from "./react-query/QueryClientProvider";
 import {
-    MutationOptions$,
-    MutationResult,
-    MutationResultMutateFunction,
+  MutationResult$,
+  MutationResultMutateFunction$,
+  StaticMutationOptions,
 } from "./types";
 import { useObserverStore } from "./useObserver";
 
@@ -22,8 +23,8 @@ export const useMutation$ = <
   TVariables = void,
   TContext = unknown
 >(
-  options: MutationOptions$<TData, TError, TVariables, TContext>
-): MutationResult<TData, TError, TVariables, TContext> => {
+  options: Accessor<StaticMutationOptions<TData, TError, TVariables, TContext>>
+): MutationResult$<TData, TError, TVariables, TContext> => {
   const $options = useSignalOfReactive(options);
   const $client = useQueryClient$({
     context: useComputedOnce(() => $options.value.context).value,
@@ -33,7 +34,7 @@ export const useMutation$ = <
     // we will update current mutation observer with new options, so using `peek`
     () => new MutationObserver($client.value, $options.peek())
   );
-  const mutate: MutationResultMutateFunction<
+  const mutate: MutationResultMutateFunction$<
     TData,
     TError,
     TVariables,
@@ -55,7 +56,7 @@ export const useMutation$ = <
       ...result,
       mutate,
       mutateAsync: result.mutate,
-    } as MutationResult<TData, TError, TVariables, TContext>);
+    } as MutationResult$<TData, TError, TVariables, TContext>);
 
   const store = useObserverStore(() => ({
     getCurrent: () => observerResultToStore(observer.value.getCurrentResult()),

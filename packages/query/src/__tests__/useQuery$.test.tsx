@@ -1,8 +1,6 @@
 import { signal } from "@preact-signals/unified-signals";
 import { untrackedPolyfill } from "@preact-signals/utils";
-// @ts-expect-error
 import { Show } from "@preact-signals/utils/components";
-// @ts-expect-error
 import { useSignalEffectOnce } from "@preact-signals/utils/hooks";
 import { render } from "@testing-library/react";
 import { Suspense } from "react";

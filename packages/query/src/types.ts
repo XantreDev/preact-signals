@@ -1,4 +1,4 @@
-import type { Reactive } from "@preact-signals/utils";
+import type { Accessor } from "@preact-signals/utils";
 import type {
   InfiniteQueryObserverOptions,
   InfiniteQueryObserverResult,
@@ -12,11 +12,11 @@ import type {
 import { OverrideProperties } from "type-fest";
 import type { ContextOptions } from "./react-query";
 
-export type PreactSignalQueryKey = unknown[];
-export type AnyPreactSignalQueryKey = any[];
-
 export type NotSupportedInQuery$ = "onError" | "onSettled" | "onSuccess";
 export type SafeDataField<T> = { dataSafe: T | undefined };
+
+export type Remove<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+
 export interface StaticBaseQueryOptions<
   TQueryFnData = unknown,
   TError = unknown,
@@ -35,7 +35,7 @@ export type BaseQueryOptions$<
   TData = TQueryFnData,
   TQueryData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey
-> = Reactive<
+> = Accessor<
   StaticBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
 >;
 
@@ -43,9 +43,9 @@ export interface StaticQueryOptions<
   TQueryFnData = unknown,
   TError = unknown,
   TData = TQueryFnData,
-  TQueryKey extends AnyPreactSignalQueryKey = PreactSignalQueryKey
+  TQueryKey extends QueryKey = QueryKey
 > extends Omit<
-    BaseQueryOptions$<TQueryFnData, TError, TData, TQueryFnData, TQueryKey>,
+    QueryObserverOptions<TQueryFnData, TError, TData, TQueryFnData, TQueryKey>,
     "queryKey"
   > {
   queryKey?: TQueryKey;
@@ -56,19 +56,25 @@ export type UseBaseQueryResult$<
   TError = unknown
 > = QueryObserverResult<TData, TError> & SafeDataField<TData>;
 
-export type QueryOptions$<
+export type UseQueryResult$<
+  TData = unknown,
+  TError = unknown
+> = UseBaseQueryResult$<TData, TError> & SafeDataField<TData>;
+
+export type UseQuery$ = <
   TQueryFnData = unknown,
   TError = unknown,
   TData = TQueryFnData,
-  TQueryKey extends AnyPreactSignalQueryKey = PreactSignalQueryKey
-> = Reactive<StaticQueryOptions<TQueryFnData, TError, TData, TQueryKey>>;
-
+  TQueryKey extends QueryKey = QueryKey
+>(
+  options: Accessor<StaticQueryOptions<TQueryFnData, TError, TData, TQueryKey>>
+) => QueryObserverResult<TData, TError> & SafeDataField<TData>;
 export interface StaticInfiniteQueryOptions<
   TQueryFnData = unknown,
   TError = unknown,
   TData = TQueryFnData,
   TQueryData = TQueryFnData,
-  TQueryKey extends PreactSignalQueryKey = PreactSignalQueryKey
+  TQueryKey extends QueryKey = QueryKey
 > extends ContextOptions,
     Omit<
       InfiniteQueryObserverOptions<
@@ -83,17 +89,7 @@ export interface StaticInfiniteQueryOptions<
   queryKey?: TQueryKey;
 }
 
-export type InfiniteQueryOptions$<
-  TQueryFnData = unknown,
-  TError = unknown,
-  TData = TQueryFnData,
-  TQueryData = TQueryFnData,
-  TQueryKey extends PreactSignalQueryKey = PreactSignalQueryKey
-> = Reactive<
-  StaticInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
->;
-
-export type InfiniteQueryResult<
+export type InfiniteQueryResult$<
   TData = unknown,
   TError = unknown
 > = InfiniteQueryObserverResult<TData, TError> & SafeDataField<TData>;
@@ -103,16 +99,18 @@ export type UseInfiniteQuery$ = <
   TError = unknown,
   TData = TQueryFnData,
   TQueryData = TQueryFnData,
-  TQueryKey extends PreactSignalQueryKey = PreactSignalQueryKey
+  TQueryKey extends QueryKey = QueryKey
 >(
-  options: InfiniteQueryOptions$<
-    TQueryFnData,
-    TError,
-    TData,
-    TQueryData,
-    TQueryKey
+  options: Accessor<
+    StaticInfiniteQueryOptions<
+      TQueryFnData,
+      TError,
+      TData,
+      TQueryData,
+      TQueryKey
+    >
   >
-) => InfiniteQueryResult<TData, TError>;
+) => InfiniteQueryResult$<TData, TError>;
 
 export interface StaticMutationOptions<
   TData = unknown,
@@ -125,14 +123,7 @@ export interface StaticMutationOptions<
       "_defaulted" | "variables"
     > {}
 
-export type MutationOptions$<
-  TData = unknown,
-  TError = unknown,
-  TVariables = void,
-  TContext = unknown
-> = Reactive<StaticMutationOptions<TData, TError, TVariables, TContext>>;
-
-export type MutationResultMutateFunction<
+export type MutationResultMutateFunction$<
   TData = unknown,
   TError = unknown,
   TVariables = void,
@@ -141,14 +132,14 @@ export type MutationResultMutateFunction<
   ...args: Parameters<MutateFunction<TData, TError, TVariables, TContext>>
 ) => void;
 
-export type MutationResultMutateAsyncFunction<
+export type MutationResultMutateAsyncFunction$<
   TData = unknown,
   TError = unknown,
   TVariables = void,
   TContext = unknown
 > = MutateFunction<TData, TError, TVariables, TContext>;
 
-export type MutationResult<
+export type MutationResult$<
   TData = unknown,
   TError = unknown,
   TVariables = void,
@@ -156,10 +147,10 @@ export type MutationResult<
 > = OverrideProperties<
   MutationObserverResult<TData, TError, TVariables, TContext>,
   {
-    mutate: MutationResultMutateFunction<TData, TError, TVariables, TContext>;
+    mutate: MutationResultMutateFunction$<TData, TError, TVariables, TContext>;
   }
 > & {
-  mutateAsync: MutationResultMutateAsyncFunction<
+  mutateAsync: MutationResultMutateAsyncFunction$<
     TData,
     TError,
     TVariables,
