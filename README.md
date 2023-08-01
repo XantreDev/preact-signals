@@ -1,10 +1,17 @@
 # `@preact-signals` Monorepo
 
+Goal of the project to provide comprehensive tooling for using [`preact/signals`](https://github.com/preactjs/signals)
+
 ## Packages
 
-- `@preact-signals/utils`: A package that provides utils for other packages.
-- `@preact-signals/components`: [README](./packages/preact-signals-components/README.md) A package that provides solid js like components for React/Preact powered by `@preact/signals`.
-- `@preact-signals/resource`: [README](./packages/resource/README.md) A package that provides `Resource` similar that `solidjs` provides, but faster and powered by `@preact/signals`.
+- `@preact-signals/utils`: A package that contains a lot of utils for many purposes. I think it should be kinda stdlib for using preact signals.
+  - `@preact-signals/utils/resource`: Solid js like resource, for handling async reactivity
+  - `@preact-signals/utils/flat-store`: Simple flat store implementation that wraps values into signals getters
+  - `@preact-signals/utils/components`: Solid js like components implementation, which allows to scope rerenders via reactivity `Show`, `Computed`, `For`, `Switch/Match`
+  - `@preact-signals/utils/hooks`: Basic signals hooks
+- `@preact-signals/query`: Tanstack query core preact signals bindings
+- `@preact-signals/polyfills`: Trying to provide functionality which is not yet implemented in `@preact/signals-core`
+- `@preact-signals/unified-signals`: This package reexports stuff, with hooks shims in case of overwriting dependencies
 
 ## Contributing
 
