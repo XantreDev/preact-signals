@@ -1,5 +1,12 @@
 # preact-test
 
+## 0.0.4
+
+### Patch Changes
+
+- Updated dependencies [d725142]
+  - components-for-test@1.1.0
+
 ## 0.0.3
 
 ### Patch Changes

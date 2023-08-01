@@ -1,5 +1,17 @@
 # components-for-test
 
+## 1.1.0
+
+### Minor Changes
+
+- d725142: Updated a little bit
+
+### Patch Changes
+
+- Updated dependencies [d725142]
+- Updated dependencies [da805ac]
+  - @preact-signals/query@1.0.1
+
 ## 1.0.0
 
 ### Patch Changes
