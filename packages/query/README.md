@@ -1,7 +1,3 @@
-Improved `@preact-signals/query` documentation:
-
----
-
 # `@preact-signals/query`
 
 `@preact-signals/query` acts as a bridge between the core functionality of `@tanstack/query-core` and the reactivity provided by `@preact/signals`. Designed as a drop-in replacement for `@tanstack/react-query`, this library not only mirrors its counterpart's functionalities but also offers enhanced hooks tailored for preact signals.
