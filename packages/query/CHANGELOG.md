@@ -1,5 +1,12 @@
 # @preact-signals/query
 
+## 1.0.1
+
+### Patch Changes
+
+- d725142: Added `preact` adoption example in docs
+- da805ac: Removed chat gpt thing from readme))
+
 ## 1.0.0
 
 ### Minor Changes
