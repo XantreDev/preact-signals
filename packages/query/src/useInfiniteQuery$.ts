@@ -2,7 +2,7 @@ import {
   InfiniteQueryObserver,
   QueryObserver
 } from "@tanstack/query-core";
-import { createBaseQuery } from "./useBaseQuery$";
+import { createBaseQuery } from "./createBaseQuery$";
 import { UseInfiniteQuery$ } from "./types";
 
 export const useInfiniteQuery$ = createBaseQuery(

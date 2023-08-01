@@ -22,12 +22,17 @@
     "baseUrl": ".",
     "sourceMap": true,
     "paths": {
-      "@preact-signals/utils/*": [
-        "./packages/utils/src/*"
+      "@preact-signals/utils/*": ["./packages/utils/src/*"],
+      "@preact-signals/unified-signals": [
+        "./packages/unified-signals/src/index.d.ts"
       ],
-      "@preact-signals/internal-utils": ["./packages/internal-utils/src"],
-      "@preact-signals/hooks-shim/*": ["./packages/hooks-shim/src/*"]
+      "@preact-signals/polyfills": ["./packages/polyfills/src"]
     }
   },
   "exclude": ["**/node_modules", "packages/*/dist/**/*"]
+  //   "references": [
+  //     {
+  //       "path": "./packages/utils"
+  //     }
+  //   ]
 }

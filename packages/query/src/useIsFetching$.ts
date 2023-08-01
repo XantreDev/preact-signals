@@ -34,5 +34,5 @@ export const useIsFetching$ = <T extends Reactive<QueryFilters | null>>(
       }),
   }));
 
-  return stableAccessorOfSignal($isFetching);
+  return $isFetching;
 };

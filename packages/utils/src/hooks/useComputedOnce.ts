@@ -1,7 +1,7 @@
 import {
-  ReadonlySignal,
-  computed
-} from "@preact/signals-core";
+    ReadonlySignal,
+    computed
+} from "@preact-signals/unified-signals";
 import { useRef } from "react";
 
 /**

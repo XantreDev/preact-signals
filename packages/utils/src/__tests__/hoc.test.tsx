@@ -1,4 +1,4 @@
-import { ReadonlySignal, signal } from "@preact/signals-core";
+import { ReadonlySignal, signal } from "@preact-signals/unified-signals";
 import { PropsWithChildren } from "react";
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import { $, Uncached } from "../$";

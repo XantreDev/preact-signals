@@ -35,17 +35,23 @@
       "react-native": "./src/hooks/index.ts",
       "main": "./dist/cjs/hooks/index.js"
     },
-    "./store": {
-      "types": "./dist/esm/store/index.d.ts",
-      "react-native": "./src/store/index.ts",
-      "import": "./dist/esm/store/index.js",
-      "main": "./dist/cjs/store/index.js"
+    "./flat-store": {
+      "types": "./dist/esm/flat-store/index.d.ts",
+      "react-native": "./src/flat-store/index.ts",
+      "import": "./dist/esm/flat-store/index.js",
+      "main": "./dist/cjs/flat-store/index.js"
     },
     "./components": {
       "react-native": "./src/components/index.ts",
       "types": "./dist/esm/components/index.d.ts",
       "import": "./dist/esm/components/index.js",
       "main": "./dist/cjs/components/index.js"
+    },
+    "./resource": {
+      "react-native": "./src/resource/index.ts",
+      "types": "./dist/esm/resource/index.d.ts",
+      "import": "./dist/esm/resource/index.js",
+      "main": "./dist/cjs/resource/index.js"
     },
     "./hoc": {
       "react-native": "./src/hoc.ts",
@@ -64,24 +70,20 @@
     "build": "pnpm clean && concurrently \"pnpm build:esm\" \"pnpm build:cjs\""
   },
   "peerDependencies": {
-    "@preact/signals-core": ">=1.2.0",
-    "react": "17.*.* || 18.*.*"
+    "react": "17.*.* || 18.*.*",
+    "@preact/signals-react": ">=1.2"
   },
   "peerDependenciesMeta": {
-    "@preact/signals-core": {
-      "optional": true
-    },
     "react": {
       "optional": true
     }
   },
   "dependencies": {
-    "@preact-signals/hooks-shim": "workspace:*",
-    "@preact-signals/internal-utils": "workspace:*",
+    "@preact-signals/polyfills": "workspace:*",
+    "@preact-signals/unified-signals": "workspace:*",
     "react-fast-hoc": "^0.1"
   },
   "devDependencies": {
-    "@preact/signals-react": "latest",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "concurrently": "^8.2.0",

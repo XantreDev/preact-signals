@@ -19,7 +19,7 @@ importers:
         version: 1.10.7
       typescript:
         specifier: ^5.0.2
-        version: 5.0.2
+        version: 5.1.6
       vitest:
         specifier: ^0.33.0
         version: 0.33.0(@vitest/browser@0.33.0)(jsdom@22.1.0)(webdriverio@8.13.1)
@@ -88,16 +88,16 @@ importers:
 
   packages/components-for-test:
     dependencies:
-      '@preact-signals/query':
-        specifier: workspace:*
-        version: link:../query
       '@preact-signals/utils':
         specifier: workspace:*
         version: link:../utils
+    devDependencies:
+      '@preact-signals/query':
+        specifier: workspace:*
+        version: link:../query
       '@preact/signals-react':
         specifier: ^1.3
         version: 1.3.3(react@18.2.0)
-    devDependencies:
       '@types/react':
         specifier: ^18
         version: 18.2.15
@@ -117,34 +117,15 @@ importers:
         specifier: ^3.12.0
         version: 3.13.0
 
-  packages/hooks-shim:
+  packages/polyfills:
     dependencies:
-      '@preact/signals-core':
-        specifier: '>=1.2.0'
-        version: 1.2.3
-      react:
-        specifier: 17.*.* || 18.*.*
-        version: 18.2.0
+      '@preact-signals/unified-signals':
+        specifier: workspace:*
+        version: link:../unified-signals
     devDependencies:
-      '@types/react':
-        specifier: ^18
-        version: 18.2.15
-      '@types/react-dom':
-        specifier: ^18
-        version: 18.2.7
-      concurrently:
-        specifier: ^8.2.0
-        version: 8.2.0
-      type-fest:
-        specifier: ^3.12.0
-        version: 3.13.0
-
-  packages/internal-utils:
-    dependencies:
-      '@preact/signals-core':
-        specifier: '>=1.2.0'
-        version: 1.2.3
-    devDependencies:
+      '@preact/signals-react':
+        specifier: latest
+        version: 1.3.4(react@18.2.0)
       concurrently:
         specifier: ^8.2.0
         version: 8.2.0
@@ -161,15 +142,15 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(react@18.2.0)
     devDependencies:
+      '@preact-signals/unified-signals':
+        specifier: workspace:*
+        version: link:../unified-signals
       '@preact-signals/utils':
         specifier: workspace:*
         version: link:../utils
-      '@preact/signals-core':
-        specifier: ^1.2.3
-        version: 1.2.3
       '@preact/signals-react':
         specifier: '>=1.2.0'
-        version: 1.3.3(react@18.2.0)
+        version: 1.3.4(react@18.2.0)
       '@testing-library/jest-dom':
         specifier: ^5.16.5
         version: 5.16.5
@@ -217,7 +198,7 @@ importers:
         version: 0.33.0(@vitest/browser@0.33.0)(jsdom@22.1.0)(webdriverio@8.13.1)
       webdriverio:
         specifier: ^8.13.1
-        version: 8.13.1(typescript@5.0.2)
+        version: 8.13.1(typescript@5.1.6)
 
   packages/type:
     dependencies:
@@ -241,24 +222,40 @@ importers:
         specifier: ^18.0.9
         version: 18.2.7
 
-  packages/utils:
+  packages/unified-signals:
     dependencies:
-      '@preact-signals/hooks-shim':
-        specifier: workspace:*
-        version: link:../hooks-shim
-      '@preact-signals/internal-utils':
-        specifier: workspace:*
-        version: link:../internal-utils
+      '@preact/signals':
+        specifier: '>=1.1.0'
+        version: 1.1.4(preact@10.15.1)
       '@preact/signals-core':
-        specifier: '>=1.2.0'
+        specifier: '>=1.1.0'
         version: 1.2.3
-      react-fast-hoc:
-        specifier: ^0.1
-        version: 0.1.0(hotscript@1.0.13)(react@18.2.0)
     devDependencies:
       '@preact/signals-react':
         specifier: latest
         version: 1.3.4(react@18.2.0)
+      concurrently:
+        specifier: ^8.2.0
+        version: 8.2.0
+      happy-dom:
+        specifier: ^10.5.2
+        version: 10.5.2
+
+  packages/utils:
+    dependencies:
+      '@preact-signals/polyfills':
+        specifier: workspace:*
+        version: link:../polyfills
+      '@preact-signals/unified-signals':
+        specifier: workspace:*
+        version: link:../unified-signals
+      '@preact/signals-react':
+        specifier: '>=1.2'
+        version: 1.3.4(react@18.2.0)
+      react-fast-hoc:
+        specifier: ^0.1
+        version: 0.1.0(hotscript@1.0.13)(react@18.2.0)
+    devDependencies:
       '@types/react':
         specifier: ^18
         version: 18.2.15
@@ -1148,6 +1145,7 @@ packages:
 
   /@preact/signals-core@1.2.3:
     resolution: {integrity: sha512-Kui4p7PMcEQevBgsTO0JBo3gyQ88Q3qzEvsVCuSp11t0JcN4DmGCTJcGRVSCq7Bn7lGxJBO+57jNSzDoDJ+QmA==}
+    dev: false
 
   /@preact/signals-core@1.3.1:
     resolution: {integrity: sha512-DL+3kDssZ3UOMz9HufwSYE/gK0+TnT1jzegfF5rstgyPrnyfjz4BHAoxmzQA6Mkp4UlKe8qjsgl3v5a/obzNig==}
@@ -1169,7 +1167,6 @@ packages:
       '@preact/signals-core': 1.3.1
       react: 18.2.0
       use-sync-external-store: 1.2.0(react@18.2.0)
-    dev: true
 
   /@preact/signals@1.1.4(preact@10.15.1):
     resolution: {integrity: sha512-4s0U8yHfy6OzBjTx8lgG0JZGFq1y+ye7xLmaaI8SXyJ5p+jAtMKW40Mg3GDLISM5WyKnqbfrQ4SOmbq1VTBtTw==}
@@ -1213,7 +1210,7 @@ packages:
       - supports-color
     dev: true
 
-  /@puppeteer/browsers@1.3.0(typescript@5.0.2):
+  /@puppeteer/browsers@1.3.0(typescript@5.1.6):
     resolution: {integrity: sha512-an3QdbNPkuU6qpxpbssxAbjRLJcF+eP4L8UqIY3+6n0sbaVxw5pz7PiCLy9g32XEZuoamUlV5ZQPnA6FxvkIHA==}
     engines: {node: '>=16.0.0'}
     hasBin: true
@@ -1230,7 +1227,7 @@ packages:
       progress: 2.0.3
       proxy-from-env: 1.1.0
       tar-fs: 2.1.1
-      typescript: 5.0.2
+      typescript: 5.1.6
       unbzip2-stream: 1.4.3
       yargs: 17.7.1
     transitivePeerDependencies:
@@ -2527,7 +2524,7 @@ packages:
     resolution: {integrity: sha512-MQNeVRDiJ9yAfHUlumx7OCweu15GgMIqEIvz/DTZwpZKjT7oGo9FcwUqS7PyH0mDJsWnuJIn41BZ4SPoQbZfew==}
     dev: true
 
-  /devtools@8.12.1(typescript@5.0.2):
+  /devtools@8.12.1(typescript@5.1.6):
     resolution: {integrity: sha512-R72raQLN1lDSqbr2DVj9SRh07JRyojzmrcLa33VBa2nw3cf5ZyHOHe0DgxlJ/5c2Dfs1+wGNJy16gWKGBq+xgg==}
     engines: {node: ^16.13 || >=18}
     dependencies:
@@ -2540,7 +2537,7 @@ packages:
       chrome-launcher: 0.15.2
       edge-paths: 3.0.5
       import-meta-resolve: 3.0.0
-      puppeteer-core: 20.3.0(typescript@5.0.2)
+      puppeteer-core: 20.3.0(typescript@5.1.6)
       query-selector-shadow-dom: 1.0.1
       ua-parser-js: 1.0.35
       uuid: 9.0.0
@@ -4733,7 +4730,7 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /puppeteer-core@20.3.0(typescript@5.0.2):
+  /puppeteer-core@20.3.0(typescript@5.1.6):
     resolution: {integrity: sha512-264pBrIui5bO6NJeOcbJrLa0OCwmA4+WK00JMrLIKTfRiqe2gx8KWTzLsjyw/bizErp3TKS7vt/I0i5fTC+mAw==}
     engines: {node: '>=16.0.0'}
     peerDependencies:
@@ -4742,12 +4739,12 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@puppeteer/browsers': 1.3.0(typescript@5.0.2)
+      '@puppeteer/browsers': 1.3.0(typescript@5.1.6)
       chromium-bidi: 0.4.9(devtools-protocol@0.0.1120988)
       cross-fetch: 3.1.6
       debug: 4.3.4
       devtools-protocol: 0.0.1120988
-      typescript: 5.0.2
+      typescript: 5.1.6
       ws: 8.13.0
     transitivePeerDependencies:
       - bufferutil
@@ -5600,12 +5597,6 @@ packages:
       is-typed-array: 1.1.10
     dev: true
 
-  /typescript@5.0.2:
-    resolution: {integrity: sha512-wVORMBGO/FAs/++blGNeAVdbNKtIh1rbBL2EyQ1+J9lClJ93KiiKe8PmFIVdXhHcyv44SL9oglmfeSsndo0jRw==}
-    engines: {node: '>=12.20'}
-    hasBin: true
-    dev: true
-
   /typescript@5.1.6:
     resolution: {integrity: sha512-zaWCozRZ6DLEWAWFrVDz1H6FVXzUSfTy5FUMWsQlU8Ym5JP9eO4xkTIROFCQvhQf61z6O/G6ugw3SgAnvvm+HA==}
     engines: {node: '>=14.17'}
@@ -5807,7 +5798,7 @@ packages:
       tinypool: 0.6.0
       vite: 4.4.0(@types/node@18.15.3)
       vite-node: 0.33.0(@types/node@18.15.3)
-      webdriverio: 8.13.1(typescript@5.0.2)
+      webdriverio: 8.13.1(typescript@5.1.6)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
       - less
@@ -5852,7 +5843,7 @@ packages:
       - utf-8-validate
     dev: true
 
-  /webdriverio@8.13.1(typescript@5.0.2):
+  /webdriverio@8.13.1(typescript@5.1.6):
     resolution: {integrity: sha512-7+nYYe3+SpMXszyzMi9VS8ynTMXgnWMwuHWfrIuNieVmHGqAF8S3nLa4/5POpegNOJwOXNE6dEucf5l9MLxC/Q==}
     engines: {node: ^16.13 || >=18}
     dependencies:
@@ -5867,7 +5858,7 @@ packages:
       aria-query: 5.1.3
       css-shorthand-properties: 1.1.1
       css-value: 0.0.1
-      devtools: 8.12.1(typescript@5.0.2)
+      devtools: 8.12.1(typescript@5.1.6)
       devtools-protocol: 0.0.1161598
       grapheme-splitter: 1.0.4
       import-meta-resolve: 3.0.0
@@ -5875,7 +5866,7 @@ packages:
       lodash.clonedeep: 4.5.0
       lodash.zip: 4.2.0
       minimatch: 9.0.3
-      puppeteer-core: 20.3.0(typescript@5.0.2)
+      puppeteer-core: 20.3.0(typescript@5.1.6)
       query-selector-shadow-dom: 1.0.1
       resq: 1.11.0
       rgb2hex: 0.2.5

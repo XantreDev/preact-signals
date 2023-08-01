@@ -1,137 +1,163 @@
-# `@preact-signals/resource`
+# `@preact-signals/query`
 
-`@preact-signals/resource` is a powerful reactive utility for managing data fetching and its related state in React/Preact. By wrapping asynchronous functions with a reactive pattern, it allows you to seamlessly integrate data fetching into your Preact application.
+`@preact-signals/query` is `@tanstack/query-core` react bindings that uses `@preact/signals` for reactivity. It is drop-in replacement for `@tanstack/react-query`, because it shares tests and source code.
 
 ## Installation
 
-You can install `@preact-signals/resource` using your package manager of choice:
+You can install `@preact-signals/query` using your package manager of choice:
 
 ```bash
 # npm
-npm i @preact-signals/resource
+npm i @preact-signals/query
 # yarn
-yarn i @preact-signals/resource
+yarn i @preact-signals/query
 # pnpm
-pnpm i @preact-signals/resource
+pnpm i @preact-signals/query
 ```
 
 ## API Overview
 
-`@preact-signals/resource` provides the following main functions:
+Truly reactive `@tanstack/react-query`
 
-- `createResource`
-- `useResource`
+`@preact-signals/query` has the same api as `@tanstack/react-query`, but provides hooks that plays well with preact signals. This library provides additional hooks that plays well with preact signals. This kind of hooks usually has `$` suffix:
 
-### `createResource`
+- `useQuery$`, `useInfiniteQuery$`
+- `useMutation$`
+- `useQueryClient$`
+- `useIsFetching$`
 
-`createResource` is a utility function to wrap a repeated promise in a reactive pattern. It accepts an options object which should at least include a `fetcher` function. This `fetcher` function should return a Promise that fetches the necessary data. Optionally, a `source` can be provided which can trigger the `fetcher` whenever it changes.
+Will be implemented later:
 
-The `createResource` function returns an array containing a `ResourceState` object and a set of actions (`mutate`, `refetch`, `dispose`)
+- `useQueries$`
+- `useIsMutating$`
 
-```typescript
-import { createResource } from "@preact-signals/resource";
+# Query hooks: `useQuery$, useInfiniteQuery$`
 
-const [resource, { mutate, refetch }] = createResource({
-  fetcher: () => fetch("https://swapi.dev/api/people/1").then((r) => r.json()),
-});
-
-// or with source
-const [resource, { mutate, refetch, dispose }] = createResource({
-  source: () => userId.value,
-  fetcher: (userId) =>
-    fetch(`https://swapi.dev/api/people/${userId}`).then((r) => r.json()),
-});
+```ts
+// returns flat-store
+function useQuery$<
+  TQueryFnData = unknown,
+  TError = unknown,
+  TData = TQueryFnData,
+  TQueryKey extends QueryKey = QueryKey
+>(
+  // options will be executed for first time and then will be used when reactivity is triggered
+  options: () => StaticQueryOptions<TQueryFnData, TError, TData, TQueryKey>
+): UseQueryResult$<TData, TError>;
 ```
 
-- `mutate`: allows manually overwriting the resource without calling the fetcher
-- `refetch`: re-runs the fetcher without changing the source, and if called with a value, that value will be passed to the fetcher via the `refetching` property on the fetcher's second parameter
+`useQuery$` is replacement for `useQuery` from `@tanstack/react-query`. It returns flat-store that can be used to subscribe to changes.
 
-### `useResource`
+Differences from standard `useQuery`:
 
-`useResource` is a Preact hook that allows for using resources inside React/Preact components.
+- Only object syntax supported
+- `options` is function that returns `StaticQueryOptions` instead of `QueryOptions`. This is because `options` will be executed only once and then will be used when reactivity is triggered.
+- returns flat-store. You shouldn't destructure it
+- `suspense` is working on demand. It means that suspense will be triggered in place when `data` field actually read. Internally suspense throws error, so we have `dataSafe` field.
+- `useErrorBoundary` also works on demand. It means that error boundary will be triggered in place when `data` field actually read.
+- `onError`, `onSettled`, `onSuccess` are deprecated in react-query, so reactive query hooks are not implementing this pattern
 
-```typescript
-import { Match, Switch } from "@preact-signals/components";
-import { useResource } from "@preact-signals/resource";
+### Example
 
-const [resource, { refetch }] = useResource({
-  fetcher: () =>
-    fetch("https://jsonplaceholder.typicode.com/todos").then((response) =>
-      response.json()
-    ),
-});
+```tsx
+const isUserRegistered = useSignal(false);
+
+const query = useQuery$(() => ({
+  queryKey: ["user"],
+  queryFn: () => fetchUser(),
+  enabled: isUserRegistered.value,
+}));
 
 return (
   <>
-    <button onClick={() => refetch()}>Refresh</button>
-    <Switch>
-      <Match when={() => resource.loading}>Loading...</Match>
-      <Match when={() => resource.error}>Error</Match>
-      <Match when={() => resource()}>
-        {(todos) => (
-          <ul>
-            {todos().map((todo) => (
-              <li key={todo.id}>
-                {todo.title}, {todo.completed ? "Completed" : "Not completed"}
-              </li>
-            ))}
-          </ul>
-        )}
-      </Match>
-    </Switch>
+    <button onClick={() => (isUserRegistered.value = !isUserRegistered.value)}>
+      Register
+    </button>
+    <Show when={() => query.data}>
+      {({ data }) => <div>Name: {data.name}</div>}
+    </Show>
   </>
 );
 ```
 
----
-
-### Example: Creating a Resource that Depends on Another Resource/Signal
+### Example suspense
 
 ```tsx
-import { useSignal } from "@preact/signals-react";
-import { createResource, useResource } from "@preact-signals/resource";
+const query = useQuery$(() => ({
+  queryKey: ["key"],
+  queryFn: fetchStatistics,
+  suspense: true,
+}));
 
-const Component = () => {
-  // Assume that we have a signal that represents the current user ID
-  const userId = useSignal(1);
+return (
+  <>
+    <Profile />
+    <Jokes />
 
-  // Then we create another resource that fetches the user's todos
-  // This resource is dependent on the userResource
-  const [todosResource] = useResource({
-    source: () => userId.value, // Here is the dependency
-    fetcher: (userId) =>
-      fetch(`https://jsonplaceholder.typicode.com/users/${userId}/todos`).then(
-        (response) => response.json()
-      ),
-  });
-
-  return (
-    <>
-      <button onClick={() => (userId.value = userId.peek() === 1 ? 2 : 1)}>
-        Switch User
-      </button>
-      <Switch>
-        <Match when={() => todosResource.loading}>Loading...</Match>
-        <Match when={() => todosResource.error}>Error</Match>
-        <Match when={() => todosResource()}>
-          {(todos) => (
-            <ul>
-              {todos().map((todo) => (
-                <li key={todo.id}>
-                  {todo.title}, {todo.completed ? "Completed" : "Not completed"}
-                </li>
-              ))}
-            </ul>
-          )}
-        </Match>
-      </Switch>
-    </>
-  );
-};
+    {/* only this place will suspend */}
+    <Suspense fallback={<Loader />}>
+      <Show when={() => query.data}>
+        {(data) => (
+          <ul>
+            {data().map((item) => (
+              <li key={item.label}>{item.data}</li>
+            ))}
+          </ul>
+        )}
+      </Show>
+    </Suspense>
+  </>
+);
 ```
 
-In this example, the `userPostsResource` fetches the posts for the user indicated by the `userId` signal. When the `userId` signal changes, the `userPostsResource` will automatically fetch the new user's posts.
+## `useMutation$`
 
-## License
+Works with the same as principals as query$ hooks. But here are gotchas:
 
-`@preact-signals/resource` is licensed under the [MIT License](./LICENSE).
+- `useErrorBoundary` is not supported yet. And i don't think this feature is helpful
+
+### Example:
+
+```tsx
+const mutation = useMutation$(() => ({
+  mutationFn: doSomething,
+  onError: () => {},
+  onSuccess: () => {},
+}));
+
+return <button onClick={mutation.mutate}>Mutate</button>;
+```
+
+## `useQueryClient$`
+
+Returns client wrapped in signals
+
+## Filter hooks (`useIsFetching$`)
+
+Receives reactive callback that returns filter options. Hook is returning result accessor
+
+```tsx
+// returns ReadonlySignal<number>
+const isFetching = useIsFetching$(() => null);
+const isFetchingByKey = useIsFetching$(() => ({
+  queryFn: ["123"],
+}));
+
+return (
+  <>
+    <div>Count of all fetching queries(not optimized): {isFetching.value}</div>
+
+    <div>
+      Count of all fetching queries(optimized, no rerenders): {isFetching}
+    </div>
+    <div>
+      Count of fetching queries by key(optimized, no rerenders):{" "}
+      {isFetchingByKey}
+    </div>
+  </>
+);
+```
+
+### License
+
+`@preact-signals/query` is licensed under the [MIT License](./LICENSE).

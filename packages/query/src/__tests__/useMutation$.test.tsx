@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { describe, vi } from "vitest";
+import React, { useEffect } from "react";
+import { describe, expect, it, vi } from "vitest";
 import { useMutation$ } from "../useMutation$";
 import {
   createHooksComponentElement,
@@ -12,7 +12,7 @@ import {
 describe("useMutation$()", () => {
   it("should mutate", async () => {
     const mutationFn = vi.fn(() => Promise.resolve("data"));
-    const onSuccess = vi.fn();
+    const onSuccess = vi.fn<[]>();
     const onRender = vi.fn();
     renderWithClient(
       createQueryClient(),
@@ -40,7 +40,7 @@ describe("useMutation$()", () => {
 
   it("should rerender if subscribed", async () => {
     const mutationFn = vi.fn(() => Promise.resolve("data"));
-    const onSuccess = vi.fn();
+    const onSuccess = vi.fn<[]>();
     const { queue, emit, dispose } = queueSignal();
     renderWithClient(
       createQueryClient(),

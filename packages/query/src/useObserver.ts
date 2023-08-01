@@ -1,11 +1,10 @@
-import { Accessor } from "@preact-signals/utils";
+import type { ReadonlySignal } from "@preact-signals/unified-signals";
+import { ReadonlyFlatStore, useStore } from "@preact-signals/utils/flat-store";
 import {
   useInitSignal,
   useSignalEffectOnce,
   useSignalOfReactive,
 } from "@preact-signals/utils/hooks";
-import { useStore } from "@preact-signals/utils/store";
-import { ReadonlySignal } from "@preact/signals-core";
 
 type Dispose = () => void;
 
@@ -15,7 +14,7 @@ type Observer<T> = {
 };
 
 export const useObserverSignal = <T>(
-  createObserver: Accessor<Observer<T>>
+  createObserver: () => Observer<T>
 ): ReadonlySignal<T> => {
   const observer = useSignalOfReactive(createObserver);
   const s = useInitSignal(() => observer.value.getCurrent());
@@ -32,8 +31,8 @@ export const useObserverSignal = <T>(
 };
 
 export const useObserverStore = <T extends Record<any, any>>(
-  createObserverStore: Accessor<Observer<T>>
-): T => {
+  createObserverStore: () => Observer<T>
+): ReadonlyFlatStore<T> => {
   const observer = useSignalOfReactive(createObserverStore);
   const [store, setStore] = useStore(() => observer.value.getCurrent());
 

@@ -1,4 +1,4 @@
-import type { Reactive } from "@preact-signals/utils";
+import { FlatStore, ReadonlyFlatStore } from "@preact-signals/utils/flat-store";
 import type {
   InfiniteQueryObserverOptions,
   InfiniteQueryObserverResult,
@@ -7,12 +7,15 @@ import type {
   MutationObserverResult,
   QueryKey,
   QueryObserverOptions,
+  QueryObserverResult,
 } from "@tanstack/query-core";
-import { OverrideProperties } from "type-fest";
+import { OverrideProperties, SetOptional } from "type-fest";
 import type { ContextOptions } from "./react-query";
 
-export type PreactSignalQueryKey = unknown[];
-export type AnyPreactSignalQueryKey = any[];
+export type NotSupportedInQuery$ = "onError" | "onSettled" | "onSuccess";
+export type SafeDataField<T> = { dataSafe: T | undefined };
+
+// For some reason in cannot use Accessor in generic types, because it inherits wrong
 
 export interface StaticBaseQueryOptions<
   TQueryFnData = unknown,
@@ -21,45 +24,45 @@ export interface StaticBaseQueryOptions<
   TQueryData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey
 > extends ContextOptions,
-    QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey> {}
-
-export type BaseQueryOptions$<
-  TQueryFnData = unknown,
-  TError = unknown,
-  TData = TQueryFnData,
-  TQueryData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
-> = Reactive<
-  StaticBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
->;
+    Omit<
+      QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>,
+      NotSupportedInQuery$
+    > {}
 
 export interface StaticQueryOptions<
   TQueryFnData = unknown,
   TError = unknown,
   TData = TQueryFnData,
-  TQueryKey extends AnyPreactSignalQueryKey = PreactSignalQueryKey
-> extends Omit<
-    BaseQueryOptions$<TQueryFnData, TError, TData, TQueryFnData, TQueryKey>,
+  TQueryKey extends QueryKey = QueryKey
+> extends SetOptional<
+    QueryObserverOptions<TQueryFnData, TError, TData, TQueryFnData, TQueryKey>,
     "queryKey"
-  > {
-  queryKey?: TQueryKey;
-}
+  > {}
 
-export type QueryOptions$<
+export type UseBaseQueryResult$<TData = unknown, TError = unknown> = FlatStore<
+  QueryObserverResult<TData, TError> & SafeDataField<TData>
+>;
+
+export type UseQueryResult$<TData = unknown, TError = unknown> = FlatStore<
+  UseBaseQueryResult$<TData, TError> & SafeDataField<TData>
+>;
+
+export type UseQuery$ = <
   TQueryFnData = unknown,
   TError = unknown,
   TData = TQueryFnData,
-  TQueryKey extends AnyPreactSignalQueryKey = PreactSignalQueryKey
-> = Reactive<StaticQueryOptions<TQueryFnData, TError, TData, TQueryKey>>;
-
+  TQueryKey extends QueryKey = QueryKey
+>(
+  options: () => StaticQueryOptions<TQueryFnData, TError, TData, TQueryKey>
+) => UseQueryResult$<TData, TError>;
 export interface StaticInfiniteQueryOptions<
   TQueryFnData = unknown,
   TError = unknown,
   TData = TQueryFnData,
   TQueryData = TQueryFnData,
-  TQueryKey extends PreactSignalQueryKey = PreactSignalQueryKey
+  TQueryKey extends QueryKey = QueryKey
 > extends ContextOptions,
-    Omit<
+    SetOptional<
       InfiniteQueryObserverOptions<
         TQueryFnData,
         TError,
@@ -68,40 +71,27 @@ export interface StaticInfiniteQueryOptions<
         TQueryKey
       >,
       "queryKey"
-    > {
-  queryKey?: TQueryKey;
-}
+    > {}
 
-export type InfiniteQueryOptions$<
-  TQueryFnData = unknown,
-  TError = unknown,
-  TData = TQueryFnData,
-  TQueryData = TQueryFnData,
-  TQueryKey extends PreactSignalQueryKey = PreactSignalQueryKey
-> = Reactive<
-  StaticInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+export type InfiniteQueryResult$<TData = unknown, TError = unknown> = FlatStore<
+  InfiniteQueryObserverResult<TData, TError> & SafeDataField<TData>
 >;
-
-export type InfiniteQueryResult<
-  TData = unknown,
-  TError = unknown
-> = InfiniteQueryObserverResult<TData, TError>;
 
 export type UseInfiniteQuery$ = <
   TQueryFnData = unknown,
   TError = unknown,
   TData = TQueryFnData,
   TQueryData = TQueryFnData,
-  TQueryKey extends PreactSignalQueryKey = PreactSignalQueryKey
+  TQueryKey extends QueryKey = QueryKey
 >(
-  options: InfiniteQueryOptions$<
+  options: () => StaticInfiniteQueryOptions<
     TQueryFnData,
     TError,
     TData,
     TQueryData,
     TQueryKey
   >
-) => InfiniteQueryResult<TData, TError>;
+) => InfiniteQueryResult$<TData, TError>;
 
 export interface StaticMutationOptions<
   TData = unknown,
@@ -114,14 +104,7 @@ export interface StaticMutationOptions<
       "_defaulted" | "variables"
     > {}
 
-export type MutationOptions$<
-  TData = unknown,
-  TError = unknown,
-  TVariables = void,
-  TContext = unknown
-> = Reactive<StaticMutationOptions<TData, TError, TVariables, TContext>>;
-
-export type MutationResultMutateFunction<
+export type MutationResultMutateFunction$<
   TData = unknown,
   TError = unknown,
   TVariables = void,
@@ -130,14 +113,14 @@ export type MutationResultMutateFunction<
   ...args: Parameters<MutateFunction<TData, TError, TVariables, TContext>>
 ) => void;
 
-export type MutationResultMutateAsyncFunction<
+export type MutationResultMutateAsyncFunction$<
   TData = unknown,
   TError = unknown,
   TVariables = void,
   TContext = unknown
 > = MutateFunction<TData, TError, TVariables, TContext>;
 
-export type MutationResult<
+export type StaticMutationResult<
   TData = unknown,
   TError = unknown,
   TVariables = void,
@@ -145,13 +128,22 @@ export type MutationResult<
 > = OverrideProperties<
   MutationObserverResult<TData, TError, TVariables, TContext>,
   {
-    mutate: MutationResultMutateFunction<TData, TError, TVariables, TContext>;
+    mutate: MutationResultMutateFunction$<TData, TError, TVariables, TContext>;
   }
 > & {
-  mutateAsync: MutationResultMutateAsyncFunction<
+  mutateAsync: MutationResultMutateAsyncFunction$<
     TData,
     TError,
     TVariables,
     TContext
   >;
 };
+
+export type UseMutationResult$<
+  TData = unknown,
+  TError = unknown,
+  TVariables = void,
+  TContext = unknown
+> = ReadonlyFlatStore<
+  StaticMutationResult<TData, TError, TVariables, TContext>
+>;

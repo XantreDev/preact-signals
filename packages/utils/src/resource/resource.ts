@@ -1,4 +1,12 @@
 import {
+  ReadonlySignal,
+  Signal,
+  batch,
+  computed,
+  effect,
+  signal,
+} from "@preact-signals/unified-signals";
+import {
   Accessor,
   AnyReactive,
   GetTruthyValue,
@@ -6,15 +14,7 @@ import {
   Setter,
   isExplicitFalsy,
   setterOfSignal,
-} from "@preact-signals/internal-utils";
-import {
-  ReadonlySignal,
-  Signal,
-  batch,
-  computed,
-  effect,
-  signal,
-} from "@preact/signals-core";
+} from "../utils";
 import { NO_INIT } from "./constants";
 import { isPromise, removeNoInit } from "./utils";
 

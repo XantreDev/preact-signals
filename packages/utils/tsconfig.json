@@ -7,15 +7,18 @@
     "sourceMap": true,
     "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
-  "exclude": ["**/dist/**", "**/node_modules/**", "vitest.config.ts"],
+  "exclude": [
+    "**/dist/**",
+    "**/node_modules/**",
+    "vitest.config.ts",
+    "**/*.test.*"
+  ],
   "extends": "../../tsconfig.json",
   "references": [
     {
-      "path": "../internal-utils"
+      "path": "../polyfills"
     },
-    {
-      "path": "../hooks-shim"
-    },
+    { "path": "../unified-signals" },
     {
       "path": "./tsconfig.node.json"
     }

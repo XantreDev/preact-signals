@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "rootDir": "./src",
+    "noEmit": false,
+    "outDir": "./dist/esm",
+    "emitDeclarationOnly": false,
+    "sourceMap": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+  },
+  "exclude": [
+    "**/dist/**",
+    "**/node_modules/**",
+    "vitest.config.ts",
+    "**/*.test.*"
+  ],
+  "extends": "../../tsconfig.json",
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
+}

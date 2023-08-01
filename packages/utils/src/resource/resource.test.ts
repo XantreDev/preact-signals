@@ -1,4 +1,4 @@
-import { Signal, computed, effect, signal } from "@preact/signals-core";
+import { Signal, computed, effect, signal } from "@preact-signals/unified-signals";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Resource, ResourceState, resource } from "./resource";
 

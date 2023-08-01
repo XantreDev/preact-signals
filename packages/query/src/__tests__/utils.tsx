@@ -1,6 +1,11 @@
-import { ReadonlySignal, effect, signal } from "@preact/signals-core";
+import {
+  ReadonlySignal,
+  effect,
+  signal,
+} from "@preact-signals/unified-signals";
 import * as utils from "@tanstack/query-core";
 import { act, render } from "@testing-library/react";
+import { randomUUID } from "node:crypto";
 import * as React from "react";
 import { createElement, useEffect, useState } from "react";
 import { vi } from "vitest";
@@ -114,11 +119,15 @@ export const mockLogger = {
   error: vi.fn(),
 };
 
-let queryKeyCount = 0;
 export function queryKey(): Array<string> {
-  queryKeyCount++;
-  return [`query_${queryKeyCount}`];
+  return [`query_${randomUUID()}`];
 }
+
+export const raf = () =>
+  new Promise((resolve) => window.requestAnimationFrame(resolve));
+
+export const sleepRaf = (timeout: number) => sleep(timeout).then(raf);
+// .then(() => sleep(1));
 
 export function sleep(timeout: number): Promise<void> {
   return new Promise((resolve, _reject) => {

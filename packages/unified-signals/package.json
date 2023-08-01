@@ -1,0 +1,64 @@
+{
+  "name": "@preact-signals/unified-signals",
+  "version": "0.1.0",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "Signals package that can used in any environment, via import remapping",
+  "sideEffects": false,
+  "repository": {
+    "url": "https://github.com/XantreGodlike/preact-signals-utils",
+    "type": "git"
+  },
+  "author": {
+    "email": "valerik007.vs@gmail.com",
+    "name": "Valerii Smirnov",
+    "url": "https://github.com/XantreGodlike"
+  },
+  "type": "module",
+  "module": "./dist/esm/index.js",
+  "main": "./dist/cjs/index.js",
+  "types": "./src/index.d.ts",
+  "source": "./src/index.ts",
+  "react-native": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "main": "./dist/cjs/index.js"
+    }
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build:esm": "tsc --outDir ./dist/esm",
+    "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
+    "test": "vitest",
+    "lint": "tsc --noEmit",
+    "watch": "concurrently \"pnpm build:esm -w\" \"pnpm build:cjs -w\"",
+    "build": "pnpm clean && concurrently \"pnpm build:esm\" \"pnpm build:cjs\""
+  },
+  "peerDependencies": {
+    "@preact/signals-react": ">=1.2.0",
+    "@preact/signals": ">=1.1.0",
+    "@preact/signals-core": ">=1.1.0"
+  },
+  "peerDependenciesMeta": {
+    "@preact/signals-react": {
+      "optional": true
+    },
+    "@preact/signals": {
+      "optional": true
+    },
+    "@preact/signals-core": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "happy-dom": "^10.5.2",
+    "@preact/signals-react": "latest",
+    "concurrently": "^8.2.0"
+  },
+  "keywords": [],
+  "license": "MIT"
+}
