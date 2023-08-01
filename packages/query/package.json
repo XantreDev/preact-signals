@@ -8,7 +8,8 @@
   "description": "A reactive utility for React/Preact that simplifies the handling of data fetching and state management. Powered by Preact Signals, it provides hooks and functions to create reactive resources and manage their state seamlessly.",
   "sideEffects": false,
   "repository": {
-    "url": "https://github.com/XantreGodlike/preact-signals/tree/main/packages/query",
+    "directory": "packages/query",
+    "url": "https://github.com/XantreGodlike/preact-signals",
     "type": "git"
   },
   "author": {
@@ -39,9 +40,6 @@
     "build": "pnpm clean && concurrently \"pnpm build:esm\" \"pnpm build:cjs\""
   },
   "peerDependencies": {
-    "@preact-signals/utils": "workspace:*",
-    "@preact-signals/unified-signals": "workspace:*",
-    "@preact/signals-react": ">=1.2.0",
     "react": "17.*.* || 18.*.*",
     "react-dom": "^18.2.0"
   },
@@ -54,8 +52,6 @@
     }
   },
   "devDependencies": {
-    "@preact-signals/utils": "workspace:*",
-    "@preact-signals/unified-signals": "workspace:*",
     "@preact/signals-react": ">=1.2.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.0.0",
@@ -75,6 +71,8 @@
     "webdriverio": "^8.13.1"
   },
   "dependencies": {
+    "@preact-signals/utils": "workspace:*",
+    "@preact-signals/unified-signals": "workspace:*",
     "@tanstack/query-core": "4.29.23",
     "use-sync-external-store": "^1.2.0"
   },

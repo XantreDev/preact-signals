@@ -8,7 +8,8 @@
   "description": "Signals package that can used in any environment, via import remapping",
   "sideEffects": false,
   "repository": {
-    "url": "https://github.com/XantreGodlike/preact-signals-utils",
+    "directory": "packages/unified-signals",
+    "url": "https://github.com/XantreGodlike/preact-signals",
     "type": "git"
   },
   "author": {

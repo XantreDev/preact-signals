@@ -8,7 +8,8 @@
   "description": "Utils for `preact-signals` package scope",
   "sideEffects": false,
   "repository": {
-    "url": "https://github.com/XantreGodlike/preact-signals-utils",
+    "directory": "packages/polyfills",
+    "url": "https://github.com/XantreGodlike/preact-signals",
     "type": "git"
   },
   "author": {

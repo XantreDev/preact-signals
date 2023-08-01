@@ -135,6 +135,12 @@ importers:
 
   packages/query:
     dependencies:
+      '@preact-signals/unified-signals':
+        specifier: workspace:*
+        version: link:../unified-signals
+      '@preact-signals/utils':
+        specifier: workspace:*
+        version: link:../utils
       '@tanstack/query-core':
         specifier: 4.29.23
         version: 4.29.23
@@ -142,12 +148,6 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(react@18.2.0)
     devDependencies:
-      '@preact-signals/unified-signals':
-        specifier: workspace:*
-        version: link:../unified-signals
-      '@preact-signals/utils':
-        specifier: workspace:*
-        version: link:../utils
       '@preact/signals-react':
         specifier: '>=1.2.0'
         version: 1.3.4(react@18.2.0)
