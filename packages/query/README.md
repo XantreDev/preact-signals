@@ -21,6 +21,32 @@ yarn add @preact-signals/query
 pnpm add @preact-signals/query
 ```
 
+### Preact additional step:
+
+You should resolve `@preact/signals-react` as `@preact/signals`
+To do it take a look at how to [resolve `react` as `preact`](https://preactjs.com/guide/v10/getting-started#aliasing-react-to-preact) and do it with signals
+
+[Vite example](../../apps/preact-test/vite.config.ts):
+
+```ts
+import preact from "@preact/preset-vite";
+import { defineConfig } from "vite";
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [preact()],
+  resolve: {
+    alias: [
+      { find: "react", replacement: "preact/compat" },
+      { find: "react-dom/test-utils", replacement: "preact/test-utils" },
+      { find: "react-dom", replacement: "preact/compat" },
+      { find: "react/jsx-runtime", replacement: "preact/jsx-runtime" },
+      { find: "@preact/signals-react", replacement: "@preact/signals" },
+    ],
+  },
+});
+```
+
 ## API Overview
 
 Experience the reactive elegance of `@tanstack/react-query` with `@preact-signals/query`.
@@ -113,8 +139,12 @@ Functionally similar to the query$ hooks, with a couple of nuances:
 ```tsx
 const mutation = useMutation$(() => ({
   mutationFn: doSomething,
-  onError: () => {},
-  onSuccess: () => {},
+  onError: (error) => {
+    console.error("doSomething failed", error);
+  },
+  onSuccess: (data) => {
+    console.log("wow we've done something", data);
+  },
 }));
 
 return <button onClick={mutation.mutate}>Execute Mutation</button>;

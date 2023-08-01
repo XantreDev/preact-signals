@@ -11,7 +11,7 @@ Goal of the project to provide comprehensive tooling for using [`preact/signals`
   - `@preact-signals/utils/hooks`: Basic signals hooks
 - `@preact-signals/query`: Tanstack query core preact signals bindings
 - `@preact-signals/polyfills`: Trying to provide functionality which is not yet implemented in `@preact/signals-core`
-- `@preact-signals/unified-signals`: This package reexports stuff, with hooks shims in case of overwriting dependencies
+- `@preact-signals/unified-signals`: This package reexports `@preact/signals-react`, with hooks shims in case of overwriting dependencies
 
 ## Contributing
 

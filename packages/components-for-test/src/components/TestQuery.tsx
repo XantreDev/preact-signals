@@ -6,7 +6,7 @@ import {
 import { Match, Switch } from "@preact-signals/utils/components";
 import { useSignalEffect } from "@preact/signals-react";
 import { PropsWithChildren } from "react";
-import { Todo, fetchTodos } from "../utils";
+import { fetchTodos } from "../utils";
 
 const client = new QueryClient();
 
@@ -14,7 +14,7 @@ const Provider = ({ children }: PropsWithChildren) => (
   <QueryClientProvider client={client}>{children}</QueryClientProvider>
 );
 const Test = () => {
-  const query$ = useQuery$<Todo[]>(() => ({
+  const query$ = useQuery$(() => ({
     queryFn: fetchTodos,
     queryKey: ["todos"],
   }));
@@ -25,8 +25,11 @@ const Test = () => {
   return (
     <>
       <h1>QueryTest</h1>
+      <div>
+        <button onClick={() => query$.refetch()}>Refetch</button>
+      </div>
       <Switch>
-        <Match when={() => query$.isLoading}>Loading...</Match>
+        <Match when={() => query$.isFetching}>Loading...</Match>
         <Match when={() => query$.isError}>Error</Match>
         <Match when={() => query$.data}>
           {(data) =>
