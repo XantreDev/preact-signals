@@ -1,63 +1,55 @@
+Improved `@preact-signals/query` documentation:
+
+---
+
 # `@preact-signals/query`
 
-`@preact-signals/query` is `@tanstack/query-core` react bindings that uses `@preact/signals` for reactivity. It is drop-in replacement for `@tanstack/react-query`, because it shares tests and source code.
+`@preact-signals/query` acts as a bridge between the core functionality of `@tanstack/query-core` and the reactivity provided by `@preact/signals`. Designed as a drop-in replacement for `@tanstack/react-query`, this library not only mirrors its counterpart's functionalities but also offers enhanced hooks tailored for preact signals.
 
 ## Installation
 
-You can install `@preact-signals/query` using your package manager of choice:
+Fetch `@preact-signals/query` via your preferred package manager:
 
 ```bash
-# npm
-npm i @preact-signals/query
-# yarn
-yarn i @preact-signals/query
-# pnpm
-pnpm i @preact-signals/query
+# Using npm
+npm install @preact-signals/query
+
+# Using yarn
+yarn add @preact-signals/query
+
+# Using pnpm
+pnpm add @preact-signals/query
 ```
 
 ## API Overview
 
-Truly reactive `@tanstack/react-query`
+Experience the reactive elegance of `@tanstack/react-query` with `@preact-signals/query`.
 
-`@preact-signals/query` has the same api as `@tanstack/react-query`, but provides hooks that plays well with preact signals. This library provides additional hooks that plays well with preact signals. This kind of hooks usually has `$` suffix:
+Although `@preact-signals/query` adopts the API of `@tanstack/react-query`, it comes with additional hooks that are specifically optimized for preact signals. You'll recognize these hooks by the appended `$` sign:
 
 - `useQuery$`, `useInfiniteQuery$`
 - `useMutation$`
 - `useQueryClient$`
 - `useIsFetching$`
 
-Will be implemented later:
+Awaited hooks include:
 
 - `useQueries$`
 - `useIsMutating$`
 
-# Query hooks: `useQuery$, useInfiniteQuery$`
+## Query Hooks: `useQuery$, useInfiniteQuery$`
 
-```ts
-// returns flat-store
-function useQuery$<
-  TQueryFnData = unknown,
-  TError = unknown,
-  TData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
->(
-  // options will be executed for first time and then will be used when reactivity is triggered
-  options: () => StaticQueryOptions<TQueryFnData, TError, TData, TQueryKey>
-): UseQueryResult$<TData, TError>;
-```
+`useQuery$` stands as the reactive counterpart to `useQuery` from `@tanstack/react-query`. Instead of the usual reactive object, this hook yields a flat-store.
 
-`useQuery$` is replacement for `useQuery` from `@tanstack/react-query`. It returns flat-store that can be used to subscribe to changes.
+Primary Differences:
 
-Differences from standard `useQuery`:
+- Adopts the object syntax exclusively.
+- Requires a function for `options` that returns `StaticQueryOptions`, as they're executed once initially and then reused when reactivity comes into play.
+- Results in a flat-store; avoid destructuring.
+- Both `suspense` and `useErrorBoundary` are demand-triggered. They're invoked at the exact moment the `data` field is accessed.
+- As `onError`, `onSettled`, and `onSuccess` are phased out in `react-query`, these aren't implemented in reactive query hooks.
 
-- Only object syntax supported
-- `options` is function that returns `StaticQueryOptions` instead of `QueryOptions`. This is because `options` will be executed only once and then will be used when reactivity is triggered.
-- returns flat-store. You shouldn't destructure it
-- `suspense` is working on demand. It means that suspense will be triggered in place when `data` field actually read. Internally suspense throws error, so we have `dataSafe` field.
-- `useErrorBoundary` also works on demand. It means that error boundary will be triggered in place when `data` field actually read.
-- `onError`, `onSettled`, `onSuccess` are deprecated in react-query, so reactive query hooks are not implementing this pattern
-
-### Example
+### Usage
 
 ```tsx
 const isUserRegistered = useSignal(false);
@@ -71,16 +63,16 @@ const query = useQuery$(() => ({
 return (
   <>
     <button onClick={() => (isUserRegistered.value = !isUserRegistered.value)}>
-      Register
+      Toggle Registration
     </button>
     <Show when={() => query.data}>
-      {({ data }) => <div>Name: {data.name}</div>}
+      {(data) => <div>Name: {data().name}</div>}
     </Show>
   </>
 );
 ```
 
-### Example suspense
+### Suspense Mode
 
 ```tsx
 const query = useQuery$(() => ({
@@ -94,7 +86,7 @@ return (
     <Profile />
     <Jokes />
 
-    {/* only this place will suspend */}
+    {/* Here, only this segment will enter suspense mode */}
     <Suspense fallback={<Loader />}>
       <Show when={() => query.data}>
         {(data) => (
@@ -110,13 +102,13 @@ return (
 );
 ```
 
-## `useMutation$`
+## Mutation Hooks: `useMutation$`
 
-Works with the same as principals as query$ hooks. But here are gotchas:
+Functionally similar to the query$ hooks, with a couple of nuances:
 
-- `useErrorBoundary` is not supported yet. And i don't think this feature is helpful
+- Currently, `useErrorBoundary` isn't available. It's under evaluation for its utility.
 
-### Example:
+### Sample Usage
 
 ```tsx
 const mutation = useMutation$(() => ({
@@ -125,39 +117,37 @@ const mutation = useMutation$(() => ({
   onSuccess: () => {},
 }));
 
-return <button onClick={mutation.mutate}>Mutate</button>;
+return <button onClick={mutation.mutate}>Execute Mutation</button>;
 ```
 
-## `useQueryClient$`
+## Accessing the Client: `useQueryClient$`
 
-Returns client wrapped in signals
+This hook returns the client, encapsulated in signals.
 
-## Filter hooks (`useIsFetching$`)
+## Filtering with Hooks: `useIsFetching$`
 
-Receives reactive callback that returns filter options. Hook is returning result accessor
+Accepts a reactive callback returning filter options and provides an accessor for the result.
 
 ```tsx
 // returns ReadonlySignal<number>
-const isFetching = useIsFetching$(() => null);
-const isFetchingByKey = useIsFetching$(() => ({
+const overallFetching = useIsFetching$(() => null);
+const specificFetchCount = useIsFetching$(() => ({
   queryFn: ["123"],
 }));
 
 return (
   <>
-    <div>Count of all fetching queries(not optimized): {isFetching.value}</div>
-
+    <div>Total fetching queries (unoptimized): {overallFetching.value}</div>
     <div>
-      Count of all fetching queries(optimized, no rerenders): {isFetching}
+      Total fetching queries (optimized, no rerenders): {overallFetching}
     </div>
     <div>
-      Count of fetching queries by key(optimized, no rerenders):{" "}
-      {isFetchingByKey}
+      Fetch count by key (optimized, no rerenders): {specificFetchCount}
     </div>
   </>
 );
 ```
 
-### License
+## License
 
-`@preact-signals/query` is licensed under the [MIT License](./LICENSE).
+`@preact-signals/query` is distributed under the [MIT License](./LICENSE).

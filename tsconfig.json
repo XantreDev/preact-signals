@@ -29,10 +29,9 @@
       "@preact-signals/polyfills": ["./packages/polyfills/src"]
     }
   },
-  "exclude": ["**/node_modules", "packages/*/dist/**/*"]
-  //   "references": [
-  //     {
-  //       "path": "./packages/utils"
-  //     }
-  //   ]
+  "exclude": [
+    "**/node_modules",
+    "packages/*/dist/**/*"
+    // "packages/*/src/**/*.d.ts"
+  ]
 }
