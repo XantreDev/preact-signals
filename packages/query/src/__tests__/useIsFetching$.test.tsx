@@ -1,8 +1,6 @@
 import { signal } from "@preact-signals/unified-signals";
 import { untrackedPolyfill } from "@preact-signals/utils";
-// @ts-expect-error
 import { useSignalEffectOnce } from "@preact-signals/utils/hooks";
-import React from "react";
 import { describe, expect, it } from "vitest";
 import { useQuery } from "../react-query";
 import { useIsFetching$ } from "../useIsFetching$";
@@ -27,9 +25,9 @@ describe("useIsFetching$", () => {
 
     const Component1 = () => {
       const isFetching = useIsFetching$(() => null);
-      emit(untrackedPolyfill(isFetching));
+      emit(untrackedPolyfill(() => isFetching.value));
       useSignalEffectOnce(() => {
-        emit(isFetching());
+        emit(isFetching.value);
       });
 
       return null;
@@ -67,9 +65,9 @@ describe("useIsFetching$", () => {
       const isFetching = useIsFetching$(() => ({
         queryKey: key1,
       }));
-      emit(untrackedPolyfill(isFetching));
+      untrackedPolyfill(() => emit(isFetching.value));
       useSignalEffectOnce(() => {
-        emit(isFetching());
+        emit(isFetching.value);
       });
 
       return null;
@@ -108,9 +106,9 @@ describe("useIsFetching$", () => {
       const isFetching = useIsFetching$(() => ({
         queryKey: checkKey1.value ? key1 : key2,
       }));
-      emit(untrackedPolyfill(isFetching));
+      untrackedPolyfill(() => emit(isFetching.value));
       useSignalEffectOnce(() => {
-        emit(isFetching());
+        emit(isFetching.value);
       });
 
       return null;
@@ -171,9 +169,9 @@ describe("useIsFetching$", () => {
                   predicate: () => false,
                 }
           );
-          emit(untrackedPolyfill(isFetching));
+          untrackedPolyfill(() => emit(isFetching.value));
           useSignalEffectOnce(() => {
-            emit(isFetching());
+            emit(isFetching.value);
           });
         })}
       </>

@@ -1,4 +1,4 @@
-import { FlatStore } from "@preact-signals/utils/flat-store";
+import { FlatStore, ReadonlyFlatStore } from "@preact-signals/utils/flat-store";
 import type {
   InfiniteQueryObserverOptions,
   InfiniteQueryObserverResult,
@@ -16,8 +16,6 @@ export type NotSupportedInQuery$ = "onError" | "onSettled" | "onSuccess";
 export type SafeDataField<T> = { dataSafe: T | undefined };
 
 // For some reason in cannot use Accessor in generic types, because it inherits wrong
-
-export type Remove<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
 export interface StaticBaseQueryOptions<
   TQueryFnData = unknown,
@@ -122,28 +120,30 @@ export type MutationResultMutateAsyncFunction$<
   TContext = unknown
 > = MutateFunction<TData, TError, TVariables, TContext>;
 
-export type MutationResult$<
+export type StaticMutationResult<
   TData = unknown,
   TError = unknown,
   TVariables = void,
   TContext = unknown
-> = FlatStore<
-  OverrideProperties<
-    MutationObserverResult<TData, TError, TVariables, TContext>,
-    {
-      mutate: MutationResultMutateFunction$<
-        TData,
-        TError,
-        TVariables,
-        TContext
-      >;
-    }
-  > & {
-    mutateAsync: MutationResultMutateAsyncFunction$<
-      TData,
-      TError,
-      TVariables,
-      TContext
-    >;
+> = OverrideProperties<
+  MutationObserverResult<TData, TError, TVariables, TContext>,
+  {
+    mutate: MutationResultMutateFunction$<TData, TError, TVariables, TContext>;
   }
+> & {
+  mutateAsync: MutationResultMutateAsyncFunction$<
+    TData,
+    TError,
+    TVariables,
+    TContext
+  >;
+};
+
+export type UseMutationResult$<
+  TData = unknown,
+  TError = unknown,
+  TVariables = void,
+  TContext = unknown
+> = ReadonlyFlatStore<
+  StaticMutationResult<TData, TError, TVariables, TContext>
 >;

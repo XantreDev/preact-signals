@@ -1,4 +1,3 @@
-import { Accessor } from "@preact-signals/utils";
 import {
   useComputedOnce,
   useSignalEffectOnce,
@@ -9,9 +8,10 @@ import { useMemo } from "react";
 import { EMPTY_ARRAY } from "./constants";
 import { useQueryClient$ } from "./react-query/QueryClientProvider";
 import {
-  MutationResult$,
   MutationResultMutateFunction$,
   StaticMutationOptions,
+  StaticMutationResult,
+  UseMutationResult$,
 } from "./types";
 import { useObserverStore } from "./useObserver";
 
@@ -23,8 +23,8 @@ export const useMutation$ = <
   TVariables = void,
   TContext = unknown
 >(
-  options: Accessor<StaticMutationOptions<TData, TError, TVariables, TContext>>
-): MutationResult$<TData, TError, TVariables, TContext> => {
+  options: () => StaticMutationOptions<TData, TError, TVariables, TContext>
+): UseMutationResult$<TData, TError, TVariables, TContext> => {
   const $options = useSignalOfReactive(options);
   const $client = useQueryClient$({
     context: useComputedOnce(() => $options.value.context).value,
@@ -56,7 +56,7 @@ export const useMutation$ = <
       ...result,
       mutate,
       mutateAsync: result.mutate,
-    } as MutationResult$<TData, TError, TVariables, TContext>);
+    } as StaticMutationResult<TData, TError, TVariables, TContext>);
 
   const store = useObserverStore(() => ({
     getCurrent: () => observerResultToStore(observer.value.getCurrentResult()),

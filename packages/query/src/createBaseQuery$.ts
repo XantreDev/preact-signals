@@ -87,6 +87,7 @@ export const createBaseQuery =
       }
       return state.data;
     });
+    // @ts-expect-error actually it can be written
     state.dataSafe = undefined;
     return useMemo(
       () =>

@@ -65,6 +65,10 @@ export type FlatStore<T extends Record<any, any>> = Opaque<
   "@preact-signals/utils;flatStore"
 >;
 
+export type ReadonlyFlatStore<T extends Record<any, any>> = Readonly<
+  FlatStore<T>
+>;
+
 export const createFlatStore = <T extends Record<any, any>>(
   initialState: T
 ): FlatStore<T> =>
