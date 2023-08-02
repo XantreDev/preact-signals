@@ -11,7 +11,7 @@ import {
   AnyReactive,
   GetValue,
   toSolidLikeSignal,
-  untrackedPolyfill,
+  untracked,
   unwrapReactive,
 } from "../utils";
 
@@ -20,7 +20,7 @@ export { useComputedOnce } from "./useComputedOnce";
 export const useInitSignal = <T>(init: () => T) => {
   const signalRef = useRef<null | Signal<T>>(null);
   if (!signalRef.current) {
-    signalRef.current = signal(untrackedPolyfill(init));
+    signalRef.current = signal(untracked(init));
   }
 
   return signalRef.current!;

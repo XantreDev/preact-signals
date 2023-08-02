@@ -1,5 +1,5 @@
 import { ReadonlySignal, signal } from "@preact-signals/unified-signals";
-import { PropsWithChildren } from "react";
+import React, { PropsWithChildren } from "react";
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import { $, Uncached } from "../$";
 import { ReactiveProps, reactifyProps, signalifyProps } from "../hoc";

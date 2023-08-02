@@ -1,4 +1,4 @@
-import { untrackedPolyfill } from "@preact-signals/utils";
+import { untracked } from "@preact-signals/utils";
 import { useSignalEffectOnce } from "@preact-signals/utils/hooks";
 import { render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
@@ -25,7 +25,7 @@ describe("useQueryClient$()", () => {
         {createHooksComponentElement(() => {
           const data = useQueryClient$();
 
-          emit(untrackedPolyfill(() => data.value));
+          emit(untracked(() => data.value));
         })}
       </>
     );
@@ -39,7 +39,7 @@ describe("useQueryClient$()", () => {
     const secondClient = createQueryClient();
     const content = createHooksComponentElement(() => {
       const client$ = useQueryClient$();
-      emit(untrackedPolyfill(() => client$.value));
+      emit(untracked(() => client$.value));
       useSignalEffectOnce(() => {
         emit(client$.value);
       });
@@ -62,7 +62,7 @@ describe("useQueryClient$()", () => {
     let effectTimesCalled = 0;
     const content = createHooksComponentElement(() => {
       const client$ = useQueryClient$();
-      emit(untrackedPolyfill(() => client$.value));
+      emit(untracked(() => client$.value));
       useSignalEffectOnce(() => {
         effectTimesCalled++;
         emit(client$.value);

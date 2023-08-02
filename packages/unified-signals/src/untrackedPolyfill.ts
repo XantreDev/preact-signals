@@ -1,4 +1,7 @@
-import * as signals from "@preact-signals/unified-signals";
+import * as signals from "@preact/signals-react";
+import { Untracked } from "./type";
+
+export const maybeUntracked = (signals as { untracked?: Untracked }).untracked;
 
 let untrackedDepth = 0;
 
@@ -19,12 +22,12 @@ const untrackedEffect = <T>(callback: () => T): T => {
   return res!;
 };
 
-export type Untracked = <T>(callback: () => T) => T;
 export const untrackedPolyfill: Untracked =
-  (signals as { untracked?: Untracked }).untracked ??
+  maybeUntracked ??
   (<T>(callback: () => T): T => {
     untrackedDepth++;
     try {
+      // @ts-expect-error process is not defined and bla bla bla
       if (process.env.NODE_ENV === "development" && untrackedDepth > 100_000) {
         throw new Error("untracked depth exceeded: 100_000");
       }

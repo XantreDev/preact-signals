@@ -1,4 +1,4 @@
-export * from "@preact-signals/polyfills";
+export { untracked } from "@preact-signals/unified-signals";
 export * from "./explicitFalsy";
 export * from "./getter";
 export * from "./reactive";

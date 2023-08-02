@@ -1,5 +1,5 @@
-import { computed, effect, signal } from "@preact-signals/unified-signals";
 import { describe, expect, it, vi } from "vitest";
+import { computed, effect, signal } from "./reexports";
 import { untrackedPolyfill } from "./untrackedPolyfill";
 
 describe("untracked()", () => {
