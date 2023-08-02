@@ -25,8 +25,7 @@
       "@preact-signals/utils/*": ["./packages/utils/src/*"],
       "@preact-signals/unified-signals": [
         "./packages/unified-signals/src/index.d.ts"
-      ],
-      "@preact-signals/polyfills": ["./packages/polyfills/src"]
+      ]
     }
   },
   "exclude": [

@@ -1,6 +1,6 @@
 # `@preact-signals/unified-signals`
 
-`@preact-signals/unified-signals` is runtime agnostic `@preact/signals` reexport which imports should be remaped depending on the runtime.
+`@preact-signals/unified-signals` is runtime agnostic `@preact/signals` reexport. That can be used for library developers that want to rely on user preact signals runtime. If you want to write library that uses preact signals you can take benefit from `@preact-signals/unified-signals`. It uses shims instead of hooks if runtime is not providing it, also we polyfilling `untracked` API.
 
 ## Installation
 
@@ -17,7 +17,21 @@ pnpm i @preact-signals/unified-signals
 
 ## API Overview
 
-Same api that `@preact/signals` provides.
+Basic `@preact/signals` API and untracked
+
+### `untracked`
+
+```ts
+const a = signal(1);
+const b = signal(2);
+const c = computed(() => a.value + untracked(() => b.value));
+
+console.log(c.value); // 3
+a.value = 2;
+console.log(c.value); // 4
+b.value = 3;
+console.log(c.value); // 4
+```
 
 ## License
 

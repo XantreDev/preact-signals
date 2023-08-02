@@ -80,7 +80,6 @@
     }
   },
   "dependencies": {
-    "@preact-signals/polyfills": "workspace:*",
     "@preact-signals/unified-signals": "workspace:*",
     "react-fast-hoc": "^0.1"
   },
