@@ -4,6 +4,11 @@
 
 ## Installation
 
+You should be sure that [one of preact signals runtimes](https://github.com/preactjs/signals) installed:
+
+- `@preact/signals` for `preact`, it requires [additional step](#preactsignals-additional-step)
+- `@preact/signals-react` for `react`
+
 Fetch `@preact-signals/query` via your preferred package manager:
 
 ```bash
@@ -16,13 +21,12 @@ yarn add @preact-signals/query
 # Using pnpm
 pnpm add @preact-signals/query
 ```
-
-### Preact additional step:
+### `@preact/signals` additional step:
 
 You should resolve `@preact/signals-react` as `@preact/signals`
 To do it take a look at how to [resolve `react` as `preact`](https://preactjs.com/guide/v10/getting-started#aliasing-react-to-preact) and do it with signals
 
-[Vite example](../../apps/preact-test/vite.config.ts):
+#### [Vite example](../../apps/preact-test/vite.config.ts):
 
 ```ts
 import preact from "@preact/preset-vite";
