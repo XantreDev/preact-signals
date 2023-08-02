@@ -1,5 +1,17 @@
 # @preact-signals/query
 
+## 1.0.2
+
+### Patch Changes
+
+- be69f42: Added more installation info to readme
+- 0ba2b3a: Added correct git repository info
+- Updated dependencies [460100f]
+- Updated dependencies [4b713b3]
+- Updated dependencies [0ba2b3a]
+  - @preact-signals/unified-signals@0.2.0
+  - @preact-signals/utils@0.3.0
+
 ## 1.0.1
 
 ### Patch Changes

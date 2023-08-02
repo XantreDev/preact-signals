@@ -1,5 +1,11 @@
 # react-test
 
+## 0.0.5
+
+### Patch Changes
+
+- components-for-test@1.1.1
+
 ## 0.0.4
 
 ### Patch Changes
