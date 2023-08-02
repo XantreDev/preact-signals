@@ -1,5 +1,19 @@
 # @preact-signals/utils
 
+## 0.3.0
+
+### Minor Changes
+
+- 4b713b3: Merged polyfills into `@preact-signals/unified-signals`. From now unified-signals polyfills `untracked` by itself
+
+### Patch Changes
+
+- 0ba2b3a: Added correct git repository info
+- Updated dependencies [460100f]
+- Updated dependencies [4b713b3]
+- Updated dependencies [0ba2b3a]
+  - @preact-signals/unified-signals@0.2.0
+
 ## 0.2.0
 
 ### Minor Changes
