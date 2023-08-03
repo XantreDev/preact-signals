@@ -1,4 +1,8 @@
-import { ReadonlySignal, Signal } from "@preact-signals/unified-signals";
+import {
+  ReadonlySignal,
+  Signal,
+  signal,
+} from "@preact-signals/unified-signals";
 import type { Call, Fn, Objects } from "hotscript";
 import { useRef } from "react";
 import { createTransformProps } from "react-fast-hoc";
@@ -119,46 +123,16 @@ export type ReactifyProps<
   ? never
   : TResult;
 
-class ReactifyPropsHandler
-  implements ProxyHandler<Record<string | symbol, any>>
-{
+class MakeReactiveProps {
   #implicitSignals: Map<string, Signal<any>> = new Map();
-  #uncached: Map<string, Uncached<any>> = new Map();
   #props: Record<string, any>;
   constructor(props: Record<string, any>) {
     this.#props = props;
   }
 
-  get(target: Record<string | symbol, any>, p: string) {
-    const p$ = p + "$";
-    {
-      const fromCache = this.#uncached.get(p$);
-      if (fromCache) {
-        return fromCache;
-      }
-    }
-    const value$ = target[p$];
-    if (value$ && typeof value$ === "function") {
-      this.#uncached.set(p$, new Uncached(value$));
-      return this.#uncached.get(p$)!.value;
-    }
-
-    const value = target[p];
-    if (value instanceof Uncached || value instanceof Signal) {
-      return value.value;
-    }
-
-    return value;
-  }
-
-  cleanup(props: Record<string, any>) {
+  onRender(props: Record<string, any>) {
     if (this.#props === props) {
       return;
-    }
-    for (const key in this.#uncached) {
-      if (!(key in props)) {
-        this.#uncached.delete(key);
-      }
     }
     for (const key in this.#implicitSignals) {
       if (!(key in props)) {
@@ -167,7 +141,133 @@ class ReactifyPropsHandler
     }
     this.#props = props;
   }
+
+  createReactiveProps<
+    TInitial extends Record<any, any>
+  >(): ReactiveProps<TInitial> {
+    const res = {} as ReactiveProps<TInitial>;
+    const self = this;
+    for (const key in this.#props) {
+      const value = this.#props[key];
+      const isEndsWith$ = key.endsWith("$");
+      const keyWithout$ = isEndsWith$ ? key.slice(0, -1) : key;
+
+      Object.defineProperty(res, keyWithout$, {
+        get() {
+          if (isEndsWith$) {
+            return self.#props[key]();
+          }
+          if (
+            value &&
+            typeof value === "object" &&
+            (value instanceof Signal || value instanceof Uncached)
+          ) {
+            return value.value;
+          }
+          if (typeof value === "function") {
+            return value;
+          }
+
+          return (
+            self.#implicitSignals.has(key)
+              ? self.#implicitSignals.get(key)!
+              : self.#implicitSignals
+                  .set(key, signal(self.#props[key]))
+                  .get(key)!
+          ).value;
+        },
+        enumerable: true,
+      });
+    }
+
+    return res;
+  }
 }
+
+// class ReactifyPropsHandler
+//   implements ProxyHandler<Record<string | symbol, any>>
+// {
+//   #implicitSignals: Map<string, Signal<any>> = new Map();
+//   #uncached: Map<string, Uncached<any>> = new Map();
+//   #props: Record<string, any>;
+//   constructor(props: Record<string, any>) {
+//     this.#props = props;
+//   }
+
+//   get(target: Record<string | symbol, any>, p: string) {
+//     if (typeof p !== "string") {
+//       // @ts-expect-error
+//       return Reflect.get(...arguments);
+//     }
+//     const p$ = p + "$";
+//     {
+//       const fromCache = this.#uncached.get(p$);
+//       if (fromCache) {
+//         return fromCache;
+//       }
+//     }
+//     {
+//       const value$ = this.#props[p$];
+//       if (value$ && typeof value$ !== "function") {
+//         throw new Error(`reactifyProps: ${p$} is not a function`);
+//       }
+//       if (value$ && typeof value$ === "function") {
+//         const $value = $(value$);
+//         console.log($value);
+//         this.#uncached.set(p$, $value);
+//         return $value.value;
+//       }
+//     }
+
+//     const value = this.#props[p];
+//     if (value instanceof Uncached || value instanceof Signal) {
+//       return value.value;
+//     }
+
+//     return value;
+//   }
+//   ownKeys(target: Record<string | symbol, any>): ArrayLike<string | symbol> {
+//     const arr = new Array<string | symbol>();
+//     for (const key in this.#props) {
+//       arr.push(key.endsWith("$") ? key.slice(0, -1) : key);
+//     }
+//     return arr;
+//   }
+//   has(target: Record<string | symbol, any>, p: string | symbol): boolean {
+//     if (typeof p !== "string") {
+//       // @ts-expect-error
+//       return Reflect.has(...arguments);
+//     }
+
+//     return p in target || `${p}$` in target;
+//   }
+//   preventExtensions(target: Record<string | symbol, any>): boolean {
+//     return true;
+//   }
+
+//   onRender(props: Record<string, any>) {
+//     if (this.#props === props) {
+//       return;
+//     }
+//     for (const key in this.#uncached) {
+//       if (!(key in props)) {
+//         this.#uncached.delete(key);
+//       }
+//     }
+//     for (const key in this.#implicitSignals) {
+//       if (!(key in props)) {
+//         this.#implicitSignals.delete(key);
+//       }
+//     }
+//     this.#props = props;
+//   }
+//   getOwnPropertyDescriptor() {
+//     return {
+//       enumerable: true,
+//       configurable: true,
+//     };
+//   }
+// }
 
 /**
  * @description you can pass as prop: Uncached, ReadonlySignal or state.
@@ -175,11 +275,19 @@ class ReactifyPropsHandler
  * TODO: throw in dev mode
  */
 export const reactifyProps = createTransformProps((props) => {
-  const reactifyPropsHandlerRef = useRef<ReactifyPropsHandler | null>(null);
-  if (!reactifyPropsHandlerRef.current) {
-    reactifyPropsHandlerRef.current = new ReactifyPropsHandler(props);
+  const reactifyPropsRef = useRef<MakeReactiveProps | null>(null);
+  if (!reactifyPropsRef.current) {
+    reactifyPropsRef.current = new MakeReactiveProps(props);
   }
-  reactifyPropsHandlerRef.current.cleanup(props);
+  reactifyPropsRef.current.onRender(props);
 
-  return new Proxy(props, reactifyPropsHandlerRef.current);
+  return reactifyPropsRef.current.createReactiveProps();
+
+  // const reactifyPropsHandlerRef = useRef<ReactifyPropsHandler | null>(null);
+  // if (!reactifyPropsHandlerRef.current) {
+  //   reactifyPropsHandlerRef.current = new ReactifyPropsHandler(props);
+  // }
+  // reactifyPropsHandlerRef.current.onRender(props);
+
+  // return new Proxy(props, reactifyPropsHandlerRef.current);
 });
