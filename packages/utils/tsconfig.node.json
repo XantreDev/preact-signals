@@ -6,6 +6,13 @@
     "rootDir": "./",
     "allowSyntheticDefaultImports": true
   },
-  "include": ["./*.ts"],
-  "extends": ["../../tsconfig.json"]
+  "extends": ["../../tsconfig.json"],
+  "references": [
+    {
+      "path": "../unified-signals"
+    },
+    {
+      "path": "./tsconfig.json"
+    }
+  ]
 }

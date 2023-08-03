@@ -18,7 +18,7 @@
     "composite": true,
     "incremental": true,
     "preserveWatchOutput": true,
-    "jsx": "react-jsx",
+    "jsx": "react",
     "baseUrl": ".",
     "sourceMap": true,
     "paths": {

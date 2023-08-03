@@ -252,6 +252,9 @@ importers:
       hotscript:
         specifier: ^1.0.13
         version: 1.0.13
+      radash:
+        specifier: ^11.0.0
+        version: 11.0.0
       react:
         specifier: ^18
         version: 18.2.0
@@ -4754,6 +4757,11 @@ packages:
   /quick-lru@5.1.1:
     resolution: {integrity: sha512-WuyALRjWPDGtt/wzJiadO5AXY+8hZ80hVpe6MyivgraREW751X3SbhRvG3eLKOYN+8VEvqLcf3wdnt44Z4S4SA==}
     engines: {node: '>=10'}
+    dev: true
+
+  /radash@11.0.0:
+    resolution: {integrity: sha512-CRWxTFTDff0IELGJ/zz58yY4BDgyI14qSM5OLNKbCItJrff7m7dXbVF0kWYVCXQtPb3SXIVhXvAImH6eT7VLSg==}
+    engines: {node: '>=14.18.0'}
     dev: true
 
   /react-dom@18.2.0(react@18.2.0):

@@ -1,4 +1,5 @@
 import { signal } from "@preact-signals/unified-signals";
+import React from "react";
 import { SpyInstance, describe, expect, it, vi } from "vitest";
 import { createRenderer } from "../../__tests__/utils";
 import { For } from "../components/For";

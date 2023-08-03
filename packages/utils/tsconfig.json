@@ -14,10 +14,5 @@
     "**/*.test.*"
   ],
   "extends": "../../tsconfig.json",
-  "references": [
-    { "path": "../unified-signals" },
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ]
+  "references": [{ "path": "../unified-signals" }]
 }
