@@ -97,8 +97,12 @@ type _ReactifyProps<T, TInitial extends Record<any, any>> = {
     : typeof typeThrow]: TKey extends string | number
     ? T extends Record<`${TKey}$`, () => any>
       ? () => TInitial[TKey]
-      : T extends Record<`${TKey}`, Uncached<any> | ReadonlySignal<any>>
-      ? Uncached<TInitial[TKey]> | ReadonlySignal<TInitial[TKey]>
+      : T extends Record<TKey, Uncached<any>>
+      ? Uncached<TInitial[TKey]>
+      : T extends Record<TKey, ReadonlySignal<any>>
+      ? ReadonlySignal<TInitial[TKey]>
+      : T extends Record<TKey, any>
+      ? TInitial[TKey]
       : typeof typeThrow
     : typeof typeThrow;
 };
@@ -118,14 +122,25 @@ export type ReactifyProps<
 class ReactifyPropsHandler
   implements ProxyHandler<Record<string | symbol, any>>
 {
-  constructor(private uncached: Record<string | symbol, Uncached<any>>) {}
+  #implicitSignals: Map<string, Signal<any>> = new Map();
+  #uncached: Map<string, Uncached<any>> = new Map();
+  #props: Record<string, any>;
+  constructor(props: Record<string, any>) {
+    this.#props = props;
+  }
 
   get(target: Record<string | symbol, any>, p: string) {
     const p$ = p + "$";
+    {
+      const fromCache = this.#uncached.get(p$);
+      if (fromCache) {
+        return fromCache;
+      }
+    }
     const value$ = target[p$];
     if (value$ && typeof value$ === "function") {
-      this.uncached[p] = new Uncached(value$);
-      return this.uncached[p]!.value;
+      this.#uncached.set(p$, new Uncached(value$));
+      return this.#uncached.get(p$)!.value;
     }
 
     const value = target[p];
@@ -135,10 +150,36 @@ class ReactifyPropsHandler
 
     return value;
   }
+
+  cleanup(props: Record<string, any>) {
+    if (this.#props === props) {
+      return;
+    }
+    for (const key in this.#uncached) {
+      if (!(key in props)) {
+        this.#uncached.delete(key);
+      }
+    }
+    for (const key in this.#implicitSignals) {
+      if (!(key in props)) {
+        this.#implicitSignals.delete(key);
+      }
+    }
+    this.#props = props;
+  }
 }
 
+/**
+ * @description you can pass as prop: Uncached, ReadonlySignal or state.
+ * But you should never change type of this prop
+ * TODO: throw in dev mode
+ */
 export const reactifyProps = createTransformProps((props) => {
-  const uncachedRef = useRef({});
+  const reactifyPropsHandlerRef = useRef<ReactifyPropsHandler | null>(null);
+  if (!reactifyPropsHandlerRef.current) {
+    reactifyPropsHandlerRef.current = new ReactifyPropsHandler(props);
+  }
+  reactifyPropsHandlerRef.current.cleanup(props);
 
-  return new Proxy(props, new ReactifyPropsHandler(uncachedRef.current));
+  return new Proxy(props, reactifyPropsHandlerRef.current);
 });
