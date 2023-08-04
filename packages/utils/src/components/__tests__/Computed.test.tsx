@@ -1,12 +1,11 @@
 import { signal } from "@preact-signals/unified-signals";
-import { describe, expect, it, vi } from "vitest";
-import { createRenderer } from "../../__tests__/utils";
+import React from "react";
+import { describe, vi } from "vitest";
+import { itRenderer } from "../../__tests__/utils";
 import { Computed } from "../components/Computed";
 
-describe("Computed()", () => {
-  const { reactRoot, act, root } = createRenderer();
-
-  it("should render", async () => {
+describe.concurrent("Computed()", () => {
+  itRenderer("should render", async ({ expect, reactRoot, root }) => {
     await reactRoot().render(<Computed>{() => 10}</Computed>);
 
     const content = root.firstChild;
@@ -14,7 +13,7 @@ describe("Computed()", () => {
     expect(content).has.property("data", "10");
   });
 
-  it("should be reactive", async () => {
+  itRenderer("should be reactive", async ({ expect, act, reactRoot, root }) => {
     const multiplier = signal(1);
     const compFn = vi.fn(() => 10 * multiplier.value);
     await reactRoot().render(<Computed>{compFn}</Computed>);
