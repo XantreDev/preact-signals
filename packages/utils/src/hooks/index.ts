@@ -7,13 +7,8 @@ import {
   useSignal,
 } from "@preact-signals/unified-signals";
 import { Context, useContext, useEffect, useRef } from "react";
-import {
-  AnyReactive,
-  GetValue,
-  toSolidLikeSignal,
-  untracked,
-  unwrapReactive,
-} from "../utils";
+import { AnyReactive, GetValue, untracked, unwrapReactive } from "../utils";
+export { useReaction } from "./useReaction";
 
 export { useComputedOnce } from "./useComputedOnce";
 
@@ -48,5 +43,5 @@ export const useSignalEffectOnce = (_effect: () => void | Dispose) => {
   useEffect(() => effect(_effect), []);
 };
 
-export const useSignalState = <T>(value: T) =>
-  toSolidLikeSignal(useSignal(value));
+// export const useSignalState = <T>(value: T) =>
+//   toSolidLikeSignal(useSignal(value));
