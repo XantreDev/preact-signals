@@ -8,6 +8,7 @@ import { useRef } from "react";
 import { createTransformProps } from "react-fast-hoc";
 import { Opaque, UnwrapOpaque } from "type-fest";
 import { Uncached } from "../$";
+import { Accessor } from "../utils";
 
 export interface SignalifyProps extends Fn {
   return: this["arg1"] extends "children"
@@ -91,37 +92,58 @@ export const reactifyPropsLite = createTransformProps<[ReactifyPropsLite]>(
 
 declare const typeThrow: unique symbol;
 
-type _ReactifyProps<T, TInitial extends Record<any, any>> = {
-  [TKey in keyof TInitial as TKey extends string | number
-    ? T extends Record<TKey, any>
-      ? TKey
-      : T extends Record<`${TKey}$`, () => any>
-      ? `${TKey}$`
-      : typeof typeThrow
-    : typeof typeThrow]: TKey extends string | number
-    ? T extends Record<`${TKey}$`, () => any>
-      ? () => TInitial[TKey]
-      : T extends Record<TKey, Uncached<any>>
-      ? Uncached<TInitial[TKey]>
-      : T extends Record<TKey, ReadonlySignal<any>>
-      ? ReadonlySignal<TInitial[TKey]>
-      : T extends Record<TKey, any>
-      ? TInitial[TKey]
-      : typeof typeThrow
-    : typeof typeThrow;
+type CreateReactifyPropsInitial<T extends Record<any, any>> = {
+  [TKey in keyof T as TKey extends string | number
+    ? TKey
+    : TKey]?: T[TKey] extends Uncached<any> | ReadonlySignal<any>
+    ? Uncached<T[TKey]> | ReadonlySignal<T[TKey]>
+    : T[TKey];
+} & {
+  [TKey in keyof T as TKey extends string | number
+    ? `${TKey}$`
+    : TKey]?: Accessor<T[TKey]>;
 };
 
+type Error<Reason> = {
+  [typeThrow]: Reason;
+};
+
+type TypecheckProps<
+  T extends Record<any, any>,
+  TInitial extends Record<any, any>
+> = {
+  [TKey in keyof TInitial]: TKey extends string | number
+    ? TKey extends keyof T
+      ? `${TKey}$` extends keyof T
+        ? Error<`You can define only key with $ postfix and key without postfix, but not both: "${TKey}"`>
+        : T[TKey] extends Uncached<any>
+        ? never
+        : T[TKey] extends ReadonlySignal<any>
+        ? never
+        : T[TKey] extends TInitial[TKey]
+        ? never
+        : Error<`Type of "${TKey}" is not assignable to type property type`>
+      : `${TKey}$` extends keyof T
+      ? T[TKey] extends Accessor<any>
+        ? never
+        : Error<`You can define only key with $ postfix and key without postfix, but not both: "${TKey}"`>
+      : never
+    : never;
+}[keyof TInitial];
+
 export type ReactifyProps<
-  T,
+  T extends Record<any, any>,
   TInitial extends Record<any, any>,
-  TResult = _ReactifyProps<T, TInitial>
+  TTypecheck extends TypecheckProps<T, TInitial> = TypecheckProps<T, TInitial>
 > = keyof TInitial extends `${string}$`
   ? {
       "reactify.reactive-props.error": "you cannot use a key that ends with $";
     }
-  : TResult extends { [typeThrow]: any }
-  ? never
-  : TResult;
+  : (args: CreateReactifyPropsInitial<T>) => TTypecheck extends never
+      ? JSX.Element
+      : {
+          "reactify.reactive-props.error": TTypecheck[typeof typeThrow];
+        };
 
 class MakeReactiveProps {
   #implicitSignals: Map<string, Signal<any>> = new Map();
@@ -290,4 +312,7 @@ export const reactifyProps = createTransformProps((props) => {
   // reactifyPropsHandlerRef.current.onRender(props);
 
   // return new Proxy(props, reactifyPropsHandlerRef.current);
-});
+  // TODO: implement types
+}) as <T extends React.ComponentType<any>, TProps>(
+  component: T
+) => React.ComponentType<any>;
