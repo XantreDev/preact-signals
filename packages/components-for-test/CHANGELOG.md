@@ -1,5 +1,15 @@
 # components-for-test
 
+## 1.1.1
+
+### Patch Changes
+
+- Updated dependencies [4b713b3]
+- Updated dependencies [be69f42]
+- Updated dependencies [0ba2b3a]
+  - @preact-signals/utils@0.3.0
+  - @preact-signals/query@1.0.2
+
 ## 1.1.0
 
 ### Minor Changes
