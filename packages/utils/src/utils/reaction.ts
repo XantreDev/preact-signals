@@ -1,6 +1,6 @@
 import { effect, untracked } from "@preact-signals/unified-signals";
-import { Dispose } from "../hooks";
 
+type Dispose = () => void;
 /**
  * Creates a reactive effect that runs the given function whenever any of the dependencies change.
  *

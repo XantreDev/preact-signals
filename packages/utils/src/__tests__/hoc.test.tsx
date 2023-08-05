@@ -2,8 +2,8 @@ import { ReadonlySignal, signal } from "@preact-signals/unified-signals";
 import React, { PropsWithChildren } from "react";
 import { describe, expectTypeOf, it, vi } from "vitest";
 import { $, Uncached } from "../$";
-import { ReactiveProps, makeReactiveLite, reactifyProps } from "../hoc";
-import { makeReactive } from "../hoc/makeReactive";
+import { ReactiveProps, makeReactiveLite, reactifyProps } from "../hocs";
+import { makeReactive } from "../hocs/makeReactive";
 import { itRenderer } from "./utils";
 
 describe.concurrent("reactifyProps()", () => {

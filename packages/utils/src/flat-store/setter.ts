@@ -1,7 +1,7 @@
 import { batch } from "@preact-signals/unified-signals";
 import { CreateFunction } from "../utils";
 import { FlatStore } from "./createFlatStore";
-import { AnyRecord } from "./hooks";
+type AnyRecord = Record<any, any>;
 
 export type FlatStoreSetterFromStore<T extends FlatStore<AnyRecord>> =
   CreateFunction<

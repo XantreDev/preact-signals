@@ -1,4 +1,8 @@
-import { ReadonlySignal, computed, useComputed } from "@preact-signals/unified-signals";
+import {
+  ReadonlySignal,
+  computed,
+  useComputed,
+} from "@preact-signals/unified-signals";
 import { Accessor } from "./utils";
 
 declare class Uncached<T> {
@@ -51,10 +55,9 @@ export const $ = <T>(accessor: Accessor<T>): Uncached<T> =>
   new Uncached(accessor);
 
 const computesCache = new WeakMap<Accessor<any>, ReadonlySignal<any>>();
-export const computedOf$ = <T>($value: Uncached<T>): ReadonlySignal<T> =>
+export const signalOf$ = <T>($value: Uncached<T>): ReadonlySignal<T> =>
   computesCache.get($value._accessor) ??
   (computesCache.set($value._accessor, computed($value._accessor)),
   computesCache.get($value._accessor)!);
 
 export { Uncached };
-

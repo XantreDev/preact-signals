@@ -1,8 +1,8 @@
 import { useMemo, useRef } from "react";
-import { useSignalEffectOnce } from "../hooks";
+import { FlatStore, FlatStoreSetter, createFlatStore, createFlatStoreSetter } from "../flat-store";
 import { untracked } from "../utils";
-import { FlatStore, createFlatStore } from "./createFlatStore";
-import { FlatStoreSetter, createFlatStoreSetter } from "./setter";
+import { useSignalEffectOnce } from "./utility";
+
 export type AnyRecord = Record<any, any>;
 
 export const useStore = <T extends AnyRecord>(

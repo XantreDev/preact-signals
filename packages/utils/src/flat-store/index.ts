@@ -1,3 +1,3 @@
 export * from "./createFlatStore";
-export * from "./hooks";
+export * from "./setter";
 

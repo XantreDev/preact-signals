@@ -116,6 +116,7 @@ export type ResourceOptions<
    * lazy: Optional. If true, the resource will not be fetched until access of ResourceState properties.
    */
   lazy?: boolean;
+  // TODO: add manual activation option
   /**
    * A function that is used to fetch or refresh the resource.
    */

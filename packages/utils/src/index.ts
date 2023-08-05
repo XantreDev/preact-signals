@@ -1,5 +1,11 @@
 export * from "./$";
 export {
+  createFlatStore,
+  createFlatStoreSetter,
+  type FlatStore,
+  type ReadonlyFlatStore
+} from "./flat-store";
+export {
   accessorOfReactive,
   accessorOfSignal,
   reaction,
@@ -9,6 +15,9 @@ export {
   untracked,
   unwrapReactive,
   type Accessor,
-  type AnyReactive, type CreateFunction, type Reactive, type Setter
+  type AnyReactive,
+  type CreateFunction,
+  type Reactive,
+  type Setter
 } from "./utils";
 
