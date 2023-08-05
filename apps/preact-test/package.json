@@ -10,9 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "preact": "^10.15.1",
     "@preact/signals": "^1.1.4",
-    "components-for-test": "workspace:*"
+    "components-for-test": "workspace:*",
+    "preact": "^10.15.1"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.5.0",

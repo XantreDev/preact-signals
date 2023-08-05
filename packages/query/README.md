@@ -21,10 +21,11 @@ yarn add @preact-signals/query
 # Using pnpm
 pnpm add @preact-signals/query
 ```
+
 ### `@preact/signals` additional step:
 
 You should resolve `@preact/signals-react` as `@preact/signals`
-To do it take a look at how to [resolve `react` as `preact`](https://preactjs.com/guide/v10/getting-started#aliasing-react-to-preact) and do it with signals
+To do it take a look at how to [resolve `react` as `preact`](https://preactjs.com/guide/v10/getting-started#aliasing-react-to-preact) and do it with signals. Plus you need to dedupe `preact`
 
 #### [Vite example](../../apps/preact-test/vite.config.ts):
 
@@ -36,11 +37,14 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [preact()],
   resolve: {
+    // add this line
+    dedupe: ["preact"],
     alias: [
       { find: "react", replacement: "preact/compat" },
       { find: "react-dom/test-utils", replacement: "preact/test-utils" },
       { find: "react-dom", replacement: "preact/compat" },
       { find: "react/jsx-runtime", replacement: "preact/jsx-runtime" },
+      // add this line
       { find: "@preact/signals-react", replacement: "@preact/signals" },
     ],
   },

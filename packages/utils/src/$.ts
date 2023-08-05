@@ -48,6 +48,8 @@ Object.defineProperties(Uncached.prototype, {
     configurable: true,
     value: null,
   },
+  // __b is a way to make it working with preact
+  __b: { configurable: true, value: 1 },
 });
 
 // Lighter lazy computation container without memoizing results
