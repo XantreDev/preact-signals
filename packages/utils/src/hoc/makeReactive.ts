@@ -3,92 +3,11 @@ import {
   Signal,
   signal,
 } from "@preact-signals/unified-signals";
-import type { Call, Fn, Objects } from "hotscript";
 import { useRef } from "react";
 import { createTransformProps } from "react-fast-hoc";
-import { Opaque, UnwrapOpaque } from "type-fest";
 import { Uncached } from "../$";
 import { Accessor } from "../utils";
-
-export interface SignalifyProps extends Fn {
-  return: this["arg1"] extends "children"
-    ? this["arg0"]
-    : this["arg0"] extends (...args: any[]) => any
-    ? this["arg0"]
-    : this["arg0"] extends Uncached<any> | ReadonlySignal<any>
-    ? never | Uncached<this["arg0"]> | ReadonlySignal<this["arg0"]>
-    : this["arg0"] | Uncached<this["arg0"]> | ReadonlySignal<this["arg0"]>;
-}
-
-class SignalifyHandler implements ProxyHandler<Record<string | symbol, any>> {
-  #valuesCache = new Map<string | symbol, unknown>();
-
-  get(target: Record<string | symbol, any>, p: string | symbol) {
-    const value = target[p];
-    if (!value) {
-      return value;
-    }
-    if (value instanceof Uncached || value instanceof Signal) {
-      return (
-        this.#valuesCache.get(p) ??
-        this.#valuesCache.set(p, value.value).get(p)!
-      );
-    }
-
-    return value;
-  }
-}
-
-export const signalifyProps = createTransformProps<
-  [Objects.MapValues<SignalifyProps>]
->((props) => new Proxy(props, new SignalifyHandler()), {
-  namePrefix: "Signalified.",
-  mimicToNewComponent: false,
-});
-
-const reactifyLiteHandler: ProxyHandler<Record<string | symbol, any>> = {
-  get(target: Record<string | symbol, any>, p: string | symbol) {
-    const value = target[p];
-    if (value instanceof Uncached || value instanceof Signal) {
-      return value.value;
-    }
-
-    return value;
-  },
-};
-
-export interface ReactifyPropsLite extends Fn {
-  return: this["arg0"] extends ReactiveProps<Record<any, any>>
-    ? Call<Objects.MapValues<SignalifyProps>, UnwrapOpaque<this["arg0"]>>
-    : never;
-}
-
-export type ReactiveProps<T extends Record<any, any>> = Opaque<
-  T,
-  "reactify.reactive-props"
->;
-
-export const reactifyPropsLite = createTransformProps<[ReactifyPropsLite]>(
-  (props) => {
-    if (process.env.NODE_ENV === "development") {
-      for (const key in props) {
-        const value = props[key];
-        if (
-          key !== "children" &&
-          !(value instanceof Signal) &&
-          !(value instanceof Uncached) &&
-          typeof value !== "function"
-        ) {
-          console.warn(
-            `reactifyPropsLite: ${key} is not a signal, it will not be reactive`
-          );
-        }
-      }
-    }
-
-    return new Proxy(props, reactifyLiteHandler);
-  }
-);
+import { ReactiveProps } from "./makeReactiveLite";
 
 declare const typeThrow: unique symbol;
 
@@ -131,7 +50,7 @@ type TypecheckProps<
     : never;
 }[keyof TInitial];
 
-export type ReactifyProps<
+export type ReactiveComponentReturn<
   T extends Record<any, any>,
   TInitial extends Record<any, any>,
   TTypecheck extends TypecheckProps<T, TInitial> = TypecheckProps<T, TInitial>
@@ -290,13 +209,14 @@ class MakeReactiveProps {
 //     };
 //   }
 // }
+// this is not ready yet
 
 /**
  * @description you can pass as prop: Uncached, ReadonlySignal or state.
  * But you should never change type of this prop
  * TODO: throw in dev mode
  */
-export const reactifyProps = createTransformProps((props) => {
+export const makeReactive = createTransformProps((props) => {
   const reactifyPropsRef = useRef<MakeReactiveProps | null>(null);
   if (!reactifyPropsRef.current) {
     reactifyPropsRef.current = new MakeReactiveProps(props);

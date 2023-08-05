@@ -2,7 +2,7 @@ import { signal, untracked } from "@preact-signals/unified-signals";
 import { Show } from "@preact-signals/utils/components";
 import { useSignalEffectOnce } from "@preact-signals/utils/hooks";
 import { render } from "@testing-library/react";
-import { Suspense } from "react";
+import React, { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { describe, expect, it, vi } from "vitest";
 import { QueryClientProvider } from "../react-query";

@@ -1,5 +1,6 @@
 import { signal, untracked } from "@preact-signals/unified-signals";
 import { useSignalEffectOnce } from "@preact-signals/utils/hooks";
+import React from "react";
 import { describe, expect, it } from "vitest";
 import { useQuery } from "../react-query";
 import { useIsFetching$ } from "../useIsFetching$";

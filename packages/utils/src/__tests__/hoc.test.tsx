@@ -2,20 +2,16 @@ import { ReadonlySignal, signal } from "@preact-signals/unified-signals";
 import React, { PropsWithChildren } from "react";
 import { describe, expectTypeOf, it, vi } from "vitest";
 import { $, Uncached } from "../$";
-import {
-  ReactiveProps,
-  reactifyProps,
-  reactifyPropsLite,
-  signalifyProps,
-} from "../hoc/hoc";
+import { ReactiveProps, makeReactiveLite, reactifyProps } from "../hoc";
+import { makeReactive } from "../hoc/makeReactive";
 import { itRenderer } from "./utils";
 
-describe.concurrent("signalifyProps()", () => {
+describe.concurrent("reactifyProps()", () => {
   for (const valueType of ["signal", "Uncached"] as const) {
     itRenderer(
       `should force rerender dependent component (${valueType})`,
       ({ act, reactRoot, expect, root }) => {
-        const B = signalifyProps(
+        const B = reactifyProps(
           vi.fn((props: { value: number }) => <div>{props.value}</div>)
         );
 
@@ -47,7 +43,7 @@ describe.concurrent("signalifyProps()", () => {
   itRenderer(
     "should not rerender when unread signal changed",
     ({ expect, act, reactRoot }) => {
-      const B = signalifyProps(vi.fn((props: { value: number }) => null));
+      const B = reactifyProps(vi.fn((props: { value: number }) => null));
 
       const sig = signal(10);
 
@@ -67,7 +63,7 @@ describe.concurrent("signalifyProps()", () => {
   );
 
   it("should handle types", () => {
-    const B = signalifyProps((props: PropsWithChildren<{ value: number }>) => (
+    const B = reactifyProps((props: PropsWithChildren<{ value: number }>) => (
       <div>{props.value}</div>
     ));
 
@@ -84,7 +80,7 @@ describe.concurrent("signalifyProps()", () => {
 
 describe.concurrent("reactifyPropsLite()", () => {
   it("should handle explicitly defined reactive props", () => {
-    const A = reactifyPropsLite((props: ReactiveProps<{ value: number }>) => (
+    const A = makeReactiveLite((props: ReactiveProps<{ value: number }>) => (
       <div>{props.value}</div>
     ));
 
@@ -95,7 +91,7 @@ describe.concurrent("reactifyPropsLite()", () => {
   });
 
   it("should throw on not explicitly defined reactive props", () => {
-    const B = reactifyPropsLite((props: { value: number }) => (
+    const B = makeReactiveLite((props: { value: number }) => (
       <div>{props.value}</div>
     ));
 
@@ -110,7 +106,7 @@ describe.concurrent("reactifyPropsLite()", () => {
       const aRender = vi.fn((props: ReactiveProps<{ value: number }>) => (
         <div>{props.value}</div>
       ));
-      const A = reactifyPropsLite(aRender);
+      const A = makeReactiveLite(aRender);
       await act(() => reactRoot().render(<A value={sig} />));
 
       expect(A).toHaveBeenCalledTimes(1);
@@ -134,7 +130,7 @@ describe.concurrent("reactifyPropsLite()", () => {
       const sig = signal(10);
 
       const aRender = vi.fn((props: ReactiveProps<{ value: number }>) => null);
-      const A = reactifyPropsLite(aRender);
+      const A = makeReactiveLite(aRender);
       await act(() => reactRoot().render(<A value={sig} />));
 
       expect(A).toHaveBeenCalledTimes(1);
@@ -148,11 +144,11 @@ describe.concurrent("reactifyPropsLite()", () => {
   );
 });
 
-describe.concurrent("reactifyProps()", () => {
+describe.concurrent("makeReactive()", () => {
   itRenderer(
     "should support value$ postfix",
     async ({ expect, root, reactRoot }) => {
-      const A = reactifyProps(
+      const A = makeReactive(
         vi.fn((props: ReactiveProps<{ value: number }>) => (
           <div>{props.value}</div>
         ))
@@ -170,7 +166,7 @@ describe.concurrent("reactifyProps()", () => {
     itRenderer(
       `should rerender when deps changed. deps type: ${valueType}}`,
       async ({ expect, act, root, reactRoot }) => {
-        const A = reactifyProps(
+        const A = makeReactive(
           vi.fn((props: ReactiveProps<{ value: number }>) => (
             <div>{props.value}</div>
           ))
@@ -206,7 +202,7 @@ describe.concurrent("reactifyProps()", () => {
   itRenderer(
     "should not rerender when unread signal changed",
     async ({ expect, act, reactRoot }) => {
-      const A = reactifyProps(
+      const A = makeReactive(
         vi.fn((props: ReactiveProps<{ value: number }>) => null)
       );
 
@@ -226,7 +222,7 @@ describe.concurrent("reactifyProps()", () => {
   itRenderer(
     "should correctly pass props",
     async ({ expect, act, reactRoot }) => {
-      const A = reactifyProps(
+      const A = makeReactive(
         vi.fn(
           (
             props: ReactiveProps<{

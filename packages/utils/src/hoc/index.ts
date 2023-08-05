@@ -1,1 +1,3 @@
-export * from "./hoc";
+export * from "./makeReactiveLite";
+export * from "./reactifyProps";
+
