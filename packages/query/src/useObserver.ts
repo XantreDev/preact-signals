@@ -1,9 +1,10 @@
 import type { ReadonlySignal } from "@preact-signals/unified-signals";
-import { ReadonlyFlatStore, useStore } from "@preact-signals/utils/flat-store";
+import { ReadonlyFlatStore } from "@preact-signals/utils";
 import {
   useInitSignal,
   useSignalEffectOnce,
   useSignalOfReactive,
+  useStore,
 } from "@preact-signals/utils/hooks";
 
 type Dispose = () => void;

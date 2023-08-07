@@ -5,6 +5,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [preact()],
   resolve: {
+    dedupe: ["preact"],
     alias: [
       { find: "react", replacement: "preact/compat" },
       { find: "react-dom/test-utils", replacement: "preact/test-utils" },

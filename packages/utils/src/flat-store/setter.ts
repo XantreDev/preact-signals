@@ -1,7 +1,8 @@
 import { batch } from "@preact-signals/unified-signals";
 import { CreateFunction } from "../utils";
 import { FlatStore } from "./createFlatStore";
-import { AnyRecord } from "./hooks";
+
+type AnyRecord = Record<any, any>;
 
 export type FlatStoreSetterFromStore<T extends FlatStore<AnyRecord>> =
   CreateFunction<
@@ -14,7 +15,7 @@ export type FlatStoreSetter<T extends AnyRecord> = CreateFunction<
   void
 >;
 
-export const createFlatStoreSetter =
+export const setterOfFlatStore =
   <T extends Record<any, any>>(store: FlatStore<T>): FlatStoreSetter<T> =>
   (newValue) => {
     batch(() => {

@@ -1,7 +1,8 @@
 import { signal } from "@preact-signals/unified-signals";
 import { Opaque } from "type-fest";
+import { setterOfFlatStore } from "./setter";
 
-export const __storeState = Symbol("store-state");
+const __storeState = Symbol("store-state");
 const handler: ProxyHandler<any> = {
   get(target, key) {
     const storageState = target[__storeState];
@@ -69,7 +70,15 @@ export type ReadonlyFlatStore<T extends Record<any, any>> = Readonly<
   FlatStore<T>
 >;
 
-export const createFlatStore = <T extends Record<any, any>>(
+export const flatStore = <T extends Record<any, any>>(
   initialState: T
 ): FlatStore<T> =>
   new Proxy(Object.assign({ [__storeState]: {} }, initialState), handler);
+
+export const createFlatStore = <T extends Record<any, any>>(
+  initialState: T
+) => {
+  const store = flatStore(initialState);
+
+  return [store, setterOfFlatStore(store)] as const;
+};
