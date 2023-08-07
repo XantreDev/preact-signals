@@ -1,169 +1,167 @@
 # `@preact-signals/utils`
 
-`@preact-signals/utils` is a standard library for Preact Signals, aimed at providing essential utilities for a more comfortable and streamlined usage of Preact Signals. This package contains several entries designed to enhance the flexibility and maintainability of Preact Signal-based projects.
+`@preact-signals/utils` is a standard library for Preact Signals, designed to provide essential utilities for comfortable and streamlined usage. This package includes several features to enhance the flexibility and maintainability of Preact Signal-based projects.
 
-## Installation
+## Prerequisites
 
-You should be sure that [one of preact signals runtimes](https://github.com/preactjs/signals) installed:
+Ensure that [one of the preact signals runtimes](https://github.com/preactjs/signals) is installed:
 
-- `@preact/signals` for `preact`, it requires [additional step](#preactsignals-additional-step)
-- `@preact/signals-react` for `react`
-
-Fetch `@preact-signals/query` via your preferred package manager:
-
-```bash
-# Using npm
-npm install @preact-signals/query
-
-# Using yarn
-yarn add @preact-signals/query
-
-# Using pnpm
-pnpm add @preact-signals/query
-```
+- `@preact/signals` for `preact`, requiring an [additional step](#preactsignals-additional-step).
+- `@preact/signals-react` for `react`.
 
 ### `@preact/signals` additional step:
 
-You should resolve `@preact/signals-react` as `@preact/signals`
-To do it take a look at how to [resolve `react` as `preact`](https://preactjs.com/guide/v10/getting-started#aliasing-react-to-preact) and do it with signals. Plus you need to dedupe `preact`
+Resolve `@preact/signals-react` as `@preact/signals`. For guidance, see [resolve `react` as `preact`](https://preactjs.com/guide/v10/getting-started) and follow a similar process with signals. Additionally, dedupe `preact`.
 
 #### [Vite example](../../apps/preact-test/vite.config.ts):
 
-````ts
+```ts
 import preact from "@preact/preset-vite";
 import { defineConfig } from "vite";
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [preact()],
   resolve: {
-    // add this line
     dedupe: ["preact"],
     alias: [
       { find: "react", replacement: "preact/compat" },
       { find: "react-dom/test-utils", replacement: "preact/test-utils" },
       { find: "react-dom", replacement: "preact/compat" },
       { find: "react/jsx-runtime", replacement: "preact/jsx-runtime" },
-      // add this line
       { find: "@preact/signals-react", replacement: "@preact/signals" },
     ],
   },
 });
-`
+```
+
+### Installation
+
+Fetch `@preact-signals/utils` via your preferred package manager:
+
+```bash
+# Using npm
+npm install @preact-signals/utils
+
+# Using yarn
+yarn add @preact-signals/utils
+
+# Using pnpm
+pnpm add @preact-signals/utils
+```
+
+Library consist from many entries:
+
+- `@preact-signals/utils` for library agnostic utils
+- `@preact-signals/utils/components` for reactive components
+- `@preact-signals/utils/hooks` for reactive hooks
+- `@preact-signals/utils/hocs` provides hocs wrappers that bring reactivity to your components
+
 ## Main Entry: `@preact-signals/utils`
 
 ### `Uncached`/`$`
 
-The `Uncached` type functions similarly to a Preact signal. It is essentially a wrapper around a function that can be passed into props or JSX. It can be created using the `$` function.
-
-Uncached is just accessor function in object wrapper, that allows to use it in JSX
-and use `instanceof` to check if it is Uncached. Main difference with Signal is that you shouldn't follow rules of
-hooks while creating it.
+The `Uncached` type functions similarly to a Preact signal, essentially wrapping a function that can be passed into props or JSX. You can create it using the `$` function.
 
 ```tsx
 const sig = signal(1);
-
 <div>{$(() => sig.value * 10)}</div>;
-````
-
-Using with component wrapped in `withSignalProps`
-
-```tsx
-const C = withSignalProps((props: { a: number }) => {
-  return <div>{props.a}</div>;
-});
-
-const sig = signal(1);
-
-<C a={$(() => sig.value)} />;
 ```
 
 ### `reaction`
 
-The `reaction` function provides the ability to respond to changes that are tracked within a dependent function. It's particularly useful for managing side-effects or synchronizing with non-reactive parts of your code.
-Creates a reactive effect that runs the given function whenever any of the dependencies change.
+The `reaction` function allows responding to changes tracked within a dependent function. It is useful for managing side-effects or synchronizing non-reactive parts of your code.
 
-Enhanced version of:
-
-```ts
-effect(() => {
-  const value = deps();
-  untracked(() => fn(value));
-});
+```tsx
+const sig = signal(1);
+const sig2 = signal(2);
+// reaction(deps, effect)
+const dispose = reaction(
+  () => sig.value,
+  (value) => {
+    // you can read signals here without tracking
+    if (sig2.value * 10 === value) {
+      sig2.value = value;
+    }
+  }
+);
 ```
 
 ### `getter`/`setter`
 
-These functions are wrappers creators for signals, providing a convenient way to separate reading and writing responsibilities.
+These functions act as wrapper creators for signals, offering a convenient way to separate reading and writing responsibilities.
 
 ### `resource`
 
-The `resource` type is a signal binding of a promise that includes Preact Signals' reactivity. It can be retried, rejected, or resolved, offering a streamlined way to manage asynchronous operations.
+The `resource` type binds a signal to a promise, including Preact Signals' reactivity. It can be retried, rejected, or resolved, offering a streamlined way to manage asynchronous operations.
 
-Resource example:
+```tsx
+const [resource, { refetch }] = createResource({
+  fetcher: async () => {
+    const response = await fetch("https://example.com");
+    return response.json();
+  },
+});
 
-- Creates a resource that wraps a repeated promise in a reactive pattern:
-- ```typescript
-
-  ```
-
-- // Without source
-- const [resource, { mutate, refetch }] = createResource({
-- fetcher: () => fetch("https://swapi.dev/api/people/1").then((r) => r.json()),
-- });
-- // With source
-- const [resource, { mutate, refetch }] = createResource({
-- source: () => userId.value,
-- fetcher: (userId) => fetch(`https://swapi.dev/api/people/${userId}`).then((r) => r.json()),
-- });
-- ```
-
-  ```
-
-- @param options - Contains all options for creating resource
--
-- @returns ```typescript
-- [ResourceState<TResult>, { mutate: Setter<T>, refetch: () => void }]
-- ```
-
-  ```
-
--
-- - Setting an `initialValue` in the options will mean that resource will be created in `ready` state
-- - `mutate` allows to manually overwrite the resource without calling the fetcher
-- - `refetch` will re-run the fetcher without changing the source, and if called with a value, that value will be passed to the fetcher via the `refetching` property on the fetcher's second parameter
+return <Show when={resource}>{(result) => <div>{result()}</div>}</Show>;
+```
 
 ### `createFlatStore`
 
-A simplified implementation of a store, when keys values is converting to signals on demand, enabling easy state management.
+This function offers a simple store implementation, converting key values into signals on demand.
 
 ```typescript
-const store = createFlatStore({
+const [store, setStore] = createFlatStore({
   a: 1,
   b: 2,
 });
 
 const c = computed(() => store.a + store.b); // 3
-
 store.a = 2;
 store.b = 3;
-
 console.log(c.value); // 5
+
+// will be auto bached
+setStore({ a: 3, b: 4 });
+console.log(c.value); // 7
 ```
+
+## Part 3: Hooks, Components, and High Order Components
+
+---
 
 ## `@preact-signals/utils/hooks`: Hooks for Signals
 
-This entry provides hooks creating to work with signals, enhancing the reactivity and composability in your components.
+This entry provides hooks designed to work with signals, enhancing reactivity and composability in your components.
 
-This hooks includes specific signal creators that is actual for some use cases, and binding of
-utility stuff like, reasources, and flatStores.
+```typescript
+// execute function run only once, and you can access other signals inside without tracking
+const a = useInitSignal(() => new Set());
+// uses first provided clojure, so it can be jit
+const b = useComputedOnce(() => a.value.size);
+useSignalEffectOnce(() => a.value.size);
+
+// create flat store from provided value
+const [store, setStore] = useFlatStore({
+  a: 1,
+  b: 2,
+});
+
+// create resource from provided fetcher
+const [resource, { refetch }] = useResource({
+  fetcher: async () => {
+    const response = await fetch("https://example.com");
+    return response.json();
+  },
+});
+```
 
 ## `@preact-signals/utils/components`: Reactive Components
 
-This section includes components like `Show`, `Switch`, `Match`, `For`, which allow you to scope reactivity in your JSX. These components help in writing more declarative and readable code.
+This section includes components like `Show`, `Switch`, `Match`, `For`, allowing you to scope reactivity within your JSX. These components aid in writing more declarative and readable code.
+All of this component works with reactive unit, which is Signal or Accessor callback
 
 ```tsx
-<Show fallback={<p>bebe</p>} when={() => arr.value}>
+<Show fallback={<p>Loading...</p>} when={() => arr.value}>
   {(data) => (
     <ul>
       <For each={data} keyExtractor={(item) => item.id}>
@@ -174,53 +172,52 @@ This section includes components like `Show`, `Switch`, `Match`, `For`, which al
 </Show>
 ```
 
-## `@preact-signals/utils/hocs`: High Order Components
+```tsx
+<Switch fallback={<p>Not found</p>}>
+  <Match when={() => route.value === "home"}>
+    <Home />
+  </Match>
+  <Match when={() => route.value === "about"}>
+    <About />
+  </Match>
+  <Match when={() => route.value === "users"}>
+    <Users />
+  </Match>
+</Switch>
+```
 
-High Order Components (HOCs) in this entry allow you to inject signals or `uncached` instances into props. This functionality helps in creating reusable and composable logic across different components.
+## `@preact-signals/utils/hocs`: High Order Components (HOCs)
+
+HOCs in this entry allow you to inject signals or `uncached` instances into props, aiding in the creation of reusable and composable logic across various components.
 
 Examples:
 
 ```tsx
-const View$ = withSignalProps(View)
-const Text$ = withSignalProps(Text)
-const a = signal(10)
-const b = signal(5)
+const View$ = withSignalProps(View);
+const Text$ = withSignalProps(Text);
+const a = signal(10);
+const b = signal(5);
 
-<View$ hitSlop={useComputed(() => a.value + b.value)}  />
-<View$ hitSlop={$(() => a.value + b.value)}  />
-
-const Comp = (props: ReactiveProps<{a: number}>) => (
-    <Show when={() => props.a > 10}
-        {v => v + 10}
-    </Show>
-)
-const B = reactifyLite(Comp)
-
-<B  a={$(() => a.value + b.value)} />
-
-// is not available yet
-const C = reactify(Comp)
-
-<C a$={() => a.value + b.value} />
-
-// JSX transform idea
-// use `$$` to pass props like in solidjs
-<C a$$={a.value + b.value} />
+<View$ hitSlop={useComputed(() => a.value + b.value)} />;
+<View$ hitSlop={$(() => a.value + b.value)} />;
 ```
 
-## Installation
+### `reactifyLite`
 
-To add `@preact-signals/utils` to your project, you can use:
+Makes you component truly reactive. Your props are will be use getter to signals under the hood. So you can safely pass it into effect or reactive component like `Show` or `Switch` without worries about tracking.
+```tsx
+const Comp = (props: ReactiveProps<{ a: number }>) => (
+  <Show when={() => props.a > 10}>{(v) => v + 10}</Show>
+);
 
-```bash
-# npm
-npm install @preact-signals/utils
-# yarn
-yarn add @preact-signals/utils
-# pnpm
-pnpm add @preact-signals/utils
+const B = reactifyLite(Comp);
+<B a={$(() => a.value + b.value)} />;
+
+// JSX transform idea. this is just idea, not implemented
+// use `$$` to pass props like in SolidJS
+<C a$$={a.value + b.value} />;
 ```
 
 ### License
 
-This project is licensed under the [MIT License](LICENSE).
+`@preact-signals/utils` is licensed under the [MIT License](LICENSE), and you're free to use, modify, and distribute it under the terms outlined in the LICENSE file.
