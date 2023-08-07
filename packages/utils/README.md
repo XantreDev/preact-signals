@@ -13,6 +13,10 @@ Ensure that [one of the preact signals runtimes](https://github.com/preactjs/sig
 
 Resolve `@preact/signals-react` as `@preact/signals`. For guidance, see [resolve `react` as `preact`](https://preactjs.com/guide/v10/getting-started) and follow a similar process with signals. Additionally, dedupe `preact`.
 
+### `@preact/signals-react` additional step:
+
+You should turn off React.StrictMode to resources work properly
+
 #### [Vite example](../../apps/preact-test/vite.config.ts):
 
 ```ts
@@ -205,6 +209,7 @@ const b = signal(5);
 ### `reactifyLite`
 
 Makes you component truly reactive. Your props are will be use getter to signals under the hood. So you can safely pass it into effect or reactive component like `Show` or `Switch` without worries about tracking.
+
 ```tsx
 const Comp = (props: ReactiveProps<{ a: number }>) => (
   <Show when={() => props.a > 10}>{(v) => v + 10}</Show>
