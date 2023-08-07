@@ -11,6 +11,7 @@ import {
   Route,
   Router,
   RouterProvider,
+  createHashHistory,
 } from "@tanstack/router";
 const rootRoute = new RootRoute({
   component: () => (
@@ -79,6 +80,7 @@ const router = new Router({
     testQueryRoute,
     testUncachedJSXBindingsRoute,
   ]),
+  history: createHashHistory(),
 });
 
 export const Test = (): JSX.Element => <RouterProvider router={router} />;

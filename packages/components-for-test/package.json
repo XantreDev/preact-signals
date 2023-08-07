@@ -35,6 +35,7 @@
   "peerDependencies": {
     "@preact-signals/query": "workspace:*",
     "@preact/signals-react": "^1.3",
+    "@preact/signals": "^1.*",
     "react": "17.*.* || 18.*.*"
   },
   "peerDependenciesMeta": {

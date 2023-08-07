@@ -115,6 +115,9 @@ importers:
       '@preact-signals/utils':
         specifier: workspace:*
         version: link:../utils
+      '@preact/signals':
+        specifier: ^1.*
+        version: 1.1.4(preact@10.15.1)
       '@tanstack/router':
         specifier: 0.0.1-beta.140
         version: 0.0.1-beta.140(react-dom@18.2.0)(react@18.2.0)
