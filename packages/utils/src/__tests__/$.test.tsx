@@ -78,4 +78,27 @@ describe("$()", () => {
     expect($fn).toHaveBeenCalledTimes(1);
     expect(render).toHaveBeenCalledTimes(2);
   });
+  it("should provide not reactive peek method", async () => {
+    const sig = signal(0);
+    const uncached = $(() => sig.value);
+    const c = computed(() => uncached.peek() + 10);
+    expect(c.value).toBe(10);
+
+    sig.value = 20;
+    expect(c.value).toBe(10);
+  });
+
+  it("should stringify correctly", () => {
+    expect($(() => 10).toString()).toBe("10");
+    expect($(() => "10").toString()).toBe("10");
+    expect($(() => null).toString()).toBe("null");
+    expect($(() => undefined).toString()).toBe("undefined");
+  });
+
+  it("should be unwrap while valueOf", () => {
+    expect($(() => 10).valueOf()).toBe(10);
+    expect($(() => "10").valueOf()).toBe("10");
+    expect($(() => null).valueOf()).toBe(null);
+    expect($(() => undefined).valueOf()).toBe(undefined);
+  });
 });

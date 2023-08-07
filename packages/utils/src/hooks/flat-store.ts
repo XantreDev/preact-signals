@@ -1,25 +1,23 @@
-import { useMemo, useRef } from "react";
-import { FlatStore, FlatStoreSetter, createFlatStore, createFlatStoreSetter } from "../flat-store";
+import { useRef } from "react";
+import { createFlatStore } from "../flat-store";
 import { untracked } from "../utils";
 import { useSignalEffectOnce } from "./utility";
 
 export type AnyRecord = Record<any, any>;
 
-export const useStore = <T extends AnyRecord>(
-  storeCreator: () => T
-): [FlatStore<T>, FlatStoreSetter<T>] => {
-  const storeRef = useRef<FlatStore<T> | null>();
+/**
+ * Create a flat store and its setter.
+ */
+export const useStore = <T extends AnyRecord>(storeCreator: () => T) => {
+  const storeRef = useRef<ReturnType<typeof createFlatStore<T>> | null>();
   if (!storeRef.current) {
     storeRef.current = createFlatStore(untracked(storeCreator));
   }
 
-  return [
-    storeRef.current!,
-    useMemo(() => createFlatStoreSetter(storeRef.current!), []),
-  ];
+  return storeRef.current;
 };
 
-export const useComputedStore$ = <T extends AnyRecord>(
+export const useComputedStore = <T extends AnyRecord>(
   storeUpdater: () => T
 ) => {
   const [store, setStore] = useStore(storeUpdater);

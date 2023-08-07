@@ -1,3 +1,3 @@
-export * from "./makeReactiveLite";
-export * from "./reactifyProps";
+export * from "./reactifyLite";
+export * from "./withSignalProps";
 

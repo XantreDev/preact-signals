@@ -7,11 +7,12 @@ import { useRef } from "react";
 import { createTransformProps } from "react-fast-hoc";
 import { Uncached } from "../$";
 import { Accessor } from "../utils";
-import { ReactiveProps } from "./makeReactiveLite";
+import { IGNORED_PROPS } from "./constants";
+import { ReactiveProps } from "./reactifyLite";
 
 declare const typeThrow: unique symbol;
 
-type CreateReactifyPropsInitial<T extends Record<any, any>> = {
+type ReactifyPropsInitial<T extends Record<any, any>> = {
   [TKey in keyof T as TKey extends string | number
     ? TKey
     : TKey]?: T[TKey] extends Uncached<any> | ReadonlySignal<any>
@@ -50,7 +51,7 @@ type TypecheckProps<
     : never;
 }[keyof TInitial];
 
-export type ReactiveComponentReturn<
+export type ReactifyComponentReturn<
   T extends Record<any, any>,
   TInitial extends Record<any, any>,
   TTypecheck extends TypecheckProps<T, TInitial> = TypecheckProps<T, TInitial>
@@ -58,13 +59,13 @@ export type ReactiveComponentReturn<
   ? {
       "reactify.reactive-props.error": "you cannot use a key that ends with $";
     }
-  : (args: CreateReactifyPropsInitial<T>) => TTypecheck extends never
+  : (args: ReactifyPropsInitial<T>) => TTypecheck extends never
       ? JSX.Element
       : {
           "reactify.reactive-props.error": TTypecheck[typeof typeThrow];
         };
 
-class MakeReactiveProps {
+class ReactifyPropsHandler {
   #implicitSignals: Map<string, Signal<any>> = new Map();
   #props: Record<string, any>;
   constructor(props: Record<string, any>) {
@@ -75,11 +76,16 @@ class MakeReactiveProps {
     if (this.#props === props) {
       return;
     }
-    for (const key in this.#implicitSignals) {
+    for (const [key, value] of this.#implicitSignals) {
       if (!(key in props)) {
-        this.#implicitSignals.delete(key);
+        value.value = undefined;
       }
     }
+    // for (const key in this.#implicitSignals) {
+    //   if (!(key in props)) {
+    //     this.#implicitSignals.delete(key);
+    //   }
+    // }
     this.#props = props;
   }
 
@@ -90,6 +96,11 @@ class MakeReactiveProps {
     const self = this;
     for (const key in this.#props) {
       const value = this.#props[key];
+      if (IGNORED_PROPS.includes(key)) {
+        // @ts-expect-error
+        res.ref = value;
+        continue;
+      }
       const isEndsWith$ = key.endsWith("$");
       const keyWithout$ = isEndsWith$ ? key.slice(0, -1) : key;
 
@@ -216,10 +227,10 @@ class MakeReactiveProps {
  * But you should never change type of this prop
  * TODO: throw in dev mode
  */
-export const makeReactive = createTransformProps((props) => {
-  const reactifyPropsRef = useRef<MakeReactiveProps | null>(null);
+export const reactify = createTransformProps((props) => {
+  const reactifyPropsRef = useRef<ReactifyPropsHandler | null>(null);
   if (!reactifyPropsRef.current) {
-    reactifyPropsRef.current = new MakeReactiveProps(props);
+    reactifyPropsRef.current = new ReactifyPropsHandler(props);
   }
   reactifyPropsRef.current.onRender(props);
 

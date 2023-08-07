@@ -1,8 +1,6 @@
 export * from "./$";
 export {
-  createFlatStore,
-  createFlatStoreSetter,
-  type FlatStore,
+  createFlatStore, flatStore, type FlatStore,
   type ReadonlyFlatStore
 } from "./flat-store";
 export {

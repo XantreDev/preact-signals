@@ -3,7 +3,7 @@ import { Fn, Objects } from "hotscript";
 import { createTransformProps } from "react-fast-hoc";
 import { Uncached } from "../$";
 
-export interface ReactifyProps extends Fn {
+export interface WithSignalProp extends Fn {
   return: this["arg1"] extends "children"
     ? this["arg0"]
     : this["arg0"] extends (...args: any[]) => any
@@ -13,7 +13,9 @@ export interface ReactifyProps extends Fn {
     : this["arg0"] | Uncached<this["arg0"]> | ReadonlySignal<this["arg0"]>;
 }
 
-class ReactifyHandler implements ProxyHandler<Record<string | symbol, any>> {
+class WithSignalPropsHandler
+  implements ProxyHandler<Record<string | symbol, any>>
+{
   #valuesCache = new Map<string | symbol, unknown>();
 
   get(target: Record<string | symbol, any>, p: string | symbol) {
@@ -32,9 +34,12 @@ class ReactifyHandler implements ProxyHandler<Record<string | symbol, any>> {
   }
 }
 
-export const reactifyProps = createTransformProps<
-  [Objects.MapValues<ReactifyProps>]
->((props) => new Proxy(props, new ReactifyHandler()), {
+/**
+ * Allows to pass props to third party components that are not aware of signals. This will subscribe to signals on demand.
+ */
+export const withSignalProps = createTransformProps<
+  [Objects.MapValues<WithSignalProp>]
+>((props) => new Proxy(props, new WithSignalPropsHandler()), {
   namePrefix: "Reactified.",
   mimicToNewComponent: false,
 });

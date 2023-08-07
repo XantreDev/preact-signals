@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, it } from "vitest";
-import { ReactiveComponentReturn } from "./makeReactive";
-describe("makeReactive()", () => {
+import { ReactifyComponentReturn } from "./reactify";
+describe("reactify()", () => {
   // it("should transform props in case of correct types", () => {
   //   expectTypeOf<
   //     ReactiveComponentReturn<{ a: Uncached<number> }, { a: number }>
@@ -22,7 +22,7 @@ describe("makeReactive()", () => {
   // });
   it("should throw if initial has $ postfix", () => {
     expectTypeOf<
-      ReactiveComponentReturn<{ a$: () => number }, { a$: number }>
+      ReactifyComponentReturn<{ a$: () => number }, { a$: number }>
     >().toEqualTypeOf<{
       "reactify.reactive-props.error": "you cannot use a key that ends with $";
     }>();
