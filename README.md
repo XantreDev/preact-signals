@@ -2,6 +2,8 @@
 
 Goal of the project to provide comprehensive tooling for using [`preact/signals`](https://github.com/preactjs/signals)
 
+Playground: https://stackblitz.com/edit/vitejs-vite-h8ib6b?file=src%2FApp.tsx
+
 ## Packages
 
 - [`@preact-signals/utils`](./packages/utils): A package that contains a lot of utils for many purposes. I think it should be kinda stdlib for using preact signals.
