@@ -214,9 +214,6 @@ importers:
       '@preact/signals-core':
         specifier: '>=1.1.0'
         version: 1.2.3
-      preact:
-        specifier: ^10.*
-        version: 10.15.1
     devDependencies:
       '@preact/signals-react':
         specifier: latest
