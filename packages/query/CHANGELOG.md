@@ -1,5 +1,19 @@
 # @preact-signals/query
 
+## 1.0.3
+
+### Patch Changes
+
+- d2705bf: Fixed installation for preact in readme
+- Updated dependencies [7694443]
+- Updated dependencies [d2705bf]
+- Updated dependencies [e9a5fef]
+- Updated dependencies [ba769ed]
+- Updated dependencies [e9a5fef]
+- Updated dependencies [7dacde0]
+- Updated dependencies [9db73dd]
+  - @preact-signals/utils@0.4.0
+
 ## 1.0.2
 
 ### Patch Changes

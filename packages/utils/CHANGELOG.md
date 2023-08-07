@@ -1,5 +1,20 @@
 # @preact-signals/utils
 
+## 0.4.0
+
+### Minor Changes
+
+- 7694443: Added `reaction` and renamed some apis
+- e9a5fef: Removed internal utils exports. And added react binding for `reaction`
+- ba769ed: Renamed hocs: 'signalifyProps' -> 'reactifyProps', 'reactify...' -> 'makeReactive...'
+- e9a5fef: Added `reaction` utility for imperative reaction on deps changes
+- 7dacde0: Documented library api
+- 9db73dd: Restructured exports and file strtucture. Started to export all framework independent utils from root, other kind of utils started to export from `hocs` and `hooks`
+
+### Patch Changes
+
+- d2705bf: Fixed `# @preact-signals/utils jsx rendering in Preact
+
 ## 0.3.0
 
 ### Minor Changes
