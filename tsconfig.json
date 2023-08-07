@@ -25,7 +25,8 @@
       "@preact-signals/utils/*": ["./packages/utils/src/*"],
       "@preact-signals/unified-signals": [
         "./packages/unified-signals/src/index.d.ts"
-      ]
+      ],
+      "components-for-tests/*": ["./packages/components-for-test/src/*"]
     }
   },
   "exclude": [
