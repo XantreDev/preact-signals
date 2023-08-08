@@ -2,7 +2,8 @@
 
 Goal of the project to provide comprehensive tooling for using [`preact/signals`](https://github.com/preactjs/signals)
 
-Playground: https://stackblitz.com/edit/vitejs-vite-h8ib6b?file=src%2FApp.tsx
+### Playground:
+[![image](./example.png)](https://stackblitz.com/edit/vitejs-vite-h8ib6b?file=src%2FApp.tsx)
 
 ## Packages
 

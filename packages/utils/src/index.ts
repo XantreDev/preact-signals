@@ -1,7 +1,9 @@
 export * from "./$";
 export {
-  createFlatStore, flatStore, type FlatStore,
-  type ReadonlyFlatStore
+  createFlatStore,
+  flatStore,
+  type FlatStore,
+  type ReadonlyFlatStore,
 } from "./flat-store";
 export {
   accessorOfReactive,
@@ -16,6 +18,6 @@ export {
   type AnyReactive,
   type CreateFunction,
   type Reactive,
-  type Setter
+  type Setter,
 } from "./utils";
-
+export * from "./resource";
