@@ -1,5 +1,16 @@
 # @preact-signals/utils
 
+## 0.5.0
+
+### Minor Changes
+
+- 7b13f17: Exported resource from root
+
+### Patch Changes
+
+- 859edeb: Fixed no resource resetting
+- 74255e3: Added info about react strict mode
+
 ## 0.4.0
 
 ### Minor Changes
