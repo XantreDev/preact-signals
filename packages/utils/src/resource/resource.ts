@@ -259,6 +259,17 @@ const _init: Resource<any, any, any, any>["_init"] = function (
   this.refetchEffect = effect(() => {
     const { source, refetching } = this.refetchDetector();
     if (
+      (this.state$.peek() === "errored" || this.state$.peek() === "ready") &&
+      isExplicitFalsy(source)
+    ) {
+      batch(() => {
+        this.state$.value = "unresolved";
+        this.error$.value = undefined;
+        this.value$.value = NO_INIT;
+      });
+      return;
+    }
+    if (
       this.state$.peek() === "refreshing" ||
       this.state$.peek() === "pending" ||
       isExplicitFalsy(source)

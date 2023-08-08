@@ -1,4 +1,9 @@
-import { Signal, computed, effect, signal } from "@preact-signals/unified-signals";
+import {
+  Signal,
+  computed,
+  effect,
+  signal,
+} from "@preact-signals/unified-signals";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Resource, ResourceState, resource } from "./resource";
 
@@ -318,6 +323,28 @@ describe("resource", () => {
       expect(r.state).toBe("unresolved");
       r.dispose();
     }
+  });
+
+  it("should reset when source becames falsy, and reactive when truthy again", () => {
+    const sig = signal(true);
+
+    r = resource({
+      fetcher: vi.fn(fetcherF),
+      source: (): unknown => sig.value,
+    });
+
+    expect(r.state).toBe("ready");
+    expect(r()).toBe(220);
+
+    sig.value = false;
+
+    expect(r.state).toBe("unresolved");
+    expect(r()).toBe(undefined);
+
+    sig.value = true;
+
+    expect(r.state).toBe("ready");
+    expect(r()).toBe(220);
   });
 
   const falsyButOk = [0, "", NaN, 0n] as const;
