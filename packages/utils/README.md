@@ -75,6 +75,16 @@ const sig = signal(1);
 
 The `reaction` function allows responding to changes tracked within a dependent function. It is useful for managing side-effects or synchronizing non-reactive parts of your code.
 
+`reaction` is enhanced version of this:
+
+```ts
+const reaction = (deps, fn) =>
+  effect(() => {
+    const value = deps();
+    untracked(() => fn(value));
+  });
+```
+
 ```tsx
 const sig = signal(1);
 const sig2 = signal(2);
@@ -129,9 +139,30 @@ setStore({ a: 3, b: 4 });
 console.log(c.value); // 7
 ```
 
-## Part 3: Hooks, Components, and High Order Components
+### `createFlatStoreOfSignals`
 
----
+This function wraps provided **signals and value** to flat store. You can pass computed's too and it will be readonly field
+
+```typescript
+const [store, setStore] = createFlatStoreOfSignals({
+  a: 1,
+  b: 2,
+  c: signal(10),
+  d: computed(() => 10),
+});
+
+// ok
+setStore({
+  a: 10,
+  b: 11,
+  c: 12,
+});
+
+setStore({
+  // type error and throws
+  d: 10,
+});
+```
 
 ## `@preact-signals/utils/hooks`: Hooks for Signals
 
@@ -145,10 +176,15 @@ const b = useComputedOnce(() => a.value.size);
 useSignalEffectOnce(() => a.value.size);
 
 // create flat store from provided value
-const [store, setStore] = useFlatStore({
+const [store, setStore] = useFlatStore(() => ({
   a: 1,
   b: 2,
-});
+}));
+
+const [store2, setStore2] = useFlatStoreOfSignals(() => ({
+  a: 1,
+  b: signal(10),
+}));
 
 // create resource from provided fetcher
 const [resource, { refetch }] = useResource({

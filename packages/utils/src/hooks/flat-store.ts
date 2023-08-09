@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { createFlatStore } from "../flat-store";
+import { createFlatStore, createFlatStoreOfSignals } from "../flat-store";
 import { untracked } from "../utils";
 import { useSignalEffectOnce } from "./utility";
 
@@ -8,7 +8,7 @@ export type AnyRecord = Record<any, any>;
 /**
  * Create a flat store and its setter.
  */
-export const useStore = <T extends AnyRecord>(storeCreator: () => T) => {
+export const useFlatStore = <T extends AnyRecord>(storeCreator: () => T) => {
   const storeRef = useRef<ReturnType<typeof createFlatStore<T>> | null>();
   if (!storeRef.current) {
     storeRef.current = createFlatStore(untracked(storeCreator));
@@ -17,10 +17,23 @@ export const useStore = <T extends AnyRecord>(storeCreator: () => T) => {
   return storeRef.current;
 };
 
-export const useComputedStore = <T extends AnyRecord>(
+export const useFlatStoreOfSignals = <T extends AnyRecord>(
+  storeCreator: () => T
+) => {
+  const storeRef = useRef<ReturnType<
+    typeof createFlatStoreOfSignals<T>
+  > | null>();
+  if (!storeRef.current) {
+    storeRef.current = createFlatStoreOfSignals(untracked(storeCreator));
+  }
+
+  return storeRef.current;
+};
+
+export const useComputedFlatStore = <T extends AnyRecord>(
   storeUpdater: () => T
 ) => {
-  const [store, setStore] = useStore(storeUpdater);
+  const [store, setStore] = useFlatStore(storeUpdater);
 
   useSignalEffectOnce(() => {
     setStore(storeUpdater());

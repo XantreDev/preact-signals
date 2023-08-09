@@ -4,7 +4,7 @@ type Dispose = () => void;
 /**
  * Creates a reactive effect that runs the given function whenever any of the dependencies change.
  *
- * Enhanced version of:
+ * `reaction` is enhanced version of this:
  * ```ts
  * effect(() => {
  *  const value = deps();

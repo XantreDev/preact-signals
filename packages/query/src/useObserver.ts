@@ -1,10 +1,10 @@
 import type { ReadonlySignal } from "@preact-signals/unified-signals";
 import { ReadonlyFlatStore } from "@preact-signals/utils";
 import {
-  useInitSignal,
-  useSignalEffectOnce,
-  useSignalOfReactive,
-  useStore,
+    useFlatStore,
+    useInitSignal,
+    useSignalEffectOnce,
+    useSignalOfReactive,
 } from "@preact-signals/utils/hooks";
 
 type Dispose = () => void;
@@ -35,7 +35,7 @@ export const useObserverStore = <T extends Record<any, any>>(
   createObserverStore: () => Observer<T>
 ): ReadonlyFlatStore<T> => {
   const observer = useSignalOfReactive(createObserverStore);
-  const [store, setStore] = useStore(() => observer.value.getCurrent());
+  const [store, setStore] = useFlatStore(() => observer.value.getCurrent());
 
   useSignalEffectOnce(() => {
     setStore(observer.value.getCurrent());

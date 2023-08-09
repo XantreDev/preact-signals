@@ -1,6 +1,6 @@
-import { computed, effect } from "@preact-signals/unified-signals";
+import { computed, effect, signal } from "@preact-signals/unified-signals";
 import { describe, expect, it, vi } from "vitest";
-import { flatStore } from "./index";
+import { createFlatStoreOfSignals, flatStore } from "./index";
 import { setterOfFlatStore } from "./setter";
 
 describe("store", () => {
@@ -149,5 +149,76 @@ describe("store setter", () => {
     expect(fn).toHaveBeenCalledOnce();
 
     dispose();
+  });
+});
+
+describe("createFlatStoreOfSignals()", () => {
+  it("should create store of signals", () => {
+    const a = signal(0);
+    const b = signal(0);
+
+    const [store, setter] = createFlatStoreOfSignals({
+      a,
+      b,
+    });
+
+    expect(store.a).toBe(0);
+    expect(store.b).toBe(0);
+
+    setter({
+      a: 1,
+      b: 10,
+    });
+
+    expect(store.a).toBe(1);
+    expect(store.b).toBe(10);
+    expect(a.value).toBe(1);
+    expect(b.value).toBe(10);
+
+    store.a = 20;
+    store.b = 10;
+    expect(store.a).toBe(20);
+    expect(store.b).toBe(10);
+    expect(a.value).toBe(20);
+    expect(b.value).toBe(10);
+  });
+
+  it("should should throw types if some signal is readonly", () => {
+    const a = signal(0);
+    const b = computed(() => 0);
+
+    const [store, setter] = createFlatStoreOfSignals({
+      a,
+      b,
+    });
+    expect(() => {
+      // @ts-expect-error 'b' is readonly
+      store.b = 10;
+    }).throws().any;
+
+    expect(() => {
+      setter({
+        // @ts-expect-error 'b' is readonly
+        b: 10,
+      });
+    }).throws().any;
+  });
+
+  it("should work ok with regular values", () => {
+    const [store, setter] = createFlatStoreOfSignals({
+      a: 5,
+      c: 10,
+    });
+
+    const comp = computed(() => store.a + store.c);
+
+    expect(store.a).toBe(5);
+    expect(store.c).toBe(10);
+    expect(comp.value).toBe(15);
+
+    store.a = 20;
+
+    expect(store.a).toBe(20);
+    expect(comp.value).toBe(30);
   });
 });

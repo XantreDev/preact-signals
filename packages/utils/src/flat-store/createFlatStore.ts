@@ -1,6 +1,16 @@
-import { signal } from "@preact-signals/unified-signals";
-import { Opaque } from "type-fest";
-import { setterOfFlatStore } from "./setter";
+import {
+  ReadonlySignal,
+  Signal,
+  signal,
+} from "@preact-signals/unified-signals";
+import type {
+  IfNever,
+  Opaque,
+  ReadonlyKeysOf,
+  SetReadonly
+} from "type-fest";
+import { AnyRecord } from "../hooks";
+import { FlatStoreSetter, setterOfFlatStore } from "./setter";
 
 const __storeState = Symbol("store-state");
 const handler: ProxyHandler<any> = {
@@ -75,10 +85,66 @@ export const flatStore = <T extends Record<any, any>>(
 ): FlatStore<T> =>
   new Proxy(Object.assign({ [__storeState]: {} }, initialState), handler);
 
+type FlatStoreOfSignals = <T extends Record<any, any>>(
+  initialState: T
+) => FlatStore<FlatStoreOfSignalsBody<T>>;
+
+export type FlatStoreOfSignalsBody<T extends Record<any, any>> = SetReadonly<
+  {
+    [TKey in keyof T]: T[TKey] extends ReadonlySignal<infer TValue>
+      ? TValue
+      : T[TKey];
+  },
+  ReadonlySignalsKeys<T>
+>;
+export type ReadonlySignalsKeys<T extends AnyRecord> = keyof {
+  [TKey in keyof T as IfNever<
+    ReadonlyKeysOf<T[TKey]>,
+    never,
+    T[TKey] extends ReadonlySignal<unknown> ? TKey : never
+  >]: T[TKey];
+};
+
+export const flatStoreOfSignals: FlatStoreOfSignals = <
+  T extends Record<any, any>
+>(
+  initialState: T
+): FlatStore<FlatStoreOfSignalsBody<T>> => {
+  const regularValues = {} as Record<string, any>;
+  const signalValues = {} as Record<string, Signal<any>>;
+  for (const key in initialState) {
+    const value = initialState[key];
+
+    // @ts-expect-error fuck you typescript, i wanna write OCaml
+    if (value && typeof value === "object" && value instanceof Signal) {
+      signalValues[key] = initialState[key];
+      continue;
+    }
+
+    regularValues[key] = initialState[key];
+  }
+
+  return new Proxy(
+    Object.assign({ [__storeState]: signalValues }, regularValues),
+    handler
+  ) as FlatStore<FlatStoreOfSignalsBody<T>>;
+};
+
 export const createFlatStore = <T extends Record<any, any>>(
   initialState: T
 ) => {
   const store = flatStore(initialState);
 
   return [store, setterOfFlatStore(store)] as const;
+};
+
+export const createFlatStoreOfSignals = <T extends Record<any, any>>(
+  initialState: T
+): readonly [
+  FlatStore<FlatStoreOfSignalsBody<T>>,
+  FlatStoreSetter<FlatStoreOfSignalsBody<T>>
+] => {
+  const store = flatStoreOfSignals(initialState);
+
+  return [store, setterOfFlatStore(store)];
 };
