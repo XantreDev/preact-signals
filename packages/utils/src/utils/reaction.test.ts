@@ -66,4 +66,52 @@ describe.concurrent("reaction()", () => {
 
     dispose();
   });
+
+  for (const condition of ["not provided", "false"] as const) {
+    it(`should not memoize deps if memoize is ${condition}`, ({ expect }) => {
+      const dummySignal = signal(0);
+      const increment = () => dummySignal.value++;
+
+      const fn = vi.fn();
+      const options =
+        condition === "not provided" ? undefined : { memoize: false };
+      reaction(
+        () => {
+          dummySignal.value;
+          return 10;
+        },
+        fn,
+        options
+      );
+
+      expect(fn).toHaveBeenCalledOnce();
+
+      increment();
+      increment();
+
+      expect(fn).toHaveBeenCalledTimes(3);
+    });
+  }
+
+  it(`should memoize deps if memoize is true`, ({ expect }) => {
+    const dummySignal = signal(0);
+    const increment = () => dummySignal.value++;
+
+    const fn = vi.fn();
+    reaction(
+      () => {
+        dummySignal.value;
+        return 10;
+      },
+      fn,
+      { memoize: true }
+    );
+
+    expect(fn).toHaveBeenCalledOnce();
+
+    increment();
+    increment();
+
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
 });

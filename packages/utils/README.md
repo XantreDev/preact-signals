@@ -88,7 +88,7 @@ const reaction = (deps, fn) =>
 ```tsx
 const sig = signal(1);
 const sig2 = signal(2);
-// reaction(deps, effect)
+// reaction(deps, effect, options?: {memoize: boolean})
 const dispose = reaction(
   () => sig.value,
   (value) => {
@@ -96,6 +96,18 @@ const dispose = reaction(
     if (sig2.value * 10 === value) {
       sig2.value = value;
     }
+  }
+);
+
+// will only reexecute reaction if deps result actually changed
+reaction(
+  () => {
+    sig.value;
+    return sig2.value;
+  },
+  () => {},
+  {
+    memoize: true,
   }
 );
 ```
