@@ -1,11 +1,12 @@
 import {
-  ReadonlySignal,
   Signal,
   batch,
-  computed,
   effect,
   signal,
+  untracked,
 } from "@preact-signals/unified-signals";
+import { FlatStore, createFlatStore } from "../flat-store";
+import { FlatStoreSetter } from "../flat-store/setter";
 import {
   Accessor,
   AnyReactive,
@@ -13,10 +14,17 @@ import {
   GetValue,
   Setter,
   isExplicitFalsy,
-  setterOfSignal,
 } from "../utils";
-import { NO_INIT } from "./constants";
-import { isPromise, removeNoInit } from "./utils";
+
+const NO_INIT = Symbol("NO_INIT");
+
+/*@__NO_SIDE_EFFECTS__*/
+const isPromise = <T>(value: unknown): value is Promise<T> =>
+  !!value && typeof value === "object" && value instanceof Promise;
+
+/*@__NO_SIDE_EFFECTS__*/
+const removeNoInit = <T>(value: T | typeof NO_INIT) =>
+  value !== NO_INIT ? value : undefined;
 
 /**
  * A resource that waits for a source to be truthy before fetching.
@@ -123,13 +131,15 @@ export type ResourceOptions<
   fetcher: ResourceFetcher<TSourceData, TResult, TRefreshing>;
 };
 
-// export type InitializedResourceOptions<T, S = unknown> = ResourceOptions<T> & {
-//   initialValue: T;
-// };
-// export type InitializedResourceReturn<T, R = unknown> = [
-//   InitializedResource<T>,
-//   ResourceActions<T, R>
-// ];
+type ResourceStore<TResult, TSource extends AnyReactive> = {
+  state: ResourceState<TResult>["state"];
+  value: TResult | undefined | typeof NO_INIT;
+  error: unknown;
+  latest: TResult | undefined;
+  readonly source: GetValue<TSource>;
+
+  readonly callResult: TResult | undefined;
+};
 
 export type Resource<
   TResult,
@@ -140,17 +150,12 @@ export type Resource<
   /** @internal */
   pr: Promise<TResult> | null;
   /** @internal */
-  error$: Signal<unknown>;
+  _state: FlatStore<ResourceStore<TResult, TSource>>;
   /** @internal */
-  state$: Signal<ResourceState<TResult>["state"]>;
+  setter: FlatStoreSetter<ResourceStore<TResult, TSource>>;
+
   /** @internal */
   refreshDummy$: Signal<boolean>;
-  /** @internal */
-  value$: Signal<TResult | undefined | typeof NO_INIT>;
-  /** @internal */
-  source$: Signal<GetValue<TSource>>;
-  /** @internal */
-  callResult$: ReadonlySignal<TResult | undefined>;
   /** @internal */
   refetchData: boolean | TRefreshing;
   /** @internal */
@@ -201,33 +206,36 @@ function Resource<
 
   Object.setPrototypeOf(self, Resource.prototype);
 
-  self.source$ = computed(() => {
-    const source = options.source;
-    if (!source) {
-      return true;
-    }
-    if (typeof source === "function") {
-      return source();
-    }
+  const initialValueProvided = (options.initialValue ?? NO_INIT) !== NO_INIT;
+  const [store, setter] = createFlatStore<ResourceStore<TResult, TSource>>({
+    get source() {
+      const source = options.source;
+      if (!source) {
+        return true;
+      }
+      if (typeof source === "function") {
+        return source();
+      }
 
-    return source.value;
+      return source.value;
+    },
+    latest: options.initialValue ?? undefined,
+    value: options.initialValue ?? NO_INIT,
+    error: undefined,
+    state: initialValueProvided ? "ready" : "unresolved",
+    get callResult() {
+      if (this.state !== "ready") {
+        return undefined;
+      }
+      return removeNoInit(this.value);
+    },
   });
 
-  self.value$ = signal(options.initialValue ?? NO_INIT);
+  self._state = store;
+  self.setter = setter;
 
-  const initialValueProvided = self.value$.peek() !== NO_INIT;
   self.pr = null;
-  self.error$ = signal<unknown>(undefined);
-  self.state$ = signal<ResourceState<TResult>["state"]>(
-    initialValueProvided ? "ready" : "unresolved"
-  );
   self.refetchData = initialValueProvided;
-  self.callResult$ = computed(() => {
-    if (self.state$.value !== "ready") {
-      return undefined;
-    }
-    return removeNoInit(self.value$.value);
-  });
   self.fetcher = options.fetcher;
   self.refreshDummy$ = signal(false);
   self.refetchEffect = null;
@@ -247,7 +255,7 @@ const refetchDetector: Resource<any, any, any, any>["refetchDetector"] =
   function (this: Resource<any, any, any, any>) {
     this.refreshDummy$.value;
     return {
-      source: this.source$.value,
+      source: this._state.source,
       refetching: this.refetchData,
     };
   };
@@ -258,20 +266,21 @@ const _init: Resource<any, any, any, any>["_init"] = function (
   let skipFetch = this.isInitialValueProvided;
   this.refetchEffect = effect(() => {
     const { source, refetching } = this.refetchDetector();
+    const currentState = untracked(() => this._state.state);
     if (
-      (this.state$.peek() === "errored" || this.state$.peek() === "ready") &&
+      (currentState === "errored" || currentState === "ready") &&
       isExplicitFalsy(source)
     ) {
-      batch(() => {
-        this.state$.value = "unresolved";
-        this.error$.value = undefined;
-        this.value$.value = NO_INIT;
+      this.setter({
+        state: "unresolved",
+        error: undefined,
+        value: NO_INIT,
       });
       return;
     }
     if (
-      this.state$.peek() === "refreshing" ||
-      this.state$.peek() === "pending" ||
+      currentState === "refreshing" ||
+      currentState === "pending" ||
       isExplicitFalsy(source)
     ) {
       return;
@@ -280,7 +289,7 @@ const _init: Resource<any, any, any, any>["_init"] = function (
       skipFetch = false;
       return;
     }
-    this._fetch({ source, refetching });
+    untracked(() => this._fetch({ source, refetching }));
   });
 };
 
@@ -288,30 +297,37 @@ const _fetch: Resource<any, any, any, any>["_fetch"] = function (
   this: Resource<any, any, any, any>,
   data
 ) {
-  const currentState = this.state$.peek();
+  const currentState = this._state.state;
   const fetcher = this.fetcher;
   const result = batch(() => {
     if (currentState === "errored" || currentState === "ready") {
-      this.state$.value = "refreshing";
+      this._state.state = "refreshing";
     }
     if (currentState === "unresolved") {
-      this.state$.value = "pending";
+      this._state.state = "pending";
     }
-    this.error$.value = undefined;
+    const value = removeNoInit(this._state.value);
+    this._state.latest = value;
+    this._state.value = undefined;
     let result: unknown | Promise<unknown>;
     try {
       result = fetcher(data.source, {
-        value: removeNoInit(this.value$.peek()),
+        value: value,
         refetching: data.refetching,
       });
     } catch (e) {
-      this.state$.value = "errored";
-      this.error$.value = e;
+      this.setter({
+        state: "errored",
+        error: e,
+      });
       return;
     }
     if (!isPromise(result)) {
-      this.value$.value = result;
-      this.state$.value = "ready";
+      this.setter({
+        value: result,
+        latest: result,
+        state: "ready",
+      });
       return;
     }
     return result;
@@ -322,17 +338,19 @@ const _fetch: Resource<any, any, any, any>["_fetch"] = function (
   }
   this.pr = result.then(
     (value) => {
-      batch(() => {
-        this.pr = null;
-        this.value$.value = value;
-        this.state$.value = "ready";
+      this.pr = null;
+      this.setter({
+        value,
+        latest: value,
+        state: "ready",
       });
     },
     (error) => {
-      batch(() => {
-        this.pr = null;
-        this.error$.value = error;
-        this.state$.value = "errored";
+      this.pr = null;
+
+      this.setter({
+        error,
+        state: "errored",
       });
     }
   );
@@ -345,7 +363,7 @@ const _read: Resource<any, any, any, any>["_read"] = function (
     this._init();
   }
 
-  return this.callResult$.value;
+  return this._state.callResult;
 };
 
 const _latest: Resource<any, any, any, any>["_latest"] = function (
@@ -355,37 +373,31 @@ const _latest: Resource<any, any, any, any>["_latest"] = function (
     this._init();
   }
 
-  return this.value$.value === NO_INIT ? undefined : this.value$.value;
+  return removeNoInit(this._state.latest);
 };
 
 const _refetch: Resource<any, any, any, any>["_refetch"] = function (
   this: Resource<any, any, any, any>,
   customRefetching: unknown
 ) {
-  batch(() => {
-    this.refreshDummy$.value = !this.refreshDummy$.peek();
-    if (customRefetching === undefined) {
-      return;
-    }
+  if (customRefetching !== undefined) {
     this.refetchData = customRefetching;
-  });
+  }
+  this.refreshDummy$.value = !this.refreshDummy$.peek();
 };
 
 const _mutate: Resource<any, any, any, any>["_mutate"] = function <T>(
   this: Resource<any, any, any, any>,
   updater: Setter<T>
 ) {
-  const currentState = this.state$.peek();
-  if (currentState === "refreshing" || currentState === "pending") {
-    if (process.env.NODE_ENV === "development") {
-      console.warn(
-        "Mutating resource while it is refreshing or pending is not allowed."
-      );
-    }
-    return;
-  }
-
-  return setterOfSignal(this.value$)(updater);
+  const updaterFn = typeof updater === "function" ? updater : () => updater;
+  return untracked(() => {
+    this.setter({
+      state: "ready",
+      error: undefined,
+      value: updaterFn(this._state.value),
+    });
+  });
 };
 const dispose: Resource<any, any, any, any>["dispose"] = function (
   this: Resource<any, any, any, any>
@@ -423,7 +435,7 @@ Object.defineProperties(Resource.prototype, {
       if (!this.initialized) {
         this._init();
       }
-      return this.state$.value;
+      return this._state.state;
     },
   },
   error: {
@@ -431,7 +443,7 @@ Object.defineProperties(Resource.prototype, {
       if (!this.initialized) {
         this._init();
       }
-      return this.error$.value;
+      return this._state.error;
     },
   },
   loading: {
@@ -440,7 +452,7 @@ Object.defineProperties(Resource.prototype, {
         this._init();
       }
       return (
-        this.state$.value === "pending" || this.state$.value === "refreshing"
+        this._state.state === "pending" || this._state.state === "refreshing"
       );
     },
   },

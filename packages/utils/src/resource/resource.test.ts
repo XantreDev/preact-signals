@@ -22,11 +22,7 @@ describe("resource", () => {
     });
     // internal
     expect(r).toHaveProperty("pr");
-    expect(r).toHaveProperty("error$");
-    expect(r).toHaveProperty("state$");
-    expect(r).toHaveProperty("value$");
-    expect(r).toHaveProperty("source$");
-    expect(r).toHaveProperty("callResult$");
+    expect(r).toHaveProperty("_state");
     expect(r).toHaveProperty("refetchData");
     expect(r).toHaveProperty("refetchDetector");
     expect(r).toHaveProperty("refetchEffect");

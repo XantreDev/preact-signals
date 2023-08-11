@@ -8,7 +8,7 @@ export type FlatStoreSetterFromStore<T extends FlatStore<AnyRecord>> =
   FlatStoreSetter<T extends FlatStore<infer TRes> ? TRes : never>;
 
 export type FlatStoreSetter<T extends AnyRecord> = (
-  newValue: Except<T, ReadonlyKeysOf<T>>
+  newValue: Partial<Except<T, ReadonlyKeysOf<T>>>
 ) => void;
 
 export const setterOfFlatStore =

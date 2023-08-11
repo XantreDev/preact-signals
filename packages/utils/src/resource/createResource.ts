@@ -16,6 +16,7 @@ export type CreateResourceReturn<
     /** @internal */ dispose: () => void;
   }
 ];
+
 /**
  * Creates a resource that wraps a repeated promise in a reactive pattern:
  * ```typescript
