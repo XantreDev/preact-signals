@@ -13,6 +13,7 @@ import {
   RouterProvider,
   createHashHistory,
 } from "@tanstack/router";
+
 const rootRoute = new RootRoute({
   component: () => (
     <>

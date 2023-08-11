@@ -58,6 +58,19 @@
     "watch": "concurrently \"pnpm build:esm -w\" \"pnpm build:cjs -w\"",
     "build": "pnpm clean && concurrently \"pnpm build:esm\" \"pnpm build:cjs\""
   },
+  "typesVersions": {
+    "*": {
+      "hooks": [
+        "./dist/esm/hooks/index.d.ts"
+      ],
+      "components": [
+        "./dist/esm/components/index.d.ts"
+      ],
+      "hocs": [
+        "./dist/esm/hocs/index.d.ts"
+      ]
+    }
+  },
   "peerDependencies": {
     "@preact/signals-react": ">=1.2",
     "react": "17.*.* || 18.*.*"
