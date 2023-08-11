@@ -75,7 +75,7 @@ describe.concurrent("reaction()", () => {
       const fn = vi.fn();
       const options =
         condition === "not provided" ? undefined : { memoize: false };
-      reaction(
+      const dispose = reaction(
         () => {
           dummySignal.value;
           return 10;
@@ -90,6 +90,7 @@ describe.concurrent("reaction()", () => {
       increment();
 
       expect(fn).toHaveBeenCalledTimes(3);
+      dispose();
     });
   }
 
@@ -98,7 +99,7 @@ describe.concurrent("reaction()", () => {
     const increment = () => dummySignal.value++;
 
     const fn = vi.fn();
-    reaction(
+    const dispose = reaction(
       () => {
         dummySignal.value;
         return 10;
@@ -113,5 +114,27 @@ describe.concurrent("reaction()", () => {
     increment();
 
     expect(fn).toHaveBeenCalledTimes(1);
+    dispose();
+  });
+
+  it("should execute dispose callback when deps is rotten", ({ expect }) => {
+    const sig = signal(0);
+    const increment = () => sig.value++;
+
+    const disposeFn = vi.fn();
+
+    const dispose = reaction(
+      () => sig.value,
+      () => disposeFn
+    );
+
+    expect(disposeFn).not.toHaveBeenCalled();
+    increment();
+
+    expect(disposeFn).toHaveBeenCalledTimes(1);
+    increment();
+    expect(disposeFn).toHaveBeenCalledTimes(2);
+
+    dispose();
   });
 });

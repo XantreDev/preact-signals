@@ -105,7 +105,13 @@ reaction(
     sig.value;
     return sig2.value;
   },
-  () => {},
+  () => {
+    console.log("reacted");
+
+    return () => {
+      console.log("reaction disposed");
+    };
+  },
   {
     memoize: true,
   }

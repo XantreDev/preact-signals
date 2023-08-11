@@ -1,22 +1,30 @@
 import {
   ReadonlySignal,
   Signal,
+  computed,
   signal,
 } from "@preact-signals/unified-signals";
-import type {
-  IfNever,
-  Opaque,
-  ReadonlyKeysOf,
-  SetReadonly
-} from "type-fest";
+import type { IfNever, Opaque, ReadonlyKeysOf, SetReadonly } from "type-fest";
 import { AnyRecord } from "../hooks";
 import { FlatStoreSetter, setterOfFlatStore } from "./setter";
 
 const __storeState = Symbol("store-state");
 const handler: ProxyHandler<any> = {
-  get(target, key) {
+  get(target, key, self) {
+    if (key === __storeState) {
+      return target[key];
+    }
     const storageState = target[__storeState];
-    if (!(key in target)) {
+    if (key in storageState) {
+      return storageState[key]?.value;
+    }
+    const prop = Object.getOwnPropertyDescriptor(target, key);
+    if (key === "double") {
+      console.log("double", prop);
+    }
+    if (prop?.get) {
+      storageState[key] = computed(prop.get?.bind(self));
+      delete target[key];
       return storageState[key]?.value;
     }
     if (typeof target[key] === "function") {
@@ -82,8 +90,17 @@ export type ReadonlyFlatStore<T extends Record<any, any>> = Readonly<
 
 export const flatStore = <T extends Record<any, any>>(
   initialState: T
-): FlatStore<T> =>
-  new Proxy(Object.assign({ [__storeState]: {} }, initialState), handler);
+): FlatStore<T> => {
+  // @ts-expect-error
+  if (initialState[__storeState]) {
+    return initialState as FlatStore<T>;
+  }
+
+  // @ts-expect-error
+  initialState[__storeState] = {} as Record<string, Signal<any>>;
+
+  return new Proxy(initialState, handler);
+};
 
 type FlatStoreOfSignals = <T extends Record<any, any>>(
   initialState: T
@@ -124,10 +141,12 @@ export const flatStoreOfSignals: FlatStoreOfSignals = <
     regularValues[key] = initialState[key];
   }
 
-  return new Proxy(
+  const self = new Proxy(
     Object.assign({ [__storeState]: signalValues }, regularValues),
     handler
   ) as FlatStore<FlatStoreOfSignalsBody<T>>;
+
+  return self;
 };
 
 export const createFlatStore = <T extends Record<any, any>>(

@@ -87,6 +87,11 @@ export type ReactionOptions = Partial<
 // };
 
 /**
+ * Reaction dispose callback, that executes when deps function is rotten
+ */
+type ReactionDispose = () => void;
+
+/**
  * Creates a reactive effect that runs the given function whenever any of the dependencies change.
  *
  * `reaction` is enhanced version of this:
@@ -104,7 +109,7 @@ export type ReactionOptions = Partial<
  */
 export const reaction = <T>(
   deps: () => T,
-  fn: (dep: T, options: { isFirst: boolean }) => void,
+  fn: (dep: T, options: { isFirst: boolean }) => void | ReactionDispose,
   options?: ReactionOptions
 ): Dispose => {
   let isFirst = true;
@@ -115,7 +120,10 @@ export const reaction = <T>(
   return effect(() => {
     const value = wrappedDeps();
 
-    untracked(() => fn(value, { isFirst }));
-    isFirst = false;
+    try {
+      return untracked(() => fn(value, { isFirst }));
+    } finally {
+      isFirst = false;
+    }
   });
 };
