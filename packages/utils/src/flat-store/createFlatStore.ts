@@ -19,9 +19,6 @@ const handler: ProxyHandler<any> = {
       return storageState[key]?.value;
     }
     const prop = Object.getOwnPropertyDescriptor(target, key);
-    if (key === "double") {
-      console.log("double", prop);
-    }
     if (prop?.get) {
       storageState[key] = computed(prop.get?.bind(self));
       delete target[key];
