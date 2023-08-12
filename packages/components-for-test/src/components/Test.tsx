@@ -1,3 +1,4 @@
+import { TestFor } from "./TestFor";
 import { TestQuery } from "./TestQuery";
 import { TestResource } from "./TestResource";
 import { TestShow } from "./TestShow";
@@ -30,6 +31,9 @@ const rootRoute = new RootRoute({
           </li>
           <li>
             <Link to="/test-query">test query</Link>
+          </li>
+          <li>
+            <Link to="/test-for">test for</Link>
           </li>
           <li>
             <Link to="/test-uncached-jsx-bindings">
@@ -67,6 +71,12 @@ const testQueryRoute = new Route({
   component: TestQuery,
 });
 
+const testForRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/test-for",
+  component: TestFor,
+});
+
 const testUncachedJSXBindingsRoute = new Route({
   getParentRoute: () => rootRoute,
   path: "/test-uncached-jsx-bindings",
@@ -80,6 +90,7 @@ const router = new Router({
     testResourceRoute,
     testQueryRoute,
     testUncachedJSXBindingsRoute,
+    testForRoute,
   ]),
   history: createHashHistory(),
 });

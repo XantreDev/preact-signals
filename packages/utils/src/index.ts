@@ -3,8 +3,9 @@ export {
   createFlatStore,
   flatStore,
   type FlatStore,
-  type ReadonlyFlatStore,
+  type ReadonlyFlatStore
 } from "./flat-store";
+export * from "./resource";
 export {
   accessorOfReactive,
   accessorOfSignal,
@@ -18,6 +19,6 @@ export {
   type AnyReactive,
   type CreateFunction,
   type Reactive,
-  type Setter,
+  type Setter
 } from "./utils";
-export * from "./resource";
+

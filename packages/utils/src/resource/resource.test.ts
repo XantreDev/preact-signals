@@ -421,4 +421,30 @@ describe("resource", () => {
       expect(r.state).toBe("errored");
     });
   }
+
+  describe("manualActivation", () => {
+    it("shouldn't subscribe to source when manualActivation is true", () => {
+      const fetcher = vi.fn(fetcherF);
+      const sig = signal(0),
+        r = resource({
+          fetcher,
+          manualActivation: true,
+          source: () => sig.value,
+        });
+
+      expect(r.state).toBe("unresolved");
+      expect(fetcher).not.toHaveBeenCalled();
+
+      sig.value++;
+      expect(fetcher).not.toHaveBeenCalled();
+
+      r.activate();
+
+      expect(fetcher).toHaveBeenCalled();
+      expect(fetcher).toHaveBeenCalledWith(1, {
+        refetching: false,
+        value: undefined,
+      });
+    });
+  });
 });

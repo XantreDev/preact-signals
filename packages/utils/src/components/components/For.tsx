@@ -36,7 +36,7 @@ export const For = <T extends Reactive<any[]>>({
             ? keyExtractor(value, index)
             : (value as React.Key);
           if (process.env.NODE_ENV === "development") {
-            if (typeof key !== "string" || typeof key !== "number") {
+            if (typeof key !== "string" && typeof key !== "number") {
               console.warn(
                 keyExtractor
                   ? `For: keyExtractor returned a non-string non-number key: ${key}`

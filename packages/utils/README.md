@@ -118,7 +118,7 @@ reaction(
 );
 ```
 
-### `getter`/`setter`
+### `accessor`/`setter`
 
 These functions act as wrapper creators for signals, offering a convenient way to separate reading and writing responsibilities.
 
@@ -145,11 +145,16 @@ This function offers a simple store implementation, converting key values into s
 const [store, setStore] = createFlatStore({
   a: 1,
   b: 2,
+  // computeds will be created from getters
+  get c() {
+    return this.a + this.b;
+  },
 });
 
 const c = computed(() => store.a + store.b); // 3
 store.a = 2;
 store.b = 3;
+console.log(store.c); // 5
 console.log(c.value); // 5
 
 // will be auto bached
@@ -167,6 +172,10 @@ const [store, setStore] = createFlatStoreOfSignals({
   b: 2,
   c: signal(10),
   d: computed(() => 10),
+  // computeds will be created from getters
+  get e() {
+    return this.a + this.b;
+  },
 });
 
 // ok
@@ -178,6 +187,7 @@ setStore({
 
 setStore({
   // type error and throws
+  e: 10,
   d: 10,
 });
 ```

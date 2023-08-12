@@ -7,6 +7,7 @@ import {
 } from "@preact-signals/unified-signals";
 import { FlatStore, createFlatStore } from "../flat-store";
 import { FlatStoreSetter } from "../flat-store/setter";
+import { Dispose } from "../hooks/utility";
 import {
   Accessor,
   AnyReactive,
@@ -29,19 +30,19 @@ const removeNoInit = <T>(value: T | typeof NO_INIT) =>
 /**
  * A resource that waits for a source to be truthy before fetching.
  */
-export interface Unresolved {
+export interface Unresolved<T> {
   state: "unresolved";
   loading: false;
   error: undefined;
-  latest: undefined;
+  latest: T | undefined;
   (): undefined;
 }
 
-export interface Pending {
+export interface Pending<T> {
   state: "pending";
   loading: true;
   error: undefined;
-  latest: undefined;
+  latest: T | undefined;
   (): undefined;
 }
 
@@ -80,8 +81,8 @@ export interface Errored<T> {
 */
 
 export type ResourceState<T> =
-  | Unresolved
-  | Pending
+  | Unresolved<T>
+  | Pending<T>
   | Ready<T>
   | Refreshing<T>
   | Errored<T>;
@@ -104,32 +105,40 @@ export type ResourceFetcherInfo<TSourceData, TRefreshing = unknown> = {
   value: TSourceData | undefined;
   refetching: TRefreshing | boolean;
 };
-
 export type ResourceOptions<
   TResult,
   TSource extends AnyReactive = Accessor<true>,
   TRefreshing = boolean,
   TSourceData extends GetTruthyValue<TSource> = GetTruthyValue<TSource>
-> = {
-  /**
-   * Optional. An initial value for the resource. If is provided resource will be in ready state.
-   */
-  initialValue?: TResult;
-  /**
-   * Optional. A function or signal that can be used as a source for fetching the resource.
-   * This can be useful if you need to base your fetch operation on the value of another signal or even resource
-   */
-  source?: TSource;
-  /**
-   * lazy: Optional. If true, the resource will not be fetched until access of ResourceState properties.
-   */
-  lazy?: boolean;
-  // TODO: add manual activation option
-  /**
-   * A function that is used to fetch or refresh the resource.
-   */
-  fetcher: ResourceFetcher<TSourceData, TResult, TRefreshing>;
-};
+> =
+  | {
+      /**
+       * Optional. An initial value for the resource. If is provided resource will be in ready state.
+       */
+      initialValue?: TResult;
+      /**
+       * Optional. A function or signal that can be used as a source for fetching the resource.
+       * This can be useful if you need to base your fetch operation on the value of another signal or even resource
+       */
+      source?: TSource;
+      /**
+       * A function that is used to fetch or refresh the resource.
+       */
+      fetcher: ResourceFetcher<TSourceData, TResult, TRefreshing>;
+    } & (
+      | {
+          /**
+           * lazy: Optional. If true, the resource will not be fetched until access of ResourceState properties.
+           */
+          lazy?: boolean;
+        }
+      | {
+          /**
+           * Optional. If true, the resource will not subscribe to the source signal, before be activated.
+           */
+          manualActivation?: boolean;
+        }
+    );
 
 type ResourceStore<TResult, TSource extends AnyReactive> = {
   state: ResourceState<TResult>["state"];
@@ -147,6 +156,15 @@ export type Resource<
   TRefreshing = boolean,
   TSourceData extends GetTruthyValue<TSource> = GetTruthyValue<TSource>
 > = ResourceState<TResult> & {
+  disposed: boolean;
+  /**
+   * A function that should be used to activate the resource with manualActivation option enabled.
+   */
+  activate(): Dispose;
+  dispose(): void;
+  mutate: ResourceActions<TResult | undefined, TRefreshing>["mutate"];
+  refetch: ResourceActions<TResult, TRefreshing>["refetch"];
+
   /** @internal */
   pr: Promise<TResult> | null;
   /** @internal */
@@ -154,6 +172,10 @@ export type Resource<
   /** @internal */
   setter: FlatStoreSetter<ResourceStore<TResult, TSource>>;
 
+  /** @internal */
+  _onRead(): void;
+  /** @internal */
+  manualActivation: boolean;
   /** @internal */
   refreshDummy$: Signal<boolean>;
   /** @internal */
@@ -187,11 +209,6 @@ export type Resource<
   _refetch: ResourceActions<TResult, TRefreshing>["refetch"];
   /** @internal */
   _mutate: ResourceActions<TResult | undefined, TRefreshing>["mutate"];
-
-  disposed: boolean;
-  dispose(): void;
-  mutate: ResourceActions<TResult | undefined, TRefreshing>["mutate"];
-  refetch: ResourceActions<TResult, TRefreshing>["refetch"];
 };
 
 function Resource<
@@ -241,8 +258,11 @@ function Resource<
   self.refetchEffect = null;
   self.disposed = false;
   self.isInitialValueProvided = initialValueProvided;
+  self.manualActivation =
+    "manualActivation" in options ? !!options.manualActivation : false;
 
-  if (!options.lazy) {
+  // @ts-expect-error union stuff
+  if (!options?.lazy && !self.manualActivation) {
     self._init();
   }
 
@@ -359,9 +379,7 @@ const _fetch: Resource<any, any, any, any>["_fetch"] = function (
 const _read: Resource<any, any, any, any>["_read"] = function (
   this: Resource<any, any, any, any>
 ) {
-  if (!this.initialized) {
-    this._init();
-  }
+  this._onRead();
 
   return this._state.callResult;
 };
@@ -369,9 +387,7 @@ const _read: Resource<any, any, any, any>["_read"] = function (
 const _latest: Resource<any, any, any, any>["_latest"] = function (
   this: Resource<any, any, any, any>
 ) {
-  if (!this.initialized) {
-    this._init();
-  }
+  this._onRead();
 
   return removeNoInit(this._state.latest);
 };
@@ -409,6 +425,26 @@ const dispose: Resource<any, any, any, any>["dispose"] = function (
   this.disposed = true;
 };
 
+const _onRead: Resource<any, any, any, any>["_onRead"] = function (
+  this: Resource<any, any, any, any>
+) {
+  if (!this.initialized && !this.manualActivation) {
+    this._init();
+  }
+};
+
+const activate: Resource<any, any, any, any>["activate"] = function (
+  this: Resource<any, any, any, any>
+) {
+  if (this.initialized) {
+    return () => {};
+  }
+
+  this._init();
+
+  return this.dispose.bind(this);
+};
+
 Resource.prototype.refetchDetector = refetchDetector;
 Resource.prototype._refetch = _refetch;
 Resource.prototype._read = _read;
@@ -416,6 +452,8 @@ Resource.prototype._fetch = _fetch;
 Resource.prototype._init = _init;
 Resource.prototype._latest = _latest;
 Resource.prototype._mutate = _mutate;
+Resource.prototype._onRead = _onRead;
+Resource.prototype.activate = activate;
 
 Object.defineProperty(Resource.prototype, "initialized", {
   get(this: Resource<any, any, any, any>) {
@@ -432,25 +470,19 @@ Object.defineProperties(Resource.prototype, {
   },
   state: {
     get(this: Resource<any, any, any, any>) {
-      if (!this.initialized) {
-        this._init();
-      }
+      this._onRead();
       return this._state.state;
     },
   },
   error: {
     get(this: Resource<any, any, any, any>) {
-      if (!this.initialized) {
-        this._init();
-      }
+      this._onRead();
       return this._state.error;
     },
   },
   loading: {
     get(this: Resource<any, any, any, any>) {
-      if (!this.initialized) {
-        this._init();
-      }
+      this._onRead();
       return (
         this._state.state === "pending" || this._state.state === "refreshing"
       );

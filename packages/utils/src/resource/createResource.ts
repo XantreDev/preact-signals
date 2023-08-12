@@ -10,12 +10,7 @@ export type CreateResourceReturn<
   TResult,
   TRefreshing = unknown
   // TSuspense extends boolean = false
-> = [
-  ResourceState<TResult>,
-  ResourceActions<TResult | undefined, TRefreshing> & {
-    /** @internal */ dispose: () => void;
-  }
-];
+> = [ResourceState<TResult>, ResourceActions<TResult | undefined, TRefreshing>];
 
 /**
  * Creates a resource that wraps a repeated promise in a reactive pattern:
@@ -54,7 +49,6 @@ export function createResource<
     {
       mutate: result.mutate,
       refetch: result.refetch,
-      dispose: result.dispose,
     },
   ];
 }

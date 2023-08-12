@@ -23,6 +23,9 @@ export const useResource = <
   if (r.current === null) {
     r.current = createResource(options);
   }
-  useEffect(() => () => r.current![1]!.dispose(), []);
+  // activate on mount
+  // @ts-expect-error returns beautiful type
+  useEffect(() => r.current![0]!.activate(), []);
+
   return r.current!;
 };
