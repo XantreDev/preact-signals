@@ -2,6 +2,10 @@
 
 `@preact-signals/utils` is a standard library for Preact Signals, designed to provide essential utilities for comfortable and streamlined usage. This package includes several features to enhance the flexibility and maintainability of Preact Signal-based projects.
 
+## Split your code because of you **want**, not because of you have to
+
+![Example](./example.png)
+
 ## Prerequisites
 
 Ensure that [one of the preact signals runtimes](https://github.com/preactjs/signals) is installed:
@@ -229,6 +233,8 @@ This section includes components like `Show`, `Switch`, `Match`, `For`, allowing
 All of this component works with reactive unit, which is Signal or Accessor callback
 
 ```tsx
+import { Show, For } from "@preact-signals/utils/components";
+
 <Show fallback={<p>Loading...</p>} when={() => arr.value}>
   {(data) => (
     <ul>
@@ -237,10 +243,12 @@ All of this component works with reactive unit, which is Signal or Accessor call
       </For>
     </ul>
   )}
-</Show>
+</Show>;
 ```
 
 ```tsx
+import { Switch, Match } from "@preact-signals/utils/components";
+
 <Switch fallback={<p>Not found</p>}>
   <Match when={() => route.value === "home"}>
     <Home />
@@ -251,7 +259,7 @@ All of this component works with reactive unit, which is Signal or Accessor call
   <Match when={() => route.value === "users"}>
     <Users />
   </Match>
-</Switch>
+</Switch>;
 ```
 
 ## `@preact-signals/utils/hocs`: High Order Components (HOCs)
