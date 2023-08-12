@@ -104,6 +104,8 @@ export type ResourceFetcher<TSourceData, TResult, TRefreshing> = (
 export type ResourceFetcherInfo<TSourceData, TRefreshing = unknown> = {
   value: TSourceData | undefined;
   refetching: TRefreshing | boolean;
+  /** will be aborted if source is updated or resource disposed */
+  signal: AbortSignal;
 };
 export type ResourceOptions<
   TResult,
@@ -156,7 +158,6 @@ export type Resource<
   TRefreshing = boolean,
   TSourceData extends GetTruthyValue<TSource> = GetTruthyValue<TSource>
 > = ResourceState<TResult> & {
-  disposed: boolean;
   /**
    * A function that should be used to activate the resource with manualActivation option enabled.
    */
@@ -171,6 +172,8 @@ export type Resource<
   _state: FlatStore<ResourceStore<TResult, TSource>>;
   /** @internal */
   setter: FlatStoreSetter<ResourceStore<TResult, TSource>>;
+  /** @internal */
+  abortController: AbortController | null;
 
   /** @internal */
   _onRead(): void;
@@ -256,7 +259,6 @@ function Resource<
   self.fetcher = options.fetcher;
   self.refreshDummy$ = signal(false);
   self.refetchEffect = null;
-  self.disposed = false;
   self.isInitialValueProvided = initialValueProvided;
   self.manualActivation =
     "manualActivation" in options ? !!options.manualActivation : false;
@@ -286,11 +288,7 @@ const _init: Resource<any, any, any, any>["_init"] = function (
   let skipFetch = this.isInitialValueProvided;
   this.refetchEffect = effect(() => {
     const { source, refetching } = this.refetchDetector();
-    const currentState = untracked(() => this._state.state);
-    if (
-      (currentState === "errored" || currentState === "ready") &&
-      isExplicitFalsy(source)
-    ) {
+    if (isExplicitFalsy(source)) {
       this.setter({
         state: "unresolved",
         error: undefined,
@@ -298,17 +296,14 @@ const _init: Resource<any, any, any, any>["_init"] = function (
       });
       return;
     }
-    if (
-      currentState === "refreshing" ||
-      currentState === "pending" ||
-      isExplicitFalsy(source)
-    ) {
-      return;
-    }
     if (skipFetch) {
       skipFetch = false;
       return;
     }
+
+    this.abortController?.abort();
+    this.abortController = null;
+
     untracked(() => this._fetch({ source, refetching }));
   });
 };
@@ -319,7 +314,7 @@ const _fetch: Resource<any, any, any, any>["_fetch"] = function (
 ) {
   const currentState = this._state.state;
   const fetcher = this.fetcher;
-  const result = batch(() => {
+  batch(() => {
     if (currentState === "errored" || currentState === "ready") {
       this._state.state = "refreshing";
     }
@@ -330,50 +325,62 @@ const _fetch: Resource<any, any, any, any>["_fetch"] = function (
     this._state.latest = value;
     this._state.value = undefined;
     let result: unknown | Promise<unknown>;
+    const abortController = new AbortController();
+    this.abortController = abortController;
     try {
       result = fetcher(data.source, {
         value: value,
         refetching: data.refetching,
+        signal: this.abortController.signal,
       });
     } catch (e) {
       this.setter({
         state: "errored",
         error: e,
       });
+      this.abortController = null;
       return;
     }
     if (!isPromise(result)) {
+      this.abortController = null;
       this.setter({
         value: result,
         latest: result,
         state: "ready",
       });
+      this.refetchData = true;
       return;
     }
-    return result;
-  });
-  this.refetchData = true;
-  if (!result) {
-    return;
-  }
-  this.pr = result.then(
-    (value) => {
-      this.pr = null;
-      this.setter({
-        value,
-        latest: value,
-        state: "ready",
-      });
-    },
-    (error) => {
-      this.pr = null;
 
-      this.setter({
-        error,
-        state: "errored",
-      });
+    this.refetchData = true;
+    if (!result) {
+      return;
     }
-  );
+    this.pr = result.then(
+      (value) => {
+        if (abortController.signal.aborted) {
+          return;
+        }
+        this.pr = null;
+        this.setter({
+          value,
+          latest: value,
+          state: "ready",
+        });
+      },
+      (error) => {
+        if (abortController.signal.aborted) {
+          return;
+        }
+        this.pr = null;
+
+        this.setter({
+          error,
+          state: "errored",
+        });
+      }
+    );
+  });
 };
 
 const _read: Resource<any, any, any, any>["_read"] = function (
@@ -418,11 +425,14 @@ const _mutate: Resource<any, any, any, any>["_mutate"] = function <T>(
 const dispose: Resource<any, any, any, any>["dispose"] = function (
   this: Resource<any, any, any, any>
 ) {
-  if (this.disposed) {
-    return;
-  }
   this.refetchEffect?.();
-  this.disposed = true;
+  this.abortController?.abort();
+  this.setter({
+    state: "unresolved",
+    error: undefined,
+    value: NO_INIT,
+  });
+  this.refetchEffect = null;
 };
 
 const _onRead: Resource<any, any, any, any>["_onRead"] = function (

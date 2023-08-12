@@ -4,12 +4,19 @@ import {
   effect,
   signal,
 } from "@preact-signals/unified-signals";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { ExpectStatic, afterEach, describe, expect, it, vi } from "vitest";
 import { Resource, ResourceState, resource } from "./resource";
 
 const sleep = (ms?: number) => new Promise((r) => setTimeout(r, ms));
 describe("resource", () => {
-  const fetcherF = vi.fn(() => 220);
+  const resourceFetcherInfo = (
+    expect: ExpectStatic,
+    obj: { refetching: unknown; value: unknown }
+  ) => ({
+    ...obj,
+    signal: expect.any(AbortSignal),
+  });
+  const fetcherF = () => 220;
   let r = null as unknown as Resource<number, () => unknown>;
   afterEach(() => {
     r.dispose();
@@ -37,7 +44,6 @@ describe("resource", () => {
     expect(r).toHaveProperty("_mutate");
 
     // public
-    expect(r).toHaveProperty("disposed");
     expect(r).toHaveProperty("dispose");
     expect(r).toHaveProperty("mutate");
     expect(r).toHaveProperty("refetch");
@@ -271,24 +277,33 @@ describe("resource", () => {
     });
 
     expect(fetcher).toHaveBeenCalled();
-    expect(fetcher).toHaveBeenCalledWith(true, {
-      refetching: false,
-      value: undefined,
-    });
+    expect(fetcher).toHaveBeenCalledWith(
+      true,
+      resourceFetcherInfo(expect, {
+        refetching: false,
+        value: undefined,
+      })
+    );
 
     r.refetch();
     expect(fetcher).toHaveBeenCalledTimes(2);
-    expect(fetcher).toHaveBeenCalledWith(true, {
-      refetching: true,
-      value: 220,
-    });
+    expect(fetcher).toHaveBeenCalledWith(
+      true,
+      resourceFetcherInfo(expect, {
+        refetching: true,
+        value: 220,
+      })
+    );
 
     r.refetch(false);
     expect(fetcher).toHaveBeenCalledTimes(3);
-    expect(fetcher).toHaveBeenCalledWith(true, {
-      refetching: false,
-      value: 220,
-    });
+    expect(fetcher).toHaveBeenCalledWith(
+      true,
+      resourceFetcherInfo(expect, {
+        refetching: false,
+        value: 220,
+      })
+    );
   });
 
   it("should pass correct args to fetcher", () => {
@@ -299,10 +314,13 @@ describe("resource", () => {
     });
 
     expect(fetcher).toHaveBeenCalled();
-    expect(fetcher).toHaveBeenCalledWith(10, {
-      refetching: false,
-      value: undefined,
-    });
+    expect(fetcher).toHaveBeenCalledWith(
+      10,
+      resourceFetcherInfo(expect, {
+        refetching: false,
+        value: undefined,
+      })
+    );
   });
 
   const falsy = [false, undefined, null] as const;
@@ -353,10 +371,13 @@ describe("resource", () => {
       });
 
       expect(fetcher).toHaveBeenCalled();
-      expect(fetcher).toHaveBeenCalledWith(v, {
-        refetching: false,
-        value: undefined,
-      });
+      expect(fetcher).toHaveBeenCalledWith(
+        v,
+        resourceFetcherInfo(expect, {
+          refetching: false,
+          value: undefined,
+        })
+      );
 
       expect(r.state).toBe("ready");
       r.dispose();
@@ -372,16 +393,22 @@ describe("resource", () => {
     });
 
     expect(fetcher).toHaveBeenCalled();
-    expect(fetcher).toHaveBeenCalledWith(0, {
-      refetching: false,
-      value: undefined,
-    });
+    expect(fetcher).toHaveBeenCalledWith(
+      0,
+      resourceFetcherInfo(expect, {
+        refetching: false,
+        value: undefined,
+      })
+    );
     s.value++;
     expect(fetcher).toHaveBeenCalledTimes(2);
-    expect(fetcher).toHaveBeenCalledWith(1, {
-      refetching: true,
-      value: 220,
-    });
+    expect(fetcher).toHaveBeenCalledWith(
+      1,
+      resourceFetcherInfo(expect, {
+        refetching: true,
+        value: 220,
+      })
+    );
   });
   it("should handle mutate", () => {
     const fetcher = vi.fn(fetcherF);
@@ -394,10 +421,10 @@ describe("resource", () => {
     });
 
     expect(fetcher).toHaveBeenCalled();
-    expect(fetcher).toHaveBeenCalledWith(true, {
-      refetching: false,
-      value: undefined,
-    });
+    expect(fetcher).toHaveBeenCalledWith(
+      true,
+      resourceFetcherInfo(expect, { refetching: false, value: undefined })
+    );
 
     r.mutate(10);
     expect(fetcher).toHaveBeenCalledTimes(1);
@@ -441,10 +468,63 @@ describe("resource", () => {
       r.activate();
 
       expect(fetcher).toHaveBeenCalled();
-      expect(fetcher).toHaveBeenCalledWith(1, {
-        refetching: false,
-        value: undefined,
+      expect(fetcher).toHaveBeenCalledWith(
+        1,
+        resourceFetcherInfo(expect, {
+          refetching: false,
+          value: undefined,
+        })
+      );
+    });
+    it("should't be subscribed to source after dispose", async () => {
+      const fetcher = vi.fn(() => sleep(10).then(() => 220));
+      const sig = signal(0);
+      // @ts-expect-error
+      r = resource({
+        fetcher,
+        manualActivation: true,
+        source: () => sig.value,
       });
+
+      expect(r.state).toBe("unresolved");
+      expect(fetcher).not.toHaveBeenCalled();
+
+      const dispose = r.activate();
+
+      expect(r.state).toBe("pending");
+
+      expect(fetcher).toHaveBeenCalledOnce();
+      expect(fetcher).toHaveBeenCalledWith(
+        0,
+        resourceFetcherInfo(expect, { refetching: false, value: undefined })
+      );
+      // @ts-expect-error
+      const abortSignal = fetcher.mock.calls[0][1]!.signal as AbortSignal;
+      expect(abortSignal.aborted).toBe(false);
+      dispose();
+      expect(abortSignal.aborted).toBe(true);
+
+      expect(r.state).toBe("unresolved");
+
+      const dispose2 = r.activate();
+      expect(r.state).toBe("pending");
+      await sleep(15);
+
+      expect(fetcher).toHaveBeenCalledTimes(2);
+      expect(fetcher).toHaveBeenCalledWith(
+        0,
+        resourceFetcherInfo(expect, { refetching: false, value: undefined })
+      );
+
+      expect(r.state).toBe("ready");
+      expect(r()).toBe(220);
+
+      dispose2();
+
+      expect(r.state).toBe("unresolved");
+      expect(fetcher).toHaveBeenCalledTimes(2);
+
+      expect(r.latest).toBe(220);
     });
   });
 });

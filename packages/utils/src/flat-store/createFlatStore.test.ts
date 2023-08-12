@@ -263,4 +263,19 @@ describe.concurrent("createFlatStoreOfSignals()", () => {
     expect(store.a).toBe(20);
     expect(comp.value).toBe(30);
   });
+  it("should create implicit computeds from getters", ({ expect }) => {
+    const [store] = createFlatStoreOfSignals({
+      a: 1,
+      get double() {
+        return this.a * 2;
+      },
+    });
+
+    expect(store.a).toBe(1);
+    expect(store.double).toBe(2);
+
+    store.a = 2;
+    expect(store.a).toBe(2);
+    expect(store.double).toBe(4);
+  });
 });

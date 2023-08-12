@@ -88,6 +88,11 @@ export type ReadonlyFlatStore<T extends Record<any, any>> = Readonly<
   FlatStore<T>
 >;
 
+/**
+ *
+ * @param initialState this value will be **mutated** and proxied
+ * @returns
+ */
 export const flatStore = <T extends Record<any, any>>(
   initialState: T
 ): FlatStore<T> => {
@@ -122,27 +127,34 @@ export type ReadonlySignalsKeys<T extends AnyRecord> = keyof {
   >]: T[TKey];
 };
 
+/**
+ *
+ * @param initialState this value will be **mutated** and proxied
+ * @returns
+ */
 export const flatStoreOfSignals: FlatStoreOfSignals = <
   T extends Record<any, any>
 >(
   initialState: T
 ): FlatStore<FlatStoreOfSignalsBody<T>> => {
-  const regularValues = {} as Record<string, any>;
   const signalValues = {} as Record<string, Signal<any>>;
   for (const key in initialState) {
+    const valueDescriptor = Object.getOwnPropertyDescriptor(initialState, key);
+    if (valueDescriptor?.get) {
+      continue;
+    }
     const value = initialState[key];
 
     // @ts-expect-error fuck you typescript, i wanna write OCaml
     if (value && typeof value === "object" && value instanceof Signal) {
       signalValues[key] = initialState[key];
+      delete initialState[key];
       continue;
     }
-
-    regularValues[key] = initialState[key];
   }
 
   const self = new Proxy(
-    Object.assign({ [__storeState]: signalValues }, regularValues),
+    Object.assign(initialState, { [__storeState]: signalValues }),
     handler
   ) as FlatStore<FlatStoreOfSignalsBody<T>>;
 
