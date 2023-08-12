@@ -1,5 +1,66 @@
 # @preact-signals/utils
 
+## 0.6.0
+
+### Minor Changes
+
+- 4f2712c: Added signal prop to resource fetcher info. AbortSignal will be aborted after resource dispose
+- 5cca167: Resource reimplemented using `untracked` and `flat-store`
+- da9f104: - resource hooks started to work with `React.StrictMode`
+  - exported `For` and `Computed` components from `@preact-signals/utils/components`
+- 854821c: Added options to `reaction` utility.
+  The memoize property is false by default, but can be turned on, that will memoize deps function
+
+  ```ts
+  // will only reexecute reaction if deps result actually changed
+  reaction(
+    () => {
+      sig.value;
+      return sig2.value;
+    },
+    () => {},
+    {
+      memoize: true,
+    }
+  );
+  ```
+
+- 049bb15: `flat-store`: all getters provided to flat store is automaticly converts to computeds
+- e803c73: - fixed flat-store hooks bindings
+
+  - implemented typesafe `createFlatStoreOfSignals`
+
+  This function wraps provided **signals and value** to flat store. You can pass computed's too and it will be readonly field
+
+  ```typescript
+  const [store, setStore] = createFlatStoreOfSignals({
+    a: 1,
+    b: 2,
+    c: signal(10),
+    d: computed(() => 10),
+  });
+
+  // ok
+  setStore({
+    a: 10,
+    b: 11,
+    c: 12,
+  });
+
+  setStore({
+    // type error and throws
+    d: 10,
+  });
+  ```
+
+  - implemented `useFlatStoreOfSignals` hook binding
+
+- 049bb15: Alloweded to return dispose function from `reaction`
+
+### Patch Changes
+
+- 28bae03: Fixed typescript typings of exports entries
+
 ## 0.5.0
 
 ### Minor Changes
