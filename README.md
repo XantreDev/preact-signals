@@ -3,18 +3,16 @@
 Goal of the project to provide comprehensive tooling for using [`preact/signals`](https://github.com/preactjs/signals)
 
 ### Playground:
-[![image](./example.png)](https://stackblitz.com/edit/vitejs-vite-h8ib6b?file=src%2FApp.tsx)
+
+[![image](./example.jpg) check in stackblitz](https://stackblitz.com/edit/vitejs-vite-h8ib6b?file=src%2FApp.tsx)
 
 ## Packages
 
-- [`@preact-signals/utils`](./packages/utils): A package that contains a lot of utils for many purposes. I think it should be kinda stdlib for using preact signals.
-  - `@preact-signals/utils/resource`: Solid js like resource, for handling async reactivity
-  - `@preact-signals/utils/flat-store`: Simple flat store implementation that wraps values into signals getters
+- [`@preact-signals/utils`](./packages/utils): A package that contains a lot of utils for many purposes. I think it should be kinda stdlib for using preact signals. Utils contains: Solid js like resource, for handling async reactivity, Simple flat store implementation that wraps values into signals getters
   - `@preact-signals/utils/components`: Solid js like components implementation, which allows to scope rerenders via reactivity `Show`, `Computed`, `For`, `Switch/Match`
   - `@preact-signals/utils/hooks`: Basic signals hooks and other utils hooks bindings
 - [`@preact-signals/query`](./packages/query): Tanstack query core preact signals bindings
-- [`@preact-signals/polyfills`](./packages/polyfills): Trying to provide functionality which is not yet implemented in `@preact/signals-core`
-- [`@preact-signals/unified-signals`](./packages/unified-signals/): This package reexports `@preact/signals-react`, with hooks shims in case of overwriting dependencies
+- [`@preact-signals/unified-signals`](./packages/unified-signals/): This package reexports `@preact/signals-react`, with hooks shims in case of overwriting dependencies. And also polyfills newest preact signals features.
 
 ## Contributing
 
