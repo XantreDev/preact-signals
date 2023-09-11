@@ -46,6 +46,40 @@ describe("useQuery$()", () => {
     expect(queryFn).toHaveBeenCalledTimes(1);
     dispose();
   });
+
+  it("shouldn't track deps from queryFn", async () => {
+    const key = queryKey();
+    const sig = signal(0);
+    const queryFn = vi.fn(async () => {
+      const data = sig.value;
+      await sleep(10);
+      return data;
+    });
+    const { emit, queue, dispose } = queueSignal();
+
+    const Component = vi.fn(() => {
+      const data = useQuery$(() => ({
+        queryKey: key,
+        queryFn,
+      }));
+      useSignalEffectOnce(() => {
+        emit(data.data);
+      });
+      return null;
+    });
+    renderWithClient(createQueryClient(), <Component />);
+
+    expect(queue).toEqual([undefined]);
+    await sleepRaf(20);
+    expect(queue).toEqual([undefined, 0]);
+    expect(queryFn).toHaveBeenCalledTimes(1);
+    expect(Component).toHaveBeenCalledOnce();
+    sig.value = 1;
+    expect(queryFn).toHaveBeenCalledTimes(1);
+    expect(Component).toHaveBeenCalledOnce();
+    await sleepRaf(20);
+    dispose();
+  });
   it("should react to swap of query client", async () => {
     const key = queryKey();
 

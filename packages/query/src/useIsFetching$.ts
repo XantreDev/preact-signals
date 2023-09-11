@@ -1,13 +1,12 @@
 import {
   Reactive,
-  stableAccessorOfSignal,
-  unwrapReactive,
+  unwrapReactive
 } from "@preact-signals/utils";
 import { QueryClient, QueryFilters } from "@tanstack/query-core";
-import { EMPTY_OBJECT } from "./constants";
 import { ContextOptions } from "./react-query";
 import { useQueryClient$ } from "./react-query/QueryClientProvider";
 import { useObserverSignal } from "./useObserver";
+import { EMPTY_OBJECT } from "./utils";
 
 const isFetching = (queryClient: QueryClient, filters: QueryFilters) =>
   queryClient.isFetching(filters);

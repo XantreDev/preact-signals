@@ -5,7 +5,6 @@ import {
 } from "@preact-signals/utils/hooks";
 import { MutationObserver, MutationObserverResult } from "@tanstack/query-core";
 import { useMemo } from "react";
-import { EMPTY_ARRAY } from "./constants";
 import { useQueryClient$ } from "./react-query/QueryClientProvider";
 import {
   MutationResultMutateFunction$,
@@ -14,6 +13,7 @@ import {
   UseMutationResult$,
 } from "./types";
 import { useObserverStore } from "./useObserver";
+import { EMPTY_ARRAY, wrapFunctionsInUntracked } from "./utils";
 
 function noop() {}
 
@@ -32,7 +32,11 @@ export const useMutation$ = <
 
   const observer = useComputedOnce(
     // we will update current mutation observer with new options, so using `peek`
-    () => new MutationObserver($client.value, $options.peek())
+    () =>
+      new MutationObserver(
+        $client.value,
+        wrapFunctionsInUntracked($options.peek())
+      )
   );
   const mutate: MutationResultMutateFunction$<
     TData,
@@ -46,7 +50,7 @@ export const useMutation$ = <
   );
 
   useSignalEffectOnce(() => {
-    observer.value.setOptions($options.value);
+    observer.value.setOptions(wrapFunctionsInUntracked($options.value));
   });
 
   const observerResultToStore = (

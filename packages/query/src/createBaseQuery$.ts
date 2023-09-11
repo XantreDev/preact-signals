@@ -16,6 +16,7 @@ import { useIsRestoring$ } from "./react-query/isRestoring";
 import { ensureStaleTime, shouldSuspend } from "./react-query/suspense";
 import { StaticBaseQueryOptions, UseBaseQueryResult$ } from "./types";
 import { useObserverStore } from "./useObserver";
+import { wrapFunctionsInUntracked } from "./utils";
 
 export const createBaseQuery =
   (Observer: typeof QueryObserver) =>
@@ -41,7 +42,10 @@ export const createBaseQuery =
     const $isRestoring = useIsRestoring$();
     const $errorBoundary = useQueryErrorResetBoundary$();
     const $defaultedOptions = useComputedOnce(() => {
-      const defaulted = $queryClient.value.defaultQueryOptions($options.value);
+      const defaulted = wrapFunctionsInUntracked(
+        $queryClient.value.defaultQueryOptions($options.value)
+      );
+
       defaulted._optimisticResults = $isRestoring.value
         ? "isRestoring"
         : "optimistic";
