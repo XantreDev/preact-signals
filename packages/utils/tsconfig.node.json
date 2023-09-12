@@ -4,7 +4,8 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "rootDir": "./",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "types": ["vitest.d.ts"]
   },
   "extends": ["../../tsconfig.json"],
   "references": [

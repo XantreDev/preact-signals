@@ -11,7 +11,9 @@
     "**/dist/**",
     "**/node_modules/**",
     "vitest.config.ts",
-    "**/*.test.*"
+    "setupVitest.ts",
+    "**/*.test.*",
+    "**/*.spec.*"
   ],
   "extends": "../../tsconfig.json",
   "references": [{ "path": "../unified-signals" }]
