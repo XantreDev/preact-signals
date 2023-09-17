@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { isReactive, isReadonly, shallowReadonly } from "../../store";
+import { isReactive, isReadonly, shallowReadonly } from "./vueMappings";
 
 describe("reactivity/collections", () => {
   describe("shallowReadonly/Map", () => {

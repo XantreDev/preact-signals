@@ -1,11 +1,11 @@
 import {
   Target,
+  deepReactive,
+  deepReactiveMap,
+  deepReadonly,
+  deepReadonlyMap,
   isReadonly,
   isShallow,
-  reactive,
-  reactiveMap,
-  readonly,
-  readonlyMap,
   shallowReactiveMap,
   shallowReadonlyMap,
   toRaw,
@@ -17,6 +17,7 @@ import {
   isArray,
   isIntegerKey,
   isObject,
+  isSignal,
   isSymbol,
   makeMap,
 } from "./utils";
@@ -98,10 +99,10 @@ class BaseReactiveHandler implements ProxyHandler<Target> {
         (isReadonly
           ? shallow
             ? shallowReadonlyMap
-            : readonlyMap
+            : deepReadonlyMap
           : shallow
           ? shallowReactiveMap
-          : reactiveMap
+          : deepReactiveMap
         ).get(target)
     ) {
       return target;
@@ -132,11 +133,16 @@ class BaseReactiveHandler implements ProxyHandler<Target> {
       return res;
     }
 
+    if (isSignal(res)) {
+      // ref unwrapping - skip unwrap for Array + integer key.
+      return targetIsArray && isIntegerKey(key) ? res : res.value;
+    }
+
     if (isObject(res)) {
       // Convert returned value into a proxy as well. we do the isObject check
       // here to avoid invalid value warning. Also need to lazy access readonly
       // and reactive here to avoid circular dependency.
-      return isReadonly ? readonly(res) : reactive(res);
+      return isReadonly ? deepReadonly(res) : deepReactive(res);
     }
 
     return res;
@@ -155,7 +161,7 @@ class MutableReactiveHandler extends BaseReactiveHandler {
     receiver: object
   ): boolean {
     let oldValue = (target as any)[key];
-    if (isReadonly(oldValue) /* && isRef(oldValue) && !isRef(value) */) {
+    if (isReadonly(oldValue) && isSignal(oldValue) && !isSignal(value)) {
       return false;
     }
     if (!this._shallow) {
@@ -163,10 +169,10 @@ class MutableReactiveHandler extends BaseReactiveHandler {
         oldValue = toRaw(oldValue);
         value = toRaw(value);
       }
-      // if (!isArray(target) /* && isRef(oldValue) && !isRef(value) */) {
-      //   oldValue.value = value;
-      //   return true;
-      // }
+      if (!isArray(target) && isSignal(oldValue) && !isSignal(value)) {
+        oldValue.value = value;
+        return true;
+      }
     } else {
       // in shallow mode, objects are set as-is regardless of reactive or not
     }

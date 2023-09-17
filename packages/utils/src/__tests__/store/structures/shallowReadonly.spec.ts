@@ -3,7 +3,7 @@ import {
   isReactive,
   isReadonly,
   shallowReadonly
-} from "../../../store";
+} from "../vueMappings";
 
 describe("reactivity/collections", () => {
   describe("shallowReadonly/Map", () => {

@@ -1,7 +1,14 @@
-import { effect } from "@preact-signals/unified-signals";
 import { describe, expect, test } from "vitest";
-import { createStore, isReactive, toRaw } from "../../../store";
-const reactive = createStore;
+import {
+  computed,
+  effect,
+  isReactive,
+  isRef,
+  markRaw,
+  reactive,
+  ref,
+  toRaw,
+} from "../vueMappings";
 
 describe("reactivity/reactive", () => {
   test("Object", () => {
@@ -173,44 +180,41 @@ describe("reactivity/reactive", () => {
     expect(raw).not.toBe(toRaw(original));
   });
 
-  // test("should not unwrap Ref<T>", () => {
-  //   const observedNumberRef = reactive(ref(1));
-  //   const observedObjectRef = reactive(ref({ foo: 1 }));
+  test("should not unwrap Ref<T>", () => {
+    const observedNumberRef = reactive(ref(1));
+    const observedObjectRef = reactive(ref({ foo: 1 }));
 
-  //   expect(isRef(observedNumberRef)).toBe(true);
-  //   expect(isRef(observedObjectRef)).toBe(true);
-  // });
+    expect(isRef(observedNumberRef)).toBe(true);
+    expect(isRef(observedObjectRef)).toBe(true);
+  });
 
-  // test("should unwrap computed refs", () => {
-  //   // readonly
-  //   const a = computed(() => 1);
-  //   // writable
-  //   const b = computed({
-  //     get: () => 1,
-  //     set: () => {},
-  //   });
-  //   const obj = reactive({ a, b });
-  //   // check type
-  //   obj.a + 1;
-  //   obj.b + 1;
-  //   expect(typeof obj.a).toBe(`number`);
-  //   expect(typeof obj.b).toBe(`number`);
-  // });
+  test("should unwrap computed refs", () => {
+    // readonly
+    const a = computed(() => 1);
+    // no writable ref with signals
+    const b = computed(() => a.value);
+    const obj = reactive({ a, b });
+    // check type
+    obj.a + 1;
+    obj.b + 1;
+    expect(typeof obj.a).toBe(`number`);
+    expect(typeof obj.b).toBe(`number`);
+  });
 
-  // test("should allow setting property from a ref to another ref", () => {
-  //   const foo = ref(0);
-  //   const bar = ref(1);
-  //   const observed = reactive({ a: foo });
-  //   const dummy = computed(() => observed.a);
-  //   expect(dummy.value).toBe(0);
+  test("should allow setting property from a ref to another ref", () => {
+    const foo = ref(0);
+    const bar = ref(1);
+    const observed = reactive({ a: foo });
+    const dummy = computed(() => observed.a);
+    expect(dummy.value).toBe(0);
 
-  //   // @ts-expect-error
-  //   observed.a = bar;
-  //   expect(dummy.value).toBe(1);
+    // @ts-expect-error
+    observed.a = bar;
+    expect(dummy.value).toBe(1);
 
-  //   bar.value++;
-  //   expect(dummy.value).toBe(2);
-  // });
+    bar.value++;
+    expect(dummy.value).toBe(2);
+  });
 
   test("non-observable values", () => {
     const assertValue = (value: any) => {
@@ -246,14 +250,14 @@ describe("reactivity/reactive", () => {
     expect(reactive(d)).toBe(d);
   });
 
-  // test("markRaw", () => {
-  //   const obj = reactive({
-  //     foo: { a: 1 },
-  //     bar: markRaw({ b: 2 }),
-  //   });
-  //   expect(isReactive(obj.foo)).toBe(true);
-  //   expect(isReactive(obj.bar)).toBe(false);
-  // });
+  test("markRaw", () => {
+    const obj = reactive({
+      foo: { a: 1 },
+      bar: markRaw({ b: 2 }),
+    });
+    expect(isReactive(obj.foo)).toBe(true);
+    expect(isReactive(obj.bar)).toBe(false);
+  });
 
   test("should not observe non-extensible objects", () => {
     const obj = reactive({

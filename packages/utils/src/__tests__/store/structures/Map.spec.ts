@@ -1,6 +1,5 @@
-import { effect } from "@preact-signals/unified-signals";
 import { describe, expect, it, test, vi } from "vitest";
-import { isReactive, reactive, toRaw } from "../../../store";
+import { effect, isReactive, reactive, toRaw } from "../vueMappings";
 
 describe("reactivity/collections", () => {
   function coverCollectionFn(collection: Map<any, any>, fnName: string) {

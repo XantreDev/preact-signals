@@ -1,6 +1,6 @@
-import { effect } from "@preact-signals/unified-signals";
 import { describe, expect, it, test } from "vitest";
 import {
+  effect,
   isProxy,
   isReactive,
   isReadonly,
@@ -8,7 +8,7 @@ import {
   reactive,
   readonly,
   toRaw,
-} from "../../store";
+} from "./vueMappings";
 
 /**
  * @see https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html
@@ -25,7 +25,7 @@ describe("reactivity/readonly", () => {
       expect(isReactive(wrapped)).toBe(false);
       expect(isReadonly(wrapped)).toBe(true);
       expect(isReactive(original)).toBe(false);
-    expect(isReadonly(original)).toBe(false);
+      expect(isReadonly(original)).toBe(false);
       expect(isReactive(wrapped.bar)).toBe(false);
       expect(isReadonly(wrapped.bar)).toBe(true);
       expect(isReactive(original.bar)).toBe(false);

@@ -22,3 +22,10 @@ export {
   type Setter
 } from "./utils";
 
+declare const signalSymbol: unique symbol;
+declare module "@preact-signals/unified-signals" {
+  interface Signal<T> {
+    /** flag for easier identification */
+    [signalSymbol]: true;
+  }
+}

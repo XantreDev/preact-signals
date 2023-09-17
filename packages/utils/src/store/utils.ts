@@ -1,3 +1,5 @@
+import { Signal } from "@preact-signals/unified-signals";
+
 /**
  * Always return false.
  */
@@ -113,3 +115,6 @@ export const def = (obj: object, key: string | symbol, value: any) => {
     value,
   });
 };
+
+export const isSignal = (val: unknown): val is Signal<any> =>
+  isObject(val) && val instanceof Signal;

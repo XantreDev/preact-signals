@@ -2,10 +2,11 @@
   "compilerOptions": {
     "rootDir": "./src",
     "noEmit": false,
-    "outDir": "./dist/esm",
-    "emitDeclarationOnly": false,
+    "emitDeclarationOnly": true,
     "sourceMap": true,
-    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "outDir": "./dist/types",
+    "types": ["./global.d.ts"]
   },
   "exclude": [
     "**/dist/**",

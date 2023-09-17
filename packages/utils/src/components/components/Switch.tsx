@@ -40,12 +40,6 @@ export type SwitchProps = {
   children: JSX.Element | JSX.Element[];
 };
 
-declare var process: {
-  env: {
-    NODE_ENV?: "production" | "development";
-  };
-};
-
 /**
  * @example
  * // when prop can be callback or signal
@@ -65,7 +59,7 @@ declare var process: {
  */
 export const Switch = (props: SwitchProps): JSX.Element => {
   if (
-    process.env.NODE_ENV === "development" &&
+    __DEV__ &&
     !Children.toArray(props.children).every(
       (item) =>
         item &&

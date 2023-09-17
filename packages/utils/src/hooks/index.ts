@@ -11,5 +11,3 @@ export {
   useSignalOfState
 } from "./utility";
 
-// export const useSignalState = <T>(value: T) =>
-//   toSolidLikeSignal(useSignal(value));

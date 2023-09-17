@@ -1,7 +1,5 @@
-import { effect } from "@preact-signals/unified-signals";
 import { describe, expect, it, vi } from "vitest";
-import { createStore, isReactive } from "../../../store";
-const reactive = createStore;
+import { effect, isReactive, reactive } from "../vueMappings";
 
 describe("reactivity/reactive/Array", () => {
   it("should make Array reactive", () => {

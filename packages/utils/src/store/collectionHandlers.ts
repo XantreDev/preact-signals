@@ -1,5 +1,5 @@
 import { ReactiveFlags, TrackOpTypes, TriggerOpTypes } from "./constants";
-import { toRaw, toReactive, toReadonly } from "./reactivity";
+import { toDeepReactive, toDeepReadonly, toRaw } from "./reactivity";
 import { ITERATE_KEY, MAP_KEY_ITERATE_KEY, track, trigger } from "./tracking";
 import { capitalize, hasChanged, hasOwn, isMap, toRawType } from "./utils";
 
@@ -33,7 +33,11 @@ function get(
     track(rawTarget, TrackOpTypes.GET, rawKey);
   }
   const { has } = getProto(rawTarget);
-  const wrap = isShallow ? toShallow : isReadonly ? toReadonly : toReactive;
+  const wrap = isShallow
+    ? toShallow
+    : isReadonly
+    ? toDeepReadonly
+    : toDeepReactive;
   if (has.call(rawTarget, key)) {
     return wrap(target.get(key));
   } else if (has.call(rawTarget, rawKey)) {
@@ -146,7 +150,11 @@ function createForEach(isReadonly: boolean, isShallow: boolean) {
     const observed = this as any;
     const target = observed[ReactiveFlags.RAW];
     const rawTarget = toRaw(target);
-    const wrap = isShallow ? toShallow : isReadonly ? toReadonly : toReactive;
+    const wrap = isShallow
+      ? toShallow
+      : isReadonly
+      ? toDeepReadonly
+      : toDeepReactive;
     !isReadonly && track(rawTarget, TrackOpTypes.ITERATE, ITERATE_KEY);
     return target.forEach((value: unknown, key: unknown) => {
       // important: make sure the callback is
@@ -186,7 +194,11 @@ function createIterableMethod(
       method === "entries" || (method === Symbol.iterator && targetIsMap);
     const isKeyOnly = method === "keys" && targetIsMap;
     const innerIterator = target[method](...args);
-    const wrap = isShallow ? toShallow : isReadonly ? toReadonly : toReactive;
+    const wrap = isShallow
+      ? toShallow
+      : isReadonly
+      ? toDeepReadonly
+      : toDeepReactive;
     !isReadonly &&
       track(
         rawTarget,
@@ -354,6 +366,7 @@ function createInstrumentationGetter(isReadonly: boolean, shallow: boolean) {
     }
 
     return Reflect.get(
+      // @ts-expect-error
       hasOwn(instrumentations, key) && key in target
         ? instrumentations
         : target,

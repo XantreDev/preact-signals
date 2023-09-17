@@ -6,6 +6,6 @@ export default defineConfig({
     setupFiles: "./setupVitest.ts",
   },
   define: {
-    __DEV__: "process.env.NODE_ENV !== 'production'",
+    __DEV__: true,
   },
 });

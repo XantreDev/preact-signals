@@ -12,6 +12,7 @@
     "url": "https://github.com/XantreGodlike/preact-signals",
     "type": "git"
   },
+  "homepage": "https://github.com/XantreGodlike/preact-signals/blob/main/packages/query/README.md",
   "author": {
     "email": "valerik007.vs@gmail.com",
     "name": "Valerii Smirnov",

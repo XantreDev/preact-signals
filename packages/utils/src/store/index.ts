@@ -1,16 +1,6 @@
-export {
-  createStore,
-  isProxy,
-  isReactive,
-  isReadonly,
-  isShallow,
-  markRaw,
-  reactive,
-  readonly,
-  shallowReactive,
-  shallowReadonly,
-  toRaw,
-  toReactive,
-  toReadonly
-} from "./reactivity";
+import "./sideEffects";
+
+export { deepSignal, type DeepSignal } from "./deepSignal";
+export * as Store from "./publicReactivity";
+export { isSignal } from "./utils";
 

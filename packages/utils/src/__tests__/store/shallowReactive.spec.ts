@@ -1,6 +1,6 @@
-import { effect } from "@preact-signals/unified-signals";
 import { describe, expect, it, test } from "vitest";
 import {
+  effect,
   isProxy,
   isReactive,
   isReadonly,
@@ -8,7 +8,7 @@ import {
   reactive,
   readonly,
   toRaw,
-} from "../../store";
+} from "./vueMappings";
 
 /**
  * @see https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html
