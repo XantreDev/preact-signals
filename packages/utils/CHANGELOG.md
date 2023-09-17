@@ -1,5 +1,19 @@
 # @preact-signals/utils
 
+## 0.7.0
+
+### Minor Changes
+
+- 0579c7d: Implemented deep signals tracking system, for more details check: https://github.com/XantreGodlike/preact-signals/blob/main/posts/deep-tracking.md
+- 979002c: Added transitive dependecies and homepages
+
+### Patch Changes
+
+- 037bd2f: Documented new functionality with deep reactivity
+- Updated dependencies [50befb5]
+- Updated dependencies [979002c]
+  - @preact-signals/unified-signals@0.2.1
+
 ## 0.6.0
 
 ### Minor Changes
