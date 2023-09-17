@@ -1,7 +1,7 @@
 ---
 "@preact-signals/unified-signals": patch
-"@preact-signals/query": patch
-"@preact-signals/utils": patch
+"@preact-signals/query": minor
+"@preact-signals/utils": minor
 ---
 
 Added transitive dependecies and homepages

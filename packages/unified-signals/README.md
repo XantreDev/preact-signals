@@ -15,6 +15,32 @@ yarn i @preact-signals/unified-signals
 pnpm i @preact-signals/unified-signals
 ```
 
+## Usage in library
+
+If you are using `@preact-signals/unified-signals` in your library to preserve runtime agnosticism you can use should add this lines
+into your `package.json`:
+
+```json
+{
+  "peerDependencies": {
+    "@preact/signals-react": ">=1.2.0",
+    "@preact/signals": ">=1.1.0",
+    "@preact/signals-core": ">=1.1.0"
+  },
+  "peerDependenciesMeta": {
+    "@preact/signals-react": {
+      "optional": true
+    },
+    "@preact/signals": {
+      "optional": true
+    },
+    "@preact/signals-core": {
+      "optional": true
+    }
+  }
+}
+```
+
 ## API Overview
 
 Basic `@preact/signals` API and untracked
