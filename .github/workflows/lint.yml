@@ -20,5 +20,6 @@ jobs:
           cache: "pnpm"
           node-version: latest
       - run: pnpm i
+      - run: pnpm build
       - run: pnpm lint
       - run: pnpm test
