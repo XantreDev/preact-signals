@@ -89,6 +89,22 @@ export function toRaw<T>(observed: T): T {
   return raw ? toRaw(raw) : observed;
 }
 
+/**
+ *
+ * Returns a reactive proxy of the object.
+ *
+ * The reactive conversion is "deep": it affects all nested properties. A
+ * reactive object also deeply unwraps any properties that are refs while
+ * maintaining reactivity.
+ *
+ * @example
+ * ```js
+ * const obj = reactive({ count: 0 })
+ * ```
+ *
+ * @param target - The object to be made reactive.
+ * @returns
+ */
 export const deepReactive = <T extends object>(
   target: T
 ): UnwrapNestedSignals<T> => {
@@ -174,11 +190,11 @@ export type DeepReadonly<T> = T extends Builtin
   : Readonly<T>;
 
 /**
- * Takes an object (reactive or plain) or a ref and returns a readonly proxy to
+ * takes an object (reactive or plain) or a ref and returns a readonly proxy to
  * the original.
  *
- * A readonly proxy is deep: any nested property accessed will be readonly as
- * well. It also has the same ref-unwrapping behavior as {@link deepReactive()},
+ * a readonly proxy is deep: any nested property accessed will be readonly as
+ * well. it also has the same ref-unwrapping behavior as {@link deepreactive()},
  * except the unwrapped values will also be made readonly.
  *
  * @example
@@ -187,7 +203,7 @@ export type DeepReadonly<T> = T extends Builtin
  *
  * const copy = readonly(original)
  *
- * watchEffect(() => {
+ * watcheffect(() => {
  *   // works for reactivity tracking
  *   console.log(copy.count)
  * })

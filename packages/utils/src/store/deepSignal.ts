@@ -1,10 +1,6 @@
 import { Signal } from "@preact-signals/unified-signals";
 import { CollectionTypes } from "./collectionHandlers";
-import {
-  RawSymbol,
-  ShallowReactiveMarker,
-  toDeepReactive
-} from "./reactivity";
+import { RawSymbol, ShallowReactiveMarker, toDeepReactive } from "./reactivity";
 import { isSignal } from "./utils";
 
 type BaseTypes = string | number | boolean;
@@ -47,6 +43,12 @@ export type WrapDeepSignal<T> = T extends Signal<any>
   ? T
   : DeepSignal<UnwrapSignal<T>>;
 
+/**
+ *
+ * Takes an inner value and returns a reactive and mutable signal, with deepReactive inside of it.
+ *
+ * @param value - The object to wrap in the deepSignal.
+ */
 export const deepSignal = <T>(value: T): WrapDeepSignal<T> => {
   if (isSignal(value)) {
     return value as WrapDeepSignal<T>;
