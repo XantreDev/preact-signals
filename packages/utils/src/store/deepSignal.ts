@@ -1,7 +1,11 @@
 import { Signal } from "@preact-signals/unified-signals";
 import { CollectionTypes } from "./collectionHandlers";
-import { RawSymbol, ShallowReactiveMarker, toDeepReactive } from "./reactivity";
-import { Store } from ".";
+import {
+  RawSymbol,
+  ShallowReactiveMarker,
+  toDeepReactive
+} from "./reactivity";
+import { isSignal } from "./utils";
 
 type BaseTypes = string | number | boolean;
 
@@ -39,5 +43,14 @@ export class DeepSignal<T> extends Signal<T> {
   }
 }
 
-export const deepSignal = <T>(value: T) =>
-  new DeepSignal(value as UnwrapSignal<T>);
+export type WrapDeepSignal<T> = T extends Signal<any>
+  ? T
+  : DeepSignal<UnwrapSignal<T>>;
+
+export const deepSignal = <T>(value: T): WrapDeepSignal<T> => {
+  if (isSignal(value)) {
+    return value as WrapDeepSignal<T>;
+  }
+
+  return new DeepSignal(value) as WrapDeepSignal<T>;
+};

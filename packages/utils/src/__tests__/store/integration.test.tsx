@@ -1,4 +1,4 @@
-import { batch, computed, effect } from "@preact-signals/unified-signals";
+import { batch, computed, effect, untracked } from "@preact-signals/unified-signals";
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
 import { $ } from "../..";
@@ -62,6 +62,28 @@ describe("store", () => {
       store.count.value++;
     });
     expect(fn).toHaveBeenCalledTimes(4);
+  });
+
+  it("shouldn't go into infinite loop on set", () => {
+    const state = Store.deepReactive({
+      count: 0,
+    });
+
+    effect(() => {
+      if (state.count < 10) {
+        state.count++;
+      }
+    });
+    
+    expect(state.count).toBe(10);
+    
+    effect(() => {
+      untracked(() => {
+        state.count++;
+      })
+    })
+
+    expect(state.count).toBe(11);
   });
 });
 
