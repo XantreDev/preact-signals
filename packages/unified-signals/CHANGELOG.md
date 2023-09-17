@@ -1,5 +1,12 @@
 # @preact-signals/unified-signals
 
+## 0.2.1
+
+### Patch Changes
+
+- 50befb5: Added information to README about using in library
+- 979002c: Added transitive dependecies and homepages
+
 ## 0.2.0
 
 ### Minor Changes

@@ -1,5 +1,21 @@
 # @preact-signals/query
 
+## 1.1.0
+
+### Minor Changes
+
+- 979002c: Added transitive dependecies and homepages
+
+### Patch Changes
+
+- 44f5f31: Fixed accident subscriptions to signals which callbacks like `queryFn` provided in options can read
+- Updated dependencies [037bd2f]
+- Updated dependencies [0579c7d]
+- Updated dependencies [50befb5]
+- Updated dependencies [979002c]
+  - @preact-signals/utils@0.7.0
+  - @preact-signals/unified-signals@0.2.1
+
 ## 1.0.5
 
 ### Patch Changes
