@@ -42,13 +42,25 @@
   },
   "peerDependencies": {
     "react": "17.*.* || 18.*.*",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "@preact/signals-react": ">=1.2.0",
+    "@preact/signals": ">=1.1.0",
+    "@preact/signals-core": ">=1.1.0"
   },
   "peerDependenciesMeta": {
     "react": {
       "optional": true
     },
     "react-dom": {
+      "optional": true
+    },
+    "@preact/signals-react": {
+      "optional": true
+    },
+    "@preact/signals": {
+      "optional": true
+    },
+    "@preact/signals-core": {
       "optional": true
     }
   },

@@ -23,7 +23,8 @@ export {
 } from "./utils";
 
 declare const signalSymbol: unique symbol;
-declare module "@preact-signals/unified-signals" {
+// @ts-expect-error
+declare module "@preact/signals-core" {
   interface Signal<T> {
     /** flag for easier identification */
     [signalSymbol]: true;
