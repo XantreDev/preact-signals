@@ -70,12 +70,11 @@
   "scripts": {
     "clean": "rimraf dist",
     "test": "vitest",
-    "lint": "tsc --noEmit",
+    "lint": "tsc --noEmit && check-export-map",
     "build:types": "tsc",
     "build:rollup": "rollup -c",
     "watch": "concurrently \"pnpm build:rollup -w\" \"pnpm build:types -w\"",
-    "build": "pnpm clean && rollup -c && pnpm build:types",
-    "check-exports": "check-export-map"
+    "build": "pnpm clean && rollup -c && pnpm build:types"
   },
   "typesVersions": {
     "*": {

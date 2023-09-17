@@ -15,7 +15,6 @@
     "watch": "turbo run watch --parallel",
     "test": "turbo run test --parallel",
     "lint": "turbo run lint",
-    "check-exports": "turbo run check-exports",
     "changeset": "changeset",
     "release": "pnpm build && changeset publish"
   }
