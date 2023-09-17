@@ -180,7 +180,6 @@ describe.concurrent("store setter", () => {
     const store = flatStore({
       count: 1,
       get double() {
-        console.log("double this", this);
         return this.count * 2;
       },
     });

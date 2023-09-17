@@ -22,3 +22,11 @@ export {
   type Setter
 } from "./utils";
 
+declare const signalSymbol: unique symbol;
+// @ts-expect-error
+declare module "@preact/signals-core" {
+  interface Signal<T> {
+    /** flag for easier identification */
+    [signalSymbol]: true;
+  }
+}

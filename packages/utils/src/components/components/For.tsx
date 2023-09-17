@@ -35,14 +35,12 @@ export const For = <T extends Reactive<any[]>>({
           const key = keyExtractor
             ? keyExtractor(value, index)
             : (value as React.Key);
-          if (process.env.NODE_ENV === "development") {
-            if (typeof key !== "string" && typeof key !== "number") {
-              console.warn(
-                keyExtractor
-                  ? `For: keyExtractor returned a non-string non-number key: ${key}`
-                  : `For: key is not a string or number: ${key}. Provide a keyExtractor prop to For to extract a key from the item.`
-              );
-            }
+          if (__DEV__ && typeof key !== "string" && typeof key !== "number") {
+            console.warn(
+              keyExtractor
+                ? `For: keyExtractor returned a non-string non-number key: ${key}`
+                : `For: key is not a string or number: ${key}. Provide a keyExtractor prop to For to extract a key from the item.`
+            );
           }
           if (!isValidElement(result)) {
             return createElement(Fragment, { key }, result);

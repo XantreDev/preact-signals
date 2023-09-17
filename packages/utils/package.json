@@ -6,77 +6,112 @@
     "access": "public"
   },
   "description": "Utils for @preact/signals",
-  "sideEffects": false,
+  "sideEffects": [
+    "./src/store/sideEffects.ts",
+    "./dist/cjs/store/sideEffects.cjs",
+    "./dist/esm/store/sideEffects.mjs"
+  ],
   "repository": {
     "directory": "packages/utils",
     "url": "https://github.com/XantreGodlike/preact-signals",
     "type": "git"
   },
+  "homepage": "https://github.com/XantreGodlike/preact-signals/blob/main/packages/utils/README.md",
   "author": {
     "email": "valerik007.vs@gmail.com",
     "name": "Valerii Smirnov",
     "url": "https://github.com/XantreGodlike"
   },
   "type": "module",
-  "module": "./dist/esm/index.js",
-  "main": "./dist/cjs/index.js",
-  "types": "./dist/esm/index.d.ts",
+  "module": "./dist/esm/index.mjs",
+  "main": "./dist/cjs/index.cjs",
+  "types": "./dist/types/index.d.ts",
   "source": "./src/index.ts",
   "react-native": "./src/index.ts",
   "exports": {
     ".": {
-      "types": "./dist/esm/index.d.ts",
-      "import": "./dist/esm/index.js",
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.mjs",
       "react-native": "./src/index.ts",
-      "require": "./dist/cjs/index.js"
+      "require": "./dist/cjs/index.cjs"
     },
     "./hooks": {
-      "types": "./dist/esm/hooks/index.d.ts",
-      "import": "./dist/esm/hooks/index.js",
+      "types": "./dist/types/hooks/index.d.ts",
+      "import": "./dist/esm/hooks/index.mjs",
       "react-native": "./src/hooks/index.ts",
-      "require": "./dist/cjs/hooks/index.js"
+      "require": "./dist/cjs/hooks/index.cjs"
     },
     "./components": {
+      "types": "./dist/types/components/index.d.ts",
+      "import": "./dist/esm/components/index.mjs",
       "react-native": "./src/components/index.ts",
-      "types": "./dist/esm/components/index.d.ts",
-      "import": "./dist/esm/components/index.js",
-      "require": "./dist/cjs/components/index.js"
+      "require": "./dist/cjs/components/index.cjs"
     },
     "./hocs": {
+      "types": "./dist/types/hocs/index.d.ts",
+      "import": "./dist/esm/hocs/index.mjs",
       "react-native": "./src/hocs/index.ts",
-      "types": "./dist/esm/hocs/index.d.ts",
-      "import": "./dist/esm/hocs/index.js",
-      "require": "./dist/cjs/hocs/index.js"
-    }
+      "require": "./dist/cjs/hocs/index.cjs"
+    },
+    "./store": {
+      "types": "./dist/types/store/index.d.ts",
+      "import": "./dist/esm/store/index.mjs",
+      "react-native": "./src/store/index.ts",
+      "require": "./dist/cjs/store/index.cjs"
+    },
+    "./store/hooks": {
+      "types": "./dist/types/store/hooks.d.ts",
+      "import": "./dist/esm/store/hooks.mjs",
+      "react-native": "./src/store/hooks.ts",
+      "require": "./dist/cjs/store/hooks.cjs"
+    },
+    "./package.json": "./package.json"
   },
   "scripts": {
     "clean": "rimraf dist",
-    "build:esm": "tsc --outDir ./dist/esm",
-    "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
     "test": "vitest",
-    "lint": "tsc --noEmit",
-    "watch": "concurrently \"pnpm build:esm -w\" \"pnpm build:cjs -w\"",
-    "build": "pnpm clean && concurrently \"pnpm build:esm\" \"pnpm build:cjs\""
+    "lint": "tsc --noEmit && check-export-map",
+    "build:types": "tsc",
+    "build:rollup": "rollup -c",
+    "watch": "concurrently \"pnpm build:rollup -w\" \"pnpm build:types -w\"",
+    "build": "pnpm clean && rollup -c && pnpm build:types"
   },
   "typesVersions": {
     "*": {
       "hooks": [
-        "./dist/esm/hooks/index.d.ts"
+        "./dist/types/hooks/index.d.ts"
       ],
       "components": [
-        "./dist/esm/components/index.d.ts"
+        "./dist/types/components/index.d.ts"
       ],
       "hocs": [
-        "./dist/esm/hocs/index.d.ts"
+        "./dist/types/hocs/index.d.ts"
+      ],
+      "store": [
+        "./dist/types/store/index.d.ts"
+      ],
+      "store/hooks": [
+        "./dist/types/store/hooks.d.ts"
       ]
     }
   },
   "peerDependencies": {
-    "@preact/signals-react": ">=1.2",
-    "react": "17.*.* || 18.*.*"
+    "react": "17.*.* || 18.*.*",
+    "@preact/signals-react": ">=1.2.0",
+    "@preact/signals": ">=1.1.0",
+    "@preact/signals-core": ">=1.1.0"
   },
   "peerDependenciesMeta": {
     "react": {
+      "optional": true
+    },
+    "@preact/signals-react": {
+      "optional": true
+    },
+    "@preact/signals": {
+      "optional": true
+    },
+    "@preact/signals-core": {
       "optional": true
     }
   },
@@ -85,14 +120,22 @@
     "react-fast-hoc": "^0.1"
   },
   "devDependencies": {
+    "@preact-signals/unified-signals": "workspace:*",
+    "@preact/signals-react": "^1.3.6",
+    "@rollup/plugin-replace": "^5.0.2",
+    "@rollup/plugin-typescript": "^11.1.3",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "check-export-map": "^1.3.0",
     "concurrently": "^8.2.0",
     "happy-dom": "^10.5.2",
     "hotscript": "^1.0.13",
     "radash": "^11.0.0",
     "react": "^18",
     "react-dom": "^18",
+    "rollup": "^3.29.2",
+    "rollup-plugin-esbuild": "^5.0.0",
+    "rollup-plugin-node-externals": "^6.1.1",
     "type-fest": "^3.13.0"
   },
   "keywords": [

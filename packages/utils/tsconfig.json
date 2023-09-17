@@ -1,17 +1,17 @@
 {
   "compilerOptions": {
     "rootDir": "./src",
-    "noEmit": false,
-    "outDir": "./dist/esm",
-    "emitDeclarationOnly": false,
-    "sourceMap": true,
-    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "outDir": "./dist/types",
+    "types": ["./global.d.ts"]
   },
   "exclude": [
     "**/dist/**",
     "**/node_modules/**",
     "vitest.config.ts",
-    "**/*.test.*"
+    "setupVitest.ts",
+    "**/*.test.*",
+    "**/*.spec.*"
   ],
   "extends": "../../tsconfig.json",
   "references": [{ "path": "../unified-signals" }]
