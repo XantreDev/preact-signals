@@ -12,6 +12,9 @@ export type ShowProps<T extends Reactive<any>> = {
   children: RenderResult | ((item: GetTruthyValue<T>) => RenderResult);
 };
 
+/**
+ * @trackSignals
+ */
 export const Show = <const T extends Reactive<any>>(
   props: ShowProps<T>
 ): JSX.Element => {

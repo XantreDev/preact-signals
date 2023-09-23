@@ -57,7 +57,10 @@ Object.defineProperties(Uncached.prototype, {
   },
 });
 
-// JSX bindings
+/**
+ * @trackSignals
+ * JSX bindings
+ */
 const RAccessorComponent = ({ data }: { data: Uncached<unknown> }) => {
   return useComputed(data._accessor).value;
 };
