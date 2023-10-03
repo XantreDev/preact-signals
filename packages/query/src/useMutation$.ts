@@ -17,6 +17,9 @@ import { EMPTY_ARRAY, wrapFunctionsInUntracked } from "./utils";
 
 function noop() {}
 
+/**
+ * @trackSignals
+ */
 export const useMutation$ = <
   TData = unknown,
   TError = unknown,

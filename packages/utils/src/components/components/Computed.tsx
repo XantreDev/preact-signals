@@ -6,5 +6,8 @@ export type ComputedProps = {
   children: Accessor<RenderResult>;
 };
 
+/**
+ * @trackSignals
+ */
 export const Computed = ({ children }: ComputedProps): JSX.Element =>
   useComputedOnce(children).value as JSX.Element;

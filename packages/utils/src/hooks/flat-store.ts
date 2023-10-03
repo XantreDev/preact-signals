@@ -7,6 +7,7 @@ export type AnyRecord = Record<any, any>;
 
 /**
  * Create a flat store and its setter.
+ * @trackSignals
  */
 export const useFlatStore = <T extends AnyRecord>(storeCreator: () => T) => {
   const storeRef = useRef<ReturnType<typeof createFlatStore<T>> | null>();
@@ -17,6 +18,9 @@ export const useFlatStore = <T extends AnyRecord>(storeCreator: () => T) => {
   return storeRef.current;
 };
 
+/**
+ * @trackSignals
+ */
 export const useFlatStoreOfSignals = <T extends AnyRecord>(
   storeCreator: () => T
 ) => {
@@ -30,6 +34,9 @@ export const useFlatStoreOfSignals = <T extends AnyRecord>(
   return storeRef.current;
 };
 
+/**
+ * @trackSignals
+ */
 export const useComputedFlatStore = <T extends AnyRecord>(
   storeUpdater: () => T
 ) => {

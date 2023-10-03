@@ -1,7 +1,4 @@
-import {
-  Reactive,
-  unwrapReactive
-} from "@preact-signals/utils";
+import { Reactive, unwrapReactive } from "@preact-signals/utils";
 import { QueryClient, QueryFilters } from "@tanstack/query-core";
 import { ContextOptions } from "./react-query";
 import { useQueryClient$ } from "./react-query/QueryClientProvider";
@@ -16,6 +13,8 @@ const isFetching = (queryClient: QueryClient, filters: QueryFilters) =>
  * @param _filters pass null to get all queries
  * @param options
  * @returns
+ *
+ * @trackSignals
  */
 export const useIsFetching$ = <T extends Reactive<QueryFilters | null>>(
   _filters: T,

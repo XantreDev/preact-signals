@@ -3,7 +3,7 @@
     "composite": true,
     "module": "ESNext",
     "moduleResolution": "Node",
-    "rootDir": "./",
+    "rootDir": "./src",
     "allowSyntheticDefaultImports": true,
     "types": ["vitest.d.ts"]
   },

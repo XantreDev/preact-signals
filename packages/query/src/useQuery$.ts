@@ -4,4 +4,7 @@ import {
   UseQuery$
 } from "./types";
 
+/**
+ * @trackSignals
+ */
 export const useQuery$ = createBaseQuery(QueryObserver) as UseQuery$;

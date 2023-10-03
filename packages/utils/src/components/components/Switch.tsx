@@ -41,6 +41,8 @@ export type SwitchProps = {
 };
 
 /**
+ *
+ * @trackSignals
  * @example
  * // when prop can be callback or signal
  * <Switch>

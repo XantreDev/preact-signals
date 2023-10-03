@@ -18,6 +18,9 @@ export type ForProps<T extends Reactive<any[]>> = {
   ? { keyExtractor?: KeyExtractor<GetArrItemValue<T>> }
   : { keyExtractor: KeyExtractor<GetArrItemValue<T>> });
 
+/**
+ * @trackSignals
+ */
 export const For = <T extends Reactive<any[]>>({
   children,
   each,
