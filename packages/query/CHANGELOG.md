@@ -1,5 +1,17 @@
 # @preact-signals/query
 
+## 1.2.0
+
+### Minor Changes
+
+- 53f9f36: `@preact/signals-react-transform` support added
+
+### Patch Changes
+
+- Updated dependencies [53f9f36]
+- Updated dependencies [5320526]
+  - @preact-signals/utils@0.8.0
+
 ## 1.1.0
 
 ### Minor Changes
