@@ -1,5 +1,18 @@
 # @preact-signals/utils
 
+## 0.9.0
+
+### Minor Changes
+
+- ce2bbb9: Removed implementation of JSX binding for `# @preact-signals/utils.
+From know `# @preact-signals/utils has `Signal` in prototype chain.
+
+  ```tsx
+  console.log($(() => 10) instanceof Signal); // true
+  ```
+
+  It actually compatible with signal in most cases, but it has not value, only callback for calculation.
+
 ## 0.8.0
 
 ### Minor Changes
