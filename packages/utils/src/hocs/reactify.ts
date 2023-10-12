@@ -1,14 +1,14 @@
 import {
-  ReadonlySignal,
+  type ReadonlySignal,
   Signal,
   signal,
 } from "@preact-signals/unified-signals";
 import { useRef } from "react";
 import { createTransformProps } from "react-fast-hoc";
-import { Uncached } from "../$";
-import { Accessor } from "../utils";
+import type { Uncached } from "../$";
+import type { Accessor } from "../utils";
 import { IGNORED_PROPS } from "./constants";
-import { ReactiveProps } from "./reactifyLite";
+import type { ReactiveProps } from "./reactifyLite";
 
 declare const typeThrow: unique symbol;
 
@@ -109,11 +109,7 @@ class ReactifyPropsHandler {
           if (isEndsWith$) {
             return self.#props[key]();
           }
-          if (
-            value &&
-            typeof value === "object" &&
-            (value instanceof Signal || value instanceof Uncached)
-          ) {
+          if (value && typeof value === "object" && value instanceof Signal) {
             return value.value;
           }
           if (typeof value === "function") {

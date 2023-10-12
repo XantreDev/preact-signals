@@ -1,8 +1,8 @@
 import {
   ReadonlySignal,
+  Signal,
   computed,
   untracked,
-  useComputed,
 } from "@preact-signals/unified-signals";
 import { Accessor } from "./utils";
 
@@ -17,74 +17,45 @@ import { Accessor } from "./utils";
  * <div>{$(() => sig.value * 10)}</div>
  * ```
  */
-declare class Uncached<T> {
+declare class Uncached<T> extends Signal<T> {
   constructor(accessor: Accessor<T>);
   get value(): T;
   peek(): T;
   valueOf(): T;
   toString(): string;
   /** @internal */
-  _accessor(): T;
+  _a(): T;
 }
 
+// @ts-expect-error
 interface Uncached<T> extends JSX.Element {}
 
-const ReactElement = Symbol.for("react.element");
-
 function Uncached<T>(this: Uncached<T>, accessor: Accessor<T>) {
-  this._accessor = accessor;
+  this._a = accessor;
 }
+Uncached.prototype = Object.create(Signal.prototype);
 Object.defineProperties(Uncached.prototype, {
   value: {
-    get() {
-      return this._accessor();
+    get(this: Uncached<any>) {
+      return this._a();
     },
+    set() {},
   },
   peek: {
-    value() {
-      return untracked(() => this._accessor());
+    value(this: Uncached<any>) {
+      return untracked(() => this._a());
     },
   },
   valueOf: {
-    value() {
-      return this._accessor();
+    value(this: Uncached<any>) {
+      return this._a();
     },
   },
   toString: {
-    value() {
-      return String(this._accessor());
+    value(this: Uncached<any>) {
+      return String(this._a());
     },
   },
-});
-
-/**
- * @trackSignals
- * JSX bindings
- */
-const RAccessorComponent = ({ data }: { data: Uncached<unknown> }) => {
-  return useComputed(data._accessor).value;
-};
-Object.defineProperties(Uncached.prototype, {
-  $$typeof: {
-    value: ReactElement,
-    configurable: true,
-  },
-  type: {
-    value: RAccessorComponent,
-    configurable: true,
-  },
-  props: {
-    configurable: true,
-    get() {
-      return { data: this };
-    },
-  },
-  ref: {
-    configurable: true,
-    value: null,
-  },
-  // __b is a way to make it working with preact
-  __b: { configurable: true, value: 1 },
 });
 
 /**
@@ -114,8 +85,8 @@ export const $ = <T>(accessor: Accessor<T>): Uncached<T> =>
 
 const computesCache = new WeakMap<Accessor<any>, ReadonlySignal<any>>();
 export const signalOf$ = <T>($value: Uncached<T>): ReadonlySignal<T> =>
-  computesCache.get($value._accessor) ??
-  (computesCache.set($value._accessor, computed($value._accessor)),
-  computesCache.get($value._accessor)!);
+  computesCache.get($value._a) ??
+  (computesCache.set($value._a, computed($value._a)),
+  computesCache.get($value._a)!);
 
 export { Uncached };

@@ -1,11 +1,10 @@
 import { Signal, signal } from "@preact-signals/unified-signals";
-import { Call, Fn, Objects } from "hotscript";
+import type { Call, Fn, Objects } from "hotscript";
 import { useRef } from "react";
 import { createTransformProps } from "react-fast-hoc";
-import { Opaque, UnwrapOpaque } from "type-fest";
-import { Uncached } from "../$";
+import type { Opaque, UnwrapOpaque } from "type-fest";
 import { IGNORED_PROPS } from "./constants";
-import { WithSignalProp } from "./withSignalProps";
+import type { WithSignalProp } from "./withSignalProps";
 
 // const reactifyLiteHandler: ProxyHandler<Record<string | symbol, any>> = {
 //   get(target: Record<string | symbol, any>, p: string | symbol) {
@@ -68,11 +67,7 @@ class ReactifyPropsLiteHandler {
 
       Object.defineProperty(res, key, {
         get() {
-          if (
-            value &&
-            typeof value === "object" &&
-            (value instanceof Signal || value instanceof Uncached)
-          ) {
+          if (value && typeof value === "object" && value instanceof Signal) {
             return value.value;
           }
           if (typeof value === "function") {
@@ -125,13 +120,19 @@ class ReactifyPropsLiteHandler {
  * ```
  *
  */
-export const reactifyLite = createTransformProps<[ReactifyLiteFn]>((props) => {
-  const hander = useRef<null | ReactifyPropsLiteHandler>(null);
+export const reactifyLite = createTransformProps<[ReactifyLiteFn]>(
+  (props) => {
+    const hander = useRef<null | ReactifyPropsLiteHandler>(null);
 
-  if (hander.current === null) {
-    hander.current = new ReactifyPropsLiteHandler(props);
+    if (hander.current === null) {
+      hander.current = new ReactifyPropsLiteHandler(props);
+    }
+    hander.current.onRender(props);
+
+    return hander.current.createReactiveProps();
+  },
+  {
+    namePrefix: "ReactifyLite.",
+    mimicToNewComponent: false,
   }
-  hander.current.onRender(props);
-
-  return hander.current.createReactiveProps();
-});
+);

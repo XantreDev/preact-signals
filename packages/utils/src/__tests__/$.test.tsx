@@ -36,8 +36,7 @@ describe("$()", () => {
 
   it("should be reactive while rendering", async () => {
     const sig = signal<React.ReactNode>(10);
-    reactRoot().render($(() => sig.value));
-    await sleep(0);
+    await reactRoot().render($(() => sig.value));
 
     {
       const content = root.firstChild;
@@ -53,30 +52,25 @@ describe("$()", () => {
       expect(content).is.instanceOf(HTMLDivElement);
       expect(content.firstChild).to.have.property("textContent", "110");
     }
-  });
-  it("shouldn't reexecute when rerenders", async () => {
-    const sig = signal(10);
-    let dummy = signal(0);
-    const $fn = vi.fn(() => sig.value);
-    const render = vi.fn();
-    const Component = () => {
-      dummy.value;
-      render();
-      return $(() => $fn());
-    };
-    await act(() => reactRoot().render(<Component />));
-
-    expect(root.firstChild).to.have.property("data", "10");
-    expect($fn).toHaveBeenCalledTimes(1);
-    expect(render).toHaveBeenCalledTimes(1);
-
     await act(() => {
-      dummy.value++;
+      sig.value = 20;
     });
 
-    expect(root.firstChild).to.have.property("data", "10");
-    expect($fn).toHaveBeenCalledTimes(1);
-    expect(render).toHaveBeenCalledTimes(2);
+    {
+      const content = root.firstChild;
+      expect(content).is.instanceOf(Text);
+      expect(content).has.property("data", "20");
+    }
+
+    await act(() => {
+      sig.value = 30;
+    });
+
+    {
+      const content = root.firstChild;
+      expect(content).is.instanceOf(Text);
+      expect(content).has.property("data", "30");
+    }
   });
   it("should provide not reactive peek method", async () => {
     const sig = signal(0);

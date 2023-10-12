@@ -1,7 +1,7 @@
-import { ReadonlySignal, Signal } from "@preact-signals/unified-signals";
-import { Fn, Objects } from "hotscript";
+import { type ReadonlySignal, Signal } from "@preact-signals/unified-signals";
+import type { Fn, Objects } from "hotscript";
 import { createTransformProps } from "react-fast-hoc";
-import { Uncached } from "../$";
+import type { Uncached } from "../$";
 
 export interface WithSignalProp extends Fn {
   return: this["arg1"] extends "children"
@@ -23,7 +23,7 @@ class WithSignalPropsHandler
     if (!value) {
       return value;
     }
-    if (value instanceof Uncached || value instanceof Signal) {
+    if (value instanceof Signal) {
       return (
         this.#valuesCache.get(p) ??
         this.#valuesCache.set(p, value.value).get(p)!
@@ -40,6 +40,6 @@ class WithSignalPropsHandler
 export const withSignalProps = createTransformProps<
   [Objects.MapValues<WithSignalProp>]
 >((props) => new Proxy(props, new WithSignalPropsHandler()), {
-  namePrefix: "Reactified.",
+  namePrefix: "WithSignalProps.",
   mimicToNewComponent: false,
 });
