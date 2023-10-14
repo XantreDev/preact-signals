@@ -4,8 +4,8 @@
 
 ### Minor Changes
 
-- ce2bbb9: Removed implementation of JSX binding for `# @preact-signals/utils.
-From know `# @preact-signals/utils has `Signal` in prototype chain.
+- ce2bbb9: Removed implementation of JSX binding for @preact-signals/utils`.
+From now `@preact-signals/utils` `$` has `Signal` in prototype chain.
 
   ```tsx
   console.log($(() => 10) instanceof Signal); // true
