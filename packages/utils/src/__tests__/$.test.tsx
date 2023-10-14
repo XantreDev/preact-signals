@@ -95,4 +95,26 @@ describe("$()", () => {
     expect($(() => null).valueOf()).toBe(null);
     expect($(() => undefined).valueOf()).toBe(undefined);
   });
+  it("should support .toJSON()", () => {
+    const s = $(() => 123);
+    expect(s.toJSON()).equal(123);
+  });
+
+  it("should support JSON.Stringify()", () => {
+    const s = $(() => 123);
+    expect(JSON.stringify({ s })).equal(JSON.stringify({ s: 123 }));
+  });
+
+  it("should support .subscribe()", () => {
+    const sig = signal(123);
+    const s = $(() => sig.value);
+    let value: number | undefined;
+    const dispose = s.subscribe((v) => (value = v));
+    expect(value).equal(123);
+    sig.value = 456;
+    expect(value).equal(456);
+    dispose();
+    sig.value = 789;
+    expect(value).equal(456);
+  });
 });
