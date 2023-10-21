@@ -40,6 +40,8 @@ class WithSignalPropsHandler
 export const withSignalProps = createTransformProps<
   [Objects.MapValues<WithSignalProp>]
 >((props) => new Proxy(props, new WithSignalPropsHandler()), {
-  namePrefix: "WithSignalProps.",
-  mimicToNewComponent: false,
+  displayNameTransform: {
+    type: "prefix",
+    value: "WithSignalProps.",
+  },
 });

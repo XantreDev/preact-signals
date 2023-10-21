@@ -117,7 +117,7 @@
   },
   "dependencies": {
     "@preact-signals/unified-signals": "workspace:*",
-    "react-fast-hoc": "^0.1"
+    "react-fast-hoc": "0.3.2"
   },
   "devDependencies": {
     "@preact-signals/unified-signals": "workspace:*",

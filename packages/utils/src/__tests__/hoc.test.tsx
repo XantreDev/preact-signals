@@ -1,6 +1,6 @@
 import { ReadonlySignal, signal } from "@preact-signals/unified-signals";
 import React, { PropsWithChildren } from "react";
-import { describe, expectTypeOf, it, vi } from "vitest";
+import { assert, describe, expect, expectTypeOf, it, vi } from "vitest";
 import { $, Uncached } from "../$";
 import { ReactiveProps, reactifyLite, withSignalProps } from "../hocs";
 import { reactify } from "../hocs/reactify";
@@ -39,6 +39,14 @@ describe.concurrent("withSignalProps()", () => {
       }
     );
   }
+  it("should add prefix to props", () => {
+    const B = withSignalProps(vi.fn((props: { value: number }) => null));
+
+    assert(
+      B.displayName?.startsWith("WithSignalProps."),
+      "displayName incorrect"
+    );
+  });
 
   itRenderer(
     "should not rerender when unread signal changed",

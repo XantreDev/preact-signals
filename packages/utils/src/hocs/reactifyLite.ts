@@ -132,7 +132,9 @@ export const reactifyLite = createTransformProps<[ReactifyLiteFn]>(
     return hander.current.createReactiveProps();
   },
   {
-    namePrefix: "ReactifyLite.",
-    mimicToNewComponent: false,
+    displayNameTransform: {
+      type: "prefix",
+      value: "ReactifyLite.",
+    },
   }
 );
