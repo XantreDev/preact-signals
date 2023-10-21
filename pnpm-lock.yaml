@@ -273,8 +273,8 @@ importers:
         specifier: '>=1.1.0'
         version: 1.2.3
       react-fast-hoc:
-        specifier: ^0.1
-        version: 0.1.0(hotscript@1.0.13)(react@18.2.0)
+        specifier: 0.3.2
+        version: 0.3.2(hotscript@1.0.13)(react@18.2.0)
     devDependencies:
       '@preact/signals-react':
         specifier: ^1.3.6
@@ -5216,15 +5216,14 @@ packages:
       react: 18.2.0
     dev: true
 
-  /react-fast-hoc@0.1.0(hotscript@1.0.13)(react@18.2.0):
-    resolution: {integrity: sha512-2V52AgsOcca8QVSJk/sbpjZCZYJ7778xWqAmVAey4LJAt5Xtz7knCr8Y4XFaUEeCfuKCLV0nkOAcAgNVvqyy4Q==}
+  /react-fast-hoc@0.3.2(hotscript@1.0.13)(react@18.2.0):
+    resolution: {integrity: sha512-YmR0TCcljZqXT9R/9bm9XxqNX18HjXT+Han/4ER0Ewsxc/1qX+kLbG9q9HhLcluFbN4diTt9z4C30OgWOmbh7g==}
     peerDependencies:
-      hotscript: ^1.0.11
+      hotscript: ^1.0.12
       react: '>=17'
     dependencies:
       hotscript: 1.0.13
       react: 18.2.0
-      ts-toolbelt: 9.6.0
     dev: false
 
   /react-is@17.0.2:
@@ -5991,10 +5990,6 @@ packages:
   /ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
     dev: true
-
-  /ts-toolbelt@9.6.0:
-    resolution: {integrity: sha512-nsZd8ZeNUzukXPlJmTBwUAuABDe/9qtVDelJeT/qW0ow3ZS3BsQJtNkan1802aM9Uf68/Y8ljw86Hu0h5IUW3w==}
-    dev: false
 
   /tslib@1.14.1:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
