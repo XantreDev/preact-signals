@@ -11,15 +11,48 @@
 Ensure that [one of the preact signals runtimes](https://github.com/preactjs/signals) is installed:
 
 - `@preact/signals` for `preact`, requiring an [additional step](#preactsignals-additional-step).
+- `@preact/signals-core` for vanilla js requiring an additional step.
 - `@preact/signals-react` for `react`.
+
+### `@preact/signals-core` additional step:
+
+We need to resolve `@preact/signals-react` as `@preact/signals-core`
+
+#### Vite example:
+
+```ts
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+  resolve: {
+    alias: {
+      "@preact/signals-react": "@preact/signals-core",
+    },
+  },
+})
+```
+
+#### Astro example: 
+
+```ts
+import { defineConfig } from "astro/config";
+
+// https://astro.build/config
+export default defineConfig({
+  vite: {
+    resolve: {
+      alias: {
+        "@preact/signals-react": "@preact/signals-core",
+      },
+    },
+  },
+});
+```
+
 
 ### `@preact/signals` additional step:
 
 Resolve `@preact/signals-react` as `@preact/signals`. For guidance, see [resolve `react` as `preact`](https://preactjs.com/guide/v10/getting-started) and follow a similar process with signals. Additionally, dedupe `preact`.
-
-### `@preact/signals-react` additional step:
-
-You should turn off React.StrictMode to resources work properly
 
 #### [Vite example](../../apps/preact-test/vite.config.ts):
 
