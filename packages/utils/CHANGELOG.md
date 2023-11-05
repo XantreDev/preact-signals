@@ -1,11 +1,17 @@
 # @preact-signals/utils
 
+## 0.9.1
+
+### Patch Changes
+
+- f33edb4: Bumped `react-fast-hoc` to 0.3.2
+
 ## 0.9.0
 
 ### Minor Changes
 
 - ce2bbb9: Removed implementation of JSX binding for @preact-signals/utils`.
-From now `@preact-signals/utils` `$` has `Signal` in prototype chain.
+From now `@preact-signals/utils` `$`has`Signal` in prototype chain.
 
   ```tsx
   console.log($(() => 10) instanceof Signal); // true
