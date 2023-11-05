@@ -1,5 +1,11 @@
 # @preact-signals/utils
 
+## 0.9.2
+
+### Patch Changes
+
+- 342a376: Added information about usage with vanillajs
+
 ## 0.9.1
 
 ### Patch Changes
