@@ -11,7 +11,7 @@
 Ensure that [one of the preact signals runtimes](https://github.com/preactjs/signals) is installed:
 
 - `@preact/signals` for `preact`, requiring an [additional step](#preactsignals-additional-step).
-- `@preact/signals-core` for vanilla js requiring an additional step.
+- `@preact/signals-core` for vanilla js requiring an [additional step](#preactsignals-core-additional-step).
 - `@preact/signals-react` for `react`.
 
 ### `@preact/signals-core` additional step:
