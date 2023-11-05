@@ -124,7 +124,7 @@ const reaction = (deps, fn) =>
   });
 ```
 
-```tsx
+```ts
 const sig = signal(1);
 const sig2 = signal(2);
 // reaction(deps, effect, options?: {memoize: boolean})
@@ -381,6 +381,21 @@ import { Switch, Match } from "@preact-signals/utils/components";
 ```
 
 ## `@preact-signals/utils/hocs`: High Order Components (HOCs)
+
+### Prerequisites
+
+You should install `react-fast-hoc` to use hocs, with your favorite package manager.
+```bash
+npm i react-fast-hoc
+```
+
+```bash
+yarn add react-fast-hoc
+```
+
+```bash
+pnpm i react-fast-hoc
+```
 
 HOCs in this entry allow you to inject signals or `uncached` instances into props, aiding in the creation of reusable and composable logic across various components.
 
