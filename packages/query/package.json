@@ -44,6 +44,7 @@
     "react": "17.*.* || 18.*.*",
     "react-dom": "^18.2.0",
     "@preact/signals-react": ">=1.2.0",
+    "react-fast-hoc": "0.3.2",
     "@preact/signals": ">=1.1.0",
     "@preact/signals-core": ">=1.1.0"
   },
@@ -61,6 +62,9 @@
       "optional": true
     },
     "@preact/signals-core": {
+      "optional": true
+    },
+    "react-fast-hoc": {
       "optional": true
     }
   },
