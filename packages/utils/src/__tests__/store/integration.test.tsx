@@ -1,4 +1,9 @@
-import { batch, computed, effect, untracked } from "@preact-signals/unified-signals";
+import {
+  batch,
+  computed,
+  effect,
+  untracked,
+} from "@preact-signals/unified-signals";
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
 import { $ } from "../..";
@@ -26,20 +31,21 @@ describe("store", () => {
     expect(fn).toHaveBeenCalledTimes(4);
   });
 
-  itRenderer("should work with react", async ({ expect, reactRoot, root }) => {
-    const store = Store.deepReactive({
-      count: 0,
-    });
-    reactRoot().render(<div>{$(() => store.count)}</div>);
+  itRenderer(
+    "should work with react",
+    async ({ expect, reactRoot, root, act }) => {
+      const store = Store.deepReactive({
+        count: 0,
+      });
+      await reactRoot().render(<div>{$(() => store.count)}</div>);
 
-    expect(root.innerHTML).toBe("<div>0</div>");
+      expect(root.innerHTML).toBe("<div>0</div>");
 
-    store.count++;
+      await act(() => store.count++);
 
-    await sleep(10);
-
-    expect(root.innerHTML).toBe("<div>1</div>");
-  });
+      expect(root.innerHTML).toBe("<div>1</div>");
+    }
+  );
 
   it("custom class tracking", () => {
     class CustomClass {
@@ -74,14 +80,14 @@ describe("store", () => {
         state.count++;
       }
     });
-    
+
     expect(state.count).toBe(10);
-    
+
     effect(() => {
       untracked(() => {
         state.count++;
-      })
-    })
+      });
+    });
 
     expect(state.count).toBe(11);
   });

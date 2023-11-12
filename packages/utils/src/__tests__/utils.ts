@@ -6,13 +6,16 @@ import { TestFunction, afterEach, it } from "vitest";
 const raf = (): Promise<void> =>
   new Promise((resolve) => requestAnimationFrame(() => resolve()));
 
-const act = async (callback: () => unknown): Promise<void> => {
+let prevAct = Promise.resolve();
+const _act = async (callback: () => unknown): Promise<void> => {
   const res = reactAct(callback);
 
   await res;
   await raf();
   await res;
 };
+const act = (callback: () => unknown): Promise<void> =>
+  (prevAct = prevAct.finally(() => _act(callback)));
 
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
