@@ -1,5 +1,5 @@
 {
-  "name": "@preact/signals-react-runtime",
+  "name": "@preact-signals/react-runtime",
   "description": "Sub package for @preact/signals-react that contains the pure runtime functions",
   "private": true,
   "amdName": "reactSignalsRuntime",

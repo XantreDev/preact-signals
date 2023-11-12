@@ -104,7 +104,7 @@ describe("resource", () => {
 
     expect(fetcher).toHaveBeenCalled();
     expect(r()).toBe(220);
-    r.refetch();
+    void r.refetch();
     expect(fetcher).toHaveBeenCalledTimes(2);
     expect(r()).toBe(220);
   });
@@ -157,7 +157,7 @@ describe("resource", () => {
       } as any);
     });
 
-    r.refetch();
+    void r.refetch();
     expect(fetcher).toHaveBeenCalledTimes(2);
     expect(r.state).toBe("ready");
     expect(states).toEqual(
@@ -202,7 +202,7 @@ describe("resource", () => {
 
     await sleep();
 
-    r.refetch();
+    await r.refetch();
     await sleep();
 
     expect(fetcher).toHaveBeenCalledTimes(2);
@@ -285,7 +285,7 @@ describe("resource", () => {
       })
     );
 
-    r.refetch();
+    void r.refetch();
     expect(fetcher).toHaveBeenCalledTimes(2);
     expect(fetcher).toHaveBeenCalledWith(
       true,
@@ -295,7 +295,7 @@ describe("resource", () => {
       })
     );
 
-    r.refetch(false);
+    void r.refetch(false);
     expect(fetcher).toHaveBeenCalledTimes(3);
     expect(fetcher).toHaveBeenCalledWith(
       true,

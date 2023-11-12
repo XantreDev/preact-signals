@@ -8,48 +8,55 @@ const Empty = [] as const;
 const ReactElemType = Symbol.for("react.element"); // https://github.com/facebook/react/blob/346c7d4c43a0717302d446da9e7423a8e28d8996/packages/shared/ReactSymbols.js#L15
 
 export function wrapJsx<T>(jsx: T): T {
-	if (typeof jsx !== "function") return jsx;
+  if (typeof jsx !== "function") return jsx;
 
-	return function (type: any, props: any, ...rest: any[]) {
-		if (typeof type === "string" && props) {
-			for (let i in props) {
-				let v = props[i];
-				if (i !== "children" && v instanceof Signal) {
-					props[i] = v.value;
-				}
-			}
-		}
+  return function (type: any, props: any, ...rest: any[]) {
+    if (typeof type === "string" && props) {
+      for (let i in props) {
+        let v = props[i];
+        if (i !== "children" && v instanceof Signal) {
+          props[i] = v.value;
+        }
+      }
+    }
 
-		return jsx.call(jsx, type, props, ...rest);
-	} as any as T;
+    return jsx.call(jsx, type, props, ...rest);
+  } as any as T;
 }
 
 const symDispose: unique symbol =
-	(Symbol as any).dispose || Symbol.for("Symbol.dispose");
+  (Symbol as any).dispose || Symbol.for("Symbol.dispose");
 
+// this is effect before mangling, since we are not in preact signals repo, we should use mangled props
+// interface Effect {
+//   _sources: object | undefined;
+//   _start(): () => void;
+//   _callback(): void;
+//   _dispose(): void;
+// }
 interface Effect {
-	_sources: object | undefined;
-	_start(): () => void;
-	_callback(): void;
-	_dispose(): void;
+  _sources: object | undefined;
+  S(): () => void;
+  c(): void;
+  d(): void;
 }
 
 export interface EffectStore {
-	effect: Effect;
-	subscribe(onStoreChange: () => void): () => void;
-	getSnapshot(): number;
-	/** finishEffect - stop tracking the signals used in this component */
-	f(): void;
-	[symDispose](): void;
+  effect: Effect;
+  subscribe(onStoreChange: () => void): () => void;
+  getSnapshot(): number;
+  /** finishEffect - stop tracking the signals used in this component */
+  f(): void;
+  [symDispose](): void;
 }
 
 let finishUpdate: (() => void) | undefined;
 
 function setCurrentStore(store?: EffectStore) {
-	// end tracking for the current update:
-	if (finishUpdate) finishUpdate();
-	// start tracking the new update:
-	finishUpdate = store && store.effect._start();
+  // end tracking for the current update:
+  if (finishUpdate) finishUpdate();
+  // start tracking the new update:
+  finishUpdate = store && store.effect.S();
 }
 
 const clearCurrentStore = () => setCurrentStore();
@@ -68,49 +75,49 @@ const clearCurrentStore = () => setCurrentStore();
  * @see https://github.com/reactjs/rfcs/blob/main/text/0214-use-sync-external-store.md
  */
 function createEffectStore(): EffectStore {
-	let effectInstance!: Effect;
-	let version = 0;
-	let onChangeNotifyReact: (() => void) | undefined;
+  let effectInstance!: Effect;
+  let version = 0;
+  let onChangeNotifyReact: (() => void) | undefined;
 
-	let unsubscribe = effect(function (this: Effect) {
-		effectInstance = this;
-	});
-	effectInstance._callback = function () {
-		version = (version + 1) | 0;
-		if (onChangeNotifyReact) onChangeNotifyReact();
-	};
+  let unsubscribe = effect(function (this: Effect) {
+    effectInstance = this;
+  });
+  effectInstance.c = function () {
+    version = (version + 1) | 0;
+    if (onChangeNotifyReact) onChangeNotifyReact();
+  };
 
-	return {
-		effect: effectInstance,
-		subscribe(onStoreChange) {
-			onChangeNotifyReact = onStoreChange;
+  return {
+    effect: effectInstance,
+    subscribe(onStoreChange) {
+      onChangeNotifyReact = onStoreChange;
 
-			return function () {
-				/**
-				 * Rotate to next version when unsubscribing to ensure that components are re-run
-				 * when subscribing again.
-				 *
-				 * In StrictMode, 'memo'-ed components seem to keep a stale snapshot version, so
-				 * don't re-run after subscribing again if the version is the same as last time.
-				 *
-				 * Because we unsubscribe from the effect, the version may not change. We simply
-				 * set a new initial version in case of stale snapshots here.
-				 */
-				version = (version + 1) | 0;
-				onChangeNotifyReact = undefined;
-				unsubscribe();
-			};
-		},
-		getSnapshot() {
-			return version;
-		},
-		f() {
-			clearCurrentStore();
-		},
-		[symDispose]() {
-			clearCurrentStore();
-		},
-	};
+      return function () {
+        /**
+         * Rotate to next version when unsubscribing to ensure that components are re-run
+         * when subscribing again.
+         *
+         * In StrictMode, 'memo'-ed components seem to keep a stale snapshot version, so
+         * don't re-run after subscribing again if the version is the same as last time.
+         *
+         * Because we unsubscribe from the effect, the version may not change. We simply
+         * set a new initial version in case of stale snapshots here.
+         */
+        version = (version + 1) | 0;
+        onChangeNotifyReact = undefined;
+        unsubscribe();
+      };
+    },
+    getSnapshot() {
+      return version;
+    },
+    f() {
+      clearCurrentStore();
+    },
+    [symDispose]() {
+      clearCurrentStore();
+    },
+  };
 }
 
 let finalCleanup: Promise<void> | undefined;
@@ -121,61 +128,66 @@ const _queueMicroTask = Promise.prototype.then.bind(Promise.resolve());
  * subscribe to changes to rerender the component when the signals change.
  */
 export function useSignals(): EffectStore {
-	clearCurrentStore();
-	if (!finalCleanup) {
-		finalCleanup = _queueMicroTask(() => {
-			finalCleanup = undefined;
-			clearCurrentStore();
-		});
-	}
+  clearCurrentStore();
+  if (!finalCleanup) {
+    finalCleanup = _queueMicroTask(() => {
+      finalCleanup = undefined;
+      clearCurrentStore();
+    });
+  }
 
-	const storeRef = useRef<EffectStore>();
-	if (storeRef.current == null) {
-		storeRef.current = createEffectStore();
-	}
+  const storeRef = useRef<EffectStore>();
+  if (storeRef.current == null) {
+    storeRef.current = createEffectStore();
+  }
 
-	const store = storeRef.current;
-	useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
-	setCurrentStore(store);
+  const store = storeRef.current;
+  useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
+  setCurrentStore(store);
 
-	return store;
+  return store;
 }
 
 /**
  * A wrapper component that renders a Signal's value directly as a Text node or JSX.
  */
-function SignalValue({ data }: { data: Signal }) {
-	return data.value;
+function SignalValue(props: { data: Signal }) {
+  const effectStore = useSignals();
+  try {
+    return props.data.value;
+  } finally {
+    effectStore.f();
+  }
 }
 
 // Decorate Signals so React renders them as <SignalValue> components.
 Object.defineProperties(Signal.prototype, {
-	$$typeof: { configurable: true, value: ReactElemType },
-	type: { configurable: true, value: SignalValue },
-	props: {
-		configurable: true,
-		get() {
-			return { data: this };
-		},
-	},
-	ref: { configurable: true, value: null },
+  $$typeof: { configurable: true, value: ReactElemType },
+  type: { configurable: true, value: SignalValue },
+  props: {
+    configurable: true,
+    get() {
+      return { data: this };
+    },
+  },
+  ref: { configurable: true, value: null },
 });
 
 export function useSignal<T>(value: T) {
-	return useMemo(() => signal<T>(value), Empty);
+  return useMemo(() => signal<T>(value), Empty);
 }
 
 export function useComputed<T>(compute: () => T) {
-	const $compute = useRef(compute);
-	$compute.current = compute;
-	return useMemo(() => computed<T>(() => $compute.current()), Empty);
+  const $compute = useRef(compute);
+  $compute.current = compute;
+  return useMemo(() => computed<T>(() => $compute.current()), Empty);
 }
 
 export function useSignalEffect(cb: () => void | (() => void)) {
-	const callback = useRef(cb);
-	callback.current = cb;
+  const callback = useRef(cb);
+  callback.current = cb;
 
-	useEffect(() => {
-		return effect(() => callback.current());
-	}, Empty);
+  useEffect(() => {
+    return effect(() => callback.current());
+  }, Empty);
 }

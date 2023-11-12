@@ -1,10 +1,10 @@
 import React from "react";
-import sinon from "sinon";
 import { act as realAct } from "react-dom/test-utils";
+import { SpyInstance, assert, vi, expect } from "vitest";
 
 export interface Root {
-	render(element: JSX.Element | null): void;
-	unmount(): void;
+  render(element: JSX.Element | null): void;
+  unmount(): void;
 }
 
 export const isProd = process.env.NODE_ENV === "production";
@@ -15,29 +15,29 @@ export const isReact16 = React.version.startsWith("16.");
 // createRoot() that uses render() and unmountComponentAtNode() instead.
 let createRootCache: ((container: Element) => Root) | undefined;
 export async function createRoot(container: Element): Promise<Root> {
-	if (!createRootCache) {
-		try {
-			// @ts-expect-error ESBuild will replace this import with a require() call
-			// if it resolves react-dom/client. If it doesn't, it will leave the
-			// import untouched causing a runtime error we'll handle below.
-			const { createRoot } = await import("react-dom/client");
-			createRootCache = createRoot;
-		} catch (e) {
-			// @ts-expect-error ESBuild will replace this import with a require() call
-			// if it resolves react-dom.
-			const { render, unmountComponentAtNode } = await import("react-dom");
-			createRootCache = (container: Element) => ({
-				render(element: JSX.Element) {
-					render(element, container);
-				},
-				unmount() {
-					unmountComponentAtNode(container);
-				},
-			});
-		}
-	}
+  if (!createRootCache) {
+    try {
+      // @ts-expect-error ESBuild will replace this import with a require() call
+      // if it resolves react-dom/client. If it doesn't, it will leave the
+      // import untouched causing a runtime error we'll handle below.
+      const { createRoot } = await import("react-dom/client");
+      createRootCache = createRoot;
+    } catch (e) {
+      // @ts-expect-error ESBuild will replace this import with a require() call
+      // if it resolves react-dom.
+      const { render, unmountComponentAtNode } = await import("react-dom");
+      createRootCache = (container: Element) => ({
+        render(element: JSX.Element) {
+          render(element, container);
+        },
+        unmount() {
+          unmountComponentAtNode(container);
+        },
+      });
+    }
+  }
 
-	return createRootCache(container);
+  return createRootCache(container);
 }
 
 // When testing using react's production build, we can't use act (React
@@ -47,31 +47,31 @@ export async function createRoot(container: Element): Promise<Root> {
 // helpful error in afterEach if we detect that act() was called but not
 // awaited.
 const afterFrame = (ms: number) =>
-	new Promise(r => requestAnimationFrame(() => setTimeout(r, ms)));
+  new Promise((r) => requestAnimationFrame(() => setTimeout(r, ms)));
 
 let acting = 0;
 async function prodActShim(cb: () => void | Promise<void>): Promise<void> {
-	acting++;
-	try {
-		await cb();
-		await afterFrame(10);
-	} finally {
-		acting--;
-	}
+  acting++;
+  try {
+    await cb();
+    await afterFrame(10);
+  } finally {
+    acting--;
+  }
 }
 
 export function checkHangingAct() {
-	if (acting > 0) {
-		throw new Error(
-			`It appears act() was called but not awaited. This could happen if a test threw an Error or if a test forgot to await a call to act. Make sure to await act() calls in tests.`
-		);
-	}
+  if (acting > 0) {
+    throw new Error(
+      `It appears act() was called but not awaited. This could happen if a test threw an Error or if a test forgot to await a call to act. Make sure to await act() calls in tests.`
+    );
+  }
 }
 
 export const act =
-	process.env.NODE_ENV === "production"
-		? (prodActShim as typeof realAct)
-		: realAct;
+  process.env.NODE_ENV === "production"
+    ? (prodActShim as typeof realAct)
+    : realAct;
 
 /**
  * `console.log` supports formatting strings with `%s` for string substitutions.
@@ -79,49 +79,45 @@ export const act =
  * a string with the values substituted in.
  */
 export function consoleFormat(str: string, ...values: unknown[]): string {
-	let idx = 0;
-	return str.replace(/%s/g, () => String(values[idx++]));
+  let idx = 0;
+  return str.replace(/%s/g, () => String(values[idx++]));
 }
 
 declare global {
-	let errorSpy: sinon.SinonSpy | undefined;
+  let errorSpy: SpyInstance | undefined;
 }
 
 // Only one spy can be active on an object at a time and since all tests share
 // the same console object we need to make sure we're only spying on it once.
 // We'll use this method to share the spy across all tests.
-export function getConsoleErrorSpy(): sinon.SinonSpy {
-	if (typeof errorSpy === "undefined") {
-		(globalThis as any).errorSpy = sinon.spy(console, "error");
-	}
-
-	return errorSpy!;
+export function getConsoleErrorSpy(): SpyInstance {
+  return ((globalThis as any).errorSpy ??= vi.spyOn(console, "error"));
 }
 
 const messagesToIgnore = [
-	// Ignore errors for timeouts of tests that often happen while debugging
-	/async tests and hooks,/,
-	// Ignore React 16 warnings about awaiting `act` calls (warning removed in React 18)
-	/Do not await the result of calling act/,
-	// Ignore how chai or mocha uses `console.error` to print out errors
-	/AssertionError/,
+  // Ignore errors for timeouts of tests that often happen while debugging
+  /async tests and hooks,/,
+  // Ignore React 16 warnings about awaiting `act` calls (warning removed in React 18)
+  /Do not await the result of calling act/,
+  // Ignore how chai or mocha uses `console.error` to print out errors
+  /AssertionError/,
 ];
 
 export function checkConsoleErrorLogs(): void {
-	const errorSpy = getConsoleErrorSpy();
-	if (errorSpy.called) {
-		let message: string;
-		if (errorSpy.firstCall.args[0].toString().includes("%s")) {
-			const firstArg = errorSpy.firstCall.args[0];
-			message = consoleFormat(firstArg, ...errorSpy.firstCall.args.slice(1));
-		} else {
-			message = errorSpy.firstCall.args.join(" ");
-		}
+  const errorSpy = getConsoleErrorSpy();
+  if (errorSpy.mock.calls.length > 0) {
+    let message: string;
+    const firstCall = errorSpy.mock.calls[0];
+    assert(firstCall, "first call should be");
+    if (firstCall?.[0].toString().includes("%s")) {
+      const firstArg = firstCall[0];
+      message = consoleFormat(firstArg, ...firstCall.slice(1));
+    } else {
+      message = firstCall?.join(" ");
+    }
 
-		if (messagesToIgnore.every(re => re.test(message) === false)) {
-			expect.fail(
-				`Console.error was unexpectedly called with this message: \n${message}`
-			);
-		}
-	}
+    if (messagesToIgnore.every((re) => re.test(message) === false)) {
+      expect.fail(message);
+    }
+  }
 }

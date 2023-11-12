@@ -6,29 +6,27 @@ import { ReactiveProps, reactifyLite, withSignalProps } from "../hocs";
 import { reactify } from "../hocs/reactify";
 import { itRenderer } from "./utils";
 
-describe.concurrent("withSignalProps()", () => {
+describe("withSignalProps()", () => {
   for (const valueType of ["signal", "Uncached"] as const) {
     itRenderer(
       `should force rerender dependent component (${valueType})`,
-      ({ act, reactRoot, expect, root }) => {
+      async ({ act, reactRoot, expect, root }) => {
         const B = withSignalProps(
           vi.fn((props: { value: number }) => <div>{props.value}</div>)
         );
 
         const sig = signal(10);
 
-        act(() => {
-          reactRoot().render(
-            <B value={valueType === "signal" ? sig : $(() => sig.value)} />
-          );
-        });
+        await reactRoot().render(
+          <B value={valueType === "signal" ? sig : $(() => sig.value)} />
+        );
 
         expect(B).toHaveBeenCalledTimes(1);
         expect(B).toHaveBeenCalledWith({ value: 10 }, {});
         expect(root.firstChild).is.instanceOf(HTMLDivElement);
         expect(root.firstChild).has.property("textContent", "10");
 
-        act(() => {
+        await act(() => {
           sig.value = 20;
         });
 
@@ -50,19 +48,17 @@ describe.concurrent("withSignalProps()", () => {
 
   itRenderer(
     "should not rerender when unread signal changed",
-    ({ expect, act, reactRoot }) => {
+    async ({ expect, act, reactRoot }) => {
       const B = withSignalProps(vi.fn((props: { value: number }) => null));
 
       const sig = signal(10);
 
-      act(() => {
-        reactRoot().render(<B value={$(() => sig.value)} />);
-      });
+      await reactRoot().render(<B value={$(() => sig.value)} />);
 
       expect(B).toHaveBeenCalledTimes(1);
       expect(B).toHaveBeenCalledWith({ value: 10 }, {});
 
-      act(() => {
+      await act(() => {
         sig.value = 20;
       });
 
@@ -86,7 +82,7 @@ describe.concurrent("withSignalProps()", () => {
   });
 });
 
-describe.concurrent("reactifyLite()", () => {
+describe("reactifyLite()", () => {
   it("should handle explicitly defined reactive props", () => {
     const A = reactifyLite((props: ReactiveProps<{ value: number }>) => (
       <div>{props.value}</div>
@@ -152,7 +148,7 @@ describe.concurrent("reactifyLite()", () => {
   );
 });
 
-describe.concurrent("reactify()", () => {
+describe("reactify()", () => {
   itRenderer(
     "should support value$ postfix",
     async ({ expect, root, reactRoot }) => {

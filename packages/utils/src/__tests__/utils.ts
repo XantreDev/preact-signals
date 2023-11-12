@@ -3,19 +3,11 @@ import { createRoot } from "react-dom/client";
 import { act as reactAct } from "react-dom/test-utils";
 import { TestFunction, afterEach, it } from "vitest";
 
-const raf = (): Promise<void> =>
-  new Promise((resolve) => requestAnimationFrame(() => resolve()));
-
-let prevAct = Promise.resolve();
-const _act = async (callback: () => unknown): Promise<void> => {
-  const res = reactAct(callback);
-
-  await res;
-  await raf();
-  await res;
-};
-const act = (callback: () => unknown): Promise<void> =>
-  (prevAct = prevAct.finally(() => _act(callback)));
+// let prevAct = Promise.resolve();
+// const concurrentAct = (callback: () => unknown): Promise<void> =>
+//   (prevAct = prevAct.finally(async () => {
+//     await reactAct(callback);
+//   }));
 
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -28,7 +20,7 @@ export const _createRenderer = () => {
   let reactRoot = createRoot(root);
 
   const dispose = async () => {
-    await act(() => {
+    await reactAct(() => {
       reactRoot.unmount();
     });
     root.innerHTML = "";
@@ -38,14 +30,14 @@ export const _createRenderer = () => {
     reactRoot: () => ({
       ...reactRoot,
       render: async (data: React.ReactNode) => {
-        await act(() => reactRoot.render(data));
+        await reactAct(() => reactRoot.render(data));
       },
     }),
     recreateRoot: () => {
       reactRoot = createRoot(root);
     },
     dispose,
-    act,
+    act: reactAct,
   };
 };
 

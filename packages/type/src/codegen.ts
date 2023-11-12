@@ -46,7 +46,7 @@ const getComponentInterfaces = (reactTypings: string) => {
   return [`declare module '${module}' {`, ...resultInterfaces, "}"].join("\n");
 };
 
-(async () => {
+void (async () => {
   const reactTypes = await readFile(
     "node_modules/@types/react/index.d.ts",
     "utf8"
