@@ -2,27 +2,8 @@ import { signal, computed, effect, Signal } from "@preact/signals-core";
 import { useRef, useMemo, useEffect } from "react";
 import { useSyncExternalStore } from "use-sync-external-store/shim/index.js";
 
-export { installAutoSignalTracking } from "./auto";
-
 const Empty = [] as const;
 const ReactElemType = Symbol.for("react.element"); // https://github.com/facebook/react/blob/346c7d4c43a0717302d446da9e7423a8e28d8996/packages/shared/ReactSymbols.js#L15
-
-export function wrapJsx<T>(jsx: T): T {
-  if (typeof jsx !== "function") return jsx;
-
-  return function (type: any, props: any, ...rest: any[]) {
-    if (typeof type === "string" && props) {
-      for (let i in props) {
-        let v = props[i];
-        if (i !== "children" && v instanceof Signal) {
-          props[i] = v.value;
-        }
-      }
-    }
-
-    return jsx.call(jsx, type, props, ...rest);
-  } as any as T;
-}
 
 const symDispose: unique symbol =
   (Symbol as any).dispose || Symbol.for("Symbol.dispose");
@@ -124,6 +105,7 @@ let finalCleanup: Promise<void> | undefined;
 const _queueMicroTask = Promise.prototype.then.bind(Promise.resolve());
 
 /**
+ * @description this hook is for `@preact/signals-react-transform`
  * Custom hook to create the effect to track signals used during render and
  * subscribe to changes to rerender the component when the signals change.
  */

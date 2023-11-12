@@ -1,5 +1,5 @@
 {
-  "name": "@preact-signals/react",
+  "name": "@preact-signals/safe-react",
   "version": "0.0.1",
   "license": "MIT",
   "description": "Manage state with style in React",
@@ -31,13 +31,9 @@
       "import": "./dist/signals.mjs",
       "require": "./dist/signals.js"
     },
-    "./runtime": {
-      "types": "./runtime/dist/index.d.ts",
-      "browser": "./runtime/dist/runtime.module.js",
-      "import": "./runtime/dist/runtime.mjs",
-      "require": "./runtime/dist/runtime.js"
-    },
-    "./runtime/package.json": "./runtime/package.json"
+    "./react": "./react.сjs",
+    "./jsx-runtime": "./jsx-runtime.cjs",
+    "./jsx-dev-runtime": "./jsx-dev-runtime.cjs"
   },
   "mangle": "../../mangle.json",
   "files": [
@@ -61,9 +57,11 @@
     "react": "^16.14.0 || 17.x || 18.x"
   },
   "devDependencies": {
+    "@preact/signals-react-transform": "^0.1.0",
     "@types/react": "^18.0.18",
     "@types/react-dom": "^18.0.6",
     "@types/use-sync-external-store": "^0.0.3",
+    "@vitejs/plugin-react": "^4.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.9.0"

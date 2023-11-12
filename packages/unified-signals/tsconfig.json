@@ -13,10 +13,5 @@
     "vitest.config.ts",
     "**/*.test.*"
   ],
-  "extends": "../../tsconfig.json",
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ]
+  "extends": "../../tsconfig.json"
 }

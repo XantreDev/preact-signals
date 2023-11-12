@@ -8,8 +8,7 @@ import {
   untracked,
 } from "@preact/signals-core";
 import type { ReactElement } from "react";
-import { useSignal, useComputed, useSignalEffect } from "../runtime/src";
-import { installAutoSignalTracking } from "../runtime/src/auto";
+import { useSignal, useComputed, useSignalEffect, useSignals } from "./hooks";
 
 export {
   signal,
@@ -22,6 +21,7 @@ export {
   useComputed,
   useSignalEffect,
   untracked,
+  useSignals,
 };
 
 declare module "@preact/signals-core" {
@@ -29,5 +29,3 @@ declare module "@preact/signals-core" {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
   interface Signal extends ReactElement {}
 }
-
-installAutoSignalTracking();

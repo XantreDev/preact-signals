@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
 import { Signal, signal, batch } from "@preact/signals-core";
-import { useSignals } from "../src";
+import { useSignals } from "../src/hooks";
 import { describe, expect, afterEach, beforeEach, it, vi } from "vitest";
 import {
   Root,
@@ -9,7 +9,7 @@ import {
   checkHangingAct,
   getConsoleErrorSpy,
   checkConsoleErrorLogs,
-} from "../../test/shared/utils";
+} from "./shared/utils";
 
 describe("useSignals", () => {
   let scratch: HTMLDivElement;

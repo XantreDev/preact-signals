@@ -144,10 +144,14 @@ describe("@preact/signals-react updating", () => {
 
   describe("Component bindings", () => {
     it("should subscribe to signals", async () => {
-      const sig = signal("foo");
+      const _sig = signal("foo");
 
+      /**
+       *
+       * @trackSignals
+       **/
       function App() {
-        const value = sig.value;
+        const value = _sig.value;
         return <p>{value}</p>;
       }
 
@@ -155,7 +159,7 @@ describe("@preact/signals-react updating", () => {
       expect(scratch.textContent).to.equal("foo");
 
       await act(() => {
-        sig.value = "bar";
+        _sig.value = "bar";
       });
       expect(scratch.textContent).to.equal("bar");
     });
@@ -196,6 +200,11 @@ describe("@preact/signals-react updating", () => {
 
     it("should subscribe to signals passed as props to DOM elements", async () => {
       const className = signal("foo");
+
+      /**
+       *
+       * @trackSignals
+       **/
       function App() {
         // @ts-expect-error React types don't allow signals on DOM elements :/
         return <div className={className} />;
@@ -237,6 +246,10 @@ describe("@preact/signals-react updating", () => {
     it("should not subscribe to child signals", async () => {
       const sig = signal("foo");
 
+      /**
+       *
+       * @trackSignals
+       **/
       function Child() {
         const value = sig.value;
         return <p>{value}</p>;
@@ -259,11 +272,19 @@ describe("@preact/signals-react updating", () => {
     it("should update memo'ed component via signals", async () => {
       const sig = signal("foo");
 
+      /**
+       *
+       * @trackSignals
+       **/
       function Inner() {
         const value = sig.value;
         return <p>{value}</p>;
       }
 
+      /**
+       *
+       * @trackSignals
+       **/
       function App() {
         sig.value;
         return useMemo(() => <Inner />, []);
@@ -281,9 +302,15 @@ describe("@preact/signals-react updating", () => {
     it("should update forwardRef'ed component via signals", async () => {
       const sig = signal("foo");
 
-      const Inner = forwardRef(() => {
-        return <p>{sig.value}</p>;
-      });
+      const Inner = forwardRef(
+        /**
+         *
+         * @trackSignals
+         **/
+        () => {
+          return <p>{sig.value}</p>;
+        }
+      );
 
       function App() {
         return <Inner />;
@@ -301,6 +328,10 @@ describe("@preact/signals-react updating", () => {
     it("should consistently rerender in strict mode", async () => {
       const sig = signal(-1);
 
+      /**
+       *
+       * @trackSignals
+       **/
       const Test = () => <p>{sig.value}</p>;
       const App = () => (
         <StrictMode>
@@ -322,7 +353,13 @@ describe("@preact/signals-react updating", () => {
     it("should consistently rerender in strict mode (with memo)", async () => {
       const sig = signal(-1);
 
-      const Test = memo(() => <p>{sig.value}</p>);
+      const Test = memo(
+        /**
+         *
+         * @trackSignals
+         **/
+        () => <p>{sig.value}</p>
+      );
       const App = () => (
         <StrictMode>
           <Test />
@@ -343,6 +380,10 @@ describe("@preact/signals-react updating", () => {
     it.fails("should render static markup of a component", async () => {
       const count = signal(0);
 
+      /**
+       *
+       * @trackSignals
+       **/
       const Test = () => {
         return (
           <pre>
@@ -369,6 +410,10 @@ describe("@preact/signals-react updating", () => {
       const count = signal(0);
 
       let increment: () => void;
+      /**
+       *
+       * @trackSignals
+       **/
       const Test = () => {
         const [state, dispatch] = useReducer(
           (state: number, action: number) => {
@@ -515,36 +560,60 @@ describe("@preact/signals-react updating", () => {
       }
 
       // Manually read signal value below so we can watch whether components rerender
-      const Origin = spyOn(function Origin() {
-        const origin = useContext(URLModelContext).origin;
-        return <span>{origin.value}</span>;
-      });
+      const Origin = spyOn(
+        /**
+         *
+         * @trackSignals
+         **/
+        function Origin() {
+          const origin = useContext(URLModelContext).origin;
+          return <span>{origin.value}</span>;
+        }
+      );
 
-      const Pathname = spyOn(function Pathname() {
-        const pathname = useContext(URLModelContext).pathname;
-        return <span>{pathname.value}</span>;
-      });
+      const Pathname = spyOn(
+        /**
+         *
+         * @trackSignals
+         **/
+        function Pathname() {
+          const pathname = useContext(URLModelContext).pathname;
+          return <span>{pathname.value}</span>;
+        }
+      );
 
-      const Search = spyOn(function Search() {
-        const search = useContext(URLModelContext).search;
-        return <span>{search.value}</span>;
-      });
+      const Search = spyOn(
+        /**
+         *
+         * @trackSignals
+         **/
+        function Search() {
+          const search = useContext(URLModelContext).search;
+          return <span>{search.value}</span>;
+        }
+      );
 
       // Never reads signal value during render so should never rerender
-      const UpdateURL = spyOn(function UpdateURL() {
-        const update = useContext(URLModelContext).update;
-        return (
-          <button
-            onClick={() => {
-              update((newURL) => {
-                newURL.search = newURL.search === "?a=1" ? "?a=2" : "?a=1";
-              });
-            }}
-          >
-            update
-          </button>
-        );
-      });
+      const UpdateURL = spyOn(
+        /**
+         *
+         * @trackSignals
+         **/
+        function UpdateURL() {
+          const update = useContext(URLModelContext).update;
+          return (
+            <button
+              onClick={() => {
+                update((newURL) => {
+                  newURL.search = newURL.search === "?a=1" ? "?a=2" : "?a=1";
+                });
+              }}
+            >
+              update
+            </button>
+          );
+        }
+      );
 
       interface URLModel {
         origin: ReadonlySignal<string>;
@@ -555,29 +624,35 @@ describe("@preact/signals-react updating", () => {
 
       // Also never reads signal value during render so should never rerender
       const URLModelContext = createContext<URLModel>(null as any);
-      const URLModelProvider = spyOn(function SignalProvider({ children }) {
-        const url = useSignal(new URL("https://domain.com/test?a=1"));
-        const modelRef = useRef<URLModel | null>(null);
+      const URLModelProvider = spyOn(
+        /**
+         *
+         * @trackSignals
+         **/
+        function SignalProvider({ children }) {
+          const url = useSignal(new URL("https://domain.com/test?a=1"));
+          const modelRef = useRef<URLModel | null>(null);
 
-        if (modelRef.current == null) {
-          modelRef.current = {
-            origin: computed(() => url.value.origin),
-            pathname: computed(() => url.value.pathname),
-            search: computed(() => url.value.search),
-            update(updater) {
-              const newURL = new URL(url.value);
-              updater(newURL);
-              url.value = newURL;
-            },
-          };
+          if (modelRef.current == null) {
+            modelRef.current = {
+              origin: computed(() => url.value.origin),
+              pathname: computed(() => url.value.pathname),
+              search: computed(() => url.value.search),
+              update(updater) {
+                const newURL = new URL(url.value);
+                updater(newURL);
+                url.value = newURL;
+              },
+            };
+          }
+
+          return (
+            <URLModelContext.Provider value={modelRef.current}>
+              {children}
+            </URLModelContext.Provider>
+          );
         }
-
-        return (
-          <URLModelContext.Provider value={modelRef.current}>
-            {children}
-          </URLModelContext.Provider>
-        );
-      });
+      );
 
       function App() {
         return (
@@ -616,11 +691,19 @@ describe("@preact/signals-react updating", () => {
       const childSpy = vi.fn();
       const parentSpy = vi.fn();
 
+      /**
+       *
+       * @trackSignals
+       **/
       function Child({ num }: { num: Signal<number> }) {
         childSpy();
         return <p>{num.value}</p>;
       }
 
+      /**
+       *
+       * @trackSignals
+       **/
       function Parent({ num }: { num: Signal<number> }) {
         parentSpy();
         const sig2 = useComputed(() => num.value + 1);
@@ -645,6 +728,10 @@ describe("@preact/signals-react updating", () => {
       const renderComputed = signal(true);
       const renderSpy = vi.fn();
 
+      /**
+       *
+       * @trackSignals
+       **/
       function App() {
         renderSpy();
         const computed = useComputed(() => computedDep.value + 1);
@@ -676,6 +763,10 @@ describe("@preact/signals-react updating", () => {
 
     describe("useSignal()", () => {
       it("should create a signal from a primitive value", async () => {
+        /**
+         *
+         * @trackSignals
+         **/
         function App() {
           const count = useSignal(1);
           return (
@@ -703,6 +794,10 @@ describe("@preact/signals-react updating", () => {
         const spy = vi.fn();
         let count = 0;
 
+        /**
+         *
+         * @trackSignals
+         **/
         function App() {
           useSignalEffect(() =>
             spy(
@@ -745,6 +840,10 @@ describe("@preact/signals-react updating", () => {
         const cleanup = vi.fn();
         let count = 0;
 
+        /**
+         *
+         * @trackSignals
+         **/
         function App() {
           useSignalEffect(() => {
             const id = ref.current!.getAttribute("data-render-id");
@@ -788,6 +887,10 @@ describe("@preact/signals-react updating", () => {
         const spy = vi.fn();
         const cleanup = vi.fn();
 
+        /**
+         *
+         * @trackSignals
+         **/
         function App() {
           useSignalEffect(() => {
             const value = sig.value;

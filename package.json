@@ -17,7 +17,7 @@
     "build:with-apps": "turbo run build",
     "watch": "turbo run watch --parallel",
     "test": "turbo run test --parallel",
-    "eslint": "eslint --ext .ts,.tsx . --cache --cache-location=node_modules/.eslintcache",
+    "eslint": "eslint --ext .ts,.tsx,.js,.jsx,.cjs,.mjs . --cache --cache-location=node_modules/.eslintcache",
     "lint": "turbo run lint",
     "changeset": "changeset",
     "release": "pnpm build && changeset publish"

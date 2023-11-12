@@ -1,0 +1,7 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["src/**/*", "package.json", "./*.cjs"],
+  "compilerOptions": {
+    "types": ["./global.d.ts"]
+  }
+}

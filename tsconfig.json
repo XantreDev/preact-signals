@@ -2,7 +2,8 @@
   "compilerOptions": {
     "target": "ES2021",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "allowJs": false,
+    "allowJs": true,
+    "noEmit": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -19,7 +20,7 @@
     "incremental": true,
     "preserveWatchOutput": true,
     "jsx": "react",
-    "baseUrl": ".",
+    "rootDir": "./",
     "sourceMap": true,
     "paths": {
       "@preact-signals/utils/*": ["./packages/utils/src/*"],
@@ -29,8 +30,5 @@
       "components-for-tests/*": ["./packages/components-for-test/src/*"]
     }
   },
-  "exclude": [
-    "**/node_modules",
-    "packages/*/dist/**/*"
-  ]
+  "exclude": ["**/node_modules", "packages/*/dist/**/*"]
 }
