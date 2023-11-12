@@ -9,6 +9,8 @@
   },
   "exclude": [
     "**/dist/**",
+    "**/__tests__/**",
+    "**/__test__/**",
     "**/node_modules/**",
     "rollup.config.mjs",
     "vitest.config.ts",

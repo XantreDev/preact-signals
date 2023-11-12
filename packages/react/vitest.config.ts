@@ -13,7 +13,7 @@ export default defineConfig({
     alias: [
       {
         find: /^react$/,
-        replacement: "./react.js",
+        replacement: packageJson.exports["./react"],
       },
       {
         find: "@preact-signals/react/jsx-runtime",

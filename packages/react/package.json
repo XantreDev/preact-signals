@@ -19,35 +19,29 @@
     "url": "https://opencollective.com/preact"
   },
   "amdName": "reactSignals",
-  "main": "dist/signals.js",
-  "module": "dist/signals.module.js",
-  "unpkg": "dist/signals.min.js",
-  "types": "dist/signals.d.ts",
+  "main": "./dist/cjs/index.cjs",
+  "module": "./dist/esm/index.mjs",
+  "types": "./dist/esm/index.d.ts",
   "source": "src/index.ts",
   "exports": {
     ".": {
-      "types": "./dist/signals.d.ts",
-      "browser": "./dist/signals.module.js",
-      "import": "./dist/signals.mjs",
-      "require": "./dist/signals.js"
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.mjs",
+      "require": "./dist/cjs/index.cjs",
+      "react-native": "./src/index.ts"
     },
-    "./react": "./react.сjs",
+    "./react": "./react.cjs",
     "./jsx-runtime": "./jsx-runtime.cjs",
-    "./jsx-dev-runtime": "./jsx-dev-runtime.cjs"
+    "./jsx-dev-runtime": "./jsx-dev-runtime.cjs",
+    "./package.json": "./package.json"
   },
-  "mangle": "../../mangle.json",
-  "files": [
-    "src",
-    "dist",
-    "runtime/dist",
-    "runtime/src",
-    "runtime/package.json",
-    "CHANGELOG.md",
-    "LICENSE",
-    "README.md"
-  ],
   "scripts": {
-    "test": "vitest"
+    "clean": "rimraf dist",
+    "test": "vitest",
+    "build": "pnpm clean && rollup -c && pnpm build:types",
+    "build:types": "tsc --project tsconfig.build.json",
+    "build:rollup": "rollup -c",
+    "lint": "check-export-map"
   },
   "dependencies": {
     "@preact/signals-core": "^1.4.0",
@@ -57,6 +51,7 @@
     "react": "^16.14.0 || 17.x || 18.x"
   },
   "devDependencies": {
+    "concurrently": "^8.2.0",
     "@preact/signals-react-transform": "^0.1.0",
     "@types/react": "^18.0.18",
     "@types/react-dom": "^18.0.6",
@@ -64,6 +59,12 @@
     "@vitejs/plugin-react": "^4.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.9.0"
+    "react-router-dom": "^6.9.0",
+    "check-export-map": "^1.3.0",
+    "@rollup/plugin-replace": "^5.0.2",
+    "@rollup/plugin-typescript": "^11.1.3",
+    "rollup": "^3.29.2",
+    "rollup-plugin-esbuild": "^5.0.0",
+    "rollup-plugin-node-externals": "^6.1.1"
   }
 }

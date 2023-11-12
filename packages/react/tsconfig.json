@@ -1,6 +1,12 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src/**/*", "package.json", "./*.cjs"],
+  "include": [
+    "src/**/*",
+    "rollup.config.mjs",
+    "vitest.config.ts",
+    "package.json",
+    "./*.cjs"
+  ],
   "compilerOptions": {
     "types": ["./global.d.ts"]
   }
