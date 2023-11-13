@@ -6,7 +6,7 @@
   "scripts": {
     "dev:transform": "cross-env USE_TRANSFORM=1 vite",
     "dev": "cross-env USE_TRANSFORM=0 vite",
-    "build": "tsc && cross-env USE_TRANSFORM=0 vite build",
+    "build": "cross-env USE_TRANSFORM=0 vite build",
     "watch": "pnpm dev",
     "preview": "vite preview"
   },

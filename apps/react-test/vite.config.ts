@@ -1,4 +1,3 @@
-import reactSWC from "@vitejs/plugin-react-swc";
 import reactBabel from "@vitejs/plugin-react";
 import babel from "vite-plugin-babel";
 import { PluginOption, defineConfig } from "vite";
@@ -16,10 +15,6 @@ const envSchema = z
     USE_TRANSFORM: it.USE_TRANSFORM === "0" ? false : true,
   }));
 const { USE_TRANSFORM } = envSchema.parse(process.env);
-
-console.log(
-  path.resolve(resolve("@preact-signals/safe-react"), "../../esm/index.mjs")
-);
 
 // https://vitejs.dev/config/
 export default defineConfig({
