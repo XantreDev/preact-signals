@@ -1,5 +1,21 @@
 # @preact-signals/query
 
+## 1.3.0
+
+### Minor Changes
+
+- b0859ce: Removed incorrect `@trackSignals` directives for `@preact/signals-react-transform`
+
+### Patch Changes
+
+- 6b5fa85: Added `@preact-signals/safe-react` as peerDependency
+- Updated dependencies [1090bd6]
+- Updated dependencies [6b5fa85]
+- Updated dependencies [6b5fa85]
+  - @preact-signals/safe-react@0.0.1
+  - @preact-signals/utils@0.9.3
+  - @preact-signals/unified-signals@0.2.2
+
 ## 1.2.3
 
 ### Patch Changes

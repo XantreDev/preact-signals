@@ -1,6 +1,6 @@
 {
   "name": "@preact-signals/safe-react",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "license": "MIT",
   "description": "Manage state with style in React",
   "keywords": [
