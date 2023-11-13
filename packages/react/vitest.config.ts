@@ -4,6 +4,8 @@ import packageJson from "./package.json";
 
 const selfName = packageJson.name;
 
+const exactRegEx = (it: string) => new RegExp(`^${it}$`);
+
 export default defineConfig({
   esbuild: {
     jsx: "preserve",
@@ -14,19 +16,19 @@ export default defineConfig({
 
     alias: [
       {
-        find: /^react$/,
+        find: exactRegEx("react"),
         replacement: packageJson.exports["./react"],
       },
       {
-        find: "@preact-signals/react/jsx-runtime",
+        find: exactRegEx(`${selfName}/jsx-runtime`),
         replacement: packageJson.exports["./jsx-runtime"],
       },
       {
-        find: "@preact-signals/react/jsx-dev-runtime",
+        find: `${selfName}/jsx-dev-runtime`,
         replacement: packageJson.exports["./jsx-dev-runtime"],
       },
       {
-        find: selfName,
+        find: exactRegEx(selfName),
         replacement: "./src/index.ts",
       },
       {
