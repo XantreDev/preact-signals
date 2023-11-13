@@ -63,19 +63,23 @@ export default defineConfig({
         filter: /utils\/dist\/.+\.mjs$/,
       }),
     ,
-    reactBabel({
-      jsxImportSource: "@preact-signals/safe-react",
-      babel: {
-        plugins: [
-          [
-            "module:@preact/signals-react-transform",
-            {
-              importSource: "@preact-signals/safe-react",
+    reactBabel(
+      USE_TRANSFORM
+        ? {
+            jsxImportSource: "@preact-signals/safe-react",
+            babel: {
+              plugins: [
+                [
+                  "module:@preact/signals-react-transform",
+                  {
+                    importSource: "@preact-signals/safe-react",
+                  },
+                ],
+              ],
             },
-          ],
-        ],
-      },
-      include: /\.(mdx|js|jsx|ts|tsx)$/,
-    }) as PluginOption[],
+            include: /\.(mdx|js|jsx|ts|tsx)$/,
+          }
+        : undefined
+    ) as PluginOption[],
   ].filter(Boolean),
 });
