@@ -2,6 +2,10 @@
   "name": "@preact-signals/safe-react",
   "version": "0.0.1",
   "license": "MIT",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Manage state with style in React",
   "keywords": [
     "preact-signals",
