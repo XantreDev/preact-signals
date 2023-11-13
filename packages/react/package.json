@@ -1,23 +1,23 @@
 {
   "name": "@preact-signals/safe-react",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "license": "MIT",
   "description": "Manage state with style in React",
-  "keywords": [],
+  "keywords": [
+    "preact-signals",
+    "react",
+    "signals"
+  ],
   "authors": [
+    "preact-signals (https://github.com/XantreGodlike/signals/contributors)",
     "The Preact Authors (https://github.com/preactjs/signals/contributors)"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/preactjs/signals",
+    "url": "https://github.com/XantreGodlike/preact-signals/signals",
     "directory": "packages/react"
   },
-  "bugs": "https://github.com/preactjs/signals/issues",
-  "homepage": "https://preactjs.com",
-  "funding": {
-    "type": "opencollective",
-    "url": "https://opencollective.com/preact"
-  },
+  "bugs": "https://github.com/XantreGodlike/preact-signals/issues",
   "amdName": "reactSignals",
   "main": "./dist/cjs/index.cjs",
   "module": "./dist/esm/index.mjs",
