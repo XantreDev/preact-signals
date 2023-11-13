@@ -16,7 +16,6 @@ const symDispose: unique symbol =
 //   _dispose(): void;
 // }
 interface Effect {
-  _sources: object | undefined;
   S(): () => void;
   c(): void;
   d(): void;

@@ -356,6 +356,7 @@ const _fetch: Resource<any, any, any, any>["_fetch"] = function (
     if (!result) {
       return;
     }
+    // TODO: fix - here can be previous data
     this.pr = result.then(
       (value) => {
         if (abortController.signal.aborted) {
@@ -446,11 +447,9 @@ const _onRead: Resource<any, any, any, any>["_onRead"] = function (
 const activate: Resource<any, any, any, any>["activate"] = function (
   this: Resource<any, any, any, any>
 ) {
-  if (this.initialized) {
-    return () => {};
+  if (!this.initialized) {
+    this._init();
   }
-
-  this._init();
 
   return this.dispose.bind(this);
 };

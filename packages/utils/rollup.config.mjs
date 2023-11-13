@@ -11,7 +11,7 @@ const usePreserveModulesRoot = "src"; // Root directory for `preserveModules`
 const useStrict = true; // Use "strict"
 const useThrowOnError = true; // On error throw and exception
 const useSourceMap = true; // Generate source map files
-const useEsbuild = true; // `true` -> use esbuild, `false` use tsc
+const useEsbuild = false; // `true` -> use esbuild, `false` use tsc
 
 const input = [
   "src/index.ts",
@@ -58,7 +58,7 @@ export default [
         : typescript({
             noEmitOnError: useThrowOnError,
             outDir: "dist/cjs",
-            removeComments: true,
+            removeComments: false,
           }),
     ],
   },
@@ -85,7 +85,7 @@ export default [
         : typescript({
             noEmitOnError: useThrowOnError,
             outDir: "dist/esm",
-            removeComments: true,
+            removeComments: false,
           }),
     ],
   },

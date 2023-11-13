@@ -18,6 +18,7 @@
     "emitDeclarationOnly": false,
     "composite": true,
     "incremental": true,
+    "removeComments": false,
     "preserveWatchOutput": true,
     "jsx": "react",
     "rootDir": "./",

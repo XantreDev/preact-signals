@@ -2,6 +2,8 @@ import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import packageJson from "./package.json";
 
+const selfName = packageJson.name;
+
 export default defineConfig({
   esbuild: {
     jsx: "preserve",
@@ -24,7 +26,7 @@ export default defineConfig({
         replacement: packageJson.exports["./jsx-dev-runtime"],
       },
       {
-        find: "@preact-signals/react",
+        find: selfName,
         replacement: "./src/index.ts",
       },
       {
@@ -35,13 +37,13 @@ export default defineConfig({
   },
   plugins: [
     react({
-      jsxImportSource: "@preact-signals/react",
+      jsxImportSource: selfName,
       babel: {
         plugins: [
           [
             "module:@preact/signals-react-transform",
             {
-              importSource: "@preact-signals/react",
+              importSource: selfName,
             },
           ],
         ],

@@ -96,6 +96,7 @@
     }
   },
   "peerDependencies": {
+    "@preact-signals/safe-react": "*",
     "@preact/signals": ">=1.1.0",
     "@preact/signals-core": ">=1.1.0",
     "@preact/signals-react": ">=1.2.0",
@@ -112,6 +113,9 @@
       "optional": true
     },
     "@preact/signals-core": {
+      "optional": true
+    },
+    "@preact-signals/safe-react": {
       "optional": true
     }
   },
@@ -136,6 +140,7 @@
     "rollup": "^3.29.4",
     "rollup-plugin-esbuild": "^5.0.0",
     "rollup-plugin-node-externals": "^6.1.2",
+    "rollup-plugin-swc3": "^0.10.3",
     "type-fest": "^3.13.1"
   },
   "keywords": [
