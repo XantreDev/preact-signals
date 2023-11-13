@@ -17,15 +17,15 @@ export default defineConfig({
     alias: [
       {
         find: exactRegEx("react"),
-        replacement: packageJson.exports["./react"],
+        replacement: require.resolve(packageJson.exports["./react"]),
       },
       {
         find: exactRegEx(`${selfName}/jsx-runtime`),
-        replacement: packageJson.exports["./jsx-runtime"],
+        replacement: require.resolve(packageJson.exports["./jsx-runtime"]),
       },
       {
         find: `${selfName}/jsx-dev-runtime`,
-        replacement: packageJson.exports["./jsx-dev-runtime"],
+        replacement: require.resolve(packageJson.exports["./jsx-dev-runtime"]),
       },
       {
         find: exactRegEx(selfName),
