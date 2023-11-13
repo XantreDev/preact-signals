@@ -7,8 +7,6 @@ import {
 import { Accessor, AnyReactive } from "../utils";
 
 /**
- * @trackSignals
- *
  * @param options resource are created once, so only first options matter
  * @returns
  */

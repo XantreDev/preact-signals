@@ -2,7 +2,8 @@
   "compilerOptions": {
     "target": "ES2021",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "allowJs": false,
+    "allowJs": true,
+    "noEmit": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -17,21 +18,20 @@
     "emitDeclarationOnly": false,
     "composite": true,
     "incremental": true,
+    "removeComments": false,
     "preserveWatchOutput": true,
     "jsx": "react",
-    "baseUrl": ".",
+    "rootDir": "./",
     "sourceMap": true,
     "paths": {
       "@preact-signals/utils/*": ["./packages/utils/src/*"],
+      "@preact-signals/safe-react": ["./packages/react/src/index.ts"],
+      "@preact-signals/safe-react/wrap-jsx": ["./packages/react/wrap-jsx.cjs"],
       "@preact-signals/unified-signals": [
         "./packages/unified-signals/src/index.d.ts"
       ],
       "components-for-tests/*": ["./packages/components-for-test/src/*"]
     }
   },
-  "exclude": [
-    "**/node_modules",
-    "packages/*/dist/**/*"
-    // "packages/*/src/**/*.d.ts"
-  ]
+  "exclude": ["**/node_modules", "packages/*/dist/**/*"]
 }

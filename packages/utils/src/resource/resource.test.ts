@@ -5,7 +5,14 @@ import {
   signal,
 } from "@preact-signals/unified-signals";
 import { ExpectStatic, afterEach, describe, expect, it, vi } from "vitest";
-import { Resource, ResourceState, resource } from "./resource";
+import {
+  Resource,
+  ResourceFetcher,
+  ResourceOptions,
+  ResourceState,
+  resource,
+  resource,
+} from "./resource";
 
 const sleep = (ms?: number) => new Promise((r) => setTimeout(r, ms));
 describe("resource", () => {
@@ -104,7 +111,7 @@ describe("resource", () => {
 
     expect(fetcher).toHaveBeenCalled();
     expect(r()).toBe(220);
-    r.refetch();
+    void r.refetch();
     expect(fetcher).toHaveBeenCalledTimes(2);
     expect(r()).toBe(220);
   });
@@ -157,7 +164,7 @@ describe("resource", () => {
       } as any);
     });
 
-    r.refetch();
+    void r.refetch();
     expect(fetcher).toHaveBeenCalledTimes(2);
     expect(r.state).toBe("ready");
     expect(states).toEqual(
@@ -202,7 +209,7 @@ describe("resource", () => {
 
     await sleep();
 
-    r.refetch();
+    await r.refetch();
     await sleep();
 
     expect(fetcher).toHaveBeenCalledTimes(2);
@@ -285,7 +292,7 @@ describe("resource", () => {
       })
     );
 
-    r.refetch();
+    void r.refetch();
     expect(fetcher).toHaveBeenCalledTimes(2);
     expect(fetcher).toHaveBeenCalledWith(
       true,
@@ -295,7 +302,7 @@ describe("resource", () => {
       })
     );
 
-    r.refetch(false);
+    void r.refetch(false);
     expect(fetcher).toHaveBeenCalledTimes(3);
     expect(fetcher).toHaveBeenCalledWith(
       true,
@@ -526,5 +533,33 @@ describe("resource", () => {
 
       expect(r.latest).toBe(220);
     });
+  });
+
+  it("is not receiving old value after dispose", async () => {
+    let sleepTime = 5;
+    let fetcherResolvedTimes = 0;
+    const fetcher = vi.fn(
+      (...args: Parameters<ResourceFetcher<any, any, any>>) =>
+        sleep(sleepTime).then(() => ++fetcherResolvedTimes)
+    );
+
+    const sig = signal(0);
+    const r = resource({ fetcher, source: () => sig.value });
+
+    const pr = sleep(sleepTime);
+    sleepTime = 20;
+    sig.value = 1;
+    await pr;
+
+    expect(fetcherResolvedTimes).toBe(1);
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    expect(fetcher.mock.calls[0]?.[1]).toBeTypeOf("object");
+    expect(fetcher.mock.calls[0]?.[1]?.signal?.aborted).toBe(true);
+    expect(r()).toBe(undefined);
+    await sleep(sleepTime);
+
+    expect(fetcherResolvedTimes).toBe(2);
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    expect(r()).toBe(2);
   });
 });

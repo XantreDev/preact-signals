@@ -14,9 +14,6 @@ type Observer<T> = {
   subscribe: (emit: (value: T) => void) => Dispose;
 };
 
-/**
- * @trackSignals
- */
 export const useObserverSignal = <T>(
   createObserver: () => Observer<T>
 ): ReadonlySignal<T> => {
@@ -34,9 +31,6 @@ export const useObserverSignal = <T>(
   return s;
 };
 
-/**
- * @trackSignals
- */
 export const useObserverStore = <T extends Record<any, any>>(
   createObserverStore: () => Observer<T>
 ): ReadonlyFlatStore<T> => {

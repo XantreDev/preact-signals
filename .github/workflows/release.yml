@@ -10,6 +10,9 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 jobs:
   release-pr:
     name: Release
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -26,13 +29,13 @@ jobs:
 
       - name: Install Dependencies
         run: pnpm i
-    
+
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1
         with:
-            # This expects you to have a script called release which does a build for your packages and calls changeset publish
-            publish: pnpm run release
+          # This expects you to have a script called release which does a build for your packages and calls changeset publish
+          publish: pnpm run release
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

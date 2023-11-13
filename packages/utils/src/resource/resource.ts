@@ -446,11 +446,9 @@ const _onRead: Resource<any, any, any, any>["_onRead"] = function (
 const activate: Resource<any, any, any, any>["activate"] = function (
   this: Resource<any, any, any, any>
 ) {
-  if (this.initialized) {
-    return () => {};
+  if (!this.initialized) {
+    this._init();
   }
-
-  this._init();
 
   return this.dispose.bind(this);
 };

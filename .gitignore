@@ -23,4 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 
+.turbo
 tsconfig.tsbuildinfo
+vite.config.ts.timestamp-*
+vitest.config.ts.timestamp-*

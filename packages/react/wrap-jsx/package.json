@@ -1,0 +1,4 @@
+{
+  "main": "../wrap-jsx.cjs",
+  "type": "commonjs"
+}

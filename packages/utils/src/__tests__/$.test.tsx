@@ -1,9 +1,9 @@
 import { computed, signal } from "@preact-signals/unified-signals";
 import React from "react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { $ } from "../$";
-import { createRenderer, sleep } from "./utils";
+import { createRenderer } from "./utils";
 
 describe("$()", () => {
   const { reactRoot, root, act } = createRenderer();

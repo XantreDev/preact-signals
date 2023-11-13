@@ -16,7 +16,7 @@ export interface WithSignalProp extends Fn {
 class WithSignalPropsHandler
   implements ProxyHandler<Record<string | symbol, any>>
 {
-  #valuesCache = new Map<string | symbol, unknown>();
+  _valuesCache = new Map<string | symbol, unknown>();
 
   get(target: Record<string | symbol, any>, p: string | symbol) {
     const value = target[p];
@@ -25,8 +25,8 @@ class WithSignalPropsHandler
     }
     if (value instanceof Signal) {
       return (
-        this.#valuesCache.get(p) ??
-        this.#valuesCache.set(p, value.value).get(p)!
+        this._valuesCache.get(p) ??
+        this._valuesCache.set(p, value.value).get(p)!
       );
     }
 

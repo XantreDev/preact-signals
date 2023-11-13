@@ -1,4 +1,4 @@
-import { FlatStore, ReadonlyFlatStore } from "@preact-signals/utils/flat-store";
+import type { FlatStore, ReadonlyFlatStore } from "@preact-signals/utils";
 import type {
   InfiniteQueryObserverOptions,
   InfiniteQueryObserverResult,

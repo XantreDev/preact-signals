@@ -1,0 +1,4 @@
+{
+  "main": "../jsx-dev-runtime.cjs",
+  "type": "commonjs"
+}

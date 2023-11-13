@@ -1,6 +1,10 @@
 import { Signal } from "@preact-signals/unified-signals";
 import { CollectionTypes } from "./collectionHandlers";
-import { RawSymbol, ShallowReactiveMarker, toDeepReactive } from "./reactivity";
+import {
+  type RawSymbol,
+  type ShallowReactiveMarker,
+  toDeepReactive,
+} from "./reactivity";
 import { isSignal } from "./utils";
 
 type BaseTypes = string | number | boolean;

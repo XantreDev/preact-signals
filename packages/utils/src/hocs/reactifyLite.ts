@@ -29,17 +29,17 @@ export type ReactiveProps<T extends Record<any, any>> = Opaque<
 >;
 
 class ReactifyPropsLiteHandler {
-  #implicitSignals: Map<string, Signal<any>> = new Map();
-  #props: Record<string, any>;
+  _implicitSignals: Map<string, Signal<any>> = new Map();
+  _props: Record<string, any>;
   constructor(props: Record<string, any>) {
-    this.#props = props;
+    this._props = props;
   }
 
   onRender(props: Record<string, any>) {
-    if (this.#props === props) {
+    if (this._props === props) {
       return;
     }
-    for (const [key, value] of this.#implicitSignals) {
+    for (const [key, value] of this._implicitSignals) {
       if (!(key in props)) {
         value.value = undefined;
       }
@@ -49,7 +49,7 @@ class ReactifyPropsLiteHandler {
     //     this.#implicitSignals.delete(key);
     //   }
     // }
-    this.#props = props;
+    this._props = props;
   }
 
   createReactiveProps<
@@ -57,8 +57,8 @@ class ReactifyPropsLiteHandler {
   >(): ReactiveProps<TInitial> {
     const res = {} as ReactiveProps<TInitial>;
     const self = this;
-    for (const key in this.#props) {
-      const value = this.#props[key];
+    for (const key in this._props) {
+      const value = this._props[key];
       if (IGNORED_PROPS.includes(key)) {
         // @ts-expect-error
         res.ref = value;
@@ -75,10 +75,10 @@ class ReactifyPropsLiteHandler {
           }
 
           return (
-            self.#implicitSignals.has(key)
-              ? self.#implicitSignals.get(key)!
-              : self.#implicitSignals
-                  .set(key, signal(self.#props[key]))
+            self._implicitSignals.has(key)
+              ? self._implicitSignals.get(key)!
+              : self._implicitSignals
+                  .set(key, signal(self._props[key]))
                   .get(key)!
           ).value;
         },
