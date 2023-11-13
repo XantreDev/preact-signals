@@ -23,32 +23,34 @@ console.log(
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  resolve: USE_TRANSFORM && {
-    alias: [
-      {
-        find: /^react$/,
-        replacement: "@preact-signals/safe-react/react",
-        // TODO: extract to lib
-        customResolver: (() => {
-          const reactUrl = resolve("react");
-          const fakeUrl = resolve("@preact-signals/safe-react/react");
-          return {
-            resolveId(source, importer) {
-              const useRealImport = importer?.endsWith("react.cjs");
-              return useRealImport ? reactUrl : fakeUrl;
-            },
-          };
-        })(),
-      },
-      {
-        find: "@preact/signals-react",
-        replacement: path.resolve(
-          resolve("@preact-signals/safe-react"),
-          "../../esm/index.mjs"
-        ),
-      },
-    ],
-  },
+  resolve: USE_TRANSFORM
+    ? {
+        alias: [
+          {
+            find: /^react$/,
+            replacement: "@preact-signals/safe-react/react",
+            // TODO: extract to lib
+            customResolver: (() => {
+              const reactUrl = resolve("react");
+              const fakeUrl = resolve("@preact-signals/safe-react/react");
+              return {
+                resolveId(source, importer) {
+                  const useRealImport = importer?.endsWith("react.cjs");
+                  return useRealImport ? reactUrl : fakeUrl;
+                },
+              };
+            })(),
+          },
+          {
+            find: "@preact/signals-react",
+            replacement: path.resolve(
+              resolve("@preact-signals/safe-react"),
+              "../../esm/index.mjs"
+            ),
+          },
+        ],
+      }
+    : undefined,
   plugins: [
     USE_TRANSFORM &&
       babel({
@@ -80,24 +82,5 @@ export default defineConfig({
       },
       include: /\.(mdx|js|jsx|ts|tsx)$/,
     }) as PluginOption[],
-    // reactSWC({
-    //   jsxImportSource: "@preact-signals/safe-react",
-    // }),
-    // USE_TRANSFORM
-    //   ? (reactBabel({
-    //       jsxImportSource: "@preact-signals/safe-react",
-    //       babel: {
-    //         plugins: [
-    //           [
-    //             "module:@preact/signals-react-transform",
-    //             {
-    //               importSource: "@preact-signals/safe-react",
-    //             },
-    //           ],
-    //         ],
-    //       },
-    //       include: ["./src/**/*.{jsx,tsx}", "@preact-signals/utils/**"],
-    //     }) as PluginOption[])
-    //   : reactSWC(),
-  ],
+  ].filter(Boolean),
 });
