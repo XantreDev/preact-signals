@@ -6,9 +6,13 @@ on:
   pull_request:
     branches:
       - main
+
 jobs:
   test:
-    name: Lint x Test react-fast-hoc package
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+    name: Lint x Test preact-signals monorepo
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
