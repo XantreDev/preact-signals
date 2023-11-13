@@ -14,7 +14,6 @@ const isFetching = (queryClient: QueryClient, filters: QueryFilters) =>
  * @param options
  * @returns
  *
- * @trackSignals
  */
 export const useIsFetching$ = <T extends Reactive<QueryFilters | null>>(
   _filters: T,
