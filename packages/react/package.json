@@ -33,6 +33,7 @@
     "./react": "./react.cjs",
     "./jsx-runtime": "./jsx-runtime.cjs",
     "./jsx-dev-runtime": "./jsx-dev-runtime.cjs",
+    "./wrap-jsx": "./wrap-jsx.cjs",
     "./package.json": "./package.json"
   },
   "scripts": {
