@@ -1,5 +1,16 @@
 # @preact-signals/utils
 
+## 0.9.3
+
+### Patch Changes
+
+- 6b5fa85: Removed unnecessary private varitables usage from hocs entry
+- 6b5fa85: Added `@preact-signals/safe-react` as peerDependency
+- Updated dependencies [1090bd6]
+- Updated dependencies [6b5fa85]
+  - @preact-signals/safe-react@0.0.1
+  - @preact-signals/unified-signals@0.2.2
+
 ## 0.9.2
 
 ### Patch Changes

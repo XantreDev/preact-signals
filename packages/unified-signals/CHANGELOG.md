@@ -1,5 +1,13 @@
 # @preact-signals/unified-signals
 
+## 0.2.2
+
+### Patch Changes
+
+- 6b5fa85: Added `@preact-signals/safe-react` as peerDependency
+- Updated dependencies [1090bd6]
+  - @preact-signals/safe-react@0.0.1
+
 ## 0.2.1
 
 ### Patch Changes
