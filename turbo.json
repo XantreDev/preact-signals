@@ -22,7 +22,7 @@
     },
     "lint": {
       "dependsOn": ["^build"],
-      "outputs": ["tsconfig.tsbuildinfo", "dist/**"]
+      "outputs": ["*.tsbuildinfo"]
     }
   }
 }
