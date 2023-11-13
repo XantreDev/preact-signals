@@ -356,7 +356,6 @@ const _fetch: Resource<any, any, any, any>["_fetch"] = function (
     if (!result) {
       return;
     }
-    // TODO: fix - here can be previous data
     this.pr = result.then(
       (value) => {
         if (abortController.signal.aborted) {
