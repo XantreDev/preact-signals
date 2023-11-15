@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
 import { Signal, signal, batch } from "@preact/signals-core";
-import { useSignals } from "../src/hooks";
+import { useSignal, useSignals } from "../src/hooks";
 import { describe, expect, afterEach, beforeEach, it, vi } from "vitest";
 import {
   Root,
@@ -418,5 +418,26 @@ describe("useSignals", () => {
       });
     });
     expect(scratch.innerHTML).to.equal("<div>Hello John!</div>");
+  });
+
+  it("should not crash on signal change while rendering multiple times", async () => {
+    // this bug is not occurs in strict mode
+    function App() {
+      const s = useSignals();
+      try {
+        const sig = useSignal(0);
+        sig.value;
+        if (sig.peek() < 100) {
+          sig.value += 1;
+        }
+        return sig.value;
+      } finally {
+        s.f();
+      }
+    }
+
+    await render(<App />);
+
+    expect(scratch.innerHTML).to.equal("100");
   });
 });
