@@ -67,6 +67,7 @@
     "concurrently": "^8.2.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-fast-hoc": "0.3.2",
     "react-router-dom": "^6.9.0",
     "rollup": "^3.29.4",
     "rollup-plugin-esbuild": "^5.0.0",

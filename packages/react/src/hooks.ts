@@ -1,5 +1,5 @@
 import { signal, computed, effect, Signal } from "@preact/signals-core";
-import { useRef, useMemo, useEffect } from "react";
+import { useRef, useMemo, useEffect, startTransition, useReducer } from "react";
 import { useSyncExternalStore } from "use-sync-external-store/shim/index.js";
 
 const Empty = [] as const;
@@ -27,20 +27,17 @@ export interface EffectStore {
   getSnapshot(): number;
   /** finishEffect - stop tracking the signals used in this component */
   f(): void;
+  s(): void;
   [symDispose](): void;
 }
 
-let finishUpdate: (() => void) | undefined;
-
-function setCurrentStore(store?: EffectStore) {
-  // end tracking for the current update:
-  if (finishUpdate) finishUpdate();
-  // start tracking the new update:
-  finishUpdate = store && store.effect.S();
+const enum EffectStoreFields {
+  startTracking = "s",
+  finishTracking = "f",
 }
 
-const clearCurrentStore = () => setCurrentStore();
-
+let useSignalsDepth = 0;
+let cleanUpFn: (() => void) | undefined = undefined;
 /**
  * A redux-like store whose store value is a positive 32bit integer (a 'version').
  *
@@ -63,10 +60,18 @@ function createEffectStore(): EffectStore {
     effectInstance = this;
   });
   effectInstance.c = function () {
+    if (isRendering) {
+      return;
+    }
     version = (version + 1) | 0;
-    if (onChangeNotifyReact) onChangeNotifyReact();
+    if (!onChangeNotifyReact) {
+      return;
+    }
+
+    onChangeNotifyReact();
   };
 
+  let isRendering = false;
   return {
     effect: effectInstance,
     subscribe(onStoreChange) {
@@ -88,20 +93,29 @@ function createEffectStore(): EffectStore {
         unsubscribe();
       };
     },
+    [EffectStoreFields.startTracking]() {
+      isRendering = true;
+      useSignalsDepth++;
+      if (useSignalsDepth === 1) {
+        cleanUpFn = effectInstance.S();
+      }
+    },
     getSnapshot() {
       return version;
     },
-    f() {
-      clearCurrentStore();
+    [EffectStoreFields.finishTracking]() {
+      if (useSignalsDepth === 1) {
+        cleanUpFn?.();
+        cleanUpFn = undefined;
+        isRendering = false;
+      }
+      useSignalsDepth--;
     },
     [symDispose]() {
-      clearCurrentStore();
+      this[EffectStoreFields.finishTracking]();
     },
   };
 }
-
-let finalCleanup: Promise<void> | undefined;
-const _queueMicroTask = Promise.prototype.then.bind(Promise.resolve());
 
 /**
  * @description this hook is for `@preact/signals-react-transform`
@@ -109,23 +123,14 @@ const _queueMicroTask = Promise.prototype.then.bind(Promise.resolve());
  * subscribe to changes to rerender the component when the signals change.
  */
 export function useSignals(): EffectStore {
-  clearCurrentStore();
-  if (!finalCleanup) {
-    finalCleanup = _queueMicroTask(() => {
-      finalCleanup = undefined;
-      clearCurrentStore();
-    });
-  }
-
   const storeRef = useRef<EffectStore>();
   if (storeRef.current == null) {
     storeRef.current = createEffectStore();
   }
-
   const store = storeRef.current;
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
-  setCurrentStore(store);
 
+  store[EffectStoreFields.startTracking]();
   return store;
 }
 
@@ -137,7 +142,7 @@ function SignalValue(props: { data: Signal }) {
   try {
     return props.data.value;
   } finally {
-    effectStore.f();
+    effectStore[EffectStoreFields.finishTracking]();
   }
 }
 

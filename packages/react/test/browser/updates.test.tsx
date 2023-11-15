@@ -377,7 +377,7 @@ describe("@preact/signals-react updating", () => {
       }
     });
 
-    it.fails("should render static markup of a component", async () => {
+    it("should render static markup of a component", async () => {
       const count = signal(0);
 
       /**
