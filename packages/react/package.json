@@ -34,11 +34,18 @@
       "require": "./dist/cjs/index.cjs",
       "react-native": "./src/index.ts"
     },
+    "./tracking": {
+      "types": "./dist/types/tracking.d.ts",
+      "import": "./dist/esm/tracking.mjs",
+      "require": "./dist/cjs/tracking.cjs",
+      "react-native": "./src/tracking.ts"
+    },
     "./react": "./react.cjs",
     "./jsx-runtime": "./jsx-runtime.cjs",
     "./jsx-dev-runtime": "./jsx-dev-runtime.cjs",
     "./wrap-jsx": "./wrap-jsx.cjs",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./babel": "./babel.mjs"
   },
   "scripts": {
     "clean": "rimraf dist",
@@ -56,7 +63,7 @@
     "react": "^16.14.0 || 17.x || 18.x"
   },
   "devDependencies": {
-    "@preact/signals-react-transform": "^0.1.0",
+    "@preact/signals-react-transform": "0.1.0",
     "@rollup/plugin-replace": "^5.0.5",
     "@rollup/plugin-typescript": "^11.1.5",
     "@types/react": "^18.2.37",

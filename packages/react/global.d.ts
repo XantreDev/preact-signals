@@ -19,3 +19,11 @@ declare module "react/jsx-dev-runtime" {
 
   export const Fragment: React.ComponentType;
 }
+
+declare module "@preact/signals-react-transform" {
+  const a: typeof import("@preact/signals-react-transform/dist/index.d.ts")["default"];
+  import type { PluginOptions } from "@preact/signals-react-transform/dist/index.d.ts";
+
+  export { PluginOptions };
+  export default a;
+}

@@ -28,6 +28,12 @@ export default defineConfig({
         replacement: require.resolve(packageJson.exports["./jsx-dev-runtime"]),
       },
       {
+        find: exactRegEx(`${selfName}/tracking`),
+        replacement: require.resolve(
+          packageJson.exports["./tracking"]["react-native"]
+        ),
+      },
+      {
         find: exactRegEx(selfName),
         replacement: "./src/index.ts",
       },
@@ -41,14 +47,7 @@ export default defineConfig({
     react({
       jsxImportSource: selfName,
       babel: {
-        plugins: [
-          [
-            "module:@preact/signals-react-transform",
-            {
-              importSource: selfName,
-            },
-          ],
-        ],
+        plugins: ["module:@preact-signals/safe-react/babel"],
       },
     }),
   ],

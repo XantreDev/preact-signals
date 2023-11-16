@@ -6,7 +6,7 @@
     "vitest.config.ts",
     "package.json",
     "./*.cjs"
-  ],
+, "babel.mjs"  ],
   "compilerOptions": {
     "types": ["./global.d.ts"]
   }
