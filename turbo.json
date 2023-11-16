@@ -21,7 +21,7 @@
       "persistent": true
     },
     "lint": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "build"],
       "outputs": ["*.tsbuildinfo"]
     }
   }

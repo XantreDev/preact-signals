@@ -32,6 +32,16 @@ const commonPlugins = [
   }),
 ];
 
+const tsCommonOptions = {
+  noEmitOnError: useThrowOnError,
+  // inlineSourceMap: true,
+  sourceMap: true,
+  inlineSources: true,
+};
+
+const SOURCE_MAP_TYPE = "inline"; // "inline" | "external"
+const sourcemap = useSourceMap ? SOURCE_MAP_TYPE : false;
+
 /**
  * @type {import("rollup").RollupOptions[]}
  */
@@ -49,17 +59,15 @@ export default [
       preserveModulesRoot: usePreserveModulesRoot,
       strict: useStrict,
       entryFileNames: "[name].cjs",
-      sourcemap: useSourceMap,
+      sourcemap,
     },
     plugins: [
       ...commonPlugins,
       useEsbuild
         ? esbuild()
         : typescript({
-            noEmitOnError: useThrowOnError,
+            ...tsCommonOptions,
             outDir: "dist/cjs",
-            removeComments: false,
-            sourceMap: "inline",
           }),
     ],
   },
@@ -77,17 +85,15 @@ export default [
       strict: useStrict,
       entryFileNames: "[name].mjs",
       assetFileNames: "[name].mjs",
-      sourcemap: useSourceMap,
+      sourcemap,
     },
     plugins: [
       ...commonPlugins,
       useEsbuild
         ? esbuild()
         : typescript({
-            noEmitOnError: useThrowOnError,
+            ...tsCommonOptions,
             outDir: "dist/esm",
-            removeComments: false,
-            sourceMap: "inline",
           }),
     ],
   },
