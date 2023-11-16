@@ -1,3 +1,6 @@
+// patching Signal instance here
+import "./tracking";
+
 import {
   signal,
   computed,
@@ -8,7 +11,7 @@ import {
   untracked,
 } from "@preact/signals-core";
 import type { ReactElement } from "react";
-import { useSignal, useComputed, useSignalEffect, useSignals } from "./hooks";
+import { useSignal, useComputed, useSignalEffect } from "./hooks";
 
 export {
   signal,
@@ -21,7 +24,6 @@ export {
   useComputed,
   useSignalEffect,
   untracked,
-  useSignals,
 };
 
 declare module "@preact/signals-core" {

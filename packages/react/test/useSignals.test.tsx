@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
 import { Signal, signal, batch } from "@preact/signals-core";
-import { useSignal, useSignals } from "../src/hooks";
+import { useSignals } from "../src/tracking";
 import { RewriteCall, wrapIntoProxy } from "react-fast-hoc";
 import { describe, expect, afterEach, beforeEach, it, vi } from "vitest";
 import {
