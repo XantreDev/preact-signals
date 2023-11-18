@@ -6,6 +6,7 @@ import {
   useSignal,
 } from "../../src";
 import type { Signal, ReadonlySignal } from "../../src";
+import { useSignals } from "../../src/tracking";
 import React, {
   Fragment,
   forwardRef,
@@ -20,7 +21,7 @@ import React, {
   useRef,
 } from "react";
 import type { FunctionComponent } from "react";
-import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+import { describe, it, beforeEach, afterEach, expect, vi, Mock } from "vitest";
 
 import { renderToStaticMarkup } from "react-dom/server";
 import {
@@ -34,6 +35,11 @@ import {
   checkConsoleErrorLogs,
 } from "../shared/utils";
 
+vi.mock("../../src/tracking.ts", async (importOriginal) => ({
+  useSignals: vi.fn(
+    (await importOriginal<typeof import("../../src/tracking")>()).useSignals
+  ),
+}));
 describe("@preact/signals-react updating", () => {
   let scratch: HTMLDivElement;
   let root: Root;
@@ -920,4 +926,24 @@ describe("@preact/signals-react updating", () => {
       });
     });
   });
+
+  it("transform should not touch hooks that uses signals", async () => {
+    vi.mocked(useSignals).mockClear();
+    /**
+     *
+     * @trackSignals
+     **/
+    function App() {
+      return <p>{useTest()}</p>;
+    }
+
+    await render(<App />);
+    expect(scratch.textContent).to.equal("foo");
+    expect(useSignals).toHaveBeenCalledOnce();
+  });
 });
+
+function useTest() {
+  const sig = signal("foo");
+  return sig.value;
+}
