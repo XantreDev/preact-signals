@@ -13,8 +13,8 @@ function isSignal(value) {
 }
 
 /**
- * @param {import('react/jsx-runtime').JSXFunction} jsx
- * @returns {import('react/jsx-runtime').JSXFunction}
+ * @param {import('./types').JSXFunction} jsx
+ * @returns {import('./types').JSXFunction}
  */
 module.exports = function wrapJsx(jsx) {
   return function (type, props, ...rest) {

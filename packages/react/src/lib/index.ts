@@ -31,3 +31,4 @@ declare module "@preact/signals-core" {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
   interface Signal extends ReactElement {}
 }
+

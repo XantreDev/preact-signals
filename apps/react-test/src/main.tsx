@@ -3,6 +3,5 @@ import App from "./App.tsx";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  // strict mode is not allowed
   <App />
 );

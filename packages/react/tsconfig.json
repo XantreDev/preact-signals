@@ -1,13 +1,14 @@
 {
   "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "./src"
+  },
   "include": [
     "src/**/*",
     "rollup.config.mjs",
     "vitest.config.ts",
     "package.json",
-    "./*.cjs"
-, "babel.mjs"  ],
-  "compilerOptions": {
-    "types": ["./global.d.ts"]
-  }
+    "src/babel.ts",
+    "src/types.ts"
+  ]
 }

@@ -1,5 +1,5 @@
 import { effect, Signal } from "@preact/signals-core";
-import { useRef } from "react";
+import { startTransition, useReducer, useRef } from "react";
 import { useSyncExternalStore } from "use-sync-external-store/shim/index.js";
 
 const ReactElemType = Symbol.for("react.element"); // https://github.com/facebook/react/blob/346c7d4c43a0717302d446da9e7423a8e28d8996/packages/shared/ReactSymbols.js#L15
@@ -64,7 +64,7 @@ function createEffectStore(): EffectStore {
     effectInstance = this;
   });
   effectInstance[EffectFields.onDepsChange] = function () {
-    if (isRendering) {
+    if (useSignalsDepth) {
       return;
     }
     version = (version + 1) | 0;
@@ -72,10 +72,10 @@ function createEffectStore(): EffectStore {
       return;
     }
 
+    // react throws here sometimes
     onChangeNotifyReact();
   };
 
-  let isRendering = false;
   return {
     effect: effectInstance,
     subscribe(onStoreChange) {
@@ -98,22 +98,38 @@ function createEffectStore(): EffectStore {
       };
     },
     [EffectStoreFields.startTracking]() {
-      isRendering = true;
-      useSignalsDepth++;
-      if (useSignalsDepth === 1) {
+      if (!useSignalsDepth && cleanUpFn) {
+        throw new Error("cleanUpFn should be undefined");
+      }
+      if (useSignalsDepth && !cleanUpFn) {
+        throw new Error("cleanUpFn should be defined with depth");
+      }
+      if (!useSignalsDepth) {
         cleanUpFn = effectInstance[EffectFields.startTracking]();
       }
+      useSignalsDepth++;
     },
     getSnapshot() {
       return version;
     },
     [EffectStoreFields.finishTracking]() {
-      if (useSignalsDepth === 1) {
-        cleanUpFn?.();
-        cleanUpFn = undefined;
-        isRendering = false;
+      if (useSignalsDepth < 1) {
+        throw new Error("useSignalsDepth should be non-negative");
       }
-      useSignalsDepth--;
+      try {
+        if (useSignalsDepth === 1 && !cleanUpFn) {
+          throw new Error("cleanUpFn should be defined with depth");
+        }
+        if (useSignalsDepth === 1 && cleanUpFn) {
+          try {
+            cleanUpFn();
+          } finally {
+            cleanUpFn = undefined;
+          }
+        }
+      } finally {
+        useSignalsDepth--;
+      }
     },
     [symDispose]() {
       this[EffectStoreFields.finishTracking]();
@@ -143,6 +159,7 @@ function createEffectStore(): EffectStore {
  * subscribe to changes to rerender the component when the signals change.
  */
 export function useSignals(): EffectStore {
+  // console.log('useSignals')
   const storeRef = useRef<EffectStore>();
   if (storeRef.current == null) {
     storeRef.current = createEffectStore();

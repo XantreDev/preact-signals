@@ -4,9 +4,9 @@ import {
   useComputed,
   useSignalEffect,
   useSignal,
-} from "../../src";
-import type { Signal, ReadonlySignal } from "../../src";
-import { useSignals } from "../../src/tracking";
+} from "../../src/lib";
+import type { Signal, ReadonlySignal } from "../../src/lib";
+import { useSignals } from "../../src/lib/tracking";
 import React, {
   Fragment,
   forwardRef,
@@ -21,7 +21,7 @@ import React, {
   useRef,
 } from "react";
 import type { FunctionComponent } from "react";
-import { describe, it, beforeEach, afterEach, expect, vi, Mock } from "vitest";
+import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 
 import { renderToStaticMarkup } from "react-dom/server";
 import {
@@ -35,11 +35,12 @@ import {
   checkConsoleErrorLogs,
 } from "../shared/utils";
 
-vi.mock("../../src/tracking.ts", async (importOriginal) => ({
+vi.mock("../../src/lib/tracking", async (importOriginal) => ({
   useSignals: vi.fn(
-    (await importOriginal<typeof import("../../src/tracking")>()).useSignals
+    (await importOriginal<typeof import("../../src/lib/tracking")>()).useSignals
   ),
 }));
+
 describe("@preact/signals-react updating", () => {
   let scratch: HTMLDivElement;
   let root: Root;

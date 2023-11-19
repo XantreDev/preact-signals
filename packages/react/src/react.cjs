@@ -1,6 +1,6 @@
 // @ts-check
 const React = require("react");
-const wrapJSX = require("@preact-signals/safe-react/wrap-jsx");
+const wrapJSX = require("./wrap-jsx.cjs");
 
 // didn't wrapper React.createFactory possibly not needed
 module.exports = {

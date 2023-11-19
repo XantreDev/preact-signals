@@ -1,4 +1,4 @@
-import { signal } from "../../src";
+import { signal } from "../../src/lib";
 import React from "react";
 import * as ReactRouter from "react-router-dom";
 import { describe, it, beforeEach, afterEach, expect } from "vitest";

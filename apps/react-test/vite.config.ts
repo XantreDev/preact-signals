@@ -2,8 +2,12 @@ import reactBabel from "@vitejs/plugin-react";
 import babel from "vite-plugin-babel";
 import { PluginOption, defineConfig } from "vite";
 import { z } from "zod";
-import { createRequire } from "node:module";
 import path from "node:path";
+import { createRequire } from "node:module";
+import {
+  createReactAlias,
+  transformDepPlugin,
+} from "@preact-signals/safe-react/integrations/vite";
 
 const resolve = createRequire(import.meta.url).resolve;
 
@@ -21,48 +25,23 @@ export default defineConfig({
   resolve: USE_TRANSFORM
     ? {
         alias: [
-          {
-            find: /^react$/,
-            replacement: "@preact-signals/safe-react/react",
-            // TODO: extract to lib
-            customResolver: (() => {
-              const reactUrl = resolve("react");
-              const fakeUrl = resolve("@preact-signals/safe-react/react");
-              return {
-                resolveId(source, importer) {
-                  const useRealImport = importer?.endsWith("react.cjs");
-                  return useRealImport ? reactUrl : fakeUrl;
-                },
-              };
-            })(),
-          },
+          createReactAlias(),
           {
             find: "@preact/signals-react",
-            replacement: path.resolve(
-              resolve("@preact-signals/safe-react"),
-              "../../esm/index.mjs"
-            ),
+            replacement: "@preact-signals/safe-react",
           },
         ],
       }
     : undefined,
   plugins: [
     USE_TRANSFORM &&
-      babel({
-        babelConfig: {
-          plugins: [
-            "@babel/plugin-syntax-jsx",
-            [
-              "module:@preact/signals-react-transform",
-              {
-                importSource: "@preact-signals/safe-react",
-              },
-            ],
-          ],
+      transformDepPlugin([
+        {
+          type: "nested",
+          path: ["components-for-test", "@preact-signals/utils"],
         },
-        filter: /utils\/dist\/.+\.mjs$/,
-      }),
-    ,
+      ]),
+
     reactBabel(
       USE_TRANSFORM
         ? {

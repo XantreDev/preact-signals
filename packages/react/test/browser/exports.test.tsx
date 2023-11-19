@@ -1,5 +1,5 @@
 import * as core from "@preact/signals-core";
-import * as adapter from "../../src";
+import * as adapter from "../../src/lib";
 import { describe, expect, it } from "vitest";
 
 describe("@preact/signals-react", () => {
@@ -9,7 +9,6 @@ describe("@preact/signals-react", () => {
 
       for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
-        // @ts-expect-error
         expect(key in adapter).to.equal(
           true,
           `"${key}" is not exported from react adapter`

@@ -1,4 +1,4 @@
-import { signal, computed, useComputed, useSignal } from "../../src";
+import { signal, computed, useComputed, useSignal } from "../../src/lib";
 import React, { useReducer, StrictMode, useState } from "react";
 import { vi, describe, it, beforeEach, afterEach, expect } from "vitest";
 

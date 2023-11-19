@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
-import { Signal, signal, batch } from "@preact/signals-core";
-import { useSignals } from "../src/tracking";
+import { Signal, batch, signal } from "@preact/signals-core";
+import { useSignals } from "../src/lib/tracking";
 import { RewriteCall, wrapIntoProxy } from "react-fast-hoc";
 import { describe, expect, afterEach, beforeEach, it, vi } from "vitest";
 import {
@@ -446,8 +446,9 @@ describe("useSignals", () => {
 
   it("changing state of other component while rendering should not crash", async () => {
     const sig = signal(0);
+
     const A = withUseSignals(() => {
-      sig.value += 1;
+      sig.value = sig.peek() + 1;
       return sig.value;
     });
     const B = withUseSignals(() => {
@@ -460,5 +461,27 @@ describe("useSignals", () => {
     });
 
     await render(<B />);
+  });
+
+  it("should update signal if update on render", async () => {
+    const sig = signal(0);
+    const A = withUseSignals(() => {
+      return sig.value;
+    });
+    const B = withUseSignals(() => {
+      sig.value = sig.peek() + 1;
+      return sig.peek();
+    });
+    const App = withUseSignals(() => {
+      return (
+        <>
+          <A />
+          <B />
+        </>
+      );
+    });
+
+    await render(<App />);
+    expect(scratch.innerHTML).to.equal("01");
   });
 });

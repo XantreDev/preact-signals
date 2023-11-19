@@ -1,4 +1,4 @@
-import { signal, useSignalEffect } from "../../src";
+import { signal, useSignalEffect } from "../../src/lib";
 import { renderToStaticMarkup } from "react-dom/server";
 import { mountSignalsTests } from "../shared/mounting";
 import { vi, describe, it, expect } from "vitest";

@@ -13,7 +13,8 @@ const useThrowOnError = true; // On error throw and exception
 const useSourceMap = true; // Generate source map files
 const useEsbuild = true; // `true` -> use esbuild, `false` use tsc
 
-const input = ["src/index.ts"];
+const tsInputs = ["src/lib/index.ts", "src/babel.ts"];
+const cjsInputs = ["src/integrations/vite.mjs"];
 
 const commonPlugins = [
   externals(),
@@ -31,7 +32,7 @@ const commonPlugins = [
 export default [
   {
     // CJS build
-    input,
+    input: tsInputs,
     output: {
       dir: "dist/cjs",
       format: "cjs",
@@ -57,7 +58,7 @@ export default [
   },
   {
     // ESM builds
-    input,
+    input: tsInputs,
     output: {
       dir: "dist/esm",
       format: "es",
@@ -81,5 +82,14 @@ export default [
             removeComments: true,
           }),
     ],
+  },
+  {
+    input: cjsInputs,
+    output: {
+      entryFileNames: "[name].cjs",
+      assetFileNames: "[name].cjs",
+      dir: "dist",
+      format: "cjs",
+    },
   },
 ];
