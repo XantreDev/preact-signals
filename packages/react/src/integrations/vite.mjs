@@ -70,37 +70,41 @@ const toPosix = (paths) =>
     ? paths.map((it) => it.replace(path.win32.sep, path.posix.sep))
     : [];
 
-/**
- *
- * @param {Dep[]} deps package names
- * @returns {import('vite').Plugin}
- */
-export const transformDepPlugin = (deps) => {
-  if (!Array.isArray(deps)) {
-    throw new Error("deps must be an array");
-  }
-  const depsPaths = deps.map(resolveDepFolder).map(path.posix.normalize);
+// /**
+//  *
+//  * @param {Dep[]} deps package names
+//  * @returns {import('vite').Plugin}
+//  */
+// export const transformDepPlugin = (deps) => {
+//   if (!Array.isArray(deps)) {
+//     throw new Error("deps must be an array");
+//   }
+//   const depsPaths = deps.map(resolveDepFolder).map(path.normalize);
 
-  const depsRegex = [
-    ...depsPaths,
-    toPosix(depsPaths),
-    ...deps
-      .map((it) => (typeof it === "string" ? it : it.path.at(-1)))
-      .filter(Boolean),
-  ]
-    // @ts-expect-error Boolean filter...
-    .map(escapeStringRegexp)
-    .join("|");
+//   const depsRegex = [
+//     ...depsPaths,
+//     ...toPosix(depsPaths),
+//     ...deps
+//       .map((it) => (typeof it === "string" ? it : it.path.at(-1)))
+//       .filter(Boolean),
+//   ]
+//     // @ts-expect-error Boolean filter...
+//     .map(escapeStringRegexp)
+//     .join("|");
 
-  const filter = new RegExp(depsRegex);
-  return babel({
-    babelConfig: {
-      plugins: [
-        "@babel/plugin-syntax-jsx",
-        "module:@preact-signals/safe-react/babel",
-      ],
-    },
-    filter,
-    loader: "tsx",
-  });
-};
+//   const filter = new RegExp(depsRegex);
+//   console.log(filter);
+//   return babel({
+//     babelConfig: {
+//       plugins: [
+//         "@babel/plugin-syntax-jsx",
+//         "module:@preact-signals/safe-react/babel",
+//       ],
+//     },
+//     filter,
+//     loader: (it) => {
+//       console.log(it);
+//       return "tsx";
+//     },
+//   });
+// };

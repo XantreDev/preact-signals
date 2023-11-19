@@ -4,10 +4,7 @@ import { PluginOption, defineConfig } from "vite";
 import { z } from "zod";
 import path from "node:path";
 import { createRequire } from "node:module";
-import {
-  createReactAlias,
-  transformDepPlugin,
-} from "@preact-signals/safe-react/integrations/vite";
+import { createReactAlias } from "@preact-signals/safe-react/integrations/vite";
 
 const resolve = createRequire(import.meta.url).resolve;
 
@@ -34,29 +31,22 @@ export default defineConfig({
       }
     : undefined,
   plugins: [
-    USE_TRANSFORM &&
-      transformDepPlugin([
-        {
-          type: "nested",
-          path: ["components-for-test", "@preact-signals/utils"],
-        },
-      ]),
+    // USE_TRANSFORM &&
+    //   transformDepPlugin([
+    //     {
+    //       type: "nested",
+    //       path: ["components-for-test", "@preact-signals/utils"],
+    //     },
+    //   ]),
 
     reactBabel(
       USE_TRANSFORM
         ? {
             jsxImportSource: "@preact-signals/safe-react",
             babel: {
-              plugins: [
-                [
-                  "module:@preact/signals-react-transform",
-                  {
-                    importSource: "@preact-signals/safe-react",
-                  },
-                ],
-              ],
+              plugins: [["module:@preact-signals/safe-react/babel"]],
             },
-            include: /\.(mdx|js|jsx|ts|tsx)$/,
+            include: /\.(mdx|js|jsx|ts|tsx|cjs|mjs)$/,
           }
         : undefined
     ) as PluginOption[],
