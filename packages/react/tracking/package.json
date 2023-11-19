@@ -1,4 +1,4 @@
 {
-  "main": "../dist/cjs/tracking.cjs",
-  "react-native": "../src/tracking.ts"
+  "main": "../dist/cjs/lib/tracking.cjs",
+  "react-native": "../src/lib/tracking.ts"
 }

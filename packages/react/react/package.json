@@ -1,4 +1,3 @@
 {
-  "main": "../react.сjs",
-  "type": "commonjs"
+  "main": "../src/react.cjs"
 }

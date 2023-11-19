@@ -1,4 +1,3 @@
 {
-  "main": "../jsx-runtime.cjs",
-  "type": "commonjs"
+  "main": "../src/jsx-runtime.cjs"
 }
