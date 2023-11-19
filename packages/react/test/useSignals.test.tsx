@@ -2,7 +2,16 @@ import React, { Fragment } from "react";
 import { Signal, batch, signal } from "@preact/signals-core";
 import { useSignals } from "../src/lib/tracking";
 import { RewriteCall, wrapIntoProxy } from "react-fast-hoc";
-import { describe, expect, afterEach, beforeEach, it, vi } from "vitest";
+import { tryit } from "radash";
+import {
+  describe,
+  expect,
+  afterEach,
+  beforeEach,
+  it,
+  vi,
+  assert,
+} from "vitest";
 import {
   Root,
   createRoot,
@@ -421,7 +430,7 @@ describe("useSignals", () => {
   //   expect(scratch.innerHTML).to.equal("<div>Hello John!</div>");
   // });
 
-  it("should not crash on signal change while rendering multiple times", async () => {
+  it("shouldn't rerender self if changing self deps", async () => {
     // this bug is not occurs in strict mode
     const sig = signal(0);
     const App = withUseSignals(() => {
@@ -444,26 +453,73 @@ describe("useSignals", () => {
     expect(scratch.innerHTML).to.equal("11");
   });
 
+  it("should rerender descedents even wrapped in memo if change signal in render", async () => {
+    // this bug is not occurs in strict mode
+    const sig = signal(0);
+    const A = withUseSignals(
+      React.memo(() => {
+        return sig.value;
+      })
+    );
+    const App = withUseSignals(() => {
+      sig.value;
+      if (sig.peek() < 100) {
+        sig.value += 1;
+      }
+      return <A />;
+    });
+
+    await render(<App />);
+
+    // tracked deps while rendering
+    expect(scratch.innerHTML).to.equal("1");
+    await render(<App />);
+
+    expect(scratch.innerHTML).to.equal("2");
+  });
+
+  it("should break infinite loop if signal changed in render", async () => {
+    // this bug is not occurs in strict mode
+    const sig = signal(0);
+    const A = withUseSignals(() => {
+      sig.value++;
+      return sig.value;
+    });
+    const App = withUseSignals(() => (
+      <>
+        {sig.value}
+        <A />
+      </>
+    ));
+    const [err] = await tryit(() => render(<App />))();
+    assert(err);
+    expect(err).to.be.instanceOf(Error);
+    assert(err.message.startsWith("preact-signals: Too many sync rerenders"));
+  });
+
   it("changing state of other component while rendering should not crash", async () => {
     const sig = signal(0);
 
     const A = withUseSignals(() => {
-      sig.value = sig.peek() + 1;
+      if (sig.peek() < 1) {
+        sig.value += 1;
+      }
       return sig.value;
     });
     const B = withUseSignals(() => {
-      sig.value;
       return (
         <>
+          {sig.value}
           <A />
         </>
       );
     });
 
     await render(<B />);
+    expect(scratch.innerHTML).to.equal("11");
   });
 
-  it("should update signal if update on render", async () => {
+  it("should update component if deps updated in render of other component", async () => {
     const sig = signal(0);
     const A = withUseSignals(() => {
       return sig.value;
@@ -482,6 +538,6 @@ describe("useSignals", () => {
     });
 
     await render(<App />);
-    expect(scratch.innerHTML).to.equal("01");
+    expect(scratch.innerHTML).to.equal("11");
   });
 });

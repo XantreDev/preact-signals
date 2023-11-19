@@ -40,8 +40,11 @@ const enum EffectStoreFields {
   finishTracking = "f",
 }
 
+const _queueMicrotask = Promise.prototype.then.bind(Promise.resolve());
+
 let useSignalsDepth = 0;
 let cleanUpFn: (() => void) | undefined = undefined;
+const maxSyncRerenders = 25;
 /**
  * A redux-like store whose store value is a positive 32bit integer (a 'version').
  *
@@ -63,9 +66,17 @@ function createEffectStore(): EffectStore {
   let unsubscribe = effect(function (this: Effect) {
     effectInstance = this;
   });
+  let inRender = false;
+  let syncRerendersCount = 0;
+  let syncRerendersResetPromise: Promise<void> | undefined = undefined;
   effectInstance[EffectFields.onDepsChange] = function () {
-    if (useSignalsDepth) {
+    if (inRender) {
       return;
+    }
+    if (syncRerendersCount > maxSyncRerenders) {
+      throw new Error(
+        `preact-signals: Too many sync rerenders (${syncRerendersCount}), you might change parent component signal dependencies in render of child component.`
+      );
     }
     version = (version + 1) | 0;
     if (!onChangeNotifyReact) {
@@ -98,6 +109,14 @@ function createEffectStore(): EffectStore {
       };
     },
     [EffectStoreFields.startTracking]() {
+      inRender = true;
+      syncRerendersCount++;
+      if (!syncRerendersResetPromise) {
+        syncRerendersResetPromise = _queueMicrotask(() => {
+          syncRerendersCount = 0;
+          syncRerendersResetPromise = undefined;
+        });
+      }
       if (!useSignalsDepth && cleanUpFn) {
         throw new Error("cleanUpFn should be undefined");
       }
@@ -124,6 +143,7 @@ function createEffectStore(): EffectStore {
           try {
             cleanUpFn();
           } finally {
+            inRender = false;
             cleanUpFn = undefined;
           }
         }
