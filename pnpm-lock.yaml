@@ -246,15 +246,8 @@ importers:
 
   packages/react:
     dependencies:
-      '@preact/signals-core':
-        specifier: ^1.5.0
-        version: 1.5.0
-      use-sync-external-store:
-        specifier: ^1.2.0
-        version: 1.2.0(react@18.2.0)
-    devDependencies:
       '@babel/core':
-        specifier: ^7.23.3
+        specifier: ^7.0.0
         version: 7.23.3
       '@babel/helper-module-imports':
         specifier: ^7.22.15
@@ -262,9 +255,16 @@ importers:
       '@babel/helper-plugin-utils':
         specifier: ^7.22.5
         version: 7.22.5
-      '@babel/plugin-syntax-jsx':
-        specifier: ^7.23.3
-        version: 7.23.3(@babel/core@7.23.3)
+      '@preact/signals-core':
+        specifier: ^1.5.0
+        version: 1.5.0
+      debug:
+        specifier: ^4.3.4
+        version: 4.3.4
+      use-sync-external-store:
+        specifier: ^1.2.0
+        version: 1.2.0(react@18.2.0)
+    devDependencies:
       '@rollup/plugin-replace':
         specifier: ^5.0.5
         version: 5.0.5(rollup@3.29.4)
@@ -307,9 +307,6 @@ importers:
       concurrently:
         specifier: ^8.2.2
         version: 8.2.2
-      debug:
-        specifier: ^4.3.4
-        version: 4.3.4
       radash:
         specifier: ^11.0.0
         version: 11.0.0
@@ -325,9 +322,6 @@ importers:
       react-router-dom:
         specifier: ^6.9.0
         version: 6.18.0(react-dom@18.2.0)(react@18.2.0)
-      regex-escape:
-        specifier: ^3.4.10
-        version: 3.4.10
       rollup:
         specifier: ^3.29.4
         version: 3.29.4
@@ -340,9 +334,6 @@ importers:
       vite:
         specifier: ^4.5.0
         version: 4.5.0(@types/node@20.9.0)
-      vite-plugin-babel:
-        specifier: ^1.1.3
-        version: 1.1.3(@babel/core@7.23.3)(vite@4.5.0)
 
   packages/type:
     dependencies:
@@ -580,7 +571,6 @@ packages:
   /@babel/helper-plugin-utils@7.22.5:
     resolution: {integrity: sha512-uLls06UVKgFG9QD4OeFYLEGteMIAa5kpTPcFL28yuCIIzsf6ZyKZMllKVOCZFhiZ5ptnwX4mtKdWCBE/uT4amg==}
     engines: {node: '>=6.9.0'}
-    dev: true
 
   /@babel/helper-simple-access@7.22.5:
     resolution: {integrity: sha512-n0H99E/K+Bika3++WNL17POvo4rKWZ7lZEp1Q+fStVbUi8nxPQEBOlTmCOxW/0JsS56SKKQ+ojAe2pHKJHN35w==}
@@ -6237,10 +6227,6 @@ packages:
   /regenerator-runtime@0.13.11:
     resolution: {integrity: sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==}
 
-  /regex-escape@3.4.10:
-    resolution: {integrity: sha512-qEqf7uzW+iYcKNLMDFnMkghhQBnGdivT6KqVQyKsyjSWnoFyooXVnxrw9dtv3AFLnD6VBGXxtZGAQNFGFTnCqA==}
-    dev: true
-
   /regexp.prototype.flags@1.5.0:
     resolution: {integrity: sha512-0SutC3pNudRKgquxGoRGIz946MZVHqbNfPjBdxeOhBrdgDKlRoXmYLQN9xRbrR09ZXWeGAdPuif7egofn6v5LA==}
     engines: {node: '>= 0.4'}
@@ -7320,6 +7306,7 @@ packages:
     dependencies:
       '@babel/core': 7.23.3
       vite: 4.5.0
+    dev: false
 
   /vite@4.5.0:
     resolution: {integrity: sha512-ulr8rNLA6rkyFAlVWw2q5YJ91v098AFQ2R0PRFwPzREXOUJQPtFUG0t+/ZikhaOCDqFoDhN6/v8Sq0o4araFAw==}

@@ -1,3 +1,25 @@
+# Work in progress, not ready for production
+
+# `@preact-signals/safe-react`
+
+This is community driven preact/signals integration for React, based on official `@preact/signals-react` integration, since it's patching react - there are a lot of problems in different envirements and bundlers. This package tries to solve this problem by this steps:
+
+- no runtime react internals patching
+- uses babel plugin to subscribe your components to signals (based on official `@preact/signals-react-transform`).
+- achieves the same features by bundler aliasing for react
+
+## Alterations
+
+Ignoring updates while rendering same component in render. Since this behavior causes double rerendering in some cases.
+
+```tsx
+const A = () => {
+  const count = signal(0);
+  count.value++;
+  return <div>{count.value}</div>;
+};
+```
+
 # Signals
 
 Signals is a performant state management library with two primary goals:
@@ -10,41 +32,43 @@ Read the [announcement post](https://preactjs.com/blog/introducing-signals/) to 
 ## Installation:
 
 ```sh
-npm install @preact/signals-react
+npm install @preact-signals/safe-react
 ```
 
-- [Guide / API](../../README.md#guide--api)
-  - [`signal(initialValue)`](../../README.md#signalinitialvalue)
-    - [`signal.peek()`](../../README.md#signalpeek)
-  - [`computed(fn)`](../../README.md#computedfn)
-  - [`effect(fn)`](../../README.md#effectfn)
-  - [`batch(fn)`](../../README.md#batchfn)
-  - [`untracked(fn)`](../../README.md#untrackedfn)
+<!-- ### Vite integration -->
+
+- [Guide / API](https://github.com/preactjs/signals/README.md#guide--api)
+  - [`signal(initialValue)`](https://github.com/preactjs/signals/README.md#signalinitialvalue)
+    - [`signal.peek()`](https://github.com/preactjs/signals/README.md#signalpeek)
+  - [`computed(fn)`](https://github.com/preactjs/signals/README.md#computedfn)
+  - [`effect(fn)`](https://github.com/preactjs/signals/README.md#effectfn)
+  - [`batch(fn)`](https://github.com/preactjs/signals/README.md#batchfn)
+  - [`untracked(fn)`](https://github.com/preactjs/signals/README.md#untrackedfn)
 - [React Integration](#react-integration)
   - [Hooks](#hooks)
 - [License](#license)
 
-## React Integration
+## React Integration features
 
-> Note: The React integration plugs into some React internals and may break unexpectedly in future versions of React. If you are using Signals with React and encounter errors such as "Rendered more hooks than during previous render", "Should have a queue. This is likely a bug in React." or "Cannot redefine property: createElement" please open an issue here.
+> Note: please open an issue here if in some scenario you have problems with this integration.
 
 The React integration can be installed via:
 
 ```sh
-npm install @preact/signals-react
+npm install @preact-signals/safe-react
 ```
 
 Similar to the Preact integration, the React adapter allows you to access signals directly inside your components and will automatically subscribe to them.
 
 ```js
-import { signal } from "@preact/signals-react";
+import { signal } from "@preact-signals/safe-react";
 
 const count = signal(0);
 
 function CounterValue() {
-	// Whenever the `count` signal is updated, we'll
-	// re-render this component automatically for you
-	return <p>Value: {count.value}</p>;
+  // Whenever the `count` signal is updated, we'll
+  // re-render this component automatically for you
+  return <p>Value: {count.value}</p>;
 }
 ```
 
@@ -53,17 +77,17 @@ function CounterValue() {
 If you need to instantiate new signals inside your components, you can use the `useSignal` or `useComputed` hook.
 
 ```js
-import { useSignal, useComputed } from "@preact/signals-react";
+import { useSignal, useComputed } from "@preact-signals/safe-react";
 
 function Counter() {
-	const count = useSignal(0);
-	const double = useComputed(() => count.value * 2);
+  const count = useSignal(0);
+  const double = useComputed(() => count.value * 2);
 
-	return (
-		<button onClick={() => count.value++}>
-			Value: {count.value}, value x 2 = {double.value}
-		</button>
-	);
+  return (
+    <button onClick={() => count.value++}>
+      Value: {count.value}, value x 2 = {double.value}
+    </button>
+  );
 }
 ```
 
@@ -72,23 +96,23 @@ function Counter() {
 The React adapter ships with several optimizations it can apply out of the box to skip virtual-dom rendering entirely. If you pass a signal directly into JSX, it will bind directly to the DOM `Text` node that is created and update that whenever the signal changes.
 
 ```js
-import { signal } from "@preact/signals-react";
+import { signal } from "@preact-signals/safe-react";
 
 const count = signal(0);
 
 // Unoptimized: Will trigger the surrounding
 // component to re-render
 function Counter() {
-	return <p>Value: {count.value}</p>;
+  return <p>Value: {count.value}</p>;
 }
 
 // Optimized: Will update the text node directly
 function Counter() {
-	return (
-		<p>
-			<>Value: {count}</>
-		</p>
-	);
+  return (
+    <p>
+      <>Value: {count}</>
+    </p>
+  );
 }
 ```
 
@@ -96,6 +120,19 @@ To opt into this optimization, simply pass the signal directly instead of access
 
 > **Note**
 > The content is wrapped in a React Fragment due to React 18's newer, more strict children types.
+
+### Trouble shooting
+
+> Cannot find module '@preact-signals/safe-react/integration/vite' or its corresponding type declarations
+> You should specify moduleResolution: "nodenext" or "bundler" in your tsconfig.json
+
+```json
+{
+  "compilerOptions": {
+    "moduleResolution": "nodenext"
+  }
+}
+```
 
 ## License
 
