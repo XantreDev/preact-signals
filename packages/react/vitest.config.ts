@@ -15,10 +15,9 @@ export default defineConfig({
   test: {
     environment: "happy-dom",
     setupFiles: "./setupVitest.ts",
-    cache: false,
+    // cache: false,
     // inspectBrk: true,
     // threads: false,
-
 
     alias: [
       {
