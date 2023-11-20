@@ -1,0 +1,4 @@
+{
+  "main": "../dist/cjs/components/index.cjs",
+  "react-native": "../src/components/index.ts"
+}
