@@ -1,5 +1,11 @@
 # preact-test
 
+## 0.0.16
+
+### Patch Changes
+
+- components-for-test@4.0.2
+
 ## 0.0.15
 
 ### Patch Changes

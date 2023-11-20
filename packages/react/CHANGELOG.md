@@ -1,5 +1,15 @@
 # @preact-signals/safe-react
 
+## 0.1.0
+
+### Minor Changes
+
+- 50214d3: Added vite integration info to README. Enusred stability of work with vite
+
+### Patch Changes
+
+- 7684de9: Fixed typescript issue with `"moduleResolution": "node"`
+
 ## 0.0.3
 
 ### Patch Changes
