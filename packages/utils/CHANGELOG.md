@@ -1,5 +1,15 @@
 # @preact-signals/utils
 
+## 0.10.0
+
+### Minor Changes
+
+- d451d06: Added fallback for resolver that is not supporting package exports (react-native)
+
+### Patch Changes
+
+- 7684de9: Fixed typescript issue with `"moduleResolution": "node"`
+
 ## 0.9.4
 
 ### Patch Changes
