@@ -8,9 +8,8 @@ Goal of the project to provide comprehensive tooling for using [`preact/signals`
 
 ## Packages
 
-- [`@preact-signals/utils`](./packages/utils): A package that contains a lot of utils for many purposes. I think it should be kinda stdlib for using preact signals. Utils contains: Solid js like resource, for handling async reactivity, Simple flat store implementation that wraps values into signals getters
-  - `@preact-signals/utils/components`: Solid js like components implementation, which allows to scope rerenders via reactivity `Show`, `Computed`, `For`, `Switch/Match`
-  - `@preact-signals/utils/hooks`: Basic signals hooks and other utils hooks bindings
+- [`@preact-signals/utils`](./packages/utils): A package that contains a lot of utils for many purposes. I think it should be kinda stdlib for using preact signals. Utils contains: Solid js like resource, for handling async reactivity, Simple flat store implementation that wraps values into signals getters, Vue deep reactivity tracking, high order components.
+- [`@preact-signals/safe-react`](./packages/react): Unofficial `@preact/signals` integration for react, that tries to be bullet proof.
 - [`@preact-signals/query`](./packages/query): Tanstack query core preact signals bindings
 - [`@preact-signals/unified-signals`](./packages/unified-signals/): This package reexports `@preact/signals-react`, with hooks shims in case of overwriting dependencies. And also polyfills newest preact signals features.
 
