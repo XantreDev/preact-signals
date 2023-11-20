@@ -11,7 +11,6 @@ module.exports = /** @type {import('@babel/core').TransformOptions} */ ({
             mode: "auto",
           },
         ],
-        ,
       ],
     },
   ],

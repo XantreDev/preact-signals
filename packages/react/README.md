@@ -1,8 +1,6 @@
-# Work in progress, not ready for production
-
 # `@preact-signals/safe-react`
 
-This is community driven preact/signals integration for React, based on official `@preact/signals-react` integration, since it's patching react - there are a lot of problems in different envirements and bundlers. This package tries to solve this problem by this steps:
+This is community driven preact/signals integration for React, based on official `@preact/signals-react` integration, since it's patching react - there are a lot of problems in different environments and bundlers. This package tries to solve this problem by this steps:
 
 - no runtime react internals patching
 - uses babel plugin to subscribe your components to signals (based on official `@preact/signals-react-transform`).
@@ -10,7 +8,7 @@ This is community driven preact/signals integration for React, based on official
 
 ## Alterations
 
-Ignoring updates while rendering same component in render. Since this behavior causes double rerendering in some cases.
+Ignoring updates while rendering same component in render. Since this behavior causes double or infinite rerendering in some cases.
 
 ```tsx
 const A = () => {
@@ -20,7 +18,7 @@ const A = () => {
 };
 ```
 
-# Signals
+## Signals
 
 Signals is a performant state management library with two primary goals:
 
@@ -35,16 +33,102 @@ Read the [announcement post](https://preactjs.com/blog/introducing-signals/) to 
 npm install @preact-signals/safe-react
 ```
 
-<!-- ### Vite integration -->
+Integrations:
 
-- [Guide / API](https://github.com/preactjs/signals/README.md#guide--api)
-  - [`signal(initialValue)`](https://github.com/preactjs/signals/README.md#signalinitialvalue)
-    - [`signal.peek()`](https://github.com/preactjs/signals/README.md#signalpeek)
-  - [`computed(fn)`](https://github.com/preactjs/signals/README.md#computedfn)
-  - [`effect(fn)`](https://github.com/preactjs/signals/README.md#effectfn)
-  - [`batch(fn)`](https://github.com/preactjs/signals/README.md#batchfn)
-  - [`untracked(fn)`](https://github.com/preactjs/signals/README.md#untrackedfn)
-- [React Integration](#react-integration)
+- [Vite](#vite-integration)
+- [Vite with `@preact-signals/utils`](#vite-integration-with-preact-signalsutils)
+
+react-native integration will be added soon
+
+### Vite integration
+
+```ts
+// vite.config.ts
+import { defineConfig } from "vite";
+// using react babel, since preact-signals integration has no swc plugin yet
+import react from "@vitejs/plugin-react";
+import { createReactAlias } from "@preact-signals/safe-react/integrations/vite";
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  resolve: {
+    // add react alias
+    alias: [createReactAlias()],
+  },
+  plugins: [
+    react({
+      // using custom wrapper for jsx runtime and babel plugin for components
+      jsxImportSource: "@preact-signals/safe-react",
+      babel: {
+        plugins: ["module:@preact-signals/safe-react/babel"],
+      },
+    }),
+  ],
+});
+```
+
+### Vite integration with `@preact-signals/utils`
+
+[Integration playground](https://stackblitz.com/edit/vitejs-vite-mhfwge?file=vite.config.ts)
+
+1. Install `vite-plugin-babel`
+2. Update config
+
+```ts
+// vite.config.ts
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import babel from "vite-plugin-babel";
+import type { PluginOptions } from "@preact-signals/safe-react/babel";
+import { createReactAlias } from "@preact-signals/safe-react/integrations/vite";
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  resolve: {
+    alias: [
+      // add react alias
+      createReactAlias(),
+      // replace @preact/signals-react with @preact-signals/safe-react for @preact-signals/utils
+      {
+        find: "@preact/signals-react",
+        replacement: "@preact-signals/safe-react",
+      },
+    ],
+  },
+  plugins: [
+    // processing `@preact-signals/utils/components` to enable tracking
+    babel({
+      filter: /@preact-signals\/utils/,
+      babelConfig: {
+        plugins: [
+          [
+            "module:@preact-signals/safe-react/babel",
+            {
+              mode: "manual",
+            } satisfies PluginOptions,
+          ],
+        ],
+      },
+    }),
+    react({
+      // using custom wrapper for jsx runtime and babel plugin for components
+      jsxImportSource: "@preact-signals/safe-react",
+      babel: {
+        plugins: ["module:@preact-signals/safe-react/babel"],
+      },
+    }),
+  ],
+});
+```
+
+- [Guide / API](https://github.com/preactjs/signals/#guide--api)
+  - [`signal(initialValue)`](https://github.com/preactjs/signals/#signalinitialvalue)
+    - [`signal.peek()`](https://github.com/preactjs/signals/#signalpeek)
+  - [`computed(fn)`](https://github.com/preactjs/signals/#computedfn)
+  - [`effect(fn)`](https://github.com/preactjs/signals/#effectfn)
+  - [`batch(fn)`](https://github.com/preactjs/signals/#batchfn)
+  - [`untracked(fn)`](https://github.com/preactjs/signals/#untrackedfn)
+- [React Integration](#react-integration-features)
   - [Hooks](#hooks)
 - [License](#license)
 
@@ -121,7 +205,9 @@ To opt into this optimization, simply pass the signal directly instead of access
 > **Note**
 > The content is wrapped in a React Fragment due to React 18's newer, more strict children types.
 
-### Trouble shooting
+### Troubleshooting
+
+### Typescript
 
 > Cannot find module '@preact-signals/safe-react/integration/vite' or its corresponding type declarations
 > You should specify moduleResolution: "nodenext" or "bundler" in your tsconfig.json
