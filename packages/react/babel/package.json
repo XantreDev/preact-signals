@@ -1,3 +1,4 @@
 {
-  "main": "../dist/cjs/babel.cjs"
+  "main": "../dist/cjs/babel.cjs",
+  "types": "../dist/types/babel.d.ts"
 }

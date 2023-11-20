@@ -1,3 +1,4 @@
 {
-  "main": "../src/react.cjs"
+  "main": "../src/react.cjs",
+  "types": "../dist/types/react.d.cts"
 }

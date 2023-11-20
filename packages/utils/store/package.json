@@ -1,4 +1,5 @@
 {
   "main": "./dist/cjs/store/index.cjs",
-  "react-native": "../src/store/index.ts"
+  "react-native": "../src/store/index.ts",
+  "types": "../dist/types/store/index.d.ts"
 }

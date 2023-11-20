@@ -1,3 +1,4 @@
 {
-  "main": "../../dist/vite.cjs"
+  "main": "../../dist/vite.cjs",
+  "types": "../../dist/types/integrations/vite.d.mts"
 }

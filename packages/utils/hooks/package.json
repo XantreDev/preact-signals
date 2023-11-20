@@ -1,4 +1,5 @@
 {
   "main": "../dist/cjs/hooks/index.cjs",
-  "react-native": "../src/hooks/index.ts"
+  "react-native": "../src/hooks/index.ts",
+  "types": "../dist/types/hooks/index.d.ts"
 }
