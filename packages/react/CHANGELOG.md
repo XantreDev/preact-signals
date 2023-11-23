@@ -1,5 +1,11 @@
 # @preact-signals/safe-react
 
+## 0.2.0
+
+### Minor Changes
+
+- c716069: Now can transform commonjs modules
+
 ## 0.1.0
 
 ### Minor Changes
