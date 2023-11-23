@@ -8,7 +8,7 @@ import {
   NodePath,
   template,
 } from "@babel/core";
-import { isModule, addNamed } from "@babel/helper-module-imports";
+import { isModule, addNamed, addNamespace } from "@babel/helper-module-imports";
 import type { VisitNodeObject } from "@babel/traverse";
 import debug from "debug";
 
@@ -69,19 +69,30 @@ function basename(filename: string | undefined): string | undefined {
 
 const DefaultExportSymbol = Symbol("DefaultExportSymbol");
 
+function getObjectPropertyKey(
+  node: BabelTypes.ObjectProperty | BabelTypes.ObjectMethod
+): string | null {
+  if (node.key.type === "Identifier") {
+    return node.key.name;
+  } else if (node.key.type === "StringLiteral") {
+    return node.key.value;
+  }
+
+  return null;
+}
 /**
  * If the function node has a name (i.e. is a function declaration with a
  * name), return that. Else return null.
  */
 function getFunctionNodeName(path: NodePath<FunctionLike>): string | null {
-  if (path.node.type === "FunctionDeclaration" && path.node.id) {
+  if (
+    (path.node.type === "FunctionDeclaration" ||
+      path.node.type === "FunctionExpression") &&
+    path.node.id
+  ) {
     return path.node.id.name;
   } else if (path.node.type === "ObjectMethod") {
-    if (path.node.key.type === "Identifier") {
-      return path.node.key.name;
-    } else if (path.node.key.type === "StringLiteral") {
-      return path.node.key.value;
-    }
+    return getObjectPropertyKey(path.node);
   }
 
   return null;
@@ -124,6 +135,8 @@ function getFunctionNameFromParent(
     } else {
       return null;
     }
+  } else if (parentPath.node.type === "ObjectProperty") {
+    return getObjectPropertyKey(parentPath.node);
   } else if (parentPath.node.type === "ExportDefaultDeclaration") {
     return DefaultExportSymbol;
   } else if (
@@ -152,7 +165,7 @@ function getFunctionName(
   return getFunctionNameFromParent(path.parentPath);
 }
 
-function fnNameStartsWithCapital(name: string | null): boolean {
+function isComponentName(name: string | null): boolean {
   return name?.match(/^[A-Z]/) != null ?? false;
 }
 
@@ -229,7 +242,7 @@ function isComponentFunction(
 ): boolean {
   return (
     getData(path.scope, containsJSX) === true && // Function contains JSX
-    fnNameStartsWithCapital(functionName) // Function name indicates it's a component
+    isComponentName(functionName) // Function name indicates it's a component
   );
 }
 
@@ -328,50 +341,80 @@ function transformFunction(
 }
 
 function createImportLazily(
-  types: typeof BabelTypes,
+  t: typeof BabelTypes,
   pass: PluginPass,
   path: NodePath<BabelTypes.Program>,
   importName: string,
   source: string
-): () => BabelTypes.Identifier {
+): () => BabelTypes.Identifier | BabelTypes.MemberExpression {
   return () => {
-    if (!isModule(path)) {
-      throw new Error(
-        `Cannot import ${importName} outside of an ESM module file`
-      );
-    }
+    if (isModule(path)) {
+      let reference: BabelTypes.Identifier = get(pass, `imports/${importName}`);
+      if (reference) return t.cloneNode(reference);
+      reference = addNamed(path, importName, source, {
+        importedInterop: "uncompiled",
+        importPosition: "after",
+      });
+      set(pass, `imports/${importName}`, reference);
 
-    let reference: BabelTypes.Identifier = get(pass, `imports/${importName}`);
-    if (reference) return types.cloneNode(reference);
-    reference = addNamed(path, importName, source, {
-      importedInterop: "uncompiled",
-      importPosition: "after",
-    });
-    set(pass, `imports/${importName}`, reference);
+      const matchesImportName = (
+        s: BabelTypes.ImportDeclaration["specifiers"][0]
+      ) => {
+        if (s.type !== "ImportSpecifier") return false;
+        return (
+          (s.imported.type === "Identifier" &&
+            s.imported.name === importName) ||
+          (s.imported.type === "StringLiteral" &&
+            s.imported.value === importName)
+        );
+      };
+
+      for (let statement of path.get("body")) {
+        if (
+          statement.isImportDeclaration() &&
+          statement.node.source.value === source &&
+          statement.node.specifiers.some(matchesImportName)
+        ) {
+          path.scope.registerDeclaration(statement);
+          break;
+        }
+      }
+      return reference;
+    } else {
+      let reference = get(pass, `requires/${importName}`);
+      if (reference) {
+        reference = t.cloneNode(reference);
+      } else {
+        reference = addNamespace(path, source, {
+          importedInterop: "uncompiled",
+        });
+        set(pass, `requires/${importName}`, reference);
+      }
+
+      return t.memberExpression(reference, t.identifier(importName));
+    }
 
     /** Helper function to determine if an import declaration's specifier matches the given importName  */
-    const matchesImportName = (
-      s: BabelTypes.ImportDeclaration["specifiers"][0]
-    ) => {
-      if (s.type !== "ImportSpecifier") return false;
-      return (
-        (s.imported.type === "Identifier" && s.imported.name === importName) ||
-        (s.imported.type === "StringLiteral" && s.imported.value === importName)
-      );
-    };
+    // const matchesImportName = (
+    //   s: BabelTypes.ImportDeclaration["specifiers"][0]
+    // ) => {
+    //   if (s.type !== "ImportSpecifier") return false;
+    //   return (
+    //     (s.imported.type === "Identifier" && s.imported.name === importName) ||
+    //     (s.imported.type === "StringLiteral" && s.imported.value === importName)
+    //   );
+    // };
 
-    for (let statement of path.get("body")) {
-      if (
-        statement.isImportDeclaration() &&
-        statement.node.source.value === source &&
-        statement.node.specifiers.some(matchesImportName)
-      ) {
-        path.scope.registerDeclaration(statement);
-        break;
-      }
-    }
-
-    return reference;
+    // for (let statement of path.get("body")) {
+    //   if (
+    //     statement.isImportDeclaration() &&
+    //     statement.node.source.value === source &&
+    //     statement.node.specifiers.some(matchesImportName)
+    //   ) {
+    //     path.scope.registerDeclaration(statement);
+    //     break;
+    //   }
+    // }
   };
 }
 
@@ -423,9 +466,7 @@ function isComponentLike(
   path: NodePath<FunctionLike>,
   functionName: string | null
 ): boolean {
-  return (
-    !getData(path, alreadyTransformed) && fnNameStartsWithCapital(functionName)
-  );
+  return !getData(path, alreadyTransformed) && isComponentName(functionName);
 }
 
 export default function signalsTransform(
