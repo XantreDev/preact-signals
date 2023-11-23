@@ -69,19 +69,30 @@ function basename(filename: string | undefined): string | undefined {
 
 const DefaultExportSymbol = Symbol("DefaultExportSymbol");
 
+function getObjectPropertyKey(
+  node: BabelTypes.ObjectProperty | BabelTypes.ObjectMethod
+): string | null {
+  if (node.key.type === "Identifier") {
+    return node.key.name;
+  } else if (node.key.type === "StringLiteral") {
+    return node.key.value;
+  }
+
+  return null;
+}
 /**
  * If the function node has a name (i.e. is a function declaration with a
  * name), return that. Else return null.
  */
 function getFunctionNodeName(path: NodePath<FunctionLike>): string | null {
-  if (path.node.type === "FunctionDeclaration" && path.node.id) {
+  if (
+    (path.node.type === "FunctionDeclaration" ||
+      path.node.type === "FunctionExpression") &&
+    path.node.id
+  ) {
     return path.node.id.name;
   } else if (path.node.type === "ObjectMethod") {
-    if (path.node.key.type === "Identifier") {
-      return path.node.key.name;
-    } else if (path.node.key.type === "StringLiteral") {
-      return path.node.key.value;
-    }
+    return getObjectPropertyKey(path.node);
   }
 
   return null;
@@ -124,6 +135,8 @@ function getFunctionNameFromParent(
     } else {
       return null;
     }
+  } else if (parentPath.node.type === "ObjectProperty") {
+    return getObjectPropertyKey(parentPath.node);
   } else if (parentPath.node.type === "ExportDefaultDeclaration") {
     return DefaultExportSymbol;
   } else if (
@@ -152,7 +165,7 @@ function getFunctionName(
   return getFunctionNameFromParent(path.parentPath);
 }
 
-function fnNameStartsWithCapital(name: string | null): boolean {
+function isComponentName(name: string | null): boolean {
   return name?.match(/^[A-Z]/) != null ?? false;
 }
 
@@ -229,7 +242,7 @@ function isComponentFunction(
 ): boolean {
   return (
     getData(path.scope, containsJSX) === true && // Function contains JSX
-    fnNameStartsWithCapital(functionName) // Function name indicates it's a component
+    isComponentName(functionName) // Function name indicates it's a component
   );
 }
 
@@ -430,9 +443,7 @@ function isComponentLike(
   path: NodePath<FunctionLike>,
   functionName: string | null
 ): boolean {
-  return (
-    !getData(path, alreadyTransformed) && fnNameStartsWithCapital(functionName)
-  );
+  return !getData(path, alreadyTransformed) && isComponentName(functionName);
 }
 
 export default function signalsTransform(
