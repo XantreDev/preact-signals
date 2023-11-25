@@ -27,6 +27,17 @@ Signals is a performant state management library with two primary goals:
 
 Read the [announcement post](https://preactjs.com/blog/introducing-signals/) to learn more about which problems signals solves and how it came to be.
 
+- [Guide / API](https://github.com/preactjs/signals/#guide--api)
+  - [`signal(initialValue)`](https://github.com/preactjs/signals/#signalinitialvalue)
+    - [`signal.peek()`](https://github.com/preactjs/signals/#signalpeek)
+  - [`computed(fn)`](https://github.com/preactjs/signals/#computedfn)
+  - [`effect(fn)`](https://github.com/preactjs/signals/#effectfn)
+  - [`batch(fn)`](https://github.com/preactjs/signals/#batchfn)
+  - [`untracked(fn)`](https://github.com/preactjs/signals/#untrackedfn)
+- [React Integration](#react-integration-features)
+  - [Hooks](#hooks)
+- [License](#license)
+
 ## Installation:
 
 ```sh
@@ -157,7 +168,7 @@ module.exports = {
 
 #### Caveat
 
-Signals unwrapping via `React.createElement` is not supported yet in `react-native`. But since we are not using elements direct - we shouldn't care
+Signals unwrapping via `React.createElement` is not supported yet in `react-native`. But since we are not using elements direct - we shouldn't care.
 
 ```ts
 const s = signal(0);
@@ -174,17 +185,6 @@ const Component3 = () => {
   return <div a={s} />
 };
 ```
-
-- [Guide / API](https://github.com/preactjs/signals/#guide--api)
-  - [`signal(initialValue)`](https://github.com/preactjs/signals/#signalinitialvalue)
-    - [`signal.peek()`](https://github.com/preactjs/signals/#signalpeek)
-  - [`computed(fn)`](https://github.com/preactjs/signals/#computedfn)
-  - [`effect(fn)`](https://github.com/preactjs/signals/#effectfn)
-  - [`batch(fn)`](https://github.com/preactjs/signals/#batchfn)
-  - [`untracked(fn)`](https://github.com/preactjs/signals/#untrackedfn)
-- [React Integration](#react-integration-features)
-  - [Hooks](#hooks)
-- [License](#license)
 
 ## React Integration features
 
@@ -258,21 +258,6 @@ To opt into this optimization, simply pass the signal directly instead of access
 
 > **Note**
 > The content is wrapped in a React Fragment due to React 18's newer, more strict children types.
-
-### Troubleshooting
-
-### Typescript
-
-> Cannot find module '@preact-signals/safe-react/integration/vite' or its corresponding type declarations
-> You should specify moduleResolution: "nodenext" or "bundler" in your tsconfig.json
-
-```json
-{
-  "compilerOptions": {
-    "moduleResolution": "nodenext"
-  }
-}
-```
 
 ## License
 
