@@ -795,12 +795,12 @@ describe("React Signals Babel Transform", () => {
         ast: true,
         plugins: [signalsPluginConfig, "@babel/plugin-syntax-jsx"],
       });
-      console.log(result?.code);
       if (!result) {
         throw new Error("Could not transform code");
       }
 
       const state: VisitorState = {};
+      // @ts-expect-error I dont know why this is erroring
       traverse(result.ast, programScopeVisitor, undefined, state);
 
       const scope = state.programScope;
@@ -819,7 +819,6 @@ describe("React Signals Babel Transform", () => {
 				};
 			`);
 
-      console.log(scope.bindings);
       const signalsBinding = scope.bindings["_useSignals"];
       expect(signalsBinding).to.exist;
       expect(signalsBinding.kind).toEqual("module");

@@ -1,12 +1,7 @@
 import reactBabel from "@vitejs/plugin-react";
-import babel from "vite-plugin-babel";
 import { PluginOption, defineConfig } from "vite";
 import { z } from "zod";
-import path from "node:path";
-import { createRequire } from "node:module";
 import { createReactAlias } from "@preact-signals/safe-react/integrations/vite";
-
-const resolve = createRequire(import.meta.url).resolve;
 
 const envSchema = z
   .object({
@@ -31,20 +26,12 @@ export default defineConfig({
       }
     : undefined,
   plugins: [
-    // USE_TRANSFORM &&
-    //   transformDepPlugin([
-    //     {
-    //       type: "nested",
-    //       path: ["components-for-test", "@preact-signals/utils"],
-    //     },
-    //   ]),
-
     reactBabel(
       USE_TRANSFORM
         ? {
-            jsxImportSource: "@preact-signals/safe-react",
+            jsxImportSource: "@preact-signals/safe-react/jsx",
             babel: {
-              plugins: [["module:@preact-signals/safe-react/babel"]],
+              plugins: ["module:@preact-signals/safe-react/babel"],
             },
             include: /\.(mdx|js|jsx|ts|tsx|cjs|mjs)$/,
           }

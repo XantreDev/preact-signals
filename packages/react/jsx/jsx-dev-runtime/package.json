@@ -1,0 +1,4 @@
+{
+  "main": "../../src/jsx-dev-runtime.cjs",
+  "types": "../../dist/types/jsx-dev-runtime.d.cts"
+}

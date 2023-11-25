@@ -4,6 +4,7 @@ import react from "@vitejs/plugin-react";
 import packageJson from "./package.json";
 
 const selfName = packageJson.name;
+const jsxImportSource = `${selfName}/jsx`;
 
 const exactRegEx = (it: string) => new RegExp(`^${it}$`);
 
@@ -25,15 +26,21 @@ export default defineConfig({
         replacement: require.resolve(packageJson.exports["./react"].default),
       },
       {
-        find: exactRegEx(`${selfName}/jsx-runtime`),
+        find: exactRegEx(`${selfName}/jsx/jsx-runtime`),
         replacement: require.resolve(
-          packageJson.exports["./jsx-runtime"].default
+          packageJson.exports["./jsx/jsx-runtime"].default
         ),
       },
       {
-        find: `${selfName}/jsx-dev-runtime`,
+        find: `${selfName}/jsx/jsx-dev-runtime`,
         replacement: require.resolve(
-          packageJson.exports["./jsx-dev-runtime"].default
+          packageJson.exports["./jsx/jsx-dev-runtime"].default
+        ),
+      },
+      {
+        find: `${selfName}/jsx`,
+        replacement: require.resolve(
+          packageJson.exports["./jsx"].default
         ),
       },
       {
@@ -54,7 +61,7 @@ export default defineConfig({
   },
   plugins: [
     react({
-      jsxImportSource: selfName,
+      jsxImportSource,
       exclude: ["test/useSignals.test.tsx"],
       babel: {
         plugins: [
@@ -67,7 +74,7 @@ export default defineConfig({
     }),
     react({
       include: ["test/useSignals.test.tsx"],
-      jsxImportSource: selfName,
+      jsxImportSource,
     }),
   ],
   define: {

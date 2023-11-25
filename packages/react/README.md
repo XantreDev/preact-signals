@@ -58,7 +58,7 @@ export default defineConfig({
   plugins: [
     react({
       // using custom wrapper for jsx runtime and babel plugin for components
-      jsxImportSource: "@preact-signals/safe-react",
+      jsxImportSource: "@preact-signals/safe-react/jsx",
       babel: {
         plugins: ["module:@preact-signals/safe-react/babel"],
       },
@@ -112,7 +112,7 @@ export default defineConfig({
     }),
     react({
       // using custom wrapper for jsx runtime and babel plugin for components
-      jsxImportSource: "@preact-signals/safe-react",
+      jsxImportSource: "@preact-signals/safe-react/jsx",
       babel: {
         plugins: ["module:@preact-signals/safe-react/babel"],
       },

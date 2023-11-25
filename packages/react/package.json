@@ -41,6 +41,15 @@
       "jsx-dev-runtime": [
         "./dist/types/jsx-dev-runtime.d.cts"
       ],
+      "jsx": [
+        "./dist/types/react.d.cts"
+      ],
+      "jsx/jsx-runtime": [
+        "./dist/types/jsx-runtime.d.cts"
+      ],
+      "jsx/jsx-dev-runtime": [
+        "./dist/types/jsx-dev-runtime.d.cts"
+      ],
       "babel": [
         "./dist/types/babel.d.ts"
       ],
@@ -73,6 +82,18 @@
       "default": "./src/jsx-runtime.cjs"
     },
     "./jsx-dev-runtime": {
+      "types": "./dist/types/jsx-dev-runtime.d.cts",
+      "default": "./src/jsx-dev-runtime.cjs"
+    },
+    "./jsx": {
+      "types": "./dist/types/react.d.cts",
+      "default": "./src/react.cjs"
+    },
+    "./jsx/jsx-runtime": {
+      "types": "./dist/types/jsx-runtime.d.cts",
+      "default": "./src/jsx-runtime.cjs"
+    },
+    "./jsx/jsx-dev-runtime": {
       "types": "./dist/types/jsx-dev-runtime.d.cts",
       "default": "./src/jsx-dev-runtime.cjs"
     },
