@@ -37,8 +37,7 @@ Integrations:
 
 - [Vite](#vite-integration)
 - [Vite with `@preact-signals/utils`](#vite-integration-with-preact-signalsutils)
-
-react-native integration will be added soon
+- [react-native](#react-native-integration)
 
 ### Vite integration
 
@@ -119,6 +118,61 @@ export default defineConfig({
     }),
   ],
 });
+```
+
+### React Native integration
+
+```sh
+yarn add -D babel-plugin-module-resolver
+```
+
+```js
+// babel.config.js
+module.exports = {
+  // or expo-preset or metro-react-native-babel-preset
+  presets: ["@rnx-kit/babel-preset-metro-react-native"],
+  plugins: [
+    [
+      "module-resolver",
+      {
+        alias: [
+          {
+            "@preact/signals-react": "@preact-signals/safe-react",
+          },
+        ],
+      },
+    ],
+    "module:@preact-signals/safe-react/babel",
+    // transpiling jsx before preset
+    [
+      "@babel/plugin-transform-react-jsx",
+      {
+        runtime: "automatic",
+        importSource: "@preact-signals/safe-react/jsx",
+      },
+    ],
+  ],
+};
+```
+
+#### Caveat
+
+Signals unwrapping via `React.createElement` is not supported yet in `react-native`. But since we are not using elements direct - we shouldn't care
+
+```ts
+const s = signal(0);
+// not working
+const Component1 = () => {
+  return React.createElement("div", { a: s });
+};
+// working
+const Component2 = () => {
+  return React.createElement("div", { a: s.value });
+};
+// working
+const Component3 = () => {
+  return <div a={s} />
+};
 ```
 
 - [Guide / API](https://github.com/preactjs/signals/#guide--api)
