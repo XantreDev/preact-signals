@@ -1,5 +1,12 @@
 # @preact-signals/safe-react
 
+## 0.2.2
+
+### Patch Changes
+
+- 58a8047: Remove irrelevant information from README
+- 3909f6c: react-native is supported from now. Added info to readme
+
 ## 0.2.1
 
 ### Patch Changes
