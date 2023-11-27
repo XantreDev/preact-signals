@@ -9,6 +9,6 @@ export {
   useSignalContext,
   useSignalEffectOnce,
   useSignalOfReactive,
-  useSignalOfState
+  useSignalOfState,
 } from "./utility";
-
+export { useDeepReactive, useDeepSignal, useShallowReactive } from "./store";

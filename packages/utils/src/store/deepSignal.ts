@@ -12,8 +12,8 @@ type BaseTypes = string | number | boolean;
 export type UnwrapSignal<T> = T extends Signal<infer V>
   ? V
   : T extends DeepSignal<infer V>
-  ? UnwrapSignalSimple<V>
-  : UnwrapSignalSimple<T>;
+    ? UnwrapSignalSimple<V>
+    : UnwrapSignalSimple<T>;
 
 export type UnwrapSignalSimple<T> = T extends
   | Function
@@ -24,12 +24,12 @@ export type UnwrapSignalSimple<T> = T extends
   | { [RawSymbol]?: true }
   ? T
   : T extends ReadonlyArray<any>
-  ? { [K in keyof T]: UnwrapSignalSimple<T[K]> }
-  : T extends object & { [ShallowReactiveMarker]?: never }
-  ? {
-      [P in keyof T]: P extends symbol ? T[P] : UnwrapSignal<T[P]>;
-    }
-  : T;
+    ? { [K in keyof T]: UnwrapSignalSimple<T[K]> }
+    : T extends object & { [ShallowReactiveMarker]?: never }
+      ? {
+          [P in keyof T]: P extends symbol ? T[P] : UnwrapSignal<T[P]>;
+        }
+      : T;
 
 export class DeepSignal<T> extends Signal<T> {
   constructor(value: T) {
@@ -53,7 +53,7 @@ export type WrapDeepSignal<T> = T extends Signal<any>
  *
  * @param value - The object to wrap in the deepSignal.
  */
-export const deepSignal = <T>(value: T): WrapDeepSignal<T> => {
+export const deepSignal = /** #__PURE__ */ <T>(value: T): WrapDeepSignal<T> => {
   if (isSignal(value)) {
     return value as WrapDeepSignal<T>;
   }

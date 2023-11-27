@@ -54,8 +54,8 @@ const handler: ProxyHandler<any> = {
       key in target
         ? target
         : key in target[__storeState]
-        ? target[__storeState]
-        : null;
+          ? target[__storeState]
+          : null;
     if (!storage) {
       return false;
     }
@@ -130,7 +130,7 @@ export type ReadonlySignalsKeys<T extends AnyRecord> = keyof {
  * @returns
  */
 export const flatStoreOfSignals: FlatStoreOfSignals = <
-  T extends Record<any, any>
+  T extends Record<any, any>,
 >(
   initialState: T
 ): FlatStore<FlatStoreOfSignalsBody<T>> => {
@@ -158,7 +158,7 @@ export const flatStoreOfSignals: FlatStoreOfSignals = <
   return self;
 };
 
-export const createFlatStore = <T extends Record<any, any>>(
+export const createFlatStore = /** #__PURE__ */ <T extends Record<any, any>>(
   initialState: T
 ) => {
   const store = flatStore(initialState);
@@ -166,11 +166,13 @@ export const createFlatStore = <T extends Record<any, any>>(
   return [store, setterOfFlatStore(store)] as const;
 };
 
-export const createFlatStoreOfSignals = <T extends Record<any, any>>(
+export const createFlatStoreOfSignals = /** #__PURE__ */ <
+  T extends Record<any, any>,
+>(
   initialState: T
 ): readonly [
   FlatStore<FlatStoreOfSignalsBody<T>>,
-  FlatStoreSetter<FlatStoreOfSignalsBody<T>>
+  FlatStoreSetter<FlatStoreOfSignalsBody<T>>,
 ] => {
   const store = flatStoreOfSignals(initialState);
 

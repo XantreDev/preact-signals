@@ -21,7 +21,7 @@ We need to resolve `@preact/signals-react` as `@preact/signals-core`
 #### Vite example:
 
 ```ts
-import { defineConfig } from 'vite';
+import { defineConfig } from "vite";
 
 export default defineConfig({
   resolve: {
@@ -29,10 +29,10 @@ export default defineConfig({
       "@preact/signals-react": "@preact/signals-core",
     },
   },
-})
+});
 ```
 
-#### Astro example: 
+#### Astro example:
 
 ```ts
 import { defineConfig } from "astro/config";
@@ -48,7 +48,6 @@ export default defineConfig({
   },
 });
 ```
-
 
 ### `@preact/signals` additional step:
 
@@ -108,6 +107,50 @@ The `Uncached` type functions similarly to a Preact signal, essentially wrapping
 ```tsx
 const sig = signal(1);
 <div>{$(() => sig.value * 10)}</div>;
+```
+
+### Deep Reactivity (Port of Vue 3 deep tracking API)
+
+#### `deepSignal`
+
+Takes an inner value and returns a reactive and mutable signal, with deepReactive inside of it.
+
+```typescript
+const a = deepSignal({ a: 1, b: 2 });
+const c = computed(() => a.value.a + a.value.b);
+a.value = { a: 2, b: 3 };
+console.log(c.value); // 5
+
+a.value.b = 4;
+console.log(c.value); // 6
+```
+
+#### Store API
+
+Store API contains Vue-like API for deep reactivity. It's has one significant change: if reactive
+wrapper is deep - it will be named with `deep` prefix. So `reacitve` becomes `deepReactive`.
+
+| Vue               | `@preact-signals/utils/store` |
+| ----------------- | ----------------------------- |
+| `reactive`        | `Store.deepReactive`          |
+| `readonly`        | `Store.deepReadonly`          |
+| `shallowReadonly` | `Store.shallowReadonly`       |
+| `shallowReactive` | `Store.shallowReactive`       |
+| `isReactive`      | `Store.isReactive`            |
+| `isReadonly`      | `Store.isReadonly`            |
+| `isProxy`         | `Store.isProxy`               |
+| `toRaw`           | `Store.toRaw`                 |
+| `markRaw`         | `Store.markRaw`               |
+
+To use Store API you should wrap your object with `Store.deepReactive` or `Store.shallowReactive`:
+
+```typescript
+import { Store } from "@preact-signals/utils";
+
+const a = Store.deepReactive({ a: 1, b: 2 });
+const b = Store.shallowReactive({ a: 1, b: 2 });
+
+const c = computed(() => a.value.a + a.value.b + b.value.a + b.value.b);
 ```
 
 ### `reaction`
@@ -235,65 +278,6 @@ setStore({
 });
 ```
 
-## `@preact-signals/utils/store`: Deep Reactivity
-
-### `deepSignal`
-
-Takes an inner value and returns a reactive and mutable signal, with deepReactive inside of it.
-
-```typescript
-const a = deepSignal({ a: 1, b: 2 });
-const c = computed(() => a.value.a + a.value.b);
-a.value = { a: 2, b: 3 };
-console.log(c.value); // 5
-
-a.value.b = 4;
-console.log(c.value); // 6
-```
-
-### Store API
-
-Store API contains Vue-like API for deep reactivity. It's has one significant change: if reactive
-wrapper is deep - it will be named with `deep` prefix. So `reacitve` becomes `deepReactive`.
-
-| Vue               | `@preact-signals/utils/store` |
-| ----------------- | ----------------------------- |
-| `reactive`        | `Store.deepReactive`          |
-| `readonly`        | `Store.deepReadonly`          |
-| `shallowReadonly` | `Store.shallowReadonly`       |
-| `shallowReactive` | `Store.shallowReactive`       |
-| `isReactive`      | `Store.isReactive`            |
-| `isReadonly`      | `Store.isReadonly`            |
-| `isProxy`         | `Store.isProxy`               |
-| `toRaw`           | `Store.toRaw`                 |
-| `markRaw`         | `Store.markRaw`               |
-
-To use Store API you should wrap your object with `Store.deepReactive` or `Store.shallowReactive`:
-
-```typescript
-import { Store } from "@preact-signals/utils/store";
-
-const a = Store.deepReactive({ a: 1, b: 2 });
-const b = Store.shallowReactive({ a: 1, b: 2 });
-
-const c = computed(() => a.value.a + a.value.b + b.value.a + b.value.b);
-```
-
-## `@preact-signals/utils/store/hooks`: Deep Reactivity Hooks
-
-Exports hook which takes as first argument callback which will be applied on the first rended to create reactive
-primitive.
-
-### `useDeepSignal`
-
-Takes creator callback and returns a reactive and mutable signal, with deepReactive inside of it.
-
-```typescript
-const a = useDeepSignal(() => ({ a: 1, b: 2 }));
-```
-
-There are also: `useDeepReactive`, `useShallowReactive`.
-
 ## `@preact-signals/utils/hooks`: Hooks for Signals
 
 This entry provides hooks designed to work with signals, enhancing reactivity and composability in your components.
@@ -324,6 +308,21 @@ const [resource, { refetch }] = useResource({
   },
 });
 ```
+
+### Deep Reactivity Hooks
+
+Exports hook which takes as first argument callback which will be applied on the first rended to create reactive
+primitive.
+
+#### `useDeepSignal`
+
+Takes creator callback and returns a reactive and mutable signal, with deepReactive inside of it.
+
+```typescript
+const a = useDeepSignal(() => ({ a: 1, b: 2 }));
+```
+
+There are also: `useDeepReactive`, `useShallowReactive`.
 
 ### `useLinkedSignal`
 

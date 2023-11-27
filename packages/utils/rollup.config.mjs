@@ -16,10 +16,10 @@ const useEsbuild = false; // `true` -> use esbuild, `false` use tsc
 const input = [
   "src/index.ts",
   "src/hooks/index.ts",
+  "src/hooks/store.ts",
   "src/hocs/index.ts",
   "src/components/index.ts",
   "src/store/index.ts",
-  "src/store/hooks.ts",
 ];
 
 const commonPlugins = [

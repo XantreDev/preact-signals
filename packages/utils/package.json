@@ -60,10 +60,10 @@
       "require": "./dist/cjs/store/index.cjs"
     },
     "./store/hooks": {
-      "types": "./dist/types/store/hooks.d.ts",
-      "import": "./dist/esm/store/hooks.mjs",
-      "react-native": "./src/store/hooks.ts",
-      "require": "./dist/cjs/store/hooks.cjs"
+      "types": "./dist/types/hooks/store.d.ts",
+      "import": "./dist/esm/hooks/store.mjs",
+      "react-native": "./src/hooks/store.ts",
+      "require": "./dist/cjs/hooks/store.cjs"
     },
     "./package.json": "./package.json"
   },
@@ -91,7 +91,7 @@
         "./dist/types/store/index.d.ts"
       ],
       "store/hooks": [
-        "./dist/types/store/hooks.d.ts"
+        "./dist/types/hooks/store.d.ts"
       ]
     }
   },

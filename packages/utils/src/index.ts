@@ -1,9 +1,11 @@
+import "./store/sideEffects";
+
 export * from "./$";
 export {
   createFlatStore,
   flatStore,
   type FlatStore,
-  type ReadonlyFlatStore
+  type ReadonlyFlatStore,
 } from "./flat-store";
 export * from "./resource";
 export {
@@ -19,8 +21,18 @@ export {
   type AnyReactive,
   type CreateFunction,
   type Reactive,
-  type Setter
+  type Setter,
 } from "./utils";
+
+export {
+  deepSignal,
+  type DeepSignal,
+  type UnwrapSignal,
+  type UnwrapSignalSimple,
+  type WrapDeepSignal,
+} from "./store/deepSignal";
+export * as Store from "./store/publicReactivity";
+export { isSignal } from "./store/utils";
 
 declare const signalSymbol: unique symbol;
 // @ts-expect-error

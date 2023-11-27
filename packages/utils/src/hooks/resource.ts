@@ -5,6 +5,7 @@ import {
   createResource,
 } from "../resource";
 import { Accessor, AnyReactive } from "../utils";
+import { EMPTY_ARRAY } from "../constants";
 
 /**
  * @param options resource are created once, so only first options matter
@@ -13,7 +14,7 @@ import { Accessor, AnyReactive } from "../utils";
 export const useResource = <
   TResult,
   TSource extends AnyReactive = Accessor<true>,
-  TRefreshing = boolean
+  TRefreshing = boolean,
 >(
   options: ResourceOptions<TResult, TSource, TRefreshing>
 ): CreateResourceReturn<TResult, TRefreshing> => {
@@ -24,7 +25,7 @@ export const useResource = <
   }
   // activate on mount
   // @ts-expect-error returns beautiful type
-  useEffect(() => r.current![0]!.activate(), []);
+  useEffect(() => r.current![0]!.activate(), EMPTY_ARRAY);
 
   return r.current!;
 };

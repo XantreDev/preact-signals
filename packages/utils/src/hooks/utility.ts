@@ -8,6 +8,7 @@ import {
 } from "@preact-signals/unified-signals";
 import { Context, useContext, useEffect, useRef } from "react";
 import { AnyReactive, GetValue, untracked, unwrapReactive } from "../utils";
+import { EMPTY_ARRAY } from "../constants";
 
 /**
  * Allows to create signal function which is called only once, without dependencies tracking
@@ -56,5 +57,5 @@ export type Dispose = () => void;
  * Creates effect with with first provided function
  */
 export const useSignalEffectOnce = (_effect: () => void | Dispose) => {
-  useEffect(() => effect(_effect), []);
+  useEffect(() => effect(_effect), EMPTY_ARRAY);
 };
