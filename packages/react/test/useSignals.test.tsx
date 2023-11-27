@@ -2,7 +2,7 @@ import React, { Fragment } from "react";
 import { Signal, batch, signal } from "@preact/signals-core";
 import { useSignals } from "../src/lib/tracking";
 import { RewriteCall, wrapIntoProxy } from "react-fast-hoc";
-import { tryit } from "radash";
+import { sleep, tryit } from "radash";
 import {
   describe,
   expect,
@@ -481,8 +481,11 @@ describe("useSignals", () => {
   it("should break infinite loop if signal changed in render", async () => {
     // this bug is not occurs in strict mode
     const sig = signal(0);
+    let causeInfiniteLoop = true;
     const A = withUseSignals(() => {
-      sig.value++;
+      if (causeInfiniteLoop) {
+        sig.value += 1;
+      }
       return sig.value;
     });
     const App = withUseSignals(() => (
@@ -491,10 +494,30 @@ describe("useSignals", () => {
         <A />
       </>
     ));
-    const [err] = await tryit(() => render(<App />))();
-    assert(err);
-    expect(err).to.be.instanceOf(Error);
-    assert(err.message.startsWith("preact-signals: Too many sync rerenders"));
+    const renderApp = tryit(() => render(<App />));
+    {
+      const [err] = await renderApp();
+      assert(err);
+      expect(err).to.be.instanceOf(Error);
+      assert(err.message.startsWith("preact-signals: Too many sync rerenders"));
+    }
+
+    await sleep(0);
+
+    causeInfiniteLoop = false;
+    // sync rerenders should be resetted after first unmount
+    const [err] = await renderApp();
+    if (err) {
+      throw err;
+    }
+    expect(scratch.innerHTML).to.equal(sig.value.toString().repeat(2));
+    // waiting microtasks
+    await Promise.resolve();
+
+    await act(() => {
+      sig.value = 10;
+    });
+    expect(scratch.innerHTML).to.equal("1010");
   });
 
   it("changing state of other component while rendering should not crash", async () => {

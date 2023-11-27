@@ -25,22 +25,43 @@ interface Effect {
   [EffectFields.dispose](): void;
 }
 
+const enum EffectStoreFields {
+  startTracking = "s",
+  finishTracking = "f",
+  resetSyncRerenders = "r",
+}
+
 export interface EffectStore {
   effect: Effect;
   subscribe(onStoreChange: () => void): () => void;
   getSnapshot(): number;
   /** finishEffect - stop tracking the signals used in this component */
-  f(): void;
-  s(): void;
+  [EffectStoreFields.finishTracking](): void;
+  [EffectStoreFields.startTracking](): void;
+  [EffectStoreFields.resetSyncRerenders](): void;
+
   [symDispose](): void;
 }
 
-const enum EffectStoreFields {
-  startTracking = "s",
-  finishTracking = "f",
-}
-
 const _queueMicrotask = Promise.prototype.then.bind(Promise.resolve());
+const resetSyncRerendersSet = new Set<EffectStore>();
+let isResetSyncRerendersScheduled = false;
+const resetSyncRerenders = () => {
+  isResetSyncRerendersScheduled = false;
+  resetSyncRerendersSet.forEach((store) => {
+    store[EffectStoreFields.resetSyncRerenders]();
+  });
+  resetSyncRerendersSet.clear();
+};
+const scheduleResetSyncRerenders = (store: EffectStore) => {
+  if (!isResetSyncRerendersScheduled) {
+    isResetSyncRerendersScheduled = true;
+    void _queueMicrotask(resetSyncRerenders);
+  }
+  if (!resetSyncRerendersSet.has(store)) {
+    resetSyncRerendersSet.add(store);
+  }
+};
 
 let useSignalsDepth = 0;
 let cleanUpFn: (() => void) | undefined = undefined;
@@ -68,7 +89,6 @@ function createEffectStore(): EffectStore {
   });
   let inRender = false;
   let syncRerendersCount = 0;
-  let syncRerendersResetPromise: Promise<void> | undefined = undefined;
   effectInstance[EffectFields.onDepsChange] = function () {
     if (inRender) {
       return;
@@ -108,15 +128,13 @@ function createEffectStore(): EffectStore {
         unsubscribe();
       };
     },
+    [EffectStoreFields.resetSyncRerenders]() {
+      syncRerendersCount = 0;
+    },
     [EffectStoreFields.startTracking]() {
       inRender = true;
       syncRerendersCount++;
-      if (!syncRerendersResetPromise) {
-        syncRerendersResetPromise = _queueMicrotask(() => {
-          syncRerendersCount = 0;
-          syncRerendersResetPromise = undefined;
-        });
-      }
+      scheduleResetSyncRerenders(this);
       if (!useSignalsDepth && cleanUpFn) {
         throw new Error("cleanUpFn should be undefined");
       }
