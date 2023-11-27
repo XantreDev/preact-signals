@@ -1,5 +1,11 @@
 # @preact-signals/safe-react
 
+## 0.2.3
+
+### Patch Changes
+
+- 40ee2a3: Remove microtask spam for each `useSignals` - batching it to one `queueMicrotask`
+
 ## 0.2.2
 
 ### Patch Changes
