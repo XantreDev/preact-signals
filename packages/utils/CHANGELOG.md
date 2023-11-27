@@ -1,5 +1,16 @@
 # @preact-signals/utils
 
+## 0.11.0
+
+### Minor Changes
+
+- eb2df1b: Moved deepReactivity api to main entry point
+
+  `@preact-signals/utils/store` is now `@preact-signals/utils`
+  `@preact-signals/utils/store/hooks` is now `@preact-signals/utils/hooks`
+
+  For now the old paths are still available, but will be removed in the next minor version.
+
 ## 0.10.0
 
 ### Minor Changes
@@ -113,7 +124,7 @@ From now `@preact-signals/utils` `$`has`Signal` in prototype chain.
     () => {},
     {
       memoize: true,
-    }
+    },
   );
   ```
 
