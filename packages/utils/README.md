@@ -221,6 +221,26 @@ reaction(
 );
 ```
 
+### `rafReaction`
+
+Will execute reaction after deps changed on next animation frame. Return dispose function.
+
+```tsx
+const sig = signal(1);
+const el = document.createElement("div");
+
+rafReaction(
+  // deps
+  () => sig.value,
+  // effect
+  (value) => {
+    el.style.transform = `translateX(${value}px)`;
+  }
+);
+
+sig.value = 10;
+```
+
 ### `accessor`/`setter`
 
 These functions act as wrapper creators for signals, offering a convenient way to separate reading and writing responsibilities.

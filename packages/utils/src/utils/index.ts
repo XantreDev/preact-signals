@@ -5,4 +5,4 @@ export * from "./reactive";
 export * from "./setter";
 export * from "./toSolidApi";
 export * from "./type";
-export { reaction } from "./reaction";
+export { reaction, rafReaction } from "./reaction";
