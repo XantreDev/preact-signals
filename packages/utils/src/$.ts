@@ -34,7 +34,7 @@ declare class Uncached<T> extends Signal<T> {
 
 declare class WritableUncached<T> extends Uncached<T> {
   set value(value: T);
-  constructor(options: WritableUncachedOptions<T>);
+  constructor(get: () => T, set: (value: T) => void);
   [UncachedField.Setter](value: T): void;
 }
 
@@ -53,10 +53,11 @@ export type WritableUncachedOptions<T> = {
 };
 function WritableUncached<T>(
   this: WritableUncached<T>,
-  options: WritableUncachedOptions<T>
+  get: () => T,
+  set: (value: T) => void
 ) {
-  this[UncachedField.Accessor] = options.get;
-  this[UncachedField.Setter] = options.set;
+  this[UncachedField.Accessor] = get;
+  this[UncachedField.Setter] = set;
 }
 Uncached.prototype = Object.create(Signal.prototype);
 WritableUncached.prototype = Object.create(Uncached.prototype);
@@ -123,7 +124,7 @@ export const $ = <T>(accessor: Accessor<T>): Uncached<T> =>
 
 export const $w = <T>(
   options: WritableUncachedOptions<T>
-): WritableUncached<T> => new WritableUncached(options);
+): WritableUncached<T> => new WritableUncached(options.get, options.set);
 
 const computesCache = new WeakMap<Accessor<any>, ReadonlySignal<any>>();
 export const signalOf$ = <T>($value: Uncached<T>): ReadonlySignal<T> =>

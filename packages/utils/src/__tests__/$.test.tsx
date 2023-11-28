@@ -2,7 +2,7 @@ import { computed, signal } from "@preact-signals/unified-signals";
 import React from "react";
 import { describe, expect, it } from "vitest";
 
-import { $ } from "../$";
+import { $, $w } from "../$";
 import { createRenderer } from "./utils";
 
 describe("$()", () => {
@@ -116,5 +116,25 @@ describe("$()", () => {
     dispose();
     sig.value = 789;
     expect(value).equal(456);
+  });
+  it("shouldn't be writable", () => {
+    const s = $(() => 123);
+    expect(() => ((s as any).value = 456)).throw();
+  });
+
+  describe("writable", () => {
+    it("should be writable", () => {
+      const sig = signal(123);
+
+      const s = $w({
+        get: () => sig.value,
+        set: (v) => (sig.value = v),
+      });
+
+      expect(s.value).equal(123);
+      s.value = 456;
+      expect(s.value).equal(456);
+      expect(sig.value).equal(456);
+    });
   });
 });
