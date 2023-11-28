@@ -1,5 +1,50 @@
 # @preact-signals/utils
 
+## 0.12.0
+
+### Minor Changes
+
+- d3bbcd3: Added WritableUncached which receives getter and setter functions.
+
+  ```ts
+  const a = signal({ a: 1 });
+  const aField = $w({
+    get() {
+      return a().a;
+    },
+    set(value) {
+      a({ a: value });
+    },
+  });
+
+  console.log(aField.value); // 1
+  aField.value = 2;
+  console.log(aField.value); // 2
+  console.log(a.value); // { a: 2 }
+  ```
+
+- 8ad6ae2: Added `rafReaction` for easier integration with raw DOM.
+
+  ### `rafReaction`
+
+  Will execute reaction after deps changed on next animation frame. Return dispose function.
+
+  ```tsx
+  const sig = signal(1);
+  const el = document.createElement("div");
+
+  rafReaction(
+    // deps
+    () => sig.value,
+    // effect
+    (value) => {
+      el.style.transform = `translateX(${value}px)`;
+    },
+  );
+
+  sig.value = 10;
+  ```
+
 ## 0.11.0
 
 ### Minor Changes
