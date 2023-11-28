@@ -6,6 +6,11 @@ import {
 } from "@preact-signals/unified-signals";
 import { Accessor } from "./utils";
 
+const enum UncachedField {
+  Accessor = "_a",
+  Setter = "_s",
+}
+
 /**
  * Uncached is just accessor function in object wrapper, that allows to use it in JSX
  * and use `instanceof` to check if it is Uncached. Main difference with Signal is that you shouldn't follow rules of
@@ -24,37 +29,71 @@ declare class Uncached<T> extends Signal<T> {
   valueOf(): T;
   toString(): string;
   /** @internal */
-  _a(): T;
+  [UncachedField.Accessor](): T;
 }
 
+declare class WritableUncached<T> extends Uncached<T> {
+  set value(value: T);
+  constructor(get: () => T, set: (value: T) => void);
+  [UncachedField.Setter](value: T): void;
+}
+
+// @ts-expect-error
+interface WritableUncached<T> extends JSX.Element {}
 // @ts-expect-error
 interface Uncached<T> extends JSX.Element {}
 
 function Uncached<T>(this: Uncached<T>, accessor: Accessor<T>) {
-  this._a = accessor;
+  this[UncachedField.Accessor] = accessor;
+}
+
+export type WritableUncachedOptions<T> = {
+  get(): T;
+  set(value: T): void;
+};
+function WritableUncached<T>(
+  this: WritableUncached<T>,
+  get: () => T,
+  set: (value: T) => void
+) {
+  this[UncachedField.Accessor] = get;
+  this[UncachedField.Setter] = set;
 }
 Uncached.prototype = Object.create(Signal.prototype);
+WritableUncached.prototype = Object.create(Uncached.prototype);
+
 Object.defineProperties(Uncached.prototype, {
   value: {
     get(this: Uncached<any>) {
-      return this._a();
+      return this[UncachedField.Accessor]();
     },
-    set() {},
+    set() {
+      throw new Error("Uncached value is readonly");
+    },
   },
   peek: {
     value(this: Uncached<any>) {
-      return untracked(() => this._a());
+      return untracked(() => this[UncachedField.Accessor]());
     },
   },
   valueOf: {
     value(this: Uncached<any>) {
-      return this._a();
+      return this[UncachedField.Accessor]();
     },
   },
   toString: {
     value(this: Uncached<any>) {
-      return String(this._a());
+      return String(this[UncachedField.Accessor]());
     },
+  },
+});
+
+Object.defineProperty(WritableUncached.prototype, "value", {
+  get(this: WritableUncached<any>) {
+    return this[UncachedField.Accessor]();
+  },
+  set(this: WritableUncached<any>, value: any) {
+    this[UncachedField.Setter](value);
   },
 });
 
@@ -83,10 +122,17 @@ Object.defineProperties(Uncached.prototype, {
 export const $ = <T>(accessor: Accessor<T>): Uncached<T> =>
   new Uncached(accessor);
 
+export const $w = <T>(
+  options: WritableUncachedOptions<T>
+): WritableUncached<T> => new WritableUncached(options.get, options.set);
+
 const computesCache = new WeakMap<Accessor<any>, ReadonlySignal<any>>();
 export const signalOf$ = <T>($value: Uncached<T>): ReadonlySignal<T> =>
-  computesCache.get($value._a) ??
-  (computesCache.set($value._a, computed($value._a)),
-  computesCache.get($value._a)!);
+  computesCache.get($value[UncachedField.Accessor]) ??
+  (computesCache.set(
+    $value[UncachedField.Accessor],
+    computed($value[UncachedField.Accessor])
+  ),
+  computesCache.get($value[UncachedField.Accessor])!);
 
-export { Uncached };
+export { Uncached, WritableUncached };

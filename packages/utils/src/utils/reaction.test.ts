@@ -1,6 +1,7 @@
 import { signal } from "@preact-signals/unified-signals";
 import { describe, it, vi } from "vitest";
-import { reaction } from "./reaction";
+import { rafReaction, reaction } from "./reaction";
+
 describe.concurrent("reaction()", () => {
   it("should track deps", ({ expect }) => {
     const sig = signal(0);
@@ -135,6 +136,62 @@ describe.concurrent("reaction()", () => {
     increment();
     expect(disposeFn).toHaveBeenCalledTimes(2);
 
+    dispose();
+  });
+});
+
+const waitRaf = () => new Promise((resolve) => requestAnimationFrame(resolve));
+
+describe.concurrent("rafReaction()", () => {
+  it("should track deps", async ({ expect }) => {
+    const sig = signal(0);
+
+    const deps = vi.fn(() => sig.value);
+    const fn = vi.fn();
+    const dispose = rafReaction(deps, fn);
+    expect(deps).toHaveBeenCalledTimes(1);
+    expect(fn).toHaveBeenCalledTimes(0);
+    await waitRaf();
+    expect(fn).toHaveBeenCalledTimes(1);
+
+    dispose();
+  });
+
+  it("should execute only once per frame", async ({ expect }) => {
+    const sig = signal(0);
+
+    const deps = vi.fn(() => sig.value);
+    const fn = vi.fn();
+    const dispose = rafReaction(deps, fn);
+    expect(deps).toHaveBeenCalledTimes(1);
+    expect(fn).toHaveBeenCalledTimes(0);
+    sig.value = 1;
+    expect(deps).toHaveBeenCalledTimes(2);
+    sig.value = 2;
+    expect(deps).toHaveBeenCalledTimes(3);
+    await waitRaf();
+    expect(fn).toHaveBeenCalledTimes(1);
+
+    dispose();
+  });
+  it("should not cycle", async ({ expect }) => {
+    const sig = signal(0);
+
+    const deps = vi.fn(() => sig.value);
+    const fn = vi.fn(() => {
+      sig.value++;
+    });
+    const dispose = rafReaction(deps, fn);
+    expect(deps).toHaveBeenCalledTimes(1);
+    expect(fn).toHaveBeenCalledTimes(0);
+    sig.value = 1;
+    expect(deps).toHaveBeenCalledTimes(2);
+    sig.value = 2;
+    expect(deps).toHaveBeenCalledTimes(3);
+    await waitRaf();
+    expect(fn).toHaveBeenCalledTimes(1);
+    await waitRaf();
+    expect(fn).toHaveBeenCalledTimes(2);
     dispose();
   });
 });
