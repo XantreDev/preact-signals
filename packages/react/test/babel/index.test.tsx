@@ -638,6 +638,24 @@ describe("React Signals Babel Transform", () => {
 
       await runTest(inputCode, expectedOutput, { mode: "all" }, "", true);
     });
+
+    it("should not transform components wrapped in HOCs", async () => {
+      const inputCode = `
+        const MyComponent = React.memo(() => {
+          signal.value;
+          return <div>Hello World</div>;
+        })
+      `;
+
+      const expectedOutput = `
+        const MyComponent = React.memo(() => {
+          signal.value;
+          return <div>Hello World</div>;
+        })
+      `;
+
+      await runTest(inputCode, expectedOutput, { mode: "all" });
+    });
   });
 
   // describe("noTryFinally option", () => {
