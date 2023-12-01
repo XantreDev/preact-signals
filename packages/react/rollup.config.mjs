@@ -13,7 +13,7 @@ const useThrowOnError = true; // On error throw and exception
 const useSourceMap = true; // Generate source map files
 const useEsbuild = true; // `true` -> use esbuild, `false` use tsc
 
-const tsInputs = ["src/lib/index.ts", "src/babel.ts"];
+const tsInputs = ["src/lib/index.ts", "src/babel.ts", "src/lib/manual.ts"];
 const cjsInputs = ["src/integrations/vite.mjs"];
 
 const commonPlugins = [

@@ -305,6 +305,12 @@ importers:
       debug:
         specifier: ^4.3.4
         version: 4.3.4
+      hotscript:
+        specifier: ^1.0.13
+        version: 1.0.13
+      react-fast-hoc:
+        specifier: 0.3.2
+        version: 0.3.2(hotscript@1.0.13)(react@18.2.0)
       use-sync-external-store:
         specifier: ^1.2.0
         version: 1.2.0(react@18.2.0)
@@ -363,9 +369,6 @@ importers:
       react-dom:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
-      react-fast-hoc:
-        specifier: 0.3.2
-        version: 0.3.2(hotscript@1.0.13)(react@18.2.0)
       react-router-dom:
         specifier: ^6.9.0
         version: 6.18.0(react-dom@18.2.0)(react@18.2.0)
@@ -6344,6 +6347,7 @@ packages:
     dependencies:
       hotscript: 1.0.13
       react: 18.2.0
+    dev: false
 
   /react-is@17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
