@@ -1,5 +1,28 @@
 # @preact-signals/safe-react
 
+## 0.3.0
+
+### Minor Changes
+
+- a1628ba: Added manual tracking option with HOC `withTrackSignals` for unsupported environments.
+
+  ```tsx
+  import { withTrackSignals } from "@preact-signals/safe-react/manual";
+
+  const A = withTrackSignals(() => {
+    const count = signal(0);
+    count.value++;
+    return <div>{count.value}</div>;
+  });
+  ```
+
+- d5fc3f0: Removed incorrect jsx exports importSource `@preact-signals/safe-react` -> `@preact-signals/safe-react/jsx`
+
+### Patch Changes
+
+- 4616c74: Add info about babel transform
+- 16ff353: Add troubleshooting section to README
+
 ## 0.2.3
 
 ### Patch Changes
