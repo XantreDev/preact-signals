@@ -36,6 +36,8 @@ Read the [announcement post](https://preactjs.com/blog/introducing-signals/) to 
   - [`untracked(fn)`](https://github.com/preactjs/signals/#untrackedfn)
 - [React Integration](#react-integration-features)
   - [Hooks](#hooks)
+- [How it works](#how-it-works)
+- [Troubleshooting](#troubleshooting)
 - [License](#license)
 
 ## Installation:
@@ -253,6 +255,124 @@ function Counter() {
   );
 }
 ```
+
+### How it works
+
+Magic contains 2 parts:
+
+- babel plugin. Which transforms your components to subscribe to signals
+
+It will be transformed to:
+
+```tsx
+const sig = signal(0);
+const A = () => <div>{sig.value}</div>;
+```
+
+```tsx
+import { useSignals } from "@preact-signals/safe-react/tracking";
+
+const sig = signal(0);
+const A = () => {
+  const store = useSignals();
+  try {
+    // all signals used in this function will be tracked
+    return <div>{sig.value}</div>;
+  } finally {
+    effectStore[EffectStoreFields.finishTracking]();
+  }
+};
+```
+
+- jsx runtime. Which unwraps signals while it passed as props to elements
+
+```tsx
+const sig = signal(0);
+
+// data-a={sig} will be unwrapped and equal to data-a={sig.value}
+const A = () => <div data-a={sig}>{sig.value}</div>;
+```
+
+#### How babel plugin works
+
+Babel plugin transforms your components to subscribe to signals. It works in 3 modes:
+
+- `all` (default) - all components will be wrapped with try/finally block to track signals
+- `manual` - you should wrap your components with `@trackSignals` directive to track signals
+- `auto` - all component which contains `.value` access will be wrapped with try/finally block to track signals
+
+##### How to specify mode
+
+```json
+{
+  "plugins": [
+    [
+      "module:@preact-signals/safe-react/babel",
+      {
+        "mode": "manual"
+      }
+    ]
+  ]
+}
+```
+
+How babel plugin detects components?
+
+- function starting with capital letter
+- function uses jsx syntax
+
+```tsx
+// will be transformed
+const A = () => <div>{sig.value}</div>;
+// will not be transformed
+const a = () => <div>{sig.value}</div>;
+// will be transformed
+/**
+ * @trackSignals
+ */
+const b = () => <div>{sig.value}</div>;
+```
+
+You can use `@trackSignals` to opt-in to tracking for a component that doesn't meet the criteria above.
+Or you can use `@noTrackSignals` to opt-out of tracking for a component that does meet the criteria above.
+
+### Troubleshooting
+
+#### Some of my components are not updating
+
+Probably your component doesn't meet the criteria from [How babel plugin detects components?](#how-babel-plugin-detects-components) section. You can use `@trackSignals` to opt-in to tracking for a component that doesn't meet the criteria above.
+
+#### `Rendered more hooks than during the previous render`
+
+This error occurs when you're using some component without hooks as render function conditionally.
+
+```tsx
+const sig = signal(0);
+const A = ({ renderButton }: { renderButton: () => JSX.Element }) =>
+  sig.value % 2 ? renderButton() : <div>{sig.value}</div>;
+
+const B = () => <button>Some content</button>;
+
+<A renderButton={B}>
+sig.value++; // this will cause error
+```
+
+It isn't working, because transform think that `B` is a component, but it's just a function. There're 3 ways to fix this:
+
+- rename `B` to `renderB` and use it as `renderButton={renderB}`. Since transform transforms only function starting with capital letter.
+- use `React.createElement(B)` instead of `B()`
+- Add `@noTrackSignals` directive to `B` function
+
+```tsx
+/**
+ * @noTrackSignals
+ */
+const B = () => <button>Some content</button>;
+```
+
+#### `Error: Cannot update a component (`Component`) while rendering a different component (`Component2`). To locate the bad setState() call inside `Component2``
+
+This error occurs when you're updating another component in render time of another component. In most case you should ignore this message, since it's just warning
 
 To opt into this optimization, simply pass the signal directly instead of accessing the `.value` property.
 
