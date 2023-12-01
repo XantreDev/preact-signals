@@ -36,6 +36,7 @@ Read the [announcement post](https://preactjs.com/blog/introducing-signals/) to 
   - [`untracked(fn)`](https://github.com/preactjs/signals/#untrackedfn)
 - [React Integration](#react-integration-features)
   - [Hooks](#hooks)
+- [How it works](#how-it-works)
 - [Troubleshooting](#troubleshooting)
 - [License](#license)
 
@@ -255,7 +256,91 @@ function Counter() {
 }
 ```
 
+### How it works
+
+Magic contains 2 parts:
+
+- babel plugin. Which transforms your components to subscribe to signals
+
+It will be transformed to:
+
+```tsx
+const sig = signal(0);
+const A = () => <div>{sig.value}</div>;
+```
+
+```tsx
+import { useSignals } from "@preact-signals/safe-react/tracking";
+
+const sig = signal(0);
+const A = () => {
+  const store = useSignals();
+  try {
+    // all signals used in this function will be tracked
+    return <div>{sig.value}</div>;
+  } finally {
+    effectStore[EffectStoreFields.finishTracking]();
+  }
+};
+```
+
+- jsx runtime. Which unwraps signals while it passed as props to elements
+
+```tsx
+const sig = signal(0);
+
+// data-a={sig} will be unwrapped and equal to data-a={sig.value}
+const A = () => <div data-a={sig}>{sig.value}</div>;
+```
+
+#### How babel plugin works
+
+Babel plugin transforms your components to subscribe to signals. It works in 3 modes:
+
+- `all` (default) - all components will be wrapped with try/finally block to track signals
+- `manual` - you should wrap your components with `@trackSignals` directive to track signals
+- `auto` - all component which contains `.value` access will be wrapped with try/finally block to track signals
+
+##### How to specify mode
+
+```json
+{
+  "plugins": [
+    [
+      "module:@preact-signals/safe-react/babel",
+      {
+        "mode": "manual"
+      }
+    ]
+  ]
+}
+```
+
+How babel plugin detects components?
+
+- function starting with capital letter
+- function uses jsx syntax
+
+```tsx
+// will be transformed
+const A = () => <div>{sig.value}</div>;
+// will not be transformed
+const a = () => <div>{sig.value}</div>;
+// will be transformed
+/**
+ * @trackSignals
+ */
+const b = () => <div>{sig.value}</div>;
+```
+
+You can use `@trackSignals` to opt-in to tracking for a component that doesn't meet the criteria above.
+Or you can use `@noTrackSignals` to opt-out of tracking for a component that does meet the criteria above.
+
 ### Troubleshooting
+
+#### Some of my components are not updating
+
+Probably your component doesn't meet the criteria from [How babel plugin detects components?](#how-babel-plugin-detects-components) section. You can use `@trackSignals` to opt-in to tracking for a component that doesn't meet the criteria above.
 
 #### `Rendered more hooks than during the previous render`
 
