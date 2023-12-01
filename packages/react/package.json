@@ -84,14 +84,6 @@
       "types": "./dist/types/react.d.cts",
       "default": "./src/react.cjs"
     },
-    "./jsx-runtime": {
-      "types": "./dist/types/jsx-runtime.d.cts",
-      "default": "./src/jsx-runtime.cjs"
-    },
-    "./jsx-dev-runtime": {
-      "types": "./dist/types/jsx-dev-runtime.d.cts",
-      "default": "./src/jsx-dev-runtime.cjs"
-    },
     "./jsx": {
       "types": "./dist/types/react.d.cts",
       "default": "./src/react.cjs"
