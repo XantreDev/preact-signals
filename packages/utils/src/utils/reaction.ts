@@ -133,11 +133,14 @@ export const reaction = <T>(
   });
 };
 
-let rafsItems: (() => void)[] = [];
+let rafsItems: Set<() => void> = new Set();
 const executor = () => {
   isRafScheduled = false;
   const items = rafsItems;
-  rafsItems = [];
+  if (items.size === 0) {
+    return;
+  }
+  rafsItems = new Set();
   batch(() => {
     items.forEach((item) => item());
   });
@@ -162,26 +165,34 @@ export const rafReaction = <T>(
   const wrappedDeps = options?.memoize
     ? accessorOfSignal(computed(deps))
     : deps;
-  let isSelfRafScheduled = false;
+  let selfRafItem: (() => void) | null = null;
 
   return effect(() => {
     const value = wrappedDeps();
 
-    try {
-      if (!isRafScheduled) {
-        isRafScheduled = true;
-        requestAnimationFrame(executor);
-      }
-      if (!isSelfRafScheduled) {
-        const _isFirst = isFirst;
-        isSelfRafScheduled = true;
-        rafsItems.push(() => {
-          isSelfRafScheduled = false;
-          fn(value, { isFirst: _isFirst });
-        });
-      }
-    } finally {
-      isFirst = false;
+    if (!isRafScheduled) {
+      isRafScheduled = true;
+      requestAnimationFrame(executor);
     }
+    if (!selfRafItem) {
+      const _isFirst = isFirst;
+      selfRafItem = () => {
+        try {
+          fn(value, { isFirst: _isFirst });
+        } finally {
+          selfRafItem = null;
+          isFirst = false;
+        }
+      };
+      rafsItems.add(selfRafItem);
+    }
+
+    return () => {
+      if (!selfRafItem) {
+        return;
+      }
+      rafsItems.delete(selfRafItem);
+      selfRafItem = null;
+    };
   });
 };

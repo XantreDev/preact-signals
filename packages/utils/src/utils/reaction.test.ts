@@ -171,6 +171,11 @@ describe.concurrent("rafReaction()", () => {
     expect(deps).toHaveBeenCalledTimes(3);
     await waitRaf();
     expect(fn).toHaveBeenCalledTimes(1);
+    expect(fn).toHaveBeenCalledWith(2, { isFirst: true });
+    sig.value = 3;
+    await waitRaf();
+    expect(fn).toHaveBeenCalledTimes(2);
+    expect(fn).toHaveBeenCalledWith(3, { isFirst: false });
 
     dispose();
   });
@@ -190,8 +195,21 @@ describe.concurrent("rafReaction()", () => {
     expect(deps).toHaveBeenCalledTimes(3);
     await waitRaf();
     expect(fn).toHaveBeenCalledTimes(1);
+    expect(fn).toHaveBeenCalledWith(2, { isFirst: true });
     await waitRaf();
     expect(fn).toHaveBeenCalledTimes(2);
     dispose();
+  });
+  it("should not execute if fn if reaction is disposed", async ({ expect }) => {
+    const sig = signal(0);
+
+    const deps = vi.fn(() => sig.value);
+    const fn = vi.fn();
+    const dispose = rafReaction(deps, fn);
+    expect(deps).toHaveBeenCalledTimes(1);
+    expect(fn).toHaveBeenCalledTimes(0);
+    dispose();
+    await waitRaf();
+    expect(fn).toHaveBeenCalledTimes(0);
   });
 });
