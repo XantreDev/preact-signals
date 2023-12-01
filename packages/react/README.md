@@ -36,6 +36,7 @@ Read the [announcement post](https://preactjs.com/blog/introducing-signals/) to 
   - [`untracked(fn)`](https://github.com/preactjs/signals/#untrackedfn)
 - [React Integration](#react-integration-features)
   - [Hooks](#hooks)
+- [Troubleshooting](#troubleshooting)
 - [License](#license)
 
 ## Installation:
@@ -253,6 +254,40 @@ function Counter() {
   );
 }
 ```
+
+### Troubleshooting
+
+#### `Rendered more hooks than during the previous render`
+
+This error occurs when you're using some component without hooks as render function conditionally.
+
+```tsx
+const sig = signal(0);
+const A = ({ renderButton }: { renderButton: () => JSX.Element }) =>
+  sig.value % 2 ? renderButton() : <div>{sig.value}</div>;
+
+const B = () => <button>Some content</button>;
+
+<A renderButton={B}>
+sig.value++; // this will cause error
+```
+
+It isn't working, because transform think that `B` is a component, but it's just a function. There're 3 ways to fix this:
+
+- rename `B` to `renderB` and use it as `renderButton={renderB}`. Since transform transforms only function starting with capital letter.
+- use `React.createElement(B)` instead of `B()`
+- Add `@noTrackSignals` directive to `B` function
+
+```tsx
+/**
+ * @noTrackSignals
+ */
+const B = () => <button>Some content</button>;
+```
+
+#### `Error: Cannot update a component (`Component`) while rendering a different component (`Component2`). To locate the bad setState() call inside `Component2``
+
+This error occurs when you're updating another component in render time of another component. In most case you should ignore this message, since it's just warning
 
 To opt into this optimization, simply pass the signal directly instead of accessing the `.value` property.
 
