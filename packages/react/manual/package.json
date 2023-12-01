@@ -1,0 +1,5 @@
+{
+  "main": "../dist/cjs/lib/manual.cjs",
+  "types": "../dist/types/lib/manual.d.ts",
+  "react-native": "../src/lib/manual.ts"
+}

@@ -1,7 +1,6 @@
 import React, { Fragment } from "react";
 import { Signal, batch, signal } from "@preact/signals-core";
 import { useSignals } from "../src/lib/tracking";
-import { RewriteCall, wrapIntoProxy } from "react-fast-hoc";
 import { sleep, tryit } from "radash";
 import {
   describe,
@@ -20,16 +19,7 @@ import {
   getConsoleErrorSpy,
   checkConsoleErrorLogs,
 } from "./shared/utils";
-const withUseSignals = wrapIntoProxy(
-  new RewriteCall((fn) => {
-    const s = useSignals();
-    try {
-      return fn.renderComponent(...fn.args);
-    } finally {
-      s.f();
-    }
-  })
-);
+import { withTrackSignals } from "../src/lib/manual";
 
 describe("useSignals", () => {
   let scratch: HTMLDivElement;
@@ -56,12 +46,12 @@ describe("useSignals", () => {
 
   it("should rerender components when signals they use change", async () => {
     const signal1 = signal(0);
-    const Child1 = withUseSignals(function () {
+    const Child1 = withTrackSignals(function () {
       return <p>{signal1.value}</p>;
     });
 
     const signal2 = signal(0);
-    const Child2 = withUseSignals(() => {
+    const Child2 = withTrackSignals(() => {
       return <p>{signal2.value}</p>;
     });
 
@@ -92,8 +82,8 @@ describe("useSignals", () => {
     const signal1 = signal(0);
     const signal2 = signal(0);
     const signal3 = signal(0);
-    const App = withUseSignals(
-      withUseSignals(() => {
+    const App = withTrackSignals(
+      withTrackSignals(() => {
         const sig1 = signal1.value;
         const sig2 = signal2.value;
         const sig3 = signal3.value;
@@ -129,14 +119,14 @@ describe("useSignals", () => {
   it("should not rerender components when signals they use do not change", async () => {
     const child1Spy = vi.fn();
     const signal1 = signal(0);
-    const Child1 = withUseSignals(() => {
+    const Child1 = withTrackSignals(() => {
       child1Spy();
       return <p>{signal1.value}</p>;
     });
 
     const child2Spy = vi.fn();
     const signal2 = signal(0);
-    const Child2 = withUseSignals(() => {
+    const Child2 = withTrackSignals(() => {
       child2Spy();
       return <p>{signal2.value}</p>;
     });
@@ -186,7 +176,7 @@ describe("useSignals", () => {
   it("should not rerender components when signals they use change but they are not mounted", async () => {
     const child1Spy = vi.fn();
     const signal1 = signal(0);
-    const Child = withUseSignals(() => {
+    const Child = withTrackSignals(() => {
       child1Spy();
       const sig1 = signal1.value;
       return <p>{sig1}</p>;
@@ -217,24 +207,28 @@ describe("useSignals", () => {
 
   it("should not rerender components that only update signals in event handlers", async () => {
     const buttonSpy = vi.fn();
-    const AddOneButton = withUseSignals(({ num }: { num: Signal<number> }) => {
-      buttonSpy();
-      return (
-        <button
-          onClick={() => {
-            num.value += 1;
-          }}
-        >
-          Add One
-        </button>
-      );
-    });
+    const AddOneButton = withTrackSignals(
+      ({ num }: { num: Signal<number> }) => {
+        buttonSpy();
+        return (
+          <button
+            onClick={() => {
+              num.value += 1;
+            }}
+          >
+            Add One
+          </button>
+        );
+      }
+    );
 
     const displaySpy = vi.fn();
-    const DisplayNumber = withUseSignals(({ num }: { num: Signal<number> }) => {
-      displaySpy();
-      return <p>{num.value}</p>;
-    });
+    const DisplayNumber = withTrackSignals(
+      ({ num }: { num: Signal<number> }) => {
+        displaySpy();
+        return <p>{num.value}</p>;
+      }
+    );
 
     const number = signal(0);
     function App() {
@@ -262,24 +256,28 @@ describe("useSignals", () => {
 
   it("should not rerender components that only read signals in event handlers", async () => {
     const buttonSpy = vi.fn();
-    const AddOneButton = withUseSignals(({ num }: { num: Signal<number> }) => {
-      buttonSpy();
-      return (
-        <button
-          onClick={() => {
-            num.value += adder.value;
-          }}
-        >
-          Add One
-        </button>
-      );
-    });
+    const AddOneButton = withTrackSignals(
+      ({ num }: { num: Signal<number> }) => {
+        buttonSpy();
+        return (
+          <button
+            onClick={() => {
+              num.value += adder.value;
+            }}
+          >
+            Add One
+          </button>
+        );
+      }
+    );
 
     const displaySpy = vi.fn();
-    const DisplayNumber = withUseSignals(({ num }: { num: Signal<number> }) => {
-      displaySpy();
-      return <p>{num.value}</p>;
-    });
+    const DisplayNumber = withTrackSignals(
+      ({ num }: { num: Signal<number> }) => {
+        displaySpy();
+        return <p>{num.value}</p>;
+      }
+    );
 
     const adder = signal(2);
     const number = signal(0);
@@ -433,7 +431,7 @@ describe("useSignals", () => {
   it("shouldn't rerender self if changing self deps", async () => {
     // this bug is not occurs in strict mode
     const sig = signal(0);
-    const App = withUseSignals(() => {
+    const App = withTrackSignals(() => {
       sig.value;
       if (sig.peek() < 100) {
         sig.value += 1;
@@ -456,12 +454,12 @@ describe("useSignals", () => {
   it("should rerender descedents even wrapped in memo if change signal in render", async () => {
     // this bug is not occurs in strict mode
     const sig = signal(0);
-    const A = withUseSignals(
+    const A = withTrackSignals(
       React.memo(() => {
         return sig.value;
       })
     );
-    const App = withUseSignals(() => {
+    const App = withTrackSignals(() => {
       sig.value;
       if (sig.peek() < 100) {
         sig.value += 1;
@@ -482,13 +480,13 @@ describe("useSignals", () => {
     // this bug is not occurs in strict mode
     const sig = signal(0);
     let causeInfiniteLoop = true;
-    const A = withUseSignals(() => {
+    const A = withTrackSignals(() => {
       if (causeInfiniteLoop) {
         sig.value += 1;
       }
       return sig.value;
     });
-    const App = withUseSignals(() => (
+    const App = withTrackSignals(() => (
       <>
         {sig.value}
         <A />
@@ -523,13 +521,13 @@ describe("useSignals", () => {
   it("changing state of other component while rendering should not crash", async () => {
     const sig = signal(0);
 
-    const A = withUseSignals(() => {
+    const A = withTrackSignals(() => {
       if (sig.peek() < 1) {
         sig.value += 1;
       }
       return sig.value;
     });
-    const B = withUseSignals(() => {
+    const B = withTrackSignals(() => {
       return (
         <>
           {sig.value}
@@ -544,14 +542,14 @@ describe("useSignals", () => {
 
   it("should update component if deps updated in render of other component", async () => {
     const sig = signal(0);
-    const A = withUseSignals(() => {
+    const A = withTrackSignals(() => {
       return sig.value;
     });
-    const B = withUseSignals(() => {
+    const B = withTrackSignals(() => {
       sig.value = sig.peek() + 1;
       return sig.peek();
     });
-    const App = withUseSignals(() => {
+    const App = withTrackSignals(() => {
       return (
         <>
           <A />

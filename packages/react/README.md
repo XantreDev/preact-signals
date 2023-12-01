@@ -4,7 +4,13 @@ This is community driven preact/signals integration for React, based on official
 
 - no runtime react internals patching
 - uses babel plugin to subscribe your components to signals (based on official `@preact/signals-react-transform`).
+- if environment doesn't support babel plugin - exports HOC to subscribe your components to signals
 - achieves the same features by bundler aliasing for react
+
+There are two ways of tracking signals:
+
+- `automatic` - using babel plugin to subscribe your components to signals (based on official `@preact/signals-react-transform`).
+- `manual` - manual adding tracking to your components with HOC
 
 ## Alterations
 
@@ -48,9 +54,11 @@ npm install @preact-signals/safe-react
 
 Integrations:
 
-- [Vite](#vite-integration)
-- [Vite with `@preact-signals/utils`](#vite-integration-with-preact-signalsutils)
-- [react-native](#react-native-integration)
+- Automatic
+  - [Vite](#vite-integration)
+  - [Vite with `@preact-signals/utils`](#vite-integration-with-preact-signalsutils)
+  - [react-native](#react-native-integration)
+- [Manual (next.js, webpack, etc)](#manual-integration)
 
 ### Vite integration
 
@@ -186,6 +194,18 @@ const Component2 = () => {
 const Component3 = () => {
   return <div a={s} />
 };
+```
+
+### Manual integration
+
+```tsx
+import { withTrackSignals } from "@preact-signals/safe-react/manual";
+
+const A = withTrackSignals(() => {
+  const count = signal(0);
+  count.value++;
+  return <div>{count.value}</div>;
+});
 ```
 
 ## React Integration features
