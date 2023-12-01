@@ -1,5 +1,11 @@
 # @preact-signals/utils
 
+## 0.12.1
+
+### Patch Changes
+
+- d26e23e: Fix call of `rafReaction` fn after disposal
+
 ## 0.12.0
 
 ### Minor Changes
