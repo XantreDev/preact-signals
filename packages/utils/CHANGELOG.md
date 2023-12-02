@@ -1,5 +1,11 @@
 # @preact-signals/utils
 
+## 0.12.2
+
+### Patch Changes
+
+- 6abe126: Improve deep signals types
+
 ## 0.12.1
 
 ### Patch Changes

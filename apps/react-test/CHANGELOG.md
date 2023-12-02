@@ -1,5 +1,13 @@
 # react-test
 
+## 0.0.24
+
+### Patch Changes
+
+- Updated dependencies [29c5dbf]
+  - @preact-signals/safe-react@0.3.1
+  - components-for-test@4.0.6
+
 ## 0.0.23
 
 ### Patch Changes
