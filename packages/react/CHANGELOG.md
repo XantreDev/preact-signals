@@ -1,5 +1,11 @@
 # @preact-signals/safe-react
 
+## 0.3.1
+
+### Patch Changes
+
+- 29c5dbf: Written more comprehensive README.md. Added integration comparsion
+
 ## 0.3.0
 
 ### Minor Changes
