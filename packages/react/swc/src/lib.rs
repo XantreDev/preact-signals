@@ -51,22 +51,51 @@ enum SignalsStatus {
     Auto,
 }
 
+#[derive(PartialEq, Eq, Clone, Copy)]
+enum Context {
+    Root,
+    Function,
+    RenderFunction,
+    ComponentLikeNameDeclr,
+    ComponentLike,
+    Component,
+}
+
 pub struct TransformVisitor {
+    context: Context,
+    should_add_import: bool,
     signals: SignalsStatus,
-    is_inside_component: bool,
-    is_inside_function: bool,
-    has_jsx: bool,
-    should_transform: bool,
 }
 
 fn is_component_name(name: &str) -> bool {
     static RE: Lazy<Regex> = Lazy::new(|| Regex::new("^[A-Z]").unwrap());
     RE.is_match(name)
 }
+
+trait FunctionLikeExpr {
+    fn is_regular(&self) -> bool;
+}
+
+impl FunctionLikeExpr for ArrowExpr {
+    fn is_regular(&self) -> bool {
+        !self.is_async && !self.is_generator
+    }
+}
+impl FunctionLikeExpr for FnExpr {
+    fn is_regular(&self) -> bool {
+        self.function.is_regular()
+    }
+}
+impl FunctionLikeExpr for Function {
+    fn is_regular(&self) -> bool {
+        !self.is_async && !self.is_generator
+    }
+}
+
 fn can_be_component_function(expr: &Expr) -> bool {
     match expr {
-        Expr::Fn(it) if !it.function.is_async && !it.function.is_generator => true,
-        Expr::Arrow(it) if !it.is_async && !it.is_generator => true,
+        Expr::Fn(it) => it.is_regular(),
+        Expr::Arrow(it) => it.is_regular(),
         _ => false,
     }
 }
@@ -82,128 +111,168 @@ impl VisitMut for TransformVisitor {
                 if is_component_name(ident.to_string().as_str())
                     && (can_be_component_function(exp)) =>
             {
-                let old_is_inside_component = self.is_inside_component;
-                self.is_inside_component = true;
+                let old_context = self.context;
+                self.context = Context::ComponentLikeNameDeclr;
                 #[cfg(debug_assertions)]
                 println!("is inside component");
                 n.visit_mut_children_with(self);
-                self.is_inside_component = old_is_inside_component;
+                self.context = old_context;
             }
             _ => {
-                let old_is_inside_component = self.is_inside_component;
-                self.is_inside_component = false;
+                let old_context = self.context;
+                self.context = Context::Function;
                 n.visit_mut_children_with(self);
-                self.is_inside_component = old_is_inside_component;
+                match self.context {
+                    Context::RenderFunction => self.context = Context::Component,
+                    _ => self.context = old_context,
+                }
             }
         }
     }
     fn visit_mut_arrow_expr(&mut self, n: &mut ArrowExpr) {
-        let old_self_is_inside_function = self.is_inside_function;
-        self.is_inside_function = true;
+        let old_context = self.context;
+        match old_context {
+            Context::ComponentLikeNameDeclr => {
+                self.context = Context::ComponentLike;
+            }
+            _ => {
+                self.context = Context::Function;
+            }
+        }
+
         n.visit_mut_children_with(self);
-        self.is_inside_component = old_self_is_inside_function;
+        self.context = old_context
+    }
+    fn visit_mut_fn_decl(&mut self, n: &mut FnDecl) {
+        let old_context = self.context;
+        match old_context {
+            Context::ComponentLikeNameDeclr => n.visit_mut_children_with(self),
+            _ if n.function.is_regular() && is_component_name(n.ident.to_string().as_str()) => {
+                self.context = Context::ComponentLikeNameDeclr;
+                n.visit_mut_children_with(self);
+                self.context = old_context
+            }
+            _ => {}
+        }
     }
     fn visit_mut_function(&mut self, n: &mut Function) {
-        let old_self_is_inside_function = self.is_inside_function;
-        self.is_inside_function = true;
+        let old_context = self.context;
+
+        match old_context {
+            Context::ComponentLikeNameDeclr => {
+                self.context = Context::ComponentLike;
+            }
+            _ => {
+                self.context = Context::Function;
+            }
+        }
+
         n.visit_mut_children_with(self);
-        self.is_inside_component = old_self_is_inside_function;
+        self.context = old_context
     }
     fn visit_mut_stmts(&mut self, n: &mut Vec<Stmt>) {
-        if !self.is_inside_component || !self.is_inside_function {
-            return n.visit_mut_children_with(self);
-        }
-        let old_has_jsx = self.has_jsx;
-        self.has_jsx = false;
-        n.visit_mut_children_with(self);
-        #[cfg(debug_assertions)]
-        println!("decide should transform");
-        if !self.has_jsx {
-            self.has_jsx = old_has_jsx;
-            return;
-        }
+        let old_context = self.context;
+        match old_context {
+            Context::ComponentLike => {
+                n.visit_mut_children_with(self);
+                #[cfg(debug_assertions)]
+                println!("decide should transform");
+                if self.context != Context::Component {
+                    self.context = old_context;
+                    return;
+                }
 
-        self.has_jsx = old_has_jsx;
-        let mut new_stmts = Vec::new();
-        let signal_effect_ident = Ident {
-            span: DUMMY_SP,
-            sym: Atom::from("_s"),
-            optional: false,
-        };
-        new_stmts.push(Stmt::Decl(Decl::Var(Box::new(VarDecl {
-            span: DUMMY_SP,
-            kind: VarDeclKind::Var,
-            declare: false,
-            decls: vec![VarDeclarator {
-                definite: false,
-                span: DUMMY_SP,
-                init: Some(Box::new(Expr::Call(CallExpr {
+                self.context = old_context;
+                let mut new_stmts = Vec::new();
+                let signal_effect_ident = Ident {
                     span: DUMMY_SP,
-                    callee: Callee::Expr(Box::new(Expr::Ident(Ident {
-                        span: DUMMY_SP,
-                        sym: Atom::from("useSignals"),
-                        optional: false,
-                    }))),
-                    args: vec![],
-                    type_args: None,
-                }))),
-                name: Pat::Ident(BindingIdent {
-                    id: signal_effect_ident.clone(),
-                    type_ann: None,
-                }),
-            }],
-        }))));
-        new_stmts.push(Stmt::Try(Box::new(TryStmt {
-            span: DUMMY_SP,
-            block: BlockStmt {
-                span: DUMMY_SP,
-                stmts: n.to_vec(),
-            },
-            handler: None,
-            finalizer: Some(BlockStmt {
-                span: DUMMY_SP,
-                stmts: vec![Stmt::Expr(ExprStmt {
+                    sym: Atom::from("_s"),
+                    optional: false,
+                };
+                new_stmts.push(Stmt::Decl(Decl::Var(Box::new(VarDecl {
                     span: DUMMY_SP,
-                    expr: Box::new(Expr::Call(CallExpr {
-                        args: vec![],
+                    kind: VarDeclKind::Var,
+                    declare: false,
+                    decls: vec![VarDeclarator {
+                        definite: false,
                         span: DUMMY_SP,
-                        type_args: None,
-                        callee: Callee::Expr(Box::new(Expr::Member(MemberExpr {
+                        init: Some(Box::new(Expr::Call(CallExpr {
                             span: DUMMY_SP,
-                            prop: MemberProp::Ident(Ident {
+                            callee: Callee::Expr(Box::new(Expr::Ident(Ident {
                                 span: DUMMY_SP,
-                                sym: Atom::from("f"),
+                                sym: Atom::from("useSignals"),
                                 optional: false,
-                            }),
-                            obj: Box::new(Expr::Ident(signal_effect_ident)),
+                            }))),
+                            args: vec![],
+                            type_args: None,
                         }))),
-                    })),
-                })],
-            }),
-        })));
+                        name: Pat::Ident(BindingIdent {
+                            id: signal_effect_ident.clone(),
+                            type_ann: None,
+                        }),
+                    }],
+                }))));
+                new_stmts.push(Stmt::Try(Box::new(TryStmt {
+                    span: DUMMY_SP,
+                    block: BlockStmt {
+                        span: DUMMY_SP,
+                        stmts: n.to_vec(),
+                    },
+                    handler: None,
+                    finalizer: Some(BlockStmt {
+                        span: DUMMY_SP,
+                        stmts: vec![Stmt::Expr(ExprStmt {
+                            span: DUMMY_SP,
+                            expr: Box::new(Expr::Call(CallExpr {
+                                args: vec![],
+                                span: DUMMY_SP,
+                                type_args: None,
+                                callee: Callee::Expr(Box::new(Expr::Member(MemberExpr {
+                                    span: DUMMY_SP,
+                                    prop: MemberProp::Ident(Ident {
+                                        span: DUMMY_SP,
+                                        sym: Atom::from("f"),
+                                        optional: false,
+                                    }),
+                                    obj: Box::new(Expr::Ident(signal_effect_ident)),
+                                }))),
+                            })),
+                        })],
+                    }),
+                })));
 
-        *n = new_stmts;
-        #[cfg(debug_assertions)]
-        println!("tried to insert statements")
+                *n = new_stmts;
+                #[cfg(debug_assertions)]
+                println!("tried to insert statements")
+            }
+            _ => {
+                n.visit_mut_children_with(self);
+            }
+        }
     }
 
     fn visit_mut_jsx_element(&mut self, n: &mut JSXElement) {
         #[cfg(debug_assertions)]
         println!("is seen jsx element");
-        if self.is_inside_component {
-            self.has_jsx = true;
+        match self.context {
+            Context::Function => {
+                self.context = Context::RenderFunction;
+            }
+            Context::ComponentLike => {
+                self.context = Context::Component;
+            }
+            _ => {}
         }
+
         n.visit_mut_children_with(self)
     }
 }
 
 fn get_visitor() -> TransformVisitor {
     TransformVisitor {
-        should_transform: false,
         signals: SignalsStatus::Auto,
-        is_inside_component: false,
-        is_inside_function: false,
-        has_jsx: false,
+        context: Context::Root,
+        should_add_import: false,
     }
 }
 
