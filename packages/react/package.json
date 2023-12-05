@@ -111,6 +111,7 @@
     "build": "pnpm clean && rollup -c && pnpm build:types",
     "build:types": "tsc --project tsconfig.build.json",
     "build:rollup": "rollup -c",
+    "build:swc": "cd ./swc && cargo build-wasi --release",
     "lint": "check-export-map"
   },
   "dependencies": {

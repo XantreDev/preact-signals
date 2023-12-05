@@ -27,3 +27,5 @@ dist-ssr
 tsconfig.tsbuildinfo
 vite.config.ts.timestamp-*
 vitest.config.ts.timestamp-*
+
+packages/react/swc/target/**
