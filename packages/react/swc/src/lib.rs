@@ -91,6 +91,11 @@ impl FunctionLikeExpr for Function {
         !self.is_async && !self.is_generator
     }
 }
+impl FunctionLikeExpr for FnDecl {
+    fn is_regular(&self) -> bool {
+        self.function.is_regular()
+    }
+}
 
 fn can_be_component_function(expr: &Expr) -> bool {
     match expr {
@@ -113,8 +118,6 @@ impl VisitMut for TransformVisitor {
             {
                 let old_context = self.context;
                 self.context = Context::ComponentLikeNameDeclr;
-                #[cfg(debug_assertions)]
-                println!("is inside component");
                 n.visit_mut_children_with(self);
                 self.context = old_context;
             }
@@ -147,7 +150,7 @@ impl VisitMut for TransformVisitor {
         let old_context = self.context;
         match old_context {
             Context::ComponentLikeNameDeclr => n.visit_mut_children_with(self),
-            _ if n.function.is_regular() && is_component_name(n.ident.to_string().as_str()) => {
+            _ if n.is_regular() && is_component_name(n.ident.to_string().as_str()) => {
                 self.context = Context::ComponentLikeNameDeclr;
                 n.visit_mut_children_with(self);
                 self.context = old_context
@@ -175,8 +178,6 @@ impl VisitMut for TransformVisitor {
         match old_context {
             Context::ComponentLike => {
                 n.visit_mut_children_with(self);
-                #[cfg(debug_assertions)]
-                println!("decide should transform");
                 if self.context != Context::Component {
                     self.context = old_context;
                     return;
@@ -242,8 +243,6 @@ impl VisitMut for TransformVisitor {
                 })));
 
                 *n = new_stmts;
-                #[cfg(debug_assertions)]
-                println!("tried to insert statements")
             }
             _ => {
                 n.visit_mut_children_with(self);
@@ -252,8 +251,6 @@ impl VisitMut for TransformVisitor {
     }
 
     fn visit_mut_jsx_element(&mut self, n: &mut JSXElement) {
-        #[cfg(debug_assertions)]
-        println!("is seen jsx element");
         match self.context {
             Context::Function => {
                 self.context = Context::RenderFunction;
@@ -312,6 +309,12 @@ test!(
     boo,
     // Input codes
     r#"const A = () => {
+    function Beb(){
+    }
+
+    function Beb2(){
+        return <div />
+    }
     return <div />
 };
 
