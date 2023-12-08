@@ -1,4 +1,4 @@
-#![feature(box_patterns, let_chains, if_let_guard)]
+#![feature(box_patterns, let_chains, if_let_guard, slice_take)]
 
 use regex::Regex;
 use swc_core::{
@@ -8,6 +8,7 @@ use swc_core::{
         ast::*,
         atoms::Atom,
         parser::{EsConfig, Syntax},
+        utils::{prepend_stmt, private_ident},
         visit::{
             as_folder, noop_visit_mut_type, FoldWith, Visit, VisitMut, VisitMutWith, VisitWith,
         },
@@ -51,6 +52,30 @@ macro_rules! test {
     };
 }
 
+fn get_import_source(str: &str) -> Str {
+    Str {
+        span: DUMMY_SP,
+        value: Atom::new(str),
+        raw: None,
+    }
+}
+fn get_default_import_source() -> Str {
+    get_import_source("@preact-signals/safe-react/tracking")
+}
+fn get_named_import_ident() -> Ident {
+    Ident {
+        span: DUMMY_SP,
+        sym: "useSignals".into(),
+        optional: false,
+    }
+}
+// fn get_default_import_specifier() -> ImportSpecifier {
+//     ImportSpecifier::Default(ImportDefaultSpecifier {
+//         span: DUMMY_SP,
+//         local: get_named_import_ident(),
+//     })
+// }
+
 enum TransformMode {
     Auto,
     Manual,
@@ -63,7 +88,19 @@ where
 {
     comments: C,
     mode: TransformMode,
-    should_add_import: bool,
+    import_use_signals: Option<Ident>,
+    use_signals_import_source: Str,
+}
+
+impl<C> TransformVisitor<C>
+where
+    C: Comments,
+{
+    fn get_import_use_signals(&mut self) -> Ident {
+        self.import_use_signals
+            .get_or_insert(private_ident!("_useSignals"))
+            .clone()
+    }
 }
 
 fn is_component_name(name: &str) -> bool {
@@ -119,7 +156,7 @@ impl FunctionLikeExpr for FnDecl {
     }
 }
 
-fn wrap_with_use_signals(n: &Vec<Stmt>) -> Vec<Stmt> {
+fn wrap_with_use_signals(n: &Vec<Stmt>, use_signals_ident: Ident) -> Vec<Stmt> {
     let mut new_stmts = Vec::new();
     let signal_effect_ident = Ident {
         span: DUMMY_SP,
@@ -135,11 +172,7 @@ fn wrap_with_use_signals(n: &Vec<Stmt>) -> Vec<Stmt> {
             span: DUMMY_SP,
             init: Some(Box::new(Expr::Call(CallExpr {
                 span: DUMMY_SP,
-                callee: Callee::Expr(Box::new(Expr::Ident(Ident {
-                    span: DUMMY_SP,
-                    sym: Atom::from("useSignals"),
-                    optional: false,
-                }))),
+                callee: Callee::Expr(Box::new(Expr::Ident(use_signals_ident))),
                 args: vec![],
                 type_args: None,
             }))),
@@ -196,10 +229,10 @@ fn extract_fn_from_expr<'a>(expr: &'a mut Expr) -> Option<FunctionLike<'a>> {
             type_args: _,
             callee: _,
         }) => {
-            if let [ExprOrSpread {
+            if let Some(ExprOrSpread {
                 spread: None,
                 expr: first_arg_expr,
-            }] = args.as_mut_slice()
+            }) = args.as_mut_slice().take_first_mut()
             {
                 extract_fn_from_expr(first_arg_expr.unwrap_parens_mut())
             } else {
@@ -270,20 +303,21 @@ where
             && first.name.is_component_name()
             && let Some(init) = &mut first.init
             && let Some(component) = extract_fn_from_expr(init.unwrap_parens_mut())
-            && !component.has_name()
+            // && !component.has_name()
             && component.has_jsx()
         {
             match component {
                 FunctionLike::Arrow(arrow_expr) => {
                     let mut block = arrow_expr.body.to_block();
-                    let wrapped_body = wrap_with_use_signals(&block.stmts);
+                    let wrapped_body =
+                        wrap_with_use_signals(&block.stmts, self.get_import_use_signals());
                     block.stmts = wrapped_body;
                     arrow_expr.body = Box::new(BlockStmtOrExpr::BlockStmt(block.to_owned()));
                 }
                 FunctionLike::Fn(fn_expr) => {
                     if let Some(block_stmt) = &mut fn_expr.function.body {
-                        block_stmt.stmts = wrap_with_use_signals(&block_stmt.stmts);
-                    } else {
+                        block_stmt.stmts =
+                            wrap_with_use_signals(&block_stmt.stmts, self.get_import_use_signals());
                     }
                 }
             }
@@ -296,10 +330,106 @@ where
             && has_jsx(n)
             && let Some(block_stmt) = &mut n.function.body
         {
-            block_stmt.stmts = wrap_with_use_signals(&block_stmt.stmts);
+            block_stmt.stmts =
+                wrap_with_use_signals(&block_stmt.stmts, self.get_import_use_signals());
         }
         n.visit_mut_children_with(self);
     }
+    fn visit_mut_module(&mut self, n: &mut Module) {
+        self.import_use_signals = None;
+        n.visit_mut_children_with(self);
+        if let Some(ident) = &self.import_use_signals {
+            n.body.insert(
+                0,
+                ModuleItem::ModuleDecl(
+                    add_import(
+                        ident.clone(),
+                        self.use_signals_import_source.clone(),
+                        get_named_import_ident().into(),
+                    )
+                    .into(),
+                ),
+            )
+        }
+    }
+    fn visit_mut_script(&mut self, n: &mut Script) {
+        self.import_use_signals = None;
+        n.visit_mut_children_with(self);
+
+        if let Some(ident) = &self.import_use_signals {
+            prepend_stmt(
+                &mut n.body,
+                add_require(
+                    ident.clone(),
+                    self.use_signals_import_source.clone(),
+                    get_named_import_ident().into(),
+                ),
+            )
+        }
+    }
+}
+
+fn add_import(ident: Ident, source: Str, source_member_ident: Option<Ident>) -> ImportDecl {
+    ImportDecl {
+        span: DUMMY_SP,
+        specifiers: vec![if let Some(source_member_ident) = source_member_ident {
+            ImportSpecifier::Named(ImportNamedSpecifier {
+                span: DUMMY_SP,
+                local: ident,
+                is_type_only: false,
+                imported: Some(ModuleExportName::Ident(source_member_ident)),
+            })
+        } else {
+            ImportSpecifier::Default(ImportDefaultSpecifier {
+                span: DUMMY_SP,
+                local: ident,
+            })
+        }],
+        src: source.into(),
+        type_only: false,
+        with: None,
+    }
+}
+
+fn add_require(ident: Ident, source: Str, source_member_ident: Option<Ident>) -> Stmt {
+    Stmt::Decl(Decl::Var(Box::new(VarDecl {
+        span: DUMMY_SP,
+        kind: VarDeclKind::Const,
+        declare: false,
+        decls: vec![VarDeclarator {
+            definite: false,
+            span: DUMMY_SP,
+            name: Pat::Ident(BindingIdent {
+                id: ident,
+                type_ann: None,
+            }),
+            init: {
+                let import_call = Expr::Call(CallExpr {
+                    span: DUMMY_SP,
+                    type_args: None,
+                    callee: Callee::Expr(Box::new(Expr::Ident(Ident {
+                        span: DUMMY_SP,
+                        sym: "require".into(),
+                        optional: false,
+                    }))),
+                    args: vec![ExprOrSpread {
+                        spread: None,
+                        expr: Box::new(Expr::Lit(Lit::Str(source))),
+                    }],
+                });
+
+                if let Some(source_member_ident) = source_member_ident {
+                    Some(Box::new(Expr::Member(MemberExpr {
+                        span: DUMMY_SP,
+                        obj: Box::new(import_call),
+                        prop: MemberProp::Ident(source_member_ident),
+                    })))
+                } else {
+                    Some(Box::new(import_call))
+                }
+            },
+        }],
+    })))
 }
 
 fn get_visitor<C>(c: C) -> TransformVisitor<C>
@@ -307,7 +437,8 @@ where
     C: Comments,
 {
     TransformVisitor {
-        should_add_import: false,
+        use_signals_import_source: get_default_import_source(),
+        import_use_signals: None,
         comments: c,
         mode: TransformMode::All,
     }
@@ -348,7 +479,8 @@ test!(
     |_| as_folder(get_visitor(PluginCommentsProxy)),
     boo,
     // Input codes
-    r#"const A = () => {
+    r#"
+const A = () => {
     function Beb(){
     }
 
@@ -361,9 +493,9 @@ const Cecek = () => <div />
 const Cec = memo(() => {
     return <div />
 })
-const Cyc = React.memo(() => {
+const Cyc = React.lazy(React.memo(() => {
     return <div />
-})
+}), {})
 const CycPlain = () => 5
 
 function B(){
@@ -371,6 +503,9 @@ function B(){
 };
 
 var C = function(){
+    return <div />
+};
+var C2 = function C3(){
     return <div />
 };
     "#,
