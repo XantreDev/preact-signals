@@ -81,6 +81,7 @@
       "types": "./dist/types/react.d.cts",
       "default": "./src/react.cjs"
     },
+    "./swc": "./dist/swc.wasm",
     "./jsx": {
       "types": "./dist/types/react.d.cts",
       "default": "./src/react.cjs"
@@ -106,13 +107,12 @@
     }
   },
   "scripts": {
-    "prepack": "cd ./swc/ && cargo build-wasi --release && cp ./target/wasm32-wasi/release/swc.wasm ../dist/swc.wasm",
     "clean": "rimraf dist",
     "test": "vitest",
-    "build": "pnpm clean && rollup -c && pnpm build:types",
+    "build": "pnpm clean && rollup -c && pnpm build:types && pnpm build:swc",
     "build:types": "tsc --project tsconfig.build.json",
+    "build:swc": "cd ./swc/ && cargo build-wasi --release && copy ./target/wasm32-wasi/release/swc_plugin_preact_signals.wasm ../dist/swc.wasm",
     "build:rollup": "rollup -c",
-    "build:swc": "cd ./swc && cargo build-wasi --release",
     "lint": "check-export-map"
   },
   "dependencies": {
@@ -132,6 +132,7 @@
     "@babel/traverse": "^7.23.4",
     "@rollup/plugin-replace": "^5.0.5",
     "@rollup/plugin-typescript": "^11.1.5",
+    "@swc/core": "^1.3.100",
     "@types/babel__core": "^7.20.4",
     "@types/babel__helper-module-imports": "^7.18.3",
     "@types/babel__helper-plugin-utils": "^7.10.3",
