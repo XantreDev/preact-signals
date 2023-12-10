@@ -1,17 +1,19 @@
 [package]
-name = "react-transform-swc"
+name = "swc_plugin_preact_signals"
 version = "0.1.0"
 edition = "2021"
+publish = false
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [profile.release]
 lto = true
 
 [dependencies]
 regex = "1.10.2"
-serde = "1"
+serde = "1.0.193"
+serde_json = "1.0.108"
 swc_core = { version = "0.86.*", features = [
     "ecma_plugin_transform",
     "__parser",

@@ -106,6 +106,7 @@
     }
   },
   "scripts": {
+    "prepack": "cd ./swc/ && cargo build-wasi --release && cp ./target/wasm32-wasi/release/swc.wasm ../dist/swc.wasm",
     "clean": "rimraf dist",
     "test": "vitest",
     "build": "pnpm clean && rollup -c && pnpm build:types",

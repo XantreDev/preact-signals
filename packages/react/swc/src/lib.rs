@@ -1,9 +1,13 @@
 #![feature(box_patterns, let_chains, if_let_guard, slice_take)]
 
+use std::fmt::Debug;
+
 use regex::Regex;
+use serde::Deserialize;
+use serde_json;
 use swc_core::{
     common::comments::Comments,
-    common::{sync::Lazy, DUMMY_SP},
+    common::{comments::CommentKind, sync::Lazy, Span, DUMMY_SP},
     ecma::{
         ast::*,
         atoms::Atom,
@@ -13,10 +17,7 @@ use swc_core::{
             as_folder, noop_visit_mut_type, FoldWith, Visit, VisitMut, VisitMutWith, VisitWith,
         },
     },
-    plugin::{
-        plugin_transform,
-        proxies::{PluginCommentsProxy, TransformPluginProgramMetadata},
-    },
+    plugin::{plugin_transform, proxies::TransformPluginProgramMetadata},
 };
 pub extern crate swc_core;
 
@@ -59,6 +60,16 @@ fn get_import_source(str: &str) -> Str {
         raw: None,
     }
 }
+fn is_track_signals_directive(string: &str) -> bool {
+    static RE: Lazy<Regex> = Lazy::new(|| Regex::new("@trackSignals").unwrap());
+
+    RE.is_match(string)
+}
+fn is_no_track_signals_directive(string: &str) -> bool {
+    static RE: Lazy<Regex> = Lazy::new(|| Regex::new("@noTrackSignals").unwrap());
+
+    RE.is_match(string)
+}
 fn get_default_import_source() -> Str {
     get_import_source("@preact-signals/safe-react/tracking")
 }
@@ -69,22 +80,24 @@ fn get_named_import_ident() -> Ident {
         optional: false,
     }
 }
-// fn get_default_import_specifier() -> ImportSpecifier {
-//     ImportSpecifier::Default(ImportDefaultSpecifier {
-//         span: DUMMY_SP,
-//         local: get_named_import_ident(),
-//     })
-// }
 
+#[derive(PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 enum TransformMode {
-    Auto,
     Manual,
     All,
 }
 
-pub struct TransformVisitor<C>
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct PreactSignalsPluginOptions {
+    mode: Option<TransformMode>,
+    import_source: Option<String>,
+}
+
+pub struct SignalsTransformVisitor<C>
 where
-    C: Comments,
+    C: Comments + Debug,
 {
     comments: C,
     mode: TransformMode,
@@ -92,14 +105,33 @@ where
     use_signals_import_source: Str,
 }
 
-impl<C> TransformVisitor<C>
+impl<C> SignalsTransformVisitor<C>
 where
-    C: Comments,
+    C: Comments + Debug,
 {
     fn get_import_use_signals(&mut self) -> Ident {
         self.import_use_signals
             .get_or_insert(private_ident!("_useSignals"))
             .clone()
+    }
+    fn from_options(options: PreactSignalsPluginOptions, comments: C) -> Self {
+        SignalsTransformVisitor {
+            comments: comments,
+            mode: options.mode.unwrap_or(TransformMode::All),
+            import_use_signals: None,
+            use_signals_import_source: options
+                .import_source
+                .map(|it| get_import_source(it.as_str()))
+                .unwrap_or(get_default_import_source()),
+        }
+    }
+    fn from_default(comments: C) -> Self {
+        SignalsTransformVisitor {
+            comments: comments,
+            mode: TransformMode::All,
+            import_use_signals: None,
+            use_signals_import_source: get_default_import_source(),
+        }
     }
 }
 
@@ -158,11 +190,7 @@ impl FunctionLikeExpr for FnDecl {
 
 fn wrap_with_use_signals(n: &Vec<Stmt>, use_signals_ident: Ident) -> Vec<Stmt> {
     let mut new_stmts = Vec::new();
-    let signal_effect_ident = Ident {
-        span: DUMMY_SP,
-        sym: Atom::from("_s"),
-        optional: false,
-    };
+    let signal_effect_ident = private_ident!("_s");
     new_stmts.push(Stmt::Decl(Decl::Var(Box::new(VarDecl {
         span: DUMMY_SP,
         kind: VarDeclKind::Var,
@@ -293,18 +321,63 @@ impl FunctionLike<'_> {
     }
 }
 
-impl<C> VisitMut for TransformVisitor<C>
+#[derive(Debug)]
+enum ShouldTrack {
+    OptIn,
+    OptOut,
+    Auto,
+}
+
+fn should_track_by_comment<C>(comments: &C, span: &Span) -> ShouldTrack
 where
-    C: Comments,
+    C: Comments + Debug,
+{
+    match comments.get_leading(span.lo) {
+        Some(item) => {
+            let is_track_signals = item
+                .iter()
+                .find(|it| {
+                    it.kind == CommentKind::Block && is_track_signals_directive(it.text.as_str())
+                })
+                .is_some();
+            let is_no_track_signals = item
+                .iter()
+                .find(|it| {
+                    it.kind == CommentKind::Block && is_no_track_signals_directive(it.text.as_str())
+                })
+                .is_some();
+
+            match (is_track_signals, is_no_track_signals) {
+                (true, true) => {
+                    panic!("Cannot have both @trackSignals and @noTrackSignals")
+                }
+                (_, true) => ShouldTrack::OptOut,
+                (true, false) => ShouldTrack::OptIn,
+                _ => ShouldTrack::Auto,
+            }
+        }
+        None => ShouldTrack::Auto,
+    }
+}
+
+impl<C> VisitMut for SignalsTransformVisitor<C>
+where
+    C: Comments + Debug,
 {
     noop_visit_mut_type!();
     fn visit_mut_var_decl(&mut self, n: &mut VarDecl) {
-        if let [first] = n.decls.as_mut_slice()
-            && first.name.is_component_name()
+        if let Some(first) = n.decls.as_mut_slice().take_first_mut()
             && let Some(init) = &mut first.init
             && let Some(component) = extract_fn_from_expr(init.unwrap_parens_mut())
-            // && !component.has_name()
-            && component.has_jsx()
+            && match should_track_by_comment(&self.comments, &n.span) {
+                ShouldTrack::Auto => {
+                    self.mode == TransformMode::All
+                        && first.name.is_component_name()
+                        && component.has_jsx()
+                }
+                ShouldTrack::OptIn => true,
+                ShouldTrack::OptOut => false,
+            }
         {
             match component {
                 FunctionLike::Arrow(arrow_expr) => {
@@ -326,9 +399,13 @@ where
         n.visit_mut_children_with(self);
     }
     fn visit_mut_fn_decl(&mut self, n: &mut FnDecl) {
-        if n.ident.is_component_name()
-            && has_jsx(n)
-            && let Some(block_stmt) = &mut n.function.body
+        if match should_track_by_comment(&self.comments, &n.function.span) {
+            ShouldTrack::Auto => {
+                self.mode == TransformMode::All && n.ident.is_component_name() && has_jsx(n)
+            }
+            ShouldTrack::OptIn => true,
+            ShouldTrack::OptOut => false,
+        } && let Some(block_stmt) = &mut n.function.body
         {
             block_stmt.stmts =
                 wrap_with_use_signals(&block_stmt.stmts, self.get_import_use_signals());
@@ -432,18 +509,6 @@ fn add_require(ident: Ident, source: Str, source_member_ident: Option<Ident>) ->
     })))
 }
 
-fn get_visitor<C>(c: C) -> TransformVisitor<C>
-where
-    C: Comments,
-{
-    TransformVisitor {
-        use_signals_import_source: get_default_import_source(),
-        import_use_signals: None,
-        comments: c,
-        mode: TransformMode::All,
-    }
-}
-
 /// An example plugin function with macro support.
 /// `plugin_transform` macro interop pointers into deserialized structs, as well
 /// as returning ptr back to host.
@@ -461,7 +526,18 @@ where
 /// Refer swc_plugin_macro to see how does it work internally.
 #[plugin_transform]
 pub fn process_transform(program: Program, _metadata: TransformPluginProgramMetadata) -> Program {
-    program.fold_with(&mut as_folder(get_visitor(PluginCommentsProxy)))
+    program.fold_with(&mut as_folder({
+        let data = _metadata.get_transform_plugin_config();
+
+        match data {
+            Some(data) => {
+                let options = serde_json::from_str::<PreactSignalsPluginOptions>(data.as_str())
+                    .expect("transform plugin config should be valid json");
+                SignalsTransformVisitor::from_options(options, _metadata.comments)
+            }
+            None => SignalsTransformVisitor::from_default(_metadata.comments),
+        }
+    }))
 }
 
 fn get_syntax() -> Syntax {
@@ -476,39 +552,168 @@ fn get_syntax() -> Syntax {
 // unless explicitly required to do so.
 test!(
     get_syntax(),
-    |_| as_folder(get_visitor(PluginCommentsProxy)),
+    |tester| as_folder(SignalsTransformVisitor::from_default(
+        tester.comments.clone()
+    )),
     boo,
     // Input codes
     r#"
+// should be transformed
 const A = () => {
-    function Beb(){
-    }
-
-    function Beb2(){
-        return <div />
-    }
     return <div />
-};
+}
+// should be transformed
 const Cecek = () => <div />
-const Cec = memo(() => {
-    return <div />
-})
-const Cyc = React.lazy(React.memo(() => {
-    return <div />
-}), {})
-const CycPlain = () => 5
 
-function B(){
+// should be transformed
+function Beb2(){
     return <div />
-};
-
+}
 var C = function(){
     return <div />
 };
 var C2 = function C3(){
     return <div />
 };
+
+/**
+ * should be transformed
+ * @trackSignals
+ */
+const sdfj = () => 1
+
+// hocs should be transformed
+const Cec = memo(() => {
+    return <div />
+})
+// hocs should be transformed
+const Cyc = React.lazy(React.memo(() => {
+    return <div />
+}), {})
+
+// should not be transformed
+const CycPlain = () => 5
+
+/**
+ * should not be transformed
+ * @noTrackSignals
+ */
+function B(){
+    return <div />
+};
+
+function Asdjsadf(){
+    /**
+     * shouldn't be transformed
+     * @noTrackSignals
+     */
+    function B(){
+        return <div />
+    };
+    /**
+     * should be transformed
+     * @trackSignals
+     */
+    function c(){
+        return 5
+    };
+
+    return <div />
+}
+
     "#,
-    // Output codes after transformed with plugin
-    r#"console.log("transform");"#
+    // Expected codes
+    r#"
+    import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
+    const A = ()=>{
+        var _s = _useSignals();
+        try {
+            return <div/>;
+        } finally{
+            _s.f();
+        }
+    };
+    const Cecek = ()=>{
+        var _s = _useSignals();
+        try {
+            return <div/>;
+        } finally{
+            _s.f();
+        }
+    };
+    function Beb2() {
+        var _s = _useSignals();
+        try {
+            return <div/>;
+        } finally{
+            _s.f();
+        }
+    }
+    var C = function() {
+        var _s = _useSignals();
+        try {
+            return <div/>;
+        } finally{
+            _s.f();
+        }
+    };
+    var C2 = function C3() {
+        var _s = _useSignals();
+        try {
+            return <div/>;
+        } finally{
+            _s.f();
+        }
+    };
+    const sdfj = ()=>{
+        var _s = _useSignals();
+        try {
+            return 1;
+        } finally{
+            _s.f();
+        }
+    };
+    const Cec = memo(()=>{
+        var _s = _useSignals();
+        try {
+            return <div/>;
+        } finally{
+            _s.f();
+        }
+    });
+    const Cyc = React.lazy(React.memo(()=>{
+        var _s = _useSignals();
+        try {
+            return <div/>;
+        } finally{
+            _s.f();
+        }
+    }), {});
+    const CycPlain = ()=>5;
+    function B() {
+        return <div/>;
+    }
+    ;
+    function Asdjsadf() {
+        var _s = _useSignals();
+        try {
+            function B() {
+                return <div/>;
+            }
+            ;
+            function c() {
+                var _s = _useSignals();
+                try {
+                    return 5;
+                } finally{
+                    _s.f();
+                }
+            }
+            ;
+            return <div/>;
+        } finally{
+            _s.f();
+        }
+    }
+"#
 );
