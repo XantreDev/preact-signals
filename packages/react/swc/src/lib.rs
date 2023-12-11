@@ -86,6 +86,7 @@ fn get_named_import_ident() -> Ident {
 enum TransformMode {
     Manual,
     All,
+    Auto,
 }
 
 #[derive(Deserialize)]
@@ -190,7 +191,7 @@ impl FunctionLikeExpr for FnDecl {
 
 fn wrap_with_use_signals(n: &Vec<Stmt>, use_signals_ident: Ident) -> Vec<Stmt> {
     let mut new_stmts = Vec::new();
-    let signal_effect_ident = private_ident!("_s");
+    let signal_effect_ident = private_ident!("_effect");
     new_stmts.push(Stmt::Decl(Decl::Var(Box::new(VarDecl {
         span: DUMMY_SP,
         kind: VarDeclKind::Var,
@@ -297,6 +298,38 @@ impl Visit for HasJSX {
     }
 }
 
+struct HasDotValue {
+    found: bool,
+}
+impl Visit for HasDotValue {
+    fn visit_member_expr(&mut self, n: &MemberExpr) {
+        if self.found {
+            return;
+        }
+
+        if match &n.prop {
+            MemberProp::Ident(ident) => ident.sym.as_str() == "value",
+            MemberProp::Computed(ComputedPropName { span: _, expr }) => {
+                if let Expr::Lit(Lit::Str(Str {
+                    span: _,
+                    value,
+                    raw: _,
+                })) = expr.unwrap_parens()
+                {
+                    value.as_str() == "value"
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        } {
+            self.found = true;
+            return;
+        }
+        n.visit_children_with(self);
+    }
+}
+
 fn has_jsx<N>(n: &N) -> bool
 where
     N: VisitWith<HasJSX>,
@@ -305,19 +338,40 @@ where
     n.visit_children_with(&mut v);
     v.found
 }
+fn has_dot_value<N>(n: &N) -> bool
+where
+    N: VisitWith<HasDotValue>,
+{
+    let mut v = HasDotValue { found: false };
+    n.visit_children_with(&mut v);
+    v.found
+}
 
-impl FunctionLike<'_> {
+trait Detectable {
+    fn has_jsx(&self) -> bool;
+    fn has_dot_value(&self) -> bool;
+}
+
+impl Detectable for FunctionLike<'_> {
     fn has_jsx(&self) -> bool {
         match self {
             FunctionLike::Arrow(arrow_expr) => has_jsx(*arrow_expr),
             FunctionLike::Fn(fn_expr) => has_jsx(*fn_expr),
         }
     }
-    fn has_name(&self) -> bool {
+    fn has_dot_value(&self) -> bool {
         match self {
-            FunctionLike::Arrow(_) => false,
-            FunctionLike::Fn(fn_expr) => fn_expr.ident.is_some(),
+            FunctionLike::Arrow(arrow_expr) => has_dot_value(*arrow_expr),
+            FunctionLike::Fn(fn_expr) => has_dot_value(*fn_expr),
         }
+    }
+}
+impl Detectable for FnDecl {
+    fn has_jsx(&self) -> bool {
+        has_jsx(&self.function)
+    }
+    fn has_dot_value(&self) -> bool {
+        has_dot_value(&self.function)
     }
 }
 
@@ -360,21 +414,31 @@ where
     }
 }
 
+fn should_track_auto<I, Comp>(mode: &TransformMode, ident: &I, component: &Comp) -> bool
+where
+    Comp: Detectable,
+    I: MaybeComponentName,
+{
+    match mode {
+        TransformMode::All => ident.is_component_name() && component.has_jsx(),
+        TransformMode::Manual => false,
+        TransformMode::Auto => {
+            ident.is_component_name() && component.has_jsx() && component.has_dot_value()
+        }
+    }
+}
 impl<C> VisitMut for SignalsTransformVisitor<C>
 where
     C: Comments + Debug,
 {
     noop_visit_mut_type!();
+
     fn visit_mut_var_decl(&mut self, n: &mut VarDecl) {
         if let Some(first) = n.decls.as_mut_slice().take_first_mut()
             && let Some(init) = &mut first.init
             && let Some(component) = extract_fn_from_expr(init.unwrap_parens_mut())
             && match should_track_by_comment(&self.comments, &n.span) {
-                ShouldTrack::Auto => {
-                    self.mode == TransformMode::All
-                        && first.name.is_component_name()
-                        && component.has_jsx()
-                }
+                ShouldTrack::Auto => should_track_auto(&self.mode, &first.name, &component),
                 ShouldTrack::OptIn => true,
                 ShouldTrack::OptOut => false,
             }
@@ -400,9 +464,7 @@ where
     }
     fn visit_mut_fn_decl(&mut self, n: &mut FnDecl) {
         if match should_track_by_comment(&self.comments, &n.function.span) {
-            ShouldTrack::Auto => {
-                self.mode == TransformMode::All && n.ident.is_component_name() && has_jsx(n)
-            }
+            ShouldTrack::Auto => should_track_auto(&self.mode, &n.ident, n),
             ShouldTrack::OptIn => true,
             ShouldTrack::OptOut => false,
         } && let Some(block_stmt) = &mut n.function.body
@@ -626,67 +688,67 @@ function Asdjsadf(){
     r#"
     import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
     const A = ()=>{
-        var _s = _useSignals();
+        var _effect = _useSignals();
         try {
             return <div/>;
         } finally{
-            _s.f();
+            _effect.f();
         }
     };
     const Cecek = ()=>{
-        var _s = _useSignals();
+        var _effect = _useSignals();
         try {
             return <div/>;
         } finally{
-            _s.f();
+            _effect.f();
         }
     };
     function Beb2() {
-        var _s = _useSignals();
+        var _effect = _useSignals();
         try {
             return <div/>;
         } finally{
-            _s.f();
+            _effect.f();
         }
     }
     var C = function() {
-        var _s = _useSignals();
+        var _effect = _useSignals();
         try {
             return <div/>;
         } finally{
-            _s.f();
+            _effect.f();
         }
     };
     var C2 = function C3() {
-        var _s = _useSignals();
+        var _effect = _useSignals();
         try {
             return <div/>;
         } finally{
-            _s.f();
+            _effect.f();
         }
     };
     const sdfj = ()=>{
-        var _s = _useSignals();
+        var _effect = _useSignals();
         try {
             return 1;
         } finally{
-            _s.f();
+            _effect.f();
         }
     };
     const Cec = memo(()=>{
-        var _s = _useSignals();
+        var _effect = _useSignals();
         try {
             return <div/>;
         } finally{
-            _s.f();
+            _effect.f();
         }
     });
     const Cyc = React.lazy(React.memo(()=>{
-        var _s = _useSignals();
+        var _effect = _useSignals();
         try {
             return <div/>;
         } finally{
-            _s.f();
+            _effect.f();
         }
     }), {});
     const CycPlain = ()=>5;
@@ -695,24 +757,24 @@ function Asdjsadf(){
     }
     ;
     function Asdjsadf() {
-        var _s = _useSignals();
+        var _effect = _useSignals();
         try {
             function B() {
                 return <div/>;
             }
             ;
             function c() {
-                var _s = _useSignals();
+                var _effect = _useSignals();
                 try {
                     return 5;
                 } finally{
-                    _s.f();
+                    _effect.f();
                 }
             }
             ;
             return <div/>;
         } finally{
-            _s.f();
+            _effect.f();
         }
     }
 "#

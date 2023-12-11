@@ -2,6 +2,7 @@ import { transform, traverse } from "@babel/core";
 import type { Visitor } from "@babel/core";
 import type { Scope } from "@babel/traverse";
 import prettier from "prettier";
+import path from "node:path";
 import signalsTransform, { PluginOptions } from "../../src/babel";
 import {
   CommentKind,
@@ -25,6 +26,23 @@ const DEBUG_TEST_IDS: string[] | true = [];
 
 const format = (code: string) => prettier.format(code, { parser: "babel" });
 
+const getSwcConfig = (usePlugin: false | PluginOptions, isCJS: boolean) =>
+  ({
+    jsc: {
+      experimental: usePlugin
+        ? {
+            plugins: [[path.resolve(__dirname, "../../swc"), usePlugin]],
+          }
+        : undefined,
+      preserveAllComments: true,
+      parser: {
+        syntax: "ecmascript",
+        jsx: true,
+      },
+    },
+    isModule: !isCJS,
+  }) satisfies swcCore.Options;
+
 function transformCode(
   code: string,
   options: TransformerTestOptions,
@@ -45,18 +63,8 @@ function transformCode(
   }
 
   return swcCore
-    .transform(code, {
-      jsc: {
-        experimental: {
-          plugins: [["@preact-signals/safe-react/swc", options.options]],
-        },
-        preserveAllComments: true,
-        parser: {
-          syntax: "ecmascript",
-          jsx: true,
-        },
-      },
-    })
+    .transform(code, getSwcConfig(options.options, !!isCJS))
+
     .then((it) => it.code);
 }
 type TransformerTestOptions =
@@ -66,12 +74,25 @@ type TransformerTestOptions =
     }
   | {
       type: "swc";
-      options: { mode: "all" | "manual" };
+      options: PluginOptions;
     };
 const TransformerTestOptions = {
-  makeBabel: (options: PluginOptions): TransformerTestOptions => ({
-    type: "babel",
+  makeBabel: (options: PluginOptions): TransformerTestOptions =>
+    TransformerTestOptions.make("babel", options),
+  make: (
+    type: "babel" | "swc",
+    options: PluginOptions
+  ): TransformerTestOptions => ({
+    type,
     options,
+  }),
+  makeFromMode: (
+    type: "babel" | "swc",
+    mode: PluginOptions["mode"],
+    options?: Omit<PluginOptions, "mode">
+  ) => ({
+    type,
+    options: { ...options, mode },
   }),
 };
 
@@ -83,7 +104,15 @@ async function runTest(
   isCJS?: boolean
 ) {
   const output = transformCode(input, options, filename, isCJS);
-  expect(await format(await output)).to.equal(await format(expected));
+  expect(await format(await output)).to.equal(
+    await format(
+      await (options.type === "swc"
+        ? swcCore
+            .transform(expected, getSwcConfig(options.options, !!isCJS))
+            .then((it) => it.code)
+        : output)
+    )
+  );
 }
 
 interface TestCaseConfig {
@@ -208,28 +237,19 @@ function runGeneratedTestCases(config: TestCaseConfig) {
   });
 }
 
-const AUTO_CONFIG = TransformerTestOptions.makeBabel({
-  mode: "auto",
-});
-const MANUAL_CONFIG = TransformerTestOptions.makeBabel({
-  mode: "manual",
-});
-
-const ALL_CONFIG = TransformerTestOptions.makeBabel({
-  mode: "all",
-});
-describe("React Signals Babel Transform", () => {
-  describe("auto mode transforms", () => {
-    runGeneratedTestCases({
-      useValidAutoMode: true,
-      expectTransformed: true,
-      options: AUTO_CONFIG,
+for (const mode of ["babel", "swc"] as const) {
+  describe("React Signals Babel Transform", () => {
+    describe("auto mode transforms", () => {
+      runGeneratedTestCases({
+        useValidAutoMode: true,
+        expectTransformed: true,
+        options: TransformerTestOptions.makeFromMode(mode, "auto"),
+      });
     });
-  });
 
-  describe("auto mode doesn't transform", () => {
-    it("useEffect callbacks that use signals", async () => {
-      const inputCode = `
+    describe("auto mode doesn't transform", () => {
+      it("useEffect callbacks that use signals", async () => {
+        const inputCode = `
 				function App() {
 					useEffect(() => {
 						signal.value = <span>Hi</span>;
@@ -238,20 +258,24 @@ describe("React Signals Babel Transform", () => {
 				}
 			`;
 
-      const expectedOutput = inputCode;
-      await runTest(inputCode, expectedOutput, AUTO_CONFIG);
+        const expectedOutput = inputCode;
+        await runTest(
+          inputCode,
+          expectedOutput,
+          TransformerTestOptions.makeFromMode(mode, "auto")
+        );
+      });
+
+      runGeneratedTestCases({
+        useValidAutoMode: false,
+        expectTransformed: false,
+        options: TransformerTestOptions.makeFromMode(mode, "auto"),
+      });
     });
 
-    runGeneratedTestCases({
-      useValidAutoMode: false,
-      expectTransformed: false,
-      options: AUTO_CONFIG,
-    });
-  });
-
-  describe("auto mode supports opting out of transforming", () => {
-    it("opt-out comment overrides opt-in comment", async () => {
-      const inputCode = `
+    describe("auto mode supports opting out of transforming", () => {
+      it("opt-out comment overrides opt-in comment", async () => {
+        const inputCode = `
 				/**
 				 * @noTrackSignals
 				 * @trackSignals
@@ -261,31 +285,35 @@ describe("React Signals Babel Transform", () => {
 				};
 			`;
 
-      const expectedOutput = inputCode;
+        const expectedOutput = inputCode;
 
-      await runTest(inputCode, expectedOutput, AUTO_CONFIG);
+        await runTest(
+          inputCode,
+          expectedOutput,
+          TransformerTestOptions.makeFromMode(mode, "auto")
+        );
+      });
+
+      runGeneratedTestCases({
+        useValidAutoMode: true,
+        expectTransformed: false,
+        comment: "opt-out",
+        options: TransformerTestOptions.makeFromMode(mode, "auto"),
+      });
     });
 
-    runGeneratedTestCases({
-      useValidAutoMode: true,
-      expectTransformed: false,
-      comment: "opt-out",
-      options: AUTO_CONFIG,
+    describe("auto mode supports opting into transformation", () => {
+      runGeneratedTestCases({
+        useValidAutoMode: false,
+        expectTransformed: true,
+        comment: "opt-in",
+        options: TransformerTestOptions.makeFromMode(mode, "auto"),
+      });
     });
-  });
 
-  describe("auto mode supports opting into transformation", () => {
-    runGeneratedTestCases({
-      useValidAutoMode: false,
-      expectTransformed: true,
-      comment: "opt-in",
-      options: AUTO_CONFIG,
-    });
-  });
-
-  describe("manual mode doesn't transform anything by default", () => {
-    it("useEffect callbacks that use signals", async () => {
-      const inputCode = `
+    describe("manual mode doesn't transform anything by default", () => {
+      it("useEffect callbacks that use signals", async () => {
+        const inputCode = `
 				function App() {
 					useEffect(() => {
 						signal.value = <span>Hi</span>;
@@ -294,20 +322,24 @@ describe("React Signals Babel Transform", () => {
 				}
 			`;
 
-      const expectedOutput = inputCode;
-      await runTest(inputCode, expectedOutput, AUTO_CONFIG);
+        const expectedOutput = inputCode;
+        await runTest(
+          inputCode,
+          expectedOutput,
+          TransformerTestOptions.makeFromMode(mode, "auto")
+        );
+      });
+
+      runGeneratedTestCases({
+        useValidAutoMode: true,
+        expectTransformed: false,
+        options: TransformerTestOptions.makeFromMode(mode, "manual"),
+      });
     });
 
-    runGeneratedTestCases({
-      useValidAutoMode: true,
-      expectTransformed: false,
-      options: MANUAL_CONFIG,
-    });
-  });
-
-  describe("manual mode opts into transforming", () => {
-    it("opt-out comment overrides opt-in comment", async () => {
-      const inputCode = `
+    describe("manual mode opts into transforming", () => {
+      it("opt-out comment overrides opt-in comment", async () => {
+        const inputCode = `
 				/**
 				 * @noTrackSignals
 				 * @trackSignals
@@ -317,19 +349,24 @@ describe("React Signals Babel Transform", () => {
 				};
 			`;
 
-      const expectedOutput = inputCode;
+        const expectedOutput = inputCode;
 
-      await runTest(inputCode, expectedOutput, AUTO_CONFIG);
-    });
+        await runTest(
+          inputCode,
+          expectedOutput,
+          TransformerTestOptions.makeFromMode(mode, "auto")
+        );
+      });
 
-    runGeneratedTestCases({
-      useValidAutoMode: true,
-      expectTransformed: true,
-      comment: "opt-in",
-      options: MANUAL_CONFIG,
+      runGeneratedTestCases({
+        useValidAutoMode: true,
+        expectTransformed: true,
+        comment: "opt-in",
+        options: TransformerTestOptions.makeFromMode(mode, "manual"),
+      });
     });
   });
-});
+}
 
 // TODO: migrate hook tests
 
@@ -546,7 +583,11 @@ describe("React Signals Babel Transform", () => {
 
       const expectedOutput = inputCode;
 
-      await runTest(inputCode, expectedOutput, ALL_CONFIG);
+      await runTest(
+        inputCode,
+        expectedOutput,
+        TransformerTestOptions.makeFromMode("babel", "all")
+      );
     });
 
     it("skips transforming function declaration components with leading opt-out JSDoc comment", async () => {
@@ -559,7 +600,11 @@ describe("React Signals Babel Transform", () => {
 
       const expectedOutput = inputCode;
 
-      await runTest(inputCode, expectedOutput, ALL_CONFIG);
+      await runTest(
+        inputCode,
+        expectedOutput,
+        TransformerTestOptions.makeFromMode("babel", "all")
+      );
     });
 
     it("transforms function declaration component that doesn't use signals", async () => {
@@ -581,7 +626,11 @@ describe("React Signals Babel Transform", () => {
 				}
 			`;
 
-      await runTest(inputCode, expectedOutput, ALL_CONFIG);
+      await runTest(
+        inputCode,
+        expectedOutput,
+        TransformerTestOptions.makeFromMode("babel", "all")
+      );
     });
 
     it("transforms arrow function component with return statement that doesn't use signals", async () => {
@@ -603,7 +652,11 @@ describe("React Signals Babel Transform", () => {
 				};
 			`;
 
-      await runTest(inputCode, expectedOutput, ALL_CONFIG);
+      await runTest(
+        inputCode,
+        expectedOutput,
+        TransformerTestOptions.makeFromMode("babel", "all")
+      );
     });
 
     it("transforms function declaration component that uses signals", async () => {
@@ -627,7 +680,11 @@ describe("React Signals Babel Transform", () => {
 				}
 			`;
 
-      await runTest(inputCode, expectedOutput, ALL_CONFIG);
+      await runTest(
+        inputCode,
+        expectedOutput,
+        TransformerTestOptions.makeFromMode("babel", "all")
+      );
     });
 
     it("transforms arrow function component with return statement that uses signals", async () => {
@@ -651,7 +708,11 @@ describe("React Signals Babel Transform", () => {
 				};
 			`;
 
-      await runTest(inputCode, expectedOutput, ALL_CONFIG);
+      await runTest(
+        inputCode,
+        expectedOutput,
+        TransformerTestOptions.makeFromMode("babel", "all")
+      );
     });
 
     it("transforms commonjs module exports", async () => {
@@ -677,7 +738,13 @@ describe("React Signals Babel Transform", () => {
         };
       `;
 
-      await runTest(inputCode, expectedOutput, ALL_CONFIG, "", true);
+      await runTest(
+        inputCode,
+        expectedOutput,
+        TransformerTestOptions.makeFromMode("babel", "all"),
+        "",
+        true
+      );
     });
   });
 
