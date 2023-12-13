@@ -1,5 +1,8 @@
 #![feature(box_patterns, let_chains, if_let_guard, slice_take)]
 
+mod utils;
+use utils::*;
+
 use std::fmt::Debug;
 
 use regex::Regex;
@@ -61,12 +64,12 @@ fn get_import_source(str: &str) -> Str {
     }
 }
 fn is_track_signals_directive(string: &str) -> bool {
-    static RE: Lazy<Regex> = Lazy::new(|| Regex::new("@trackSignals").unwrap());
+    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r#"\s@trackSignals\s"#).unwrap());
 
     RE.is_match(string)
 }
 fn is_no_track_signals_directive(string: &str) -> bool {
-    static RE: Lazy<Regex> = Lazy::new(|| Regex::new("@noTrackSignals").unwrap());
+    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r#"\s@noTrackSignals\s"#).unwrap());
 
     RE.is_match(string)
 }
@@ -136,59 +139,6 @@ where
     }
 }
 
-fn is_component_name(name: &str) -> bool {
-    static RE: Lazy<Regex> = Lazy::new(|| Regex::new("^[A-Z]").unwrap());
-    RE.is_match(name)
-}
-
-trait MaybeComponentName {
-    fn is_component_name(&self) -> bool;
-}
-
-impl MaybeComponentName for Ident {
-    fn is_component_name(&self) -> bool {
-        is_component_name(self.sym.as_str())
-    }
-}
-impl MaybeComponentName for BindingIdent {
-    fn is_component_name(&self) -> bool {
-        self.id.is_component_name()
-    }
-}
-impl MaybeComponentName for Pat {
-    fn is_component_name(&self) -> bool {
-        if let Pat::Ident(id) = self {
-            return id.is_component_name();
-        }
-        false
-    }
-}
-
-trait FunctionLikeExpr {
-    fn is_regular(&self) -> bool;
-}
-
-impl FunctionLikeExpr for ArrowExpr {
-    fn is_regular(&self) -> bool {
-        !self.is_async && !self.is_generator
-    }
-}
-impl FunctionLikeExpr for FnExpr {
-    fn is_regular(&self) -> bool {
-        self.function.is_regular()
-    }
-}
-impl FunctionLikeExpr for Function {
-    fn is_regular(&self) -> bool {
-        !self.is_async && !self.is_generator
-    }
-}
-impl FunctionLikeExpr for FnDecl {
-    fn is_regular(&self) -> bool {
-        self.function.is_regular()
-    }
-}
-
 fn wrap_with_use_signals(n: &Vec<Stmt>, use_signals_ident: Ident) -> Vec<Stmt> {
     let mut new_stmts = Vec::new();
     let signal_effect_ident = private_ident!("_effect");
@@ -243,138 +193,6 @@ fn wrap_with_use_signals(n: &Vec<Stmt>, use_signals_ident: Ident) -> Vec<Stmt> {
     new_stmts
 }
 
-enum FunctionLike<'a> {
-    Arrow(&'a mut ArrowExpr),
-    Fn(&'a mut FnExpr),
-}
-
-fn extract_fn_from_expr<'a>(expr: &'a mut Expr) -> Option<FunctionLike<'a>> {
-    match expr {
-        Expr::Fn(fn_expr) if fn_expr.is_regular() => Some(FunctionLike::Fn(fn_expr)),
-        Expr::Arrow(arrow_expr) if arrow_expr.is_regular() => Some(FunctionLike::Arrow(arrow_expr)),
-        Expr::Call(CallExpr {
-            args,
-            span: _,
-            type_args: _,
-            callee: _,
-        }) => {
-            if let Some(ExprOrSpread {
-                spread: None,
-                expr: first_arg_expr,
-            }) = args.as_mut_slice().take_first_mut()
-            {
-                extract_fn_from_expr(first_arg_expr.unwrap_parens_mut())
-            } else {
-                None
-            }
-        }
-        _ => None,
-    }
-}
-
-trait Blockable {
-    fn to_block(&mut self) -> BlockStmt;
-}
-impl Blockable for BlockStmtOrExpr {
-    fn to_block(&mut self) -> BlockStmt {
-        match self {
-            BlockStmtOrExpr::BlockStmt(block) => block.to_owned(),
-            BlockStmtOrExpr::Expr(expr) => BlockStmt {
-                span: DUMMY_SP,
-                stmts: vec![Stmt::Return(ReturnStmt {
-                    span: DUMMY_SP,
-                    arg: Some(expr.clone()),
-                })],
-            },
-        }
-    }
-}
-struct HasJSX {
-    found: bool,
-}
-impl Visit for HasJSX {
-    fn visit_jsx_element(&mut self, _: &JSXElement) {
-        self.found = true;
-    }
-}
-
-struct HasDotValue {
-    found: bool,
-}
-impl Visit for HasDotValue {
-    fn visit_member_expr(&mut self, n: &MemberExpr) {
-        if self.found {
-            return;
-        }
-
-        if match &n.prop {
-            MemberProp::Ident(ident) => ident.sym.as_str() == "value",
-            MemberProp::Computed(ComputedPropName { span: _, expr }) => {
-                if let Expr::Lit(Lit::Str(Str {
-                    span: _,
-                    value,
-                    raw: _,
-                })) = expr.unwrap_parens()
-                {
-                    value.as_str() == "value"
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        } {
-            self.found = true;
-            return;
-        }
-        n.visit_children_with(self);
-    }
-}
-
-fn has_jsx<N>(n: &N) -> bool
-where
-    N: VisitWith<HasJSX>,
-{
-    let mut v = HasJSX { found: false };
-    n.visit_children_with(&mut v);
-    v.found
-}
-fn has_dot_value<N>(n: &N) -> bool
-where
-    N: VisitWith<HasDotValue>,
-{
-    let mut v = HasDotValue { found: false };
-    n.visit_children_with(&mut v);
-    v.found
-}
-
-trait Detectable {
-    fn has_jsx(&self) -> bool;
-    fn has_dot_value(&self) -> bool;
-}
-
-impl Detectable for FunctionLike<'_> {
-    fn has_jsx(&self) -> bool {
-        match self {
-            FunctionLike::Arrow(arrow_expr) => has_jsx(*arrow_expr),
-            FunctionLike::Fn(fn_expr) => has_jsx(*fn_expr),
-        }
-    }
-    fn has_dot_value(&self) -> bool {
-        match self {
-            FunctionLike::Arrow(arrow_expr) => has_dot_value(*arrow_expr),
-            FunctionLike::Fn(fn_expr) => has_dot_value(*fn_expr),
-        }
-    }
-}
-impl Detectable for FnDecl {
-    fn has_jsx(&self) -> bool {
-        has_jsx(&self.function)
-    }
-    fn has_dot_value(&self) -> bool {
-        has_dot_value(&self.function)
-    }
-}
-
 #[derive(Debug)]
 enum ShouldTrack {
     OptIn,
@@ -388,6 +206,7 @@ where
 {
     match comments.get_leading(span.lo) {
         Some(item) => {
+            println!("{:?}", item);
             let is_track_signals = item
                 .iter()
                 .find(|it| {
@@ -413,6 +232,23 @@ where
         None => ShouldTrack::Auto,
     }
 }
+fn should_track_by_comments<C>(comments: &C, spans: Vec<&Option<Span>>) -> ShouldTrack
+where
+    C: Comments + Debug,
+{
+    spans
+        .into_iter()
+        .map(|it| match it {
+            Some(span) => should_track_by_comment(comments, span),
+            None => ShouldTrack::Auto,
+        })
+        .find(|it| match it {
+            ShouldTrack::OptIn => true,
+            ShouldTrack::OptOut => true,
+            _ => false,
+        })
+        .unwrap_or(ShouldTrack::Auto)
+}
 
 fn should_track_auto<I, Comp>(mode: &TransformMode, ident: &I, component: &Comp) -> bool
 where
@@ -436,8 +272,12 @@ where
     fn visit_mut_var_decl(&mut self, n: &mut VarDecl) {
         if let Some(first) = n.decls.as_mut_slice().take_first_mut()
             && let Some(init) = &mut first.init
+            && let child_span = init.unwrap_parens().get_span().clone()
             && let Some(component) = extract_fn_from_expr(init.unwrap_parens_mut())
-            && match should_track_by_comment(&self.comments, &n.span) {
+            && match should_track_by_comments(
+                &self.comments,
+                vec![&Some(child_span), &Some(n.span)],
+            ) {
                 ShouldTrack::Auto => should_track_auto(&self.mode, &first.name, &component),
                 ShouldTrack::OptIn => true,
                 ShouldTrack::OptOut => false,
@@ -506,69 +346,6 @@ where
             )
         }
     }
-}
-
-fn add_import(ident: Ident, source: Str, source_member_ident: Option<Ident>) -> ImportDecl {
-    ImportDecl {
-        span: DUMMY_SP,
-        specifiers: vec![if let Some(source_member_ident) = source_member_ident {
-            ImportSpecifier::Named(ImportNamedSpecifier {
-                span: DUMMY_SP,
-                local: ident,
-                is_type_only: false,
-                imported: Some(ModuleExportName::Ident(source_member_ident)),
-            })
-        } else {
-            ImportSpecifier::Default(ImportDefaultSpecifier {
-                span: DUMMY_SP,
-                local: ident,
-            })
-        }],
-        src: source.into(),
-        type_only: false,
-        with: None,
-    }
-}
-
-fn add_require(ident: Ident, source: Str, source_member_ident: Option<Ident>) -> Stmt {
-    Stmt::Decl(Decl::Var(Box::new(VarDecl {
-        span: DUMMY_SP,
-        kind: VarDeclKind::Const,
-        declare: false,
-        decls: vec![VarDeclarator {
-            definite: false,
-            span: DUMMY_SP,
-            name: Pat::Ident(BindingIdent {
-                id: ident,
-                type_ann: None,
-            }),
-            init: {
-                let import_call = Expr::Call(CallExpr {
-                    span: DUMMY_SP,
-                    type_args: None,
-                    callee: Callee::Expr(Box::new(Expr::Ident(Ident {
-                        span: DUMMY_SP,
-                        sym: "require".into(),
-                        optional: false,
-                    }))),
-                    args: vec![ExprOrSpread {
-                        spread: None,
-                        expr: Box::new(Expr::Lit(Lit::Str(source))),
-                    }],
-                });
-
-                if let Some(source_member_ident) = source_member_ident {
-                    Some(Box::new(Expr::Member(MemberExpr {
-                        span: DUMMY_SP,
-                        obj: Box::new(import_call),
-                        prop: MemberProp::Ident(source_member_ident),
-                    })))
-                } else {
-                    Some(Box::new(import_call))
-                }
-            },
-        }],
-    })))
 }
 
 /// An example plugin function with macro support.
@@ -643,6 +420,9 @@ var C2 = function C3(){
  * @trackSignals
  */
 const sdfj = () => 1
+
+// should be transformed
+const inlineComment = /** @trackSignals */ () => 1
 
 // hocs should be transformed
 const Cec = memo(() => {
@@ -728,6 +508,14 @@ function Asdjsadf(){
         }
     };
     const sdfj = ()=>{
+        var _effect = _useSignals();
+        try {
+            return 1;
+        } finally{
+            _effect.f();
+        }
+    };
+    const inlineComment = ()=>{
         var _effect = _useSignals();
         try {
             return 1;
