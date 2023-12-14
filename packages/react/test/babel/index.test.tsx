@@ -17,7 +17,9 @@ import {
   objMethodComp,
 } from "./helpers";
 import * as swcCore from "@swc/core";
-import { expect, it, describe } from "vitest";
+import { expect, it, describe, vi, ExpectStatic } from "vitest";
+import { beforeAll } from "vitest";
+import { afterAll } from "vitest";
 
 // To help interactively debug a specific test case, add the test ids of the
 // test cases you want to debug to the `debugTestIds` array, e.g. (["258",
@@ -35,6 +37,7 @@ const getSwcConfig = (usePlugin: false | PluginOptions, isCJS: boolean) =>
           }
         : undefined,
       preserveAllComments: true,
+      target: 'esnext',
       parser: {
         syntax: "ecmascript",
         jsx: true,
@@ -97,6 +100,7 @@ const TransformerTestOptions = {
 };
 
 async function runTest(
+  expect: ExpectStatic,
   input: string,
   expected: string,
   options: TransformerTestOptions,
@@ -108,7 +112,7 @@ async function runTest(
     await format(
       await (options.type === "swc"
         ? swcCore
-            .transform(expected, getSwcConfig(options.options, !!isCJS))
+            .transform(expected, getSwcConfig(false, !!isCJS))
             .then((it) => it.code)
         : output)
     )
@@ -155,7 +159,7 @@ async function runTestCases(
       continue;
     }
 
-    it(`(${testId}) ${testCase.name}`, async () => {
+    it(`(${testId}) ${testCase.name}`, async ({ expect }) => {
       if (DEBUG_TEST_IDS === true || DEBUG_TEST_IDS.includes(testId)) {
         console.log("input :", testCase.input.replace(/\s+/g, " ")); // eslint-disable-line no-console
         debugger; // eslint-disable-line no-debugger
@@ -175,7 +179,7 @@ async function runTestCases(
         ? "/path/to/Component.js"
         : "C:\\path\\to\\lowercase.js";
 
-      await runTest(input, expected, config.options, filename);
+      await runTest(expect, input, expected, config.options, filename);
     });
   }
 }
@@ -193,7 +197,8 @@ function runGeneratedTestCases(config: TestCaseConfig) {
     await runTestCases(config, variableComp(codeConfig));
   });
 
-  if (config.comment !== undefined) {
+  // for now, inline comments are out of scope
+  /* if (config.comment !== undefined) {
     // e.g. const C = () => {};
     describe("variable declared components (inline comment)", async () => {
       await runTestCases(
@@ -205,7 +210,7 @@ function runGeneratedTestCases(config: TestCaseConfig) {
         })
       );
     });
-  }
+  } */
 
   describe("object method components", async () => {
     await runTestCases(config, objMethodComp(codeConfig));
@@ -237,9 +242,15 @@ function runGeneratedTestCases(config: TestCaseConfig) {
   });
 }
 
+beforeAll(() => {
+  console.time("all tests");
+});
+afterAll(() => {
+  console.timeEnd("all tests");
+});
 for (const parser of ["swc", "babel"] as const) {
-  describe("React Signals Babel Transform", () => {
-    describe("auto mode transforms", () => {
+  describe.concurrent(`React Signals ${parser} Transform`, () => {
+    describe.concurrent("auto mode transforms", () => {
       runGeneratedTestCases({
         useValidAutoMode: true,
         expectTransformed: true,
@@ -247,8 +258,8 @@ for (const parser of ["swc", "babel"] as const) {
       });
     });
 
-    describe("auto mode doesn't transform", () => {
-      it("useEffect callbacks that use signals", async () => {
+    describe.concurrent("auto mode doesn't transform", () => {
+      it("useEffect callbacks that use signals", async ({ expect }) => {
         const inputCode = `
 				function App() {
 					useEffect(() => {
@@ -260,6 +271,7 @@ for (const parser of ["swc", "babel"] as const) {
 
         const expectedOutput = inputCode;
         await runTest(
+          expect,
           inputCode,
           expectedOutput,
           TransformerTestOptions.makeFromMode(parser, "auto")
@@ -273,17 +285,17 @@ for (const parser of ["swc", "babel"] as const) {
       });
     });
 
-    describe("auto mode supports opting out of transforming", () => {
+    describe.concurrent("auto mode supports opting out of transforming", () => {
       // it("opt-out comment overrides opt-in comment", async () => {
       //   const inputCode = `
-			// 	/**
-			// 	 * @noTrackSignals
-			// 	 * @trackSignals
-			// 	 */
-			// 	function MyComponent() {
-			// 		return <div>{signal.value}</div>;
-			// 	};
-			// `;
+      // 	/**
+      // 	 * @noTrackSignals
+      // 	 * @trackSignals
+      // 	 */
+      // 	function MyComponent() {
+      // 		return <div>{signal.value}</div>;
+      // 	};
+      // `;
 
       //   const expectedOutput = inputCode;
 
@@ -302,7 +314,7 @@ for (const parser of ["swc", "babel"] as const) {
       });
     });
 
-    describe("auto mode supports opting into transformation", () => {
+    describe.concurrent("auto mode supports opting into transformation", () => {
       runGeneratedTestCases({
         useValidAutoMode: false,
         expectTransformed: true,
@@ -311,9 +323,11 @@ for (const parser of ["swc", "babel"] as const) {
       });
     });
 
-    describe("manual mode doesn't transform anything by default", () => {
-      it("useEffect callbacks that use signals", async () => {
-        const inputCode = `
+    describe.concurrent(
+      "manual mode doesn't transform anything by default",
+      () => {
+        it("useEffect callbacks that use signals", async ({ expect }) => {
+          const inputCode = `
 				function App() {
 					useEffect(() => {
 						signal.value = <span>Hi</span>;
@@ -322,22 +336,24 @@ for (const parser of ["swc", "babel"] as const) {
 				}
 			`;
 
-        const expectedOutput = inputCode;
-        await runTest(
-          inputCode,
-          expectedOutput,
-          TransformerTestOptions.makeFromMode(parser, "auto")
-        );
-      });
+          const expectedOutput = inputCode;
+          await runTest(
+            expect,
+            inputCode,
+            expectedOutput,
+            TransformerTestOptions.makeFromMode(parser, "auto")
+          );
+        });
 
-      runGeneratedTestCases({
-        useValidAutoMode: true,
-        expectTransformed: false,
-        options: TransformerTestOptions.makeFromMode(parser, "manual"),
-      });
-    });
+        runGeneratedTestCases({
+          useValidAutoMode: true,
+          expectTransformed: false,
+          options: TransformerTestOptions.makeFromMode(parser, "manual"),
+        });
+      }
+    );
 
-    describe("manual mode opts into transforming", () => {
+    describe.concurrent("manual mode opts into transforming", () => {
       // TODO: Should throw an error
       // it("opt-out comment overrides opt-in comment", async () => {
       //   const inputCode = `
@@ -369,212 +385,14 @@ for (const parser of ["swc", "babel"] as const) {
   });
 }
 
-// TODO: migrate hook tests
-
 describe("React Signals Babel Transform", () => {
-  // describe("auto mode transformations", () => {
-  //   it("transforms custom hook arrow functions with return statement", async () => {
-  //     const inputCode = `
-  // 			const useCustomHook = () => {
-  // 				return signal.value;
-  // 			};
-  // 		`;
-
-  //     const expectedOutput = `
-  // 			import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
-  // 			const useCustomHook = () => {
-  // 				_useSignals();
-  // 				return signal.value;
-  // 			};
-  // 		`;
-
-  //     await runTest(inputCode, expectedOutput);
-  //   });
-
-  //   it("transforms custom hook arrow functions with inline return statement", async () => {
-  //     const inputCode = `
-  // 			const useCustomHook = () => name.value;
-  // 		`;
-
-  //     const expectedOutput = `
-  // 			import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
-  // 			const useCustomHook = () => {
-  // 				_useSignals();
-  // 				return name.value;
-  // 			};
-  // 		`;
-
-  //     await runTest(inputCode, expectedOutput);
-  //   });
-
-  //   it("transforms custom hook function declarations", async () => {
-  //     const inputCode = `
-  // 			function useCustomHook() {
-  // 				return signal.value;
-  // 			}
-  // 		`;
-
-  //     const expectedOutput = `
-  // 			import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
-  // 			function useCustomHook() {
-  // 				_useSignals();
-  // 				return signal.value;
-  // 			}
-  // 		`;
-
-  //     await runTest(inputCode, expectedOutput);
-  //   });
-
-  //   it("transforms custom hook function expressions", async () => {
-  //     const inputCode = `
-  // 			const useCustomHook = function () {
-  // 				return signal.value;
-  // 			}
-  // 		`;
-
-  //     const expectedOutput = `
-  // 			import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
-  // 			const useCustomHook = function () {
-  // 				_useSignals();
-  // 				return signal.value;
-  // 			};
-  // 		`;
-
-  //     await runTest(inputCode, expectedOutput);
-  //   });
-  // });
-
-  // describe("manual mode opt-in transformations", () => {
-  //   it("transforms custom hook arrow function with leading opt-in JSDoc comment before variable declaration", async () => {
-  //     const inputCode = `
-  // 			/** @trackSignals */
-  // 			const useCustomHook = () => {
-  // 				return useState(0);
-  // 			};
-  // 		`;
-
-  //     const expectedOutput = `
-  // 			import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
-  // 			/** @trackSignals */
-  // 			const useCustomHook = () => {
-  // 				_useSignals();
-  // 				return useState(0);
-  // 			};
-  // 		`;
-
-  //     await runTest(inputCode, expectedOutput, { mode: "manual" });
-  //   });
-
-  //   it("transforms custom hook exported as default function declaration with leading opt-in JSDoc comment", async () => {
-  //     const inputCode = `
-  // 			/** @trackSignals */
-  // 			export default function useCustomHook() {
-  // 				return useState(0);
-  // 			}
-  // 		`;
-
-  //     const expectedOutput = `
-  // 			import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
-  // 			/** @trackSignals */
-  // 			export default function useCustomHook() {
-  // 				_useSignals();
-  // 				return useState(0);
-  // 			}
-  // 		`;
-
-  //     await runTest(inputCode, expectedOutput, { mode: "manual" });
-  //   });
-
-  //   it("transforms custom hooks exported as named function declaration with leading opt-in JSDoc comment", async () => {
-  //     const inputCode = `
-  // 			/** @trackSignals */
-  // 			export function useCustomHook() {
-  // 				return useState(0);
-  // 			}
-  // 		`;
-
-  //     const expectedOutput = `
-  // 			import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
-  // 			/** @trackSignals */
-  // 			export function useCustomHook() {
-  // 				_useSignals();
-  // 				return useState(0);
-  // 			}
-  // 		`;
-
-  //     await runTest(inputCode, expectedOutput, { mode: "manual" });
-  //   });
-  // });
-
-  // describe("auto mode opt-out transformations", () => {
-  //   it("skips transforming custom hook arrow function with leading opt-out JSDoc comment before variable declaration", async () => {
-  //     const inputCode = `
-  // 			/** @noTrackSignals */
-  // 			const useCustomHook = () => {
-  // 				return useState(0);
-  // 			};
-  // 		`;
-
-  //     const expectedOutput = inputCode;
-
-  //     await runTest(inputCode, expectedOutput, { mode: "auto" });
-  //   });
-
-  //   it("skips transforming custom hooks exported as default function declaration with leading opt-out JSDoc comment", async () => {
-  //     const inputCode = `
-  // 			/** @noTrackSignals */
-  // 			export default function useCustomHook() {
-  // 				return useState(0);
-  // 			}
-  // 		`;
-
-  //     const expectedOutput = inputCode;
-
-  //     await runTest(inputCode, expectedOutput, { mode: "auto" });
-  //   });
-
-  //   it("skips transforming custom hooks exported as named function declaration with leading opt-out JSDoc comment", async () => {
-  //     const inputCode = `
-  // 			/** @noTrackSignals */
-  // 			export function useCustomHook() {
-  // 				return useState(0);
-  // 			}
-  // 		`;
-
-  //     const expectedOutput = inputCode;
-
-  //     await runTest(inputCode, expectedOutput, { mode: "auto" });
-  //   });
-  // });
-
-  // describe("auto mode no transformations", () => {
-  //   it("skips transforming custom hook function declarations that don't use signals", async () => {
-  //     const inputCode = `
-  // 			function useCustomHook() {
-  // 				return useState(0);
-  // 			}
-  // 		`;
-
-  //     const expectedOutput = inputCode;
-  //     await runTest(inputCode, expectedOutput);
-  //   });
-
-  //   it("skips transforming custom hook function declarations incorrectly named", async () => {
-  //     const inputCode = `
-  // 			function usecustomHook() {
-  // 				return signal.value;
-  // 			}
-  // 		`;
-
-  //     const expectedOutput = inputCode;
-  //     await runTest(inputCode, expectedOutput);
-  //   });
-  // });
-
+  // hook tests removed for now
   // TODO: Figure out what to do with the following
 
   describe("all mode transformations", () => {
-    it("skips transforming arrow function component with leading opt-out JSDoc comment before variable declaration", async () => {
+    it("skips transforming arrow function component with leading opt-out JSDoc comment before variable declaration", async ({
+      expect,
+    }) => {
       const inputCode = `
 				/** @noTrackSignals */
 				const MyComponent = () => {
@@ -585,13 +403,16 @@ describe("React Signals Babel Transform", () => {
       const expectedOutput = inputCode;
 
       await runTest(
+        expect,
         inputCode,
         expectedOutput,
         TransformerTestOptions.makeFromMode("babel", "all")
       );
     });
 
-    it("skips transforming function declaration components with leading opt-out JSDoc comment", async () => {
+    it("skips transforming function declaration components with leading opt-out JSDoc comment", async ({
+      expect,
+    }) => {
       const inputCode = `
 				/** @noTrackSignals */
 				function MyComponent() {
@@ -602,13 +423,16 @@ describe("React Signals Babel Transform", () => {
       const expectedOutput = inputCode;
 
       await runTest(
+        expect,
         inputCode,
         expectedOutput,
         TransformerTestOptions.makeFromMode("babel", "all")
       );
     });
 
-    it("transforms function declaration component that doesn't use signals", async () => {
+    it("transforms function declaration component that doesn't use signals", async ({
+      expect,
+    }) => {
       const inputCode = `
 				function MyComponent() {
 					return <div>Hello World</div>;
@@ -628,13 +452,16 @@ describe("React Signals Babel Transform", () => {
 			`;
 
       await runTest(
+        expect,
         inputCode,
         expectedOutput,
         TransformerTestOptions.makeFromMode("babel", "all")
       );
     });
 
-    it("transforms arrow function component with return statement that doesn't use signals", async () => {
+    it("transforms arrow function component with return statement that doesn't use signals", async ({
+      expect,
+    }) => {
       const inputCode = `
 				const MyComponent = () => {
 					return <div>Hello World</div>;
@@ -654,13 +481,16 @@ describe("React Signals Babel Transform", () => {
 			`;
 
       await runTest(
+        expect,
         inputCode,
         expectedOutput,
         TransformerTestOptions.makeFromMode("babel", "all")
       );
     });
 
-    it("transforms function declaration component that uses signals", async () => {
+    it("transforms function declaration component that uses signals", async ({
+      expect,
+    }) => {
       const inputCode = `
 				function MyComponent() {
 					signal.value;
@@ -682,13 +512,16 @@ describe("React Signals Babel Transform", () => {
 			`;
 
       await runTest(
+        expect,
         inputCode,
         expectedOutput,
         TransformerTestOptions.makeFromMode("babel", "all")
       );
     });
 
-    it("transforms arrow function component with return statement that uses signals", async () => {
+    it("transforms arrow function component with return statement that uses signals", async ({
+      expect,
+    }) => {
       const inputCode = `
 				const MyComponent = () => {
 					signal.value;
@@ -710,13 +543,14 @@ describe("React Signals Babel Transform", () => {
 			`;
 
       await runTest(
+        expect,
         inputCode,
         expectedOutput,
         TransformerTestOptions.makeFromMode("babel", "all")
       );
     });
 
-    it("transforms commonjs module exports", async () => {
+    it("transforms commonjs module exports", async ({ expect }) => {
       const inputCode = `
         require('preact');
         const MyComponent = () => {
@@ -740,6 +574,7 @@ describe("React Signals Babel Transform", () => {
       `;
 
       await runTest(
+        expect,
         inputCode,
         expectedOutput,
         TransformerTestOptions.makeFromMode("babel", "all"),
@@ -749,116 +584,10 @@ describe("React Signals Babel Transform", () => {
     });
   });
 
-  // describe("noTryFinally option", () => {
-  //   it("prepends arrow function component with useSignals call", async () => {
-  //     const inputCode = `
-  // 			const MyComponent = () => {
-  // 				signal.value;
-  // 				return <div>Hello World</div>;
-  // 			};
-  // 		`;
-
-  //     const expectedOutput = `
-  // 			import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
-  // 			const MyComponent = () => {
-  // 				_useSignals();
-  // 				signal.value;
-  // 				return <div>Hello World</div>;
-  // 			};
-  // 		`;
-
-  //     await runTest(inputCode, expectedOutput, {
-  //       experimental: { noTryFinally: true },
-  //     });
-  //   });
-
-  //   it("prepends arrow function component with useSignals call", async () => {
-  //     const inputCode = `
-  // 			const MyComponent = () => <div>{name.value}</div>;
-  // 		`;
-
-  //     const expectedOutput = `
-  // 			import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
-  // 			const MyComponent = () => {
-  // 				_useSignals();
-  // 				return <div>{name.value}</div>;
-  // 			};
-  // 		`;
-
-  //     await runTest(inputCode, expectedOutput, {
-  //       experimental: { noTryFinally: true },
-  //     });
-  //   });
-
-  //   it("prepends function declaration components with useSignals call", async () => {
-  //     const inputCode = `
-  // 			function MyComponent() {
-  // 				signal.value;
-  // 				return <div>Hello World</div>;
-  // 			}
-  // 		`;
-
-  //     const expectedOutput = `
-  // 			import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
-  // 			function MyComponent() {
-  // 				_useSignals();
-  // 				signal.value;
-  // 				return <div>Hello World</div>;
-  // 			}
-  // 		`;
-
-  //     await runTest(inputCode, expectedOutput, {
-  //       experimental: { noTryFinally: true },
-  //     });
-  //   });
-
-  //   it("prepends function expression components with useSignals call", async () => {
-  //     const inputCode = `
-  // 			const MyComponent = function () {
-  // 				signal.value;
-  // 				return <div>Hello World</div>;
-  // 			}
-  // 		`;
-
-  //     const expectedOutput = `
-  // 			import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
-  // 			const MyComponent = function () {
-  // 				_useSignals();
-  // 				signal.value;
-  // 				return <div>Hello World</div>;
-  // 			};
-  // 		`;
-
-  //     await runTest(inputCode, expectedOutput, {
-  //       experimental: { noTryFinally: true },
-  //     });
-  //   });
-
-  //   it("prepends custom hook function declarations with useSignals call", async () => {
-  //     const inputCode = `
-  // 			function useCustomHook() {
-  // 				signal.value;
-  // 				return useState(0);
-  // 			}
-  // 		`;
-
-  //     const expectedOutput = `
-  // 			import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
-  // 			function useCustomHook() {
-  // 				_useSignals();
-  // 				signal.value;
-  // 				return useState(0);
-  // 			}
-  // 		`;
-
-  //     await runTest(inputCode, expectedOutput, {
-  //       experimental: { noTryFinally: true },
-  //     });
-  //   });
-  // });
+  // noTryFinally option removed for now
 
   describe("importSource option", () => {
-    it("imports useSignals from custom source", async () => {
+    it("imports useSignals from custom source", async ({ expect }) => {
       const inputCode = `
 				const MyComponent = () => {
 					signal.value;
@@ -879,7 +608,7 @@ describe("React Signals Babel Transform", () => {
 				};
 			`;
 
-      await runTest(inputCode, expectedOutput, {
+      await runTest(expect, inputCode, expectedOutput, {
         type: "babel",
         options: {
           importSource: "custom-source",

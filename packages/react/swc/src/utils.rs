@@ -1,8 +1,12 @@
+use std::ops::Deref;
+
 use regex::Regex;
 use swc_core::{
     common::{sync::Lazy, Span, DUMMY_SP},
     ecma::{
         ast::*,
+        atoms::Atom,
+        utils::private_ident,
         visit::{Visit, VisitWith},
     },
 };
@@ -41,6 +45,11 @@ pub trait MaybeComponentName {
     fn is_component_name(&self) -> bool;
 }
 
+impl MaybeComponentName for Str {
+    fn is_component_name(&self) -> bool {
+        is_component_name(self.value.as_str())
+    }
+}
 impl MaybeComponentName for Ident {
     fn is_component_name(&self) -> bool {
         is_component_name(self.sym.as_str())
@@ -60,9 +69,155 @@ impl MaybeComponentName for Pat {
     }
 }
 
+// this crazy stuff is not supported in babel
+/* fn get_left_add_binary(left: &Expr) -> Option<&Expr> {
+    match left {
+        Expr::Bin(BinExpr {
+            span: _,
+            left,
+            op: BinaryOp::Add,
+            right: _,
+        }) => get_left_add_binary(left),
+        _ => Some(left),
+    }
+} */
+
+impl MaybeComponentName for MemberProp {
+    fn is_component_name(&self) -> bool {
+        match self {
+            MemberProp::Ident(ident) => ident.is_component_name(),
+            MemberProp::PrivateName(_) => false,
+            MemberProp::Computed(ComputedPropName { span: _, expr }) => {
+                if let Expr::Lit(Lit::Str(Str {
+                    span: _,
+                    value,
+                    raw: _,
+                })) = expr.unwrap_parens()
+                {
+                    is_component_name(value.as_str())
+                }
+                /* else if let Some(Expr::Lit(Lit::Str(left_str))) = get_left_add_binary(expr) {
+                    is_component_name(left_str.value.as_str())
+                }  */
+                else {
+                    false
+                }
+            }
+        }
+    }
+}
+impl MaybeComponentName for Expr {
+    fn is_component_name(&self) -> bool {
+        match self.unwrap_parens() {
+            Expr::Ident(ident) => ident.is_component_name(),
+            Expr::Member(member_expr) => member_expr.prop.is_component_name(),
+            _ => false,
+        }
+    }
+}
+impl MaybeComponentName for PropName {
+    fn is_component_name(&self) -> bool {
+        match self {
+            PropName::Computed(computed_expr) => computed_expr.expr.is_component_name(),
+            PropName::Str(str) => str.is_component_name(),
+            PropName::Ident(ident) => ident.is_component_name(),
+            _ => false,
+        }
+    }
+}
+
+impl MaybeComponentName for PatOrExpr {
+    fn is_component_name(&self) -> bool {
+        if let PatOrExpr::Pat(pat) = self
+            && let Pat::Expr(expr) = pat.deref()
+        {
+            expr.is_component_name()
+        } else if let PatOrExpr::Pat(pat) = self
+            && let Pat::Ident(ident) = pat.deref()
+        {
+            ident.is_component_name()
+        } else if let PatOrExpr::Expr(expr) = self {
+            expr.is_component_name()
+        } else {
+            false
+        }
+    }
+}
+
 pub enum FunctionLike<'a> {
     Arrow(&'a mut ArrowExpr),
     Fn(&'a mut FnExpr),
+}
+pub fn wrap_with_use_signals(n: &Vec<Stmt>, use_signals_ident: Ident) -> Vec<Stmt> {
+    let mut new_stmts = Vec::new();
+    let signal_effect_ident = private_ident!("_effect");
+    new_stmts.push(Stmt::Decl(Decl::Var(Box::new(VarDecl {
+        span: DUMMY_SP,
+        kind: VarDeclKind::Var,
+        declare: false,
+        decls: vec![VarDeclarator {
+            definite: false,
+            span: DUMMY_SP,
+            init: Some(Box::new(Expr::Call(CallExpr {
+                span: DUMMY_SP,
+                callee: Callee::Expr(Box::new(Expr::Ident(use_signals_ident))),
+                args: vec![],
+                type_args: None,
+            }))),
+            name: Pat::Ident(BindingIdent {
+                id: signal_effect_ident.clone(),
+                type_ann: None,
+            }),
+        }],
+    }))));
+    new_stmts.push(Stmt::Try(Box::new(TryStmt {
+        span: DUMMY_SP,
+        block: BlockStmt {
+            span: DUMMY_SP,
+            stmts: n.to_vec(),
+        },
+        handler: None,
+        finalizer: Some(BlockStmt {
+            span: DUMMY_SP,
+            stmts: vec![Stmt::Expr(ExprStmt {
+                span: DUMMY_SP,
+                expr: Box::new(Expr::Call(CallExpr {
+                    args: vec![],
+                    span: DUMMY_SP,
+                    type_args: None,
+                    callee: Callee::Expr(Box::new(Expr::Member(MemberExpr {
+                        span: DUMMY_SP,
+                        prop: MemberProp::Ident(Ident {
+                            span: DUMMY_SP,
+                            sym: Atom::from("f"),
+                            optional: false,
+                        }),
+                        obj: Box::new(Expr::Ident(signal_effect_ident)),
+                    }))),
+                })),
+            })],
+        }),
+    })));
+
+    new_stmts
+}
+
+impl<'a> FunctionLike<'a> {
+    pub fn wrap_with_use_signals(&mut self, import_use_signals: Ident) {
+        match self {
+            FunctionLike::Arrow(arrow_expr) => {
+                let mut block = arrow_expr.body.to_block();
+                let wrapped_body = wrap_with_use_signals(&block.stmts, import_use_signals);
+                block.stmts = wrapped_body;
+                arrow_expr.body = Box::new(BlockStmtOrExpr::BlockStmt(block.to_owned()));
+            }
+            FunctionLike::Fn(fn_expr) => {
+                if let Some(block_stmt) = &mut fn_expr.function.body {
+                    block_stmt.stmts = wrap_with_use_signals(&block_stmt.stmts, import_use_signals);
+                }
+            }
+        }
+    }
 }
 
 pub fn extract_fn_from_expr<'a>(expr: &'a mut Expr) -> Option<FunctionLike<'a>> {
@@ -111,6 +266,9 @@ struct HasJSX {
 }
 impl Visit for HasJSX {
     fn visit_jsx_element(&mut self, _: &JSXElement) {
+        self.found = true;
+    }
+    fn visit_jsx_fragment(&mut self, _: &JSXFragment) {
         self.found = true;
     }
 }
@@ -269,6 +427,17 @@ impl Spanned for Lit {
             Lit::Null(lit) => &lit.span,
             Lit::Regex(lit) => &lit.span,
             Lit::JSXText(lit) => &lit.span,
+        }
+    }
+}
+impl Spanned for PropName {
+    fn get_span(&self) -> &Span {
+        match self {
+            PropName::BigInt(it) => &it.span,
+            PropName::Computed(it) => &it.span,
+            PropName::Ident(it) => &it.span,
+            PropName::Num(it) => &it.span,
+            PropName::Str(it) => &it.span,
         }
     }
 }

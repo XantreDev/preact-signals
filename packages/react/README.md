@@ -144,6 +144,18 @@ const A = () => {
 };
 ```
 
+Inline comments are not warranted to be transformed. You should use `@trackSignals` or `@noTrackSignals` before variable declaration or function declaration:
+
+```tsx
+// don't do this. Not warranted to be transformed
+const a = /** @trackSignals */ () => <div>10</div>;
+/**
+ * Do this
+ * @trackSignals
+ */
+const b = () => <div>20</div>;
+```
+
 ## Installation:
 
 ```sh
