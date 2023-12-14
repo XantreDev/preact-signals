@@ -202,8 +202,31 @@ pub fn wrap_with_use_signals(n: &Vec<Stmt>, use_signals_ident: Ident) -> Vec<Stm
     new_stmts
 }
 
+pub trait SignalWrappable {
+    fn wrap_with_use_signals(&mut self, import_use_signals: Ident);
+}
+
 impl<'a> FunctionLike<'a> {
-    pub fn wrap_with_use_signals(&mut self, import_use_signals: Ident) {
+    pub fn get_fn_ident(&self) -> Option<Ident> {
+        match self {
+            FunctionLike::Fn(FnExpr {
+                function: _,
+                ident: Some(function_ident),
+            }) => Some(function_ident.clone()),
+            _ => None,
+        }
+    }
+}
+
+impl SignalWrappable for Function {
+    fn wrap_with_use_signals(&mut self, import_use_signals: Ident) {
+        if let Some(body) = &mut self.body {
+            body.stmts = wrap_with_use_signals(&body.stmts, import_use_signals);
+        }
+    }
+}
+impl<'a> SignalWrappable for FunctionLike<'a> {
+    fn wrap_with_use_signals(&mut self, import_use_signals: Ident) {
         match self {
             FunctionLike::Arrow(arrow_expr) => {
                 let mut block = arrow_expr.body.to_block();
@@ -211,11 +234,7 @@ impl<'a> FunctionLike<'a> {
                 block.stmts = wrapped_body;
                 arrow_expr.body = Box::new(BlockStmtOrExpr::BlockStmt(block.to_owned()));
             }
-            FunctionLike::Fn(fn_expr) => {
-                if let Some(block_stmt) = &mut fn_expr.function.body {
-                    block_stmt.stmts = wrap_with_use_signals(&block_stmt.stmts, import_use_signals);
-                }
-            }
+            FunctionLike::Fn(fn_expr) => fn_expr.function.wrap_with_use_signals(import_use_signals),
         }
     }
 }
@@ -347,6 +366,14 @@ impl Detectable for FnDecl {
     }
     fn has_dot_value(&self) -> bool {
         has_dot_value(&self.function)
+    }
+}
+impl Detectable for Function {
+    fn has_jsx(&self) -> bool {
+        has_jsx(self)
+    }
+    fn has_dot_value(&self) -> bool {
+        has_dot_value(self)
     }
 }
 

@@ -210,20 +210,14 @@ where
             && let Some(init) = &mut first.init
             && let child_span = init.unwrap_parens().get_span().clone()
             && let Some(mut component) = extract_fn_from_expr(init.unwrap_parens_mut())
-            && self.should_track(
-                &[Some(child_span), Some(n.span)],
-                &match component {
-                    FunctionLike::Fn(FnExpr {
-                        function: _,
-                        ident: Some(function_ident),
-                    }) => Pat::Ident(BindingIdent {
-                        id: function_ident.clone(),
-                        type_ann: None,
-                    }),
-                    _ => first.name.clone(),
-                },
-                &component,
-            )
+            && match component.get_fn_ident() {
+                None => {
+                    self.should_track(&[Some(child_span), Some(n.span)], &first.name, &component)
+                }
+                Some(ident) => {
+                    self.should_track(&[Some(child_span), Some(n.span)], &ident, &component)
+                }
+            }
         {
             component.wrap_with_use_signals(self.get_import_use_signals())
         }
@@ -242,7 +236,10 @@ where
 
     fn visit_mut_assign_expr(&mut self, n: &mut AssignExpr) {
         if let Some(mut component) = extract_fn_from_expr(n.right.borrow_mut())
-            && self.should_track(&[Some(n.span)], &n.left, &component)
+            && match component.get_fn_ident() {
+                None => self.should_track(&[Some(n.span)], &n.left, &component),
+                Some(ident) => self.should_track(&[Some(n.span)], &ident, &component),
+            }
         {
             component.wrap_with_use_signals(self.get_import_use_signals())
         }
@@ -254,6 +251,18 @@ where
             && self.should_track(&[Some(*n.key.get_span())], &n.key, &component)
         {
             component.wrap_with_use_signals(self.get_import_use_signals())
+        }
+
+        n.visit_mut_children_with(self);
+    }
+    fn visit_mut_method_prop(&mut self, n: &mut MethodProp) {
+        if self.should_track(
+            &[n.function.span.into(), n.key.get_span().clone().into()],
+            &n.key,
+            n.function.deref(),
+        ) {
+            n.function
+                .wrap_with_use_signals(self.get_import_use_signals())
         }
 
         n.visit_mut_children_with(self);
@@ -421,6 +430,12 @@ const A = function app() {
     return <div>{sig.value}</div>
 }
 
+const A = {
+    Beb(){
+        return <>10</>
+    }
+}
+
     "#,
     // Expected codes
     r#"
@@ -552,6 +567,16 @@ const A = function app() {
     };
     const A = function app() {
         return <div>{sig.value}</div>;
+    };
+    const A = {
+        Beb () {
+            var _effect = _useSignals();
+            try {
+                return <>10</>;
+            } finally{
+                _effect.f();
+            }
+        }
     };
 "#
 );
