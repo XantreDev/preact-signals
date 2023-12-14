@@ -5,7 +5,11 @@ use utils::*;
 mod test;
 use test::test;
 
-use std::{borrow::BorrowMut, fmt::Debug, ops::Deref};
+use std::{
+    borrow::BorrowMut,
+    fmt::Debug,
+    ops::{Deref, DerefMut},
+};
 
 use regex::Regex;
 use serde::Deserialize;
@@ -74,6 +78,7 @@ where
     mode: TransformMode,
     import_use_signals: Option<Ident>,
     use_signals_import_source: Str,
+    ignore_span: Option<Span>,
 }
 
 impl<C> SignalsTransformVisitor<C>
@@ -94,6 +99,7 @@ where
                 .import_source
                 .map(|it| get_import_source(it.as_str()))
                 .unwrap_or(get_default_import_source()),
+            ignore_span: None,
         }
     }
     fn from_default(comments: C) -> Self {
@@ -102,6 +108,33 @@ where
             mode: TransformMode::All,
             import_use_signals: None,
             use_signals_import_source: get_default_import_source(),
+            ignore_span: None,
+        }
+    }
+
+    fn process_var_decl<T>(
+        &mut self,
+        n: &mut VarDecl,
+        additional_spans: Option<&[Option<Span>]>,
+        transform: T,
+    ) where
+        T: FnOnce(&mut SignalsTransformVisitor<C>, &mut FunctionLike),
+    {
+        if let Some(first) = n.decls.as_mut_slice().take_first_mut()
+            && let Some(init) = &mut first.init
+            && let child_span = init.unwrap_parens().get_span().clone()
+            && let Some(mut component) = extract_fn_from_expr(init.unwrap_parens_mut())
+            && let spans = [
+                additional_spans.unwrap_or(&[]),
+                &[Some(child_span), Some(n.span)],
+            ]
+            .concat()
+            && match component.get_fn_ident() {
+                None => self.should_track(&spans, &first.name, &component),
+                Some(ident) => self.should_track(&spans, &ident, &component),
+            }
+        {
+            transform(self, &mut component)
         }
     }
 }
@@ -206,30 +239,60 @@ where
     noop_visit_mut_type!();
 
     fn visit_mut_var_decl(&mut self, n: &mut VarDecl) {
-        if let Some(first) = n.decls.as_mut_slice().take_first_mut()
-            && let Some(init) = &mut first.init
-            && let child_span = init.unwrap_parens().get_span().clone()
-            && let Some(mut component) = extract_fn_from_expr(init.unwrap_parens_mut())
-            && match component.get_fn_ident() {
-                None => {
-                    self.should_track(&[Some(child_span), Some(n.span)], &first.name, &component)
-                }
-                Some(ident) => {
-                    self.should_track(&[Some(child_span), Some(n.span)], &ident, &component)
-                }
-            }
-        {
-            component.wrap_with_use_signals(self.get_import_use_signals())
+        let should_process = self
+            .ignore_span
+            .map(|span| !span.eq(&n.span))
+            .unwrap_or(true);
+
+        if should_process {
+            self.process_var_decl(n, None, |mut_self, it| {
+                it.wrap_with_use_signals(mut_self.get_import_use_signals())
+            })
         }
 
         n.visit_mut_children_with(self);
     }
+    fn visit_mut_export_decl(&mut self, n: &mut ExportDecl) {
+        match n {
+            ExportDecl {
+                span,
+                decl: Decl::Var(ref mut var_decl),
+            } => {
+                self.process_var_decl(
+                    var_decl.deref_mut(),
+                    Some(&[Some(*span)]),
+                    |mut_self, it| it.wrap_with_use_signals(mut_self.get_import_use_signals()),
+                );
+                let old_span = self.ignore_span;
+                self.ignore_span = Some(span.clone());
+                n.visit_mut_children_with(self);
+                self.ignore_span = old_span
+            }
+            ExportDecl {
+                span,
+                decl: Decl::Fn(ref mut fn_declr),
+            } => {
+                if self.should_track(
+                    &[Some(span.clone()), Some(fn_declr.function.span)],
+                    &fn_declr.ident,
+                    fn_declr,
+                ) {
+                    fn_declr
+                        .function
+                        .wrap_with_use_signals(self.get_import_use_signals())
+                }
+                let old_span = self.ignore_span;
+                self.ignore_span = Some(span.clone());
+                n.visit_mut_children_with(self);
+                self.ignore_span = old_span
+            }
+            n => n.visit_mut_children_with(self),
+        }
+    }
     fn visit_mut_fn_decl(&mut self, n: &mut FnDecl) {
-        if self.should_track(&[Some(n.function.span)], &n.ident, n)
-            && let Some(block_stmt) = &mut n.function.body
-        {
-            block_stmt.stmts =
-                wrap_with_use_signals(&block_stmt.stmts, self.get_import_use_signals());
+        if self.should_track(&[Some(n.function.span)], &n.ident, n) {
+            n.function
+                .wrap_with_use_signals(self.get_import_use_signals())
         }
         n.visit_mut_children_with(self);
     }
@@ -334,6 +397,7 @@ pub fn process_transform(program: Program, _metadata: TransformPluginProgramMeta
     }))
 }
 
+#[cfg(test)]
 fn get_syntax() -> Syntax {
     let mut a = EsConfig::default();
     a.jsx = true;
@@ -425,6 +489,11 @@ a.bebe.Baba = () => <div>{a.value}</div>
 const Beb = {
     A: () => <div />
 }
+
+/**
+ * @trackSignals
+ */
+export function bebe() {}
 
 const A = function app() {
     return <div>{sig.value}</div>
@@ -565,6 +634,12 @@ const A = {
             }
         }
     };
+    export function bebe() {
+        var _effect = _useSignals();
+        try {} finally{
+            _effect.f();
+        }
+    }
     const A = function app() {
         return <div>{sig.value}</div>;
     };
