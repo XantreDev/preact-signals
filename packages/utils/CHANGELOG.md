@@ -1,5 +1,12 @@
 # @preact-signals/utils
 
+## 0.12.3
+
+### Patch Changes
+
+- 2938683: Exported public apis
+- 62fee87: Fix incorrect work of `reactifyLite` with regular props
+
 ## 0.12.2
 
 ### Patch Changes
