@@ -1,1 +1,1 @@
-export const IGNORED_PROPS = ["ref"];
+export const IGNORED_PROPS = ["ref", "children"];
