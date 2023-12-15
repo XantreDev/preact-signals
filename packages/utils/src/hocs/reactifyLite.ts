@@ -1,4 +1,4 @@
-import { Signal, signal } from "@preact-signals/unified-signals";
+import { Signal, signal, untracked } from "@preact-signals/unified-signals";
 import type { Call, Fn, Objects } from "hotscript";
 import { useRef } from "react";
 import { createTransformProps } from "react-fast-hoc";
@@ -28,65 +28,64 @@ export type ReactiveProps<T extends Record<any, any>> = Opaque<
   "reactify.reactive-props"
 >;
 
-class ReactifyPropsLiteHandler {
-  _implicitSignals: Map<string, Signal<any>> = new Map();
-  _props: Record<string, any>;
-  constructor(props: Record<string, any>) {
-    this._props = props;
+class PropsCreatorHandler implements ProxyHandler<Record<string, any>> {
+  _implicitSignals: null | Map<string, Signal> = null;
+  public proxy: Record<string | symbol, any>;
+  // have to store props to allow it to provide comparsion of props
+  constructor(private _props: Record<string | symbol, any>) {
+    this.proxy = new Proxy({}, this);
   }
-
-  onRender(props: Record<string, any>) {
-    if (this._props === props) {
-      return;
-    }
-    for (const [key, value] of this._implicitSignals) {
-      if (!(key in props)) {
-        value.value = undefined;
+  updateProps(props: Record<string | symbol, any>) {
+    this._props = props;
+    for (const key in this._implicitSignals) {
+      if (Object.hasOwn(props, key)) {
+        this._implicitSignals.get(key)!.value = props[key];
+      } else {
+        this._implicitSignals.get(key)!.value = undefined;
       }
     }
-    // for (const key in this.#implicitSignals) {
-    //   if (!(key in props)) {
-    //     this.#implicitSignals.delete(key);
-    //   }
-    // }
-    this._props = props;
   }
 
-  createReactiveProps<
-    TInitial extends Record<any, any>
-  >(): ReactiveProps<TInitial> {
-    const res = {} as ReactiveProps<TInitial>;
-    const self = this;
-    for (const key in this._props) {
-      const value = this._props[key];
-      if (IGNORED_PROPS.includes(key)) {
-        // @ts-expect-error
-        res.ref = value;
-        continue;
+  get(_: Record<string | symbol, any>, p: string, receiver: any) {
+    if (Object.hasOwn(this._props, p)) {
+      const value = this._props[p];
+      if (IGNORED_PROPS.includes(p)) {
+        return value;
       }
-
-      Object.defineProperty(res, key, {
-        get() {
-          if (value && typeof value === "object" && value instanceof Signal) {
-            return value.value;
-          }
-          if (typeof value === "function") {
-            return value;
-          }
-
-          return (
-            self._implicitSignals.has(key)
-              ? self._implicitSignals.get(key)!
-              : self._implicitSignals
-                  .set(key, signal(self._props[key]))
-                  .get(key)!
-          ).value;
-        },
-        enumerable: true,
-      });
+      if (typeof value === "function") {
+        return value;
+      }
+      if (value instanceof Signal) {
+        return value.value;
+      }
+      if (this._implicitSignals === null) {
+        this._implicitSignals = new Map();
+      }
+      if (!this._implicitSignals.has(p)) {
+        this._implicitSignals.set(p, signal(value));
+      }
+      return value;
     }
 
-    return res;
+    return Reflect.get(this._props, p, receiver);
+  }
+  ownKeys(target: Record<string, any>): ArrayLike<string | symbol> {
+    return Reflect.ownKeys(this._props);
+  }
+  has(target: Record<string, any>, p: string | symbol): boolean {
+    return Reflect.has(this._props, p);
+  }
+  set(): never {
+    throw new Error("cannot write reactive props");
+  }
+  getOwnPropertyDescriptor(target: Record<string, any>, p: string | symbol) {
+    return Reflect.getOwnPropertyDescriptor(this._props, p);
+  }
+  defineProperty(): boolean {
+    return false;
+  }
+  deleteProperty(): never {
+    throw new Error("cannot delete reactive props");
   }
 }
 
@@ -122,14 +121,15 @@ class ReactifyPropsLiteHandler {
  */
 export const reactifyLite = createTransformProps<[ReactifyLiteFn]>(
   (props) => {
-    const hander = useRef<null | ReactifyPropsLiteHandler>(null);
+    const reactivePropsRef = useRef<null | PropsCreatorHandler>(null);
 
-    if (hander.current === null) {
-      hander.current = new ReactifyPropsLiteHandler(props);
+    if (reactivePropsRef.current === null) {
+      reactivePropsRef.current = new PropsCreatorHandler(props);
+    } else {
+      reactivePropsRef.current.updateProps(props);
     }
-    hander.current.onRender(props);
 
-    return hander.current.createReactiveProps();
+    return reactivePropsRef.current.proxy;
   },
   {
     displayNameTransform: {

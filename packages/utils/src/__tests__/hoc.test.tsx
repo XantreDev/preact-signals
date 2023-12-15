@@ -1,4 +1,9 @@
-import { ReadonlySignal, signal } from "@preact-signals/unified-signals";
+import {
+  ReadonlySignal,
+  computed,
+  signal,
+  useComputed,
+} from "@preact-signals/unified-signals";
 import React, { PropsWithChildren } from "react";
 import { assert, describe, expect, expectTypeOf, it, vi } from "vitest";
 import { $, Uncached } from "../$";
@@ -144,6 +149,77 @@ describe("reactifyLite()", () => {
       });
 
       expect(A).toHaveBeenCalledTimes(1);
+    }
+  );
+  itRenderer(
+    "should update props when regular props changed",
+    async ({ act, reactRoot, expect }) => {
+      const sig = signal(10);
+
+      const aRender = vi.fn(
+        (props: ReactiveProps<{ value: number }>) => props.value
+      );
+      const A = reactifyLite(aRender);
+      const B = () => <A value={sig.value} />;
+      await act(() => reactRoot().render(<B />));
+
+      expect(A).toHaveBeenCalledTimes(1);
+      expect(A).lastCalledWith({ value: 10 }, {});
+      await act(() => {
+        sig.value = 20;
+      });
+
+      expect(A).toHaveBeenCalledTimes(2);
+      expect(A).lastCalledWith({ value: 20 }, {});
+    }
+  );
+  itRenderer(
+    "should update regular props reactively",
+    async ({ act, reactRoot, expect }) => {
+      const sig = signal(10);
+      let cmp: null | ReadonlySignal<number> = null;
+
+      const aRender = vi.fn((props: ReactiveProps<{ value: number }>) => {
+        if (!cmp) {
+          cmp = computed(() => props.value);
+        }
+        return null;
+      });
+      const A = reactifyLite(aRender);
+      const B = () => <A value={sig.value} />;
+      await act(() => reactRoot().render(<B />));
+
+      expect(A).toHaveBeenCalledTimes(1);
+      expect(A).lastCalledWith({ value: 10 }, {});
+      await act(() => {
+        sig.value = 20;
+      });
+
+      expect(A).toHaveBeenCalledTimes(2);
+      expect(A).lastCalledWith({ value: 20 }, {});
+      expect(cmp!.value).toBe(20);
+    }
+  );
+  itRenderer(
+    "should not allow to access previous omitted prop",
+    async ({ act, reactRoot, expect }) => {
+      const sig = signal(10);
+
+      const aRender = vi.fn((props: ReactiveProps<{ value?: number }>) => {
+        return null;
+      });
+      const A = reactifyLite(aRender);
+      const B = () => <A {...(sig.value === 10 ? { value: 10 } : {})} />;
+      await act(() => reactRoot().render(<B />));
+
+      expect(A).toHaveBeenCalledTimes(1);
+      expect(A).toHaveBeenLastCalledWith({ value: 10 }, {});
+      await act(() => {
+        sig.value = 20;
+      });
+
+      expect(A).toHaveBeenCalledTimes(2);
+      expect(A).toHaveBeenLastCalledWith({}, {});
     }
   );
 });
