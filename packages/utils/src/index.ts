@@ -4,6 +4,10 @@ export * from "./$";
 export {
   createFlatStore,
   flatStore,
+  flatStoreOfSignals,
+  createFlatStoreOfSignals,
+  type FlatStoreOfSignalsBody,
+  type ReadonlySignalsKeys,
   type FlatStore,
   type ReadonlyFlatStore,
 } from "./flat-store";
@@ -17,6 +21,12 @@ export {
   toggleSignal,
   untracked,
   unwrapReactive,
+  rafReaction,
+  isExplicitFalsy,
+  type ExplicitFalsy,
+  type GetTruthyValue,
+  type GetValue,
+  type SolidSignalApi,
   type Accessor,
   type AnyReactive,
   type CreateFunction,
