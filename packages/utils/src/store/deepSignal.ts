@@ -41,8 +41,9 @@ export class DeepSignal<T> extends Signal<T> {
   get value() {
     return super.value;
   }
-
-  declare __not_exist_deepSignal: true;
+}
+export interface DeepSignal<T> extends Signal<T> {
+  __not_exist_deepSignal: true;
 }
 
 export type WrapDeepSignal<T> = T extends Signal<any>
