@@ -139,7 +139,7 @@ where
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 enum ShouldTrack {
     OptIn,
     OptOut,
@@ -171,8 +171,8 @@ where
                     // println!("component uses both @trackSignals and @noTrackSignals at the same time, ignoring @trackSignals");
                     ShouldTrack::OptOut
                 }
-                (_, true) => ShouldTrack::OptOut,
                 (true, false) => ShouldTrack::OptIn,
+                (false, true) => ShouldTrack::OptOut,
                 _ => ShouldTrack::Auto,
             }
         }
@@ -185,15 +185,14 @@ where
 {
     spans
         .into_iter()
-        .map(|it| match it {
-            Some(span) => should_track_by_comment(comments, span),
-            None => ShouldTrack::Auto,
+        .filter_map(|it| match it {
+            Some(span) => match should_track_by_comment(comments, span) {
+                ShouldTrack::Auto => None,
+                it => Some(it),
+            },
+            None => None,
         })
-        .find(|it| match it {
-            ShouldTrack::OptIn => true,
-            ShouldTrack::OptOut => true,
-            _ => false,
-        })
+        .next()
         .unwrap_or(ShouldTrack::Auto)
 }
 
@@ -264,7 +263,7 @@ where
                     |mut_self, it| it.wrap_with_use_signals(mut_self.get_import_use_signals()),
                 );
                 let old_span = self.ignore_span;
-                self.ignore_span = Some(span.clone());
+                self.ignore_span = Some(var_decl.span.clone());
                 n.visit_mut_children_with(self);
                 self.ignore_span = old_span
             }
@@ -282,7 +281,7 @@ where
                         .wrap_with_use_signals(self.get_import_use_signals())
                 }
                 let old_span = self.ignore_span;
-                self.ignore_span = Some(span.clone());
+                self.ignore_span = Some(fn_declr.function.span.clone());
                 n.visit_mut_children_with(self);
                 self.ignore_span = old_span
             }
@@ -290,7 +289,11 @@ where
         }
     }
     fn visit_mut_fn_decl(&mut self, n: &mut FnDecl) {
-        if self.should_track(&[Some(n.function.span)], &n.ident, n) {
+        if match self.ignore_span {
+            Some(span) => !span.eq(&n.function.span),
+            None => true,
+        } && self.should_track(&[Some(n.function.span)], &n.ident, n)
+        {
             n.function
                 .wrap_with_use_signals(self.get_import_use_signals())
         }
@@ -495,6 +498,13 @@ const Beb = {
  */
 export function bebe() {}
 
+/**
+ * @noTrackSignals
+ */
+export function Boba() {
+    return <div />;
+}
+
 const A = function app() {
     return <div>{sig.value}</div>
 }
@@ -639,6 +649,9 @@ const A = {
         try {} finally{
             _effect.f();
         }
+    }
+    export function Boba() {
+        return <div/>;
     }
     const A = function app() {
         return <div>{sig.value}</div>;
