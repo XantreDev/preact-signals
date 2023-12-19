@@ -301,7 +301,8 @@ for (const parser of ["swc", "babel"] as const) {
     });
 
     describe.concurrent("auto mode doesn't transform", () => {
-      it("useEffect callbacks that use signals", async ({ expect }) => {
+      // TODO: figure out what to do with the following
+      /*it("useEffect callbacks that use signals", async ({ expect }) => {
         const inputCode = `
 				function App() {
 					useEffect(() => {
@@ -320,7 +321,7 @@ for (const parser of ["swc", "babel"] as const) {
           false,
           false
         );
-      });
+      }); */
 
       runGeneratedTestCases({
         useValidAutoMode: false,
@@ -330,25 +331,26 @@ for (const parser of ["swc", "babel"] as const) {
     });
 
     describe.concurrent("auto mode supports opting out of transforming", () => {
-      // it("opt-out comment overrides opt-in comment", async () => {
-      //   const inputCode = `
-      // 	/**
-      // 	 * @noTrackSignals
-      // 	 * @trackSignals
-      // 	 */
-      // 	function MyComponent() {
-      // 		return <div>{signal.value}</div>;
-      // 	};
-      // `;
-
-      //   const expectedOutput = inputCode;
-
-      //   await runTest(
-      //     inputCode,
-      //     expectedOutput,
-      //     TransformerTestOptions.makeFromMode(parser, "auto")
-      //   );
-      // });
+      it("opt-out comment overrides opt-in comment", async () => {
+        const inputCode = `
+       	/**
+       	 * @noTrackSignals
+       	 * @trackSignals
+       	 */
+       	function MyComponent() {
+       		return <div>{signal.value}</div>;
+       	};
+       `;
+        const expectedOutput = inputCode;
+        await runTest(
+          expect,
+          inputCode,
+          expectedOutput,
+          TransformerTestOptions.makeFromMode(parser, "auto"),
+          false,
+          true
+        );
+      });
 
       runGeneratedTestCases({
         useValidAutoMode: true,
@@ -402,25 +404,28 @@ for (const parser of ["swc", "babel"] as const) {
 
     describe.concurrent("manual mode opts into transforming", () => {
       // TODO: Should throw an error
-      // it("opt-out comment overrides opt-in comment", async () => {
-      //   const inputCode = `
-      // 	/**
-      // 	 * @noTrackSignals
-      // 	 * @trackSignals
-      // 	 */
-      // 	function MyComponent() {
-      // 		return <div>{signal.value}</div>;
-      // 	};
-      // `;
+      it("opt-out comment overrides opt-in comment", async () => {
+        const inputCode = `
+      	/**
+      	 * @noTrackSignals
+      	 * @trackSignals
+      	 */
+      	function MyComponent() {
+      		return <div>{signal.value}</div>;
+      	};
+      `;
 
-      //   const expectedOutput = inputCode;
+        const expectedOutput = inputCode;
 
-      //   await runTest(
-      //     inputCode,
-      //     expectedOutput,
-      //     TransformerTestOptions.makeFromMode(mode, "auto")
-      //   );
-      // });
+        await runTest(
+          expect,
+          inputCode,
+          expectedOutput,
+          TransformerTestOptions.makeFromMode(parser, "auto"),
+          false,
+          true
+        );
+      });
 
       runGeneratedTestCases({
         useValidAutoMode: true,

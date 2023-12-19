@@ -74,15 +74,6 @@ impl MaybeComponentName for Pat {
         false
     }
 }
-impl MaybeComponentName for Option<Ident> {
-    fn is_component_name(&self) -> bool {
-        if let Some(ident) = self {
-            ident.is_component_name()
-        } else {
-            false
-        }
-    }
-}
 
 // this crazy stuff is not supported in babel
 /* fn get_left_add_binary(left: &Expr) -> Option<&Expr> {
@@ -126,6 +117,7 @@ impl MaybeComponentName for Expr {
         match self.unwrap_parens() {
             Expr::Ident(ident) => ident.is_component_name(),
             Expr::Member(member_expr) => member_expr.prop.is_component_name(),
+            Expr::Lit(Lit::Str(str)) => str.is_component_name(),
             _ => false,
         }
     }

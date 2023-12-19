@@ -200,7 +200,11 @@ where
             },
             None => None,
         })
-        .next()
+        .reduce(|acc, it| match (acc, it) {
+            (ShouldTrack::OptIn, ShouldTrack::OptOut) => ShouldTrack::OptOut,
+            (ShouldTrack::OptOut, ShouldTrack::OptIn) => ShouldTrack::OptOut,
+            (_, it) => it,
+        })
         .unwrap_or(ShouldTrack::Auto)
 }
 
@@ -210,7 +214,7 @@ where
 {
     fn should_track_auto<I, Comp>(
         &self,
-        ident: &I,
+        ident: Option<&I>,
         component: &Comp,
         is_default_export: bool,
     ) -> bool
@@ -219,10 +223,10 @@ where
         I: MaybeComponentName,
     {
         let should_track_by_name = || {
-            if is_default_export {
+            if is_default_export && ident.is_none() {
                 self.is_file_named_like_component
             } else {
-                ident.is_component_name()
+                ident.map(|it| it.is_component_name()).unwrap_or(false)
             }
         };
         match self.mode {
@@ -234,10 +238,11 @@ where
         }
     }
 
-    fn should_track<I, Comp>(
+    #[inline]
+    fn should_track_option_ident<I, Comp>(
         &self,
         comment_spans: &[Option<Span>],
-        ident: &I,
+        ident: Option<&I>,
         component: &Comp,
         is_default_export: bool,
     ) -> bool
@@ -250,6 +255,19 @@ where
             ShouldTrack::OptIn => true,
             ShouldTrack::OptOut => false,
         }
+    }
+    fn should_track<I, Comp>(
+        &self,
+        comment_spans: &[Option<Span>],
+        ident: &I,
+        component: &Comp,
+        is_default_export: bool,
+    ) -> bool
+    where
+        Comp: Detectable,
+        I: MaybeComponentName,
+    {
+        self.should_track_option_ident(comment_spans, Some(ident), component, is_default_export)
     }
 }
 impl<C> VisitMut for SignalsTransformVisitor<C>
@@ -316,9 +334,9 @@ where
                 span,
                 decl: DefaultDecl::Fn(ref mut fn_expr),
             } => {
-                if self.should_track(
+                if self.should_track_option_ident(
                     &[Some(span.clone()), Some(fn_expr.function.span)],
-                    &fn_expr.ident,
+                    fn_expr.ident.as_ref(),
                     fn_expr,
                     true,
                 ) {
@@ -340,7 +358,12 @@ where
                 let child_span = expr.unwrap_parens().get_span().clone();
                 if let Some(mut component) = extract_fn_from_expr(expr.unwrap_parens_mut())
                     && let spans = [Some(span.clone()), Some(child_span), Some(n.span)]
-                    && self.should_track(&spans, &component.get_fn_ident(), &component, true)
+                    && self.should_track_option_ident(
+                        &spans,
+                        component.get_fn_ident().as_ref(),
+                        &component,
+                        true,
+                    )
                 {
                     component.wrap_with_use_signals(self.get_import_use_signals());
                 }
@@ -378,7 +401,14 @@ where
     }
     fn visit_mut_key_value_prop(&mut self, n: &mut KeyValueProp) {
         if let Some(mut component) = extract_fn_from_expr(&mut n.value)
-            && self.should_track(&[Some(*n.key.get_span())], &n.key, &component, false)
+            && self.should_track(
+                &[Some(*n.key.get_span())],
+                &component
+                    .get_fn_ident()
+                    .map_or(n.key.clone(), |it| PropName::Ident(it)),
+                &component,
+                false,
+            )
         {
             component.wrap_with_use_signals(self.get_import_use_signals())
         }
@@ -793,6 +823,35 @@ const Cyc = React.lazy(React.memo(()=>{
 "#
 );
 
+test!(
+    get_syntax(),
+    |tester| as_folder(SignalsTransformVisitor::from_default(
+        tester.comments.clone(),
+        false
+    )),
+    opt_in_opt_out,
+    // Input codes
+    r#"
+/**
+ * @noTrackSignals
+ * @trackSignals
+ */
+function MyComponent() {
+    return <div>{signal.value}</div>;
+}
+"#,
+    // Expected codes
+    r#"
+/**
+ * @noTrackSignals
+ * @trackSignals
+ */
+function MyComponent() {
+    return <div>{signal.value}</div>;
+}
+"#
+);
+
 // An example to test plugin transform.
 // Recommended strategy to test plugin's transform is verify
 // the Visitor's behavior, instead of trying to run `process_transform` with mocks
@@ -821,6 +880,12 @@ A.bebe.Baba = () => <div>{a.value}</div>
 
 const Beb = {
     A: () => <div />
+}
+
+const _ = {
+    ['Aboba']() {
+        return <div />        
+    }
 }
     "#,
     // Expected codes
@@ -872,6 +937,17 @@ const Beb = {
         }
     }
 };
+
+const _ = {
+    ['Aboba']() {
+        var _effect = _useSignals();
+        try {
+            return <div/>;
+        } finally{
+            _effect.f();
+        }
+    }
+}
 "#
 );
 
