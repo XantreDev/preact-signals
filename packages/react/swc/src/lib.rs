@@ -14,9 +14,10 @@ use std::{
 use regex::Regex;
 use serde::Deserialize;
 use serde_json;
+use std::path::PathBuf;
 use swc_core::{
     common::comments::Comments,
-    common::{comments::CommentKind, sync::Lazy, Span, DUMMY_SP},
+    common::{comments::CommentKind, sync::Lazy, FileName, Span, DUMMY_SP},
     ecma::{
         ast::*,
         atoms::Atom,
@@ -24,7 +25,10 @@ use swc_core::{
         utils::{prepend_stmt, private_ident},
         visit::{as_folder, noop_visit_mut_type, FoldWith, VisitMut, VisitMutWith},
     },
-    plugin::{plugin_transform, proxies::TransformPluginProgramMetadata},
+    plugin::{
+        metadata::TransformPluginMetadataContextKind, plugin_transform,
+        proxies::TransformPluginProgramMetadata,
+    },
 };
 
 fn get_import_source(str: &str) -> Str {
@@ -79,6 +83,7 @@ where
     import_use_signals: Option<Ident>,
     use_signals_import_source: Str,
     ignore_span: Option<Span>,
+    is_file_named_like_component: bool,
 }
 
 impl<C> SignalsTransformVisitor<C>
@@ -90,9 +95,14 @@ where
             .get_or_insert(private_ident!("_useSignals"))
             .clone()
     }
-    fn from_options(options: PreactSignalsPluginOptions, comments: C) -> Self {
+    fn from_options(
+        options: PreactSignalsPluginOptions,
+        comments: C,
+        is_file_named_like_component: bool,
+    ) -> Self {
         SignalsTransformVisitor {
             comments: comments,
+            is_file_named_like_component,
             mode: options.mode.unwrap_or(TransformMode::All),
             import_use_signals: None,
             use_signals_import_source: options
@@ -102,9 +112,10 @@ where
             ignore_span: None,
         }
     }
-    fn from_default(comments: C) -> Self {
+    fn from_default(comments: C, is_file_named_like_component: bool) -> Self {
         SignalsTransformVisitor {
             comments: comments,
+            is_file_named_like_component,
             mode: TransformMode::All,
             import_use_signals: None,
             use_signals_import_source: get_default_import_source(),
@@ -124,14 +135,11 @@ where
             && let Some(init) = &mut first.init
             && let child_span = init.unwrap_parens().get_span().clone()
             && let Some(mut component) = extract_fn_from_expr(init.unwrap_parens_mut())
-            && let spans = [
-                additional_spans.unwrap_or(&[]),
-                &[Some(child_span), Some(n.span)],
-            ]
-            .concat()
+            && let defaults_spans = [Some(child_span), Some(n.span)]
+            && let spans = [additional_spans.unwrap_or(&[]), &defaults_spans].concat()
             && match component.get_fn_ident() {
-                None => self.should_track(&spans, &first.name, &component),
-                Some(ident) => self.should_track(&spans, &ident, &component),
+                None => self.should_track(&spans, &first.name, &component, false),
+                Some(ident) => self.should_track(&spans, &ident, &component, false),
             }
         {
             transform(self, &mut component)
@@ -200,16 +208,28 @@ impl<C> SignalsTransformVisitor<C>
 where
     C: Comments + Debug,
 {
-    fn should_track_auto<I, Comp>(&self, ident: &I, component: &Comp) -> bool
+    fn should_track_auto<I, Comp>(
+        &self,
+        ident: &I,
+        component: &Comp,
+        is_default_export: bool,
+    ) -> bool
     where
         Comp: Detectable,
         I: MaybeComponentName,
     {
+        let should_track_by_name = || {
+            if is_default_export {
+                self.is_file_named_like_component
+            } else {
+                ident.is_component_name()
+            }
+        };
         match self.mode {
-            TransformMode::All => ident.is_component_name() && component.has_jsx(),
+            TransformMode::All => should_track_by_name() && component.has_jsx(),
             TransformMode::Manual => false,
             TransformMode::Auto => {
-                ident.is_component_name() && component.has_jsx() && component.has_dot_value()
+                should_track_by_name() && component.has_jsx() && component.has_dot_value()
             }
         }
     }
@@ -219,13 +239,14 @@ where
         comment_spans: &[Option<Span>],
         ident: &I,
         component: &Comp,
+        is_default_export: bool,
     ) -> bool
     where
         Comp: Detectable,
         I: MaybeComponentName,
     {
         match should_track_by_comments(&self.comments, comment_spans) {
-            ShouldTrack::Auto => self.should_track_auto(ident, component),
+            ShouldTrack::Auto => self.should_track_auto(ident, component, is_default_export),
             ShouldTrack::OptIn => true,
             ShouldTrack::OptOut => false,
         }
@@ -275,6 +296,7 @@ where
                     &[Some(span.clone()), Some(fn_declr.function.span)],
                     &fn_declr.ident,
                     fn_declr,
+                    false,
                 ) {
                     fn_declr
                         .function
@@ -288,11 +310,53 @@ where
             n => n.visit_mut_children_with(self),
         }
     }
+    fn visit_mut_export_default_decl(&mut self, n: &mut ExportDefaultDecl) {
+        match n {
+            ExportDefaultDecl {
+                span,
+                decl: DefaultDecl::Fn(ref mut fn_expr),
+            } => {
+                if self.should_track(
+                    &[Some(span.clone()), Some(fn_expr.function.span)],
+                    &fn_expr.ident,
+                    fn_expr,
+                    true,
+                ) {
+                    fn_expr
+                        .function
+                        .wrap_with_use_signals(self.get_import_use_signals())
+                }
+                let old_span = self.ignore_span;
+                self.ignore_span = Some(fn_expr.function.span.clone());
+                n.visit_mut_children_with(self);
+                self.ignore_span = old_span
+            }
+            n => n.visit_mut_children_with(self),
+        }
+    }
+    fn visit_mut_export_default_expr(&mut self, n: &mut ExportDefaultExpr) {
+        match n {
+            ExportDefaultExpr { span, ref mut expr } => {
+                let child_span = expr.unwrap_parens().get_span().clone();
+                if let Some(mut component) = extract_fn_from_expr(expr.unwrap_parens_mut())
+                    && let spans = [Some(span.clone()), Some(child_span), Some(n.span)]
+                    && self.should_track(&spans, &component.get_fn_ident(), &component, true)
+                {
+                    component.wrap_with_use_signals(self.get_import_use_signals());
+                }
+
+                n.visit_mut_children_with(self);
+                // let old_span = self.ignore_span;
+                // self.ignore_span = Some(child_span);
+                // self.ignore_span = old_span
+            }
+        }
+    }
     fn visit_mut_fn_decl(&mut self, n: &mut FnDecl) {
         if match self.ignore_span {
             Some(span) => !span.eq(&n.function.span),
             None => true,
-        } && self.should_track(&[Some(n.function.span)], &n.ident, n)
+        } && self.should_track(&[Some(n.function.span)], &n.ident, n, false)
         {
             n.function
                 .wrap_with_use_signals(self.get_import_use_signals())
@@ -303,8 +367,8 @@ where
     fn visit_mut_assign_expr(&mut self, n: &mut AssignExpr) {
         if let Some(mut component) = extract_fn_from_expr(n.right.borrow_mut())
             && match component.get_fn_ident() {
-                None => self.should_track(&[Some(n.span)], &n.left, &component),
-                Some(ident) => self.should_track(&[Some(n.span)], &ident, &component),
+                None => self.should_track(&[Some(n.span)], &n.left, &component, false),
+                Some(ident) => self.should_track(&[Some(n.span)], &ident, &component, false),
             }
         {
             component.wrap_with_use_signals(self.get_import_use_signals())
@@ -314,7 +378,7 @@ where
     }
     fn visit_mut_key_value_prop(&mut self, n: &mut KeyValueProp) {
         if let Some(mut component) = extract_fn_from_expr(&mut n.value)
-            && self.should_track(&[Some(*n.key.get_span())], &n.key, &component)
+            && self.should_track(&[Some(*n.key.get_span())], &n.key, &component, false)
         {
             component.wrap_with_use_signals(self.get_import_use_signals())
         }
@@ -326,6 +390,7 @@ where
             &[n.function.span.into(), n.key.get_span().clone().into()],
             &n.key,
             n.function.deref(),
+            false,
         ) {
             n.function
                 .wrap_with_use_signals(self.get_import_use_signals())
@@ -389,13 +454,33 @@ pub fn process_transform(program: Program, _metadata: TransformPluginProgramMeta
     program.fold_with(&mut as_folder({
         let data = _metadata.get_transform_plugin_config();
 
+        let is_file_named_like_component = _metadata
+            .get_context(&TransformPluginMetadataContextKind::Filename)
+            .map(|it| {
+                PathBuf::from(it)
+                    .file_name()
+                    .map(|it| it.to_str())
+                    .flatten()
+                    .map(|it| it.to_owned())
+            })
+            .flatten()
+            .map(|it| it.is_component_name())
+            .unwrap_or(false);
+
         match data {
             Some(data) => {
                 let options = serde_json::from_str::<PreactSignalsPluginOptions>(data.as_str())
                     .expect("transform plugin config should be valid json");
-                SignalsTransformVisitor::from_options(options, _metadata.comments)
+                SignalsTransformVisitor::from_options(
+                    options,
+                    _metadata.comments,
+                    is_file_named_like_component,
+                )
             }
-            None => SignalsTransformVisitor::from_default(_metadata.comments),
+            None => SignalsTransformVisitor::from_default(
+                _metadata.comments,
+                is_file_named_like_component,
+            ),
         }
     }))
 }
@@ -407,75 +492,227 @@ fn get_syntax() -> Syntax {
     Syntax::Es(a)
 }
 
-// An example to test plugin transform.
-// Recommended strategy to test plugin's transform is verify
-// the Visitor's behavior, instead of trying to run `process_transform` with mocks
-// unless explicitly required to do so.
 test!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_default(
-        tester.comments.clone()
+        tester.comments.clone(),
+        false
     )),
-    boo,
+    arrow_fn,
     // Input codes
     r#"
-// should be transformed
 const A = () => {
     return <div />
 }
-// should be transformed
 const Cecek = () => <div />
+"#,
+    // Expected codes
+    r#"
+import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
+const A = ()=>{
+    var _effect = _useSignals();
+    try {
+        return <div/>;
+    } finally{
+        _effect.f();
+    }
+};
+const Cecek = ()=>{
+    var _effect = _useSignals();
+    try {
+        return <div/>;
+    } finally{
+        _effect.f();
+    }
+};
+"#
+);
 
+test!(
+    get_syntax(),
+    |tester| as_folder(SignalsTransformVisitor::from_default(
+        tester.comments.clone(),
+        false
+    )),
+    function,
+    // Input codes
+    r#"
 // should be transformed
-function Beb2(){
+function A(){
     return <div />
 }
+"#,
+    // Expected codes
+    r#"
+import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
+function A() {
+    var _effect = _useSignals();
+    try {
+        return <div/>;
+    } finally{
+        _effect.f();
+    }
+}
+"#
+);
+
+test!(
+    get_syntax(),
+    |tester| as_folder(SignalsTransformVisitor::from_default(
+        tester.comments.clone(),
+        false
+    )),
+    function_expr,
+    // Input codes
+    r#"
 var C = function(){
     return <div />
 };
 var C2 = function C3(){
     return <div />
 };
+"#,
+    // Expected codes
+    r#"
+import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
+var C = function() {
+    var _effect = _useSignals();
+    try {
+        return <div/>;
+    } finally{
+        _effect.f();
+    }
+};
+var C2 = function C3() {
+    var _effect = _useSignals();
+    try {
+        return <div/>;
+    } finally{
+        _effect.f();
+    }
+};
+"#
+);
 
+test!(
+    get_syntax(),
+    |tester| as_folder(SignalsTransformVisitor::from_default(
+        tester.comments.clone(),
+        false
+    )),
+    opt_in,
+    // Input codes
+    r#"
 /**
- * should be transformed
  * @trackSignals
  */
-const sdfj = () => 1
-
-// should be transformed
-const inlineComment = /** @trackSignals */ () => 1
-
-// hocs should be transformed
-const Cec = memo(() => {
-    return <div />
-})
-// hocs should be transformed
-const Cyc = React.lazy(React.memo(() => {
-    return <div />
-}), {})
-
-// should not be transformed
-const CycPlain = () => 5
+function a(){
+    return 10;
+}
 
 /**
- * should not be transformed
- * @noTrackSignals
+ * @trackSignals
  */
-function B(){
-    return <div />
+const b = () => {
+    return 10;
+}
+
+/**
+ * @trackSignals
+ */
+const c = function(){
+    return 10
+};
+/**
+ * @trackSignals
+ */
+const d = () => 10
+
+/**
+ * @trackSignals
+ */
+export function boba(){
+    return 10
+}
+
+/**
+ * @trackSignals
+ */
+export const boba2 = () => 10
+"#,
+    // Expected codes
+    r#"
+import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
+
+function a() {
+    var _effect = _useSignals();
+    try {
+        return 10;
+    } finally{
+        _effect.f();
+    }
+}
+const b = ()=>{
+    var _effect = _useSignals();
+    try {
+        return 10;
+    } finally{
+        _effect.f();
+    }
+};
+const c = function() {
+    var _effect = _useSignals();
+    try {
+        return 10;
+    } finally{
+        _effect.f();
+    }
+};
+const d = ()=>{
+    var _effect = _useSignals();
+    try {
+        return 10;
+    } finally{
+        _effect.f();
+    }
 };
 
+export function boba() {
+    var _effect = _useSignals();
+    try {
+        return 10;
+    } finally{
+        _effect.f();
+    }
+}
+export const boba2 = ()=>{
+    var _effect = _useSignals();
+    try {
+        return 10;
+    } finally{
+        _effect.f();
+    }
+};
+"#
+);
+
+test!(
+    get_syntax(),
+    |tester| as_folder(SignalsTransformVisitor::from_default(
+        tester.comments.clone(),
+        false
+    )),
+    nested_components,
+    // Input codes
+    r#"
 function Asdjsadf(){
     /**
-     * shouldn't be transformed
-     * @noTrackSignals
+     * @trackSignals
      */
     function B(){
         return <div />
     };
     /**
-     * should be transformed
      * @trackSignals
      */
     function c(){
@@ -484,58 +721,149 @@ function Asdjsadf(){
 
     return <div />
 }
+"#,
+    // Expected codes
+    r#"
+import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
+function Asdjsadf() {
+    var _effect = _useSignals();
+    try {
+        function B() {
+            var _effect = _useSignals();
+            try {
+                return <div/>;
+            } finally{
+                _effect.f();
+            }
+        }
+        ;
+        function c() {
+            var _effect = _useSignals();
+            try {
+                return 5;
+            } finally{
+                _effect.f();
+            }
+        }
+        ;
+        return <div/>;
+    } finally{
+        _effect.f();
+    }
+}
+"#
+);
+
+test!(
+    get_syntax(),
+    |tester| as_folder(SignalsTransformVisitor::from_default(
+        tester.comments.clone(),
+        false
+    )),
+    hocs,
+    // Input codes
+    r#"
+const Cec = memo(() => {
+    return <div />
+})
+// hocs should be transformed
+const Cyc = React.lazy(React.memo(() => {
+    return <div />
+}), {})
+"#,
+    // Expected codes
+    r#"
+import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
+const Cec = memo(()=>{
+    var _effect = _useSignals();
+    try {
+        return <div/>;
+    } finally{
+        _effect.f();
+    }
+});
+const Cyc = React.lazy(React.memo(()=>{
+    var _effect = _useSignals();
+    try {
+        return <div/>;
+    } finally{
+        _effect.f();
+    }
+}), {});
+"#
+);
+
+// An example to test plugin transform.
+// Recommended strategy to test plugin's transform is verify
+// the Visitor's behavior, instead of trying to run `process_transform` with mocks
+// unless explicitly required to do so.
+test!(
+    get_syntax(),
+    |tester| as_folder(SignalsTransformVisitor::from_default(
+        tester.comments.clone(),
+        false
+    )),
+    rare_components,
+    // Input codes
+    r#"
 let Jopa;
 Jopa = () => <>{a.value}</>
-
-a.bebe.Baba = () => <div>{a.value}</div>
-
-const Beb = {
-    A: () => <div />
+Jopa = function(){
+    return <>{a.value}</>
 }
-
-/**
- * @trackSignals
- */
-export function bebe() {}
-
-/**
- * @noTrackSignals
- */
-export function Boba() {
-    return <div />;
-}
-
-const A = function app() {
-    return <div>{sig.value}</div>
-}
-
 const A = {
     Beb(){
         return <>10</>
     }
 }
 
+A.bebe.Baba = () => <div>{a.value}</div>
+
+const Beb = {
+    A: () => <div />
+}
     "#,
     // Expected codes
     r#"
-    import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
-    const A = ()=>{
+import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
+
+let Jopa;
+Jopa = ()=>{
+    var _effect = _useSignals();
+    try {
+        return <>{a.value}</>;
+    } finally{
+        _effect.f();
+    }
+};
+Jopa = function() {
+    var _effect = _useSignals();
+    try {
+        return <>{a.value}</>;
+    } finally{
+        _effect.f();
+    }
+};
+const A = {
+    Beb() {
         var _effect = _useSignals();
         try {
-            return <div/>;
+            return <>10</>;
         } finally{
             _effect.f();
         }
-    };
-    const Cecek = ()=>{
-        var _effect = _useSignals();
-        try {
-            return <div/>;
-        } finally{
-            _effect.f();
-        }
-    };
-    function Beb2() {
+    }
+};
+A.bebe.Baba = ()=>{
+    var _effect = _useSignals();
+    try {
+        return <div>{a.value}</div>;
+    } finally{
+        _effect.f();
+    }
+};
+const Beb = {
+    A: ()=>{
         var _effect = _useSignals();
         try {
             return <div/>;
@@ -543,128 +871,45 @@ const A = {
             _effect.f();
         }
     }
-    var C = function() {
-        var _effect = _useSignals();
-        try {
-            return <div/>;
-        } finally{
-            _effect.f();
-        }
-    };
-    var C2 = function C3() {
-        var _effect = _useSignals();
-        try {
-            return <div/>;
-        } finally{
-            _effect.f();
-        }
-    };
-    const sdfj = ()=>{
-        var _effect = _useSignals();
-        try {
-            return 1;
-        } finally{
-            _effect.f();
-        }
-    };
-    const inlineComment = ()=>{
-        var _effect = _useSignals();
-        try {
-            return 1;
-        } finally{
-            _effect.f();
-        }
-    };
-    const Cec = memo(()=>{
-        var _effect = _useSignals();
-        try {
-            return <div/>;
-        } finally{
-            _effect.f();
-        }
-    });
-    const Cyc = React.lazy(React.memo(()=>{
-        var _effect = _useSignals();
-        try {
-            return <div/>;
-        } finally{
-            _effect.f();
-        }
-    }), {});
-    const CycPlain = ()=>5;
-    function B() {
+};
+"#
+);
+
+test!(
+    get_syntax(),
+    |tester| as_folder(SignalsTransformVisitor::from_default(
+        tester.comments.clone(),
+        true
+    )),
+    default_components,
+    // Input codes
+    r#"
+export default function(){
+    return <div />
+}
+export default (() => {
+    return <div />
+})
+"#,
+    // Expected codes
+    r#"
+import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
+export default function() {
+    var _effect = _useSignals();
+    try {
         return <div/>;
+    } finally{
+        _effect.f();
     }
-    ;
-    function Asdjsadf() {
-        var _effect = _useSignals();
-        try {
-            function B() {
-                return <div/>;
-            }
-            ;
-            function c() {
-                var _effect = _useSignals();
-                try {
-                    return 5;
-                } finally{
-                    _effect.f();
-                }
-            }
-            ;
-            return <div/>;
-        } finally{
-            _effect.f();
-        }
-    }
-    let Jopa;
-    Jopa = ()=>{
-        var _effect = _useSignals();
-        try {
-            return <>{a.value}</>;
-        } finally{
-            _effect.f();
-        }
-    };
-    a.bebe.Baba = ()=>{
-        var _effect = _useSignals();
-        try {
-            return <div>{a.value}</div>;
-        } finally{
-            _effect.f();
-        }
-    };
-    const Beb = {
-        A: ()=>{
-            var _effect = _useSignals();
-            try {
-                return <div/>;
-            } finally{
-                _effect.f();
-            }
-        }
-    };
-    export function bebe() {
-        var _effect = _useSignals();
-        try {} finally{
-            _effect.f();
-        }
-    }
-    export function Boba() {
+}
+
+export default (()=>{
+    var _effect = _useSignals();
+    try {
         return <div/>;
+    } finally{
+        _effect.f();
     }
-    const A = function app() {
-        return <div>{sig.value}</div>;
-    };
-    const A = {
-        Beb () {
-            var _effect = _useSignals();
-            try {
-                return <>10</>;
-            } finally{
-                _effect.f();
-            }
-        }
-    };
+});
 "#
 );

@@ -26,9 +26,16 @@ import { afterAll } from "vitest";
 // "259"]). Set to true to debug all tests.
 const DEBUG_TEST_IDS: string[] | true = [];
 
+const removeComments = (code: string) =>
+  code.replace(/\/\*[\s\S]*?\*\//g, "").trim();
+
 const format = (code: string) => prettier.format(code, { parser: "babel" });
 
-const getSwcConfig = (usePlugin: false | PluginOptions, isCJS: boolean) =>
+const getSwcConfig = (
+  usePlugin: false | PluginOptions,
+  filename: string | undefined,
+  isCJS: boolean
+) =>
   ({
     jsc: {
       experimental: usePlugin
@@ -37,12 +44,18 @@ const getSwcConfig = (usePlugin: false | PluginOptions, isCJS: boolean) =>
           }
         : undefined,
       preserveAllComments: true,
-      target: 'esnext',
+      target: "esnext",
+      minify: {
+        format: {
+          comments: false,
+        },
+      },
       parser: {
         syntax: "ecmascript",
         jsx: true,
       },
     },
+    ...(filename ? { filename } : {}),
     isModule: !isCJS,
   }) satisfies swcCore.Options;
 
@@ -66,7 +79,7 @@ function transformCode(
   }
 
   return swcCore
-    .transform(code, getSwcConfig(options.options, !!isCJS))
+    .transform(code, getSwcConfig(options.options, filename, !!isCJS))
 
     .then((it) => it.code);
 }
@@ -99,23 +112,43 @@ const TransformerTestOptions = {
   }),
 };
 
+const toThenable = <T,>(value: T | Promise<T>): PromiseLike<T> => {
+  if (value instanceof Promise) return value;
+  return {
+    then(cb) {
+      if (!cb) {
+        return this;
+      }
+      const res = cb(value);
+      // @ts-expect-error
+      return res instanceof Promise ? res : toThenable(res);
+    },
+  };
+};
+
 async function runTest(
   expect: ExpectStatic,
   input: string,
   expected: string,
   options: TransformerTestOptions,
-  filename?: string,
-  isCJS?: boolean
+  isCJS: boolean,
+  compareWithoutComments: boolean,
+  filename?: string
 ) {
-  const output = transformCode(input, options, filename, isCJS);
-  expect(await format(await output)).to.equal(
-    await format(
-      await (options.type === "swc"
+  expect(
+    await toThenable(transformCode(input, options, filename, isCJS))
+      .then((it) => (compareWithoutComments ? removeComments(it) : it))
+      .then(format)
+  ).to.equal(
+    await toThenable(
+      options.type === "swc"
         ? swcCore
-            .transform(expected, getSwcConfig(false, !!isCJS))
+            .transform(expected, getSwcConfig(false, filename, !!isCJS))
             .then((it) => it.code)
-        : output)
+        : expected
     )
+      .then((it) => (compareWithoutComments ? removeComments(it) : it))
+      .then(format)
   );
 }
 
@@ -126,6 +159,7 @@ interface TestCaseConfig {
   expectTransformed: boolean;
   /** What kind of opt-in or opt-out to include if any */
   comment?: CommentKind;
+  compareWithoutComments?: true;
   /** Options to pass to the babel plugin */
   options: TransformerTestOptions;
 }
@@ -179,7 +213,15 @@ async function runTestCases(
         ? "/path/to/Component.js"
         : "C:\\path\\to\\lowercase.js";
 
-      await runTest(expect, input, expected, config.options, filename);
+      await runTest(
+        expect,
+        input,
+        expected,
+        config.options,
+        false,
+        !!config.compareWithoutComments,
+        filename
+      );
     });
   }
 }
@@ -198,7 +240,7 @@ function runGeneratedTestCases(config: TestCaseConfig) {
   });
 
   // for now, inline comments are out of scope
-  /* if (config.comment !== undefined) {
+  if (config.comment !== undefined) {
     // e.g. const C = () => {};
     describe("variable declared components (inline comment)", async () => {
       await runTestCases(
@@ -210,7 +252,7 @@ function runGeneratedTestCases(config: TestCaseConfig) {
         })
       );
     });
-  } */
+  }
 
   describe("object method components", async () => {
     await runTestCases(config, objMethodComp(codeConfig));
@@ -274,7 +316,9 @@ for (const parser of ["swc", "babel"] as const) {
           expect,
           inputCode,
           expectedOutput,
-          TransformerTestOptions.makeFromMode(parser, "auto")
+          TransformerTestOptions.makeFromMode(parser, "auto"),
+          false,
+          false
         );
       });
 
@@ -319,6 +363,7 @@ for (const parser of ["swc", "babel"] as const) {
         useValidAutoMode: false,
         expectTransformed: true,
         comment: "opt-in",
+        compareWithoutComments: true,
         options: TransformerTestOptions.makeFromMode(parser, "auto"),
       });
     });
@@ -341,7 +386,9 @@ for (const parser of ["swc", "babel"] as const) {
             expect,
             inputCode,
             expectedOutput,
-            TransformerTestOptions.makeFromMode(parser, "auto")
+            TransformerTestOptions.makeFromMode(parser, "manual"),
+            false,
+            false
           );
         });
 
@@ -379,6 +426,7 @@ for (const parser of ["swc", "babel"] as const) {
         useValidAutoMode: true,
         expectTransformed: true,
         comment: "opt-in",
+        compareWithoutComments: true,
         options: TransformerTestOptions.makeFromMode(parser, "manual"),
       });
     });
@@ -406,7 +454,9 @@ describe("React Signals Babel Transform", () => {
         expect,
         inputCode,
         expectedOutput,
-        TransformerTestOptions.makeFromMode("babel", "all")
+        TransformerTestOptions.makeFromMode("babel", "all"),
+        false,
+        false
       );
     });
 
@@ -426,7 +476,9 @@ describe("React Signals Babel Transform", () => {
         expect,
         inputCode,
         expectedOutput,
-        TransformerTestOptions.makeFromMode("babel", "all")
+        TransformerTestOptions.makeFromMode("babel", "all"),
+        false,
+        false
       );
     });
 
@@ -455,7 +507,9 @@ describe("React Signals Babel Transform", () => {
         expect,
         inputCode,
         expectedOutput,
-        TransformerTestOptions.makeFromMode("babel", "all")
+        TransformerTestOptions.makeFromMode("babel", "all"),
+        false,
+        false
       );
     });
 
@@ -484,7 +538,9 @@ describe("React Signals Babel Transform", () => {
         expect,
         inputCode,
         expectedOutput,
-        TransformerTestOptions.makeFromMode("babel", "all")
+        TransformerTestOptions.makeFromMode("babel", "all"),
+        false,
+        false
       );
     });
 
@@ -515,7 +571,9 @@ describe("React Signals Babel Transform", () => {
         expect,
         inputCode,
         expectedOutput,
-        TransformerTestOptions.makeFromMode("babel", "all")
+        TransformerTestOptions.makeFromMode("babel", "all"),
+        false,
+        false
       );
     });
 
@@ -546,7 +604,9 @@ describe("React Signals Babel Transform", () => {
         expect,
         inputCode,
         expectedOutput,
-        TransformerTestOptions.makeFromMode("babel", "all")
+        TransformerTestOptions.makeFromMode("babel", "all"),
+        false,
+        false
       );
     });
 
@@ -578,8 +638,8 @@ describe("React Signals Babel Transform", () => {
         inputCode,
         expectedOutput,
         TransformerTestOptions.makeFromMode("babel", "all"),
-        "",
-        true
+        true,
+        false
       );
     });
   });
@@ -608,12 +668,19 @@ describe("React Signals Babel Transform", () => {
 				};
 			`;
 
-      await runTest(expect, inputCode, expectedOutput, {
-        type: "babel",
-        options: {
-          importSource: "custom-source",
+      await runTest(
+        expect,
+        inputCode,
+        expectedOutput,
+        {
+          type: "babel",
+          options: {
+            importSource: "custom-source",
+          },
         },
-      });
+        false,
+        false
+      );
     });
   });
 

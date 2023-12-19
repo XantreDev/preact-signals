@@ -45,6 +45,12 @@ pub trait MaybeComponentName {
     fn is_component_name(&self) -> bool;
 }
 
+impl MaybeComponentName for str {
+    fn is_component_name(&self) -> bool {
+        is_component_name(self)
+    }
+}
+
 impl MaybeComponentName for Str {
     fn is_component_name(&self) -> bool {
         is_component_name(self.value.as_str())
@@ -66,6 +72,15 @@ impl MaybeComponentName for Pat {
             return id.is_component_name();
         }
         false
+    }
+}
+impl MaybeComponentName for Option<Ident> {
+    fn is_component_name(&self) -> bool {
+        if let Some(ident) = self {
+            ident.is_component_name()
+        } else {
+            false
+        }
     }
 }
 
@@ -225,16 +240,24 @@ impl SignalWrappable for Function {
         }
     }
 }
+impl SignalWrappable for FnExpr {
+    fn wrap_with_use_signals(&mut self, import_use_signals: Ident) {
+        self.function.wrap_with_use_signals(import_use_signals);
+    }
+}
+impl SignalWrappable for ArrowExpr {
+    fn wrap_with_use_signals(&mut self, import_use_signals: Ident) {
+        let mut block = self.body.to_block();
+        let wrapped_body = wrap_with_use_signals(&block.stmts, import_use_signals);
+        block.stmts = wrapped_body;
+        self.body = Box::new(BlockStmtOrExpr::BlockStmt(block.to_owned()));
+    }
+}
 impl<'a> SignalWrappable for FunctionLike<'a> {
     fn wrap_with_use_signals(&mut self, import_use_signals: Ident) {
         match self {
-            FunctionLike::Arrow(arrow_expr) => {
-                let mut block = arrow_expr.body.to_block();
-                let wrapped_body = wrap_with_use_signals(&block.stmts, import_use_signals);
-                block.stmts = wrapped_body;
-                arrow_expr.body = Box::new(BlockStmtOrExpr::BlockStmt(block.to_owned()));
-            }
-            FunctionLike::Fn(fn_expr) => fn_expr.function.wrap_with_use_signals(import_use_signals),
+            FunctionLike::Arrow(arrow_expr) => arrow_expr.wrap_with_use_signals(import_use_signals),
+            FunctionLike::Fn(fn_expr) => fn_expr.wrap_with_use_signals(import_use_signals),
         }
     }
 }
@@ -361,6 +384,14 @@ impl Detectable for FunctionLike<'_> {
     }
 }
 impl Detectable for FnDecl {
+    fn has_jsx(&self) -> bool {
+        has_jsx(&self.function)
+    }
+    fn has_dot_value(&self) -> bool {
+        has_dot_value(&self.function)
+    }
+}
+impl Detectable for FnExpr {
     fn has_jsx(&self) -> bool {
         has_jsx(&self.function)
     }
