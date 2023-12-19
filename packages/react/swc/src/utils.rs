@@ -425,7 +425,7 @@ pub fn add_import(ident: Ident, source: Str, source_member_ident: Option<Ident>)
 pub fn add_require(ident: Ident, source: Str, source_member_ident: Option<Ident>) -> Stmt {
     Stmt::Decl(Decl::Var(Box::new(VarDecl {
         span: DUMMY_SP,
-        kind: VarDeclKind::Const,
+        kind: VarDeclKind::Var,
         declare: false,
         decls: vec![VarDeclarator {
             definite: false,

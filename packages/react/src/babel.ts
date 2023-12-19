@@ -385,13 +385,13 @@ function createImportLazily(
       if (reference) {
         reference = t.cloneNode(reference);
       } else {
-        reference = addNamespace(path, source, {
+        reference = addNamed(path, "useSignals", source, {
           importedInterop: "uncompiled",
         });
         set(pass, `requires/${importName}`, reference);
       }
 
-      return t.memberExpression(reference, t.identifier(importName));
+      return reference;
     }
 
     /** Helper function to determine if an import declaration's specifier matches the given importName  */

@@ -1,4 +1,4 @@
-import { transform, traverse } from "@babel/core";
+import { parse, transform, traverse } from "@babel/core";
 import type { Visitor } from "@babel/core";
 import type { Scope } from "@babel/traverse";
 import prettier from "prettier";
@@ -436,13 +436,8 @@ for (const parser of ["swc", "babel"] as const) {
       });
     });
   });
-}
 
-describe("React Signals Babel Transform", () => {
-  // hook tests removed for now
-  // TODO: Figure out what to do with the following
-
-  describe("all mode transformations", () => {
+  describe.concurrent("all mode transformations " + parser, () => {
     it("skips transforming arrow function component with leading opt-out JSDoc comment before variable declaration", async ({
       expect,
     }) => {
@@ -459,7 +454,7 @@ describe("React Signals Babel Transform", () => {
         expect,
         inputCode,
         expectedOutput,
-        TransformerTestOptions.makeFromMode("babel", "all"),
+        TransformerTestOptions.makeFromMode(parser, "all"),
         false,
         false
       );
@@ -481,7 +476,7 @@ describe("React Signals Babel Transform", () => {
         expect,
         inputCode,
         expectedOutput,
-        TransformerTestOptions.makeFromMode("babel", "all"),
+        TransformerTestOptions.makeFromMode(parser, "all"),
         false,
         false
       );
@@ -512,7 +507,7 @@ describe("React Signals Babel Transform", () => {
         expect,
         inputCode,
         expectedOutput,
-        TransformerTestOptions.makeFromMode("babel", "all"),
+        TransformerTestOptions.makeFromMode(parser, "all"),
         false,
         false
       );
@@ -543,7 +538,7 @@ describe("React Signals Babel Transform", () => {
         expect,
         inputCode,
         expectedOutput,
-        TransformerTestOptions.makeFromMode("babel", "all"),
+        TransformerTestOptions.makeFromMode(parser, "all"),
         false,
         false
       );
@@ -576,7 +571,7 @@ describe("React Signals Babel Transform", () => {
         expect,
         inputCode,
         expectedOutput,
-        TransformerTestOptions.makeFromMode("babel", "all"),
+        TransformerTestOptions.makeFromMode(parser, "all"),
         false,
         false
       );
@@ -609,7 +604,7 @@ describe("React Signals Babel Transform", () => {
         expect,
         inputCode,
         expectedOutput,
-        TransformerTestOptions.makeFromMode("babel", "all"),
+        TransformerTestOptions.makeFromMode(parser, "all"),
         false,
         false
       );
@@ -625,10 +620,10 @@ describe("React Signals Babel Transform", () => {
       `;
 
       const expectedOutput = `
-        var _preactSignalsSafeReactTracking = require("@preact-signals/safe-react/tracking")
+        var _useSignals = require("@preact-signals/safe-react/tracking").useSignals
         require('preact');
         const MyComponent = () => {
-          var _effect = _preactSignalsSafeReactTracking.useSignals();
+          var _effect = _useSignals();
           try {
             signal.value;
             return <div>Hello World</div>;
@@ -642,7 +637,7 @@ describe("React Signals Babel Transform", () => {
         expect,
         inputCode,
         expectedOutput,
-        TransformerTestOptions.makeFromMode("babel", "all"),
+        TransformerTestOptions.makeFromMode(parser, "all"),
         true,
         false
       );
@@ -678,7 +673,7 @@ describe("React Signals Babel Transform", () => {
         inputCode,
         expectedOutput,
         {
-          type: "babel",
+          type: parser,
           options: {
             importSource: "custom-source",
           },
@@ -688,6 +683,11 @@ describe("React Signals Babel Transform", () => {
       );
     });
   });
+}
+
+describe("React Signals Babel Transform", () => {
+  // hook tests removed for now
+  // TODO: Figure out what to do with the following
 
   describe("scope tracking", () => {
     interface VisitorState {
