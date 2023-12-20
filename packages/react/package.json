@@ -111,7 +111,7 @@
     "test": "vitest",
     "build": "pnpm clean && rollup -c && pnpm build:types && pnpm build:swc",
     "build:types": "tsc --project tsconfig.build.json",
-    "build:swc": "cd ./swc/ && cargo build-wasi --release && copy ./target/wasm32-wasi/release/swc_plugin_preact_signals.wasm ../dist/swc.wasm",
+    "build:swc": "cd ./swc/ && cargo build-wasi --release && cp ./target/wasm32-wasi/release/swc_plugin_preact_signals.wasm ../dist/swc.wasm",
     "build:rollup": "rollup -c",
     "lint": "check-export-map"
   },
