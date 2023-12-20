@@ -1,5 +1,5 @@
 import { effect, Signal } from "@preact/signals-core";
-import { startTransition, useReducer, useRef } from "react";
+import { useRef } from "react";
 import { useSyncExternalStore } from "use-sync-external-store/shim/index.js";
 
 const ReactElemType = Symbol.for("react.element"); // https://github.com/facebook/react/blob/346c7d4c43a0717302d446da9e7423a8e28d8996/packages/shared/ReactSymbols.js#L15

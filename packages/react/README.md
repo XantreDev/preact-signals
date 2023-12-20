@@ -129,7 +129,7 @@ Comparison table:
 | Monkey patch free   | ❌                      | ✅                                       | ✅                                    |
 | Tracking type       | automatic               | automatic                                | manual with HOC                       |
 | Hooks               | ✅                      | ✅                                       | ✅                                    |
-| Prop unwrapping     | ✅                      | ✅                                       | ❌                                    |
+| Prop unwrapping     | ❌                      | ✅(deprecated)                           | ❌                                    |
 | Put signal into JSX | ✅                      | ✅                                       | ✅                                    |
 
 ## Alterations from `@preact/signals-react`
@@ -144,18 +144,6 @@ const A = () => {
 };
 ```
 
-Inline comments are not warranted to be transformed. You should use `@trackSignals` or `@noTrackSignals` before variable declaration or function declaration:
-
-```tsx
-// don't do this. Not warranted to be transformed
-const a = /** @trackSignals */ () => <div>10</div>;
-/**
- * Do this
- * @trackSignals
- */
-const b = () => <div>20</div>;
-```
-
 ## Installation:
 
 ```sh
@@ -165,12 +153,49 @@ npm install @preact-signals/safe-react
 Integrations:
 
 - Automatic
-  - [Vite](#vite-integration)
+  - [Vite swc](#vite-integration-swc)
+  - [Vite babel](#vite-integration-babel)
   - [Vite with `@preact-signals/utils`](#vite-integration-with-preact-signalsutils)
   - [react-native](#react-native-integration)
 - [Manual (next.js, webpack, etc)](#manual-integration)
 
-### Vite integration
+### Vite integration (swc)
+
+```ts
+// vite.config.ts
+import { defineConfig } from "vite";
+import reactSwc from "@vitejs/plugin-react-swc";
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [
+    reactSwc({
+      plugins: [["@preact-signals/safe-react/swc", {}]],
+    }),
+  ],
+});
+```
+
+### Vite integration (babel)
+
+```ts
+// vite.config.ts
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [
+    react({
+      babel: {
+        plugins: ["module:@preact-signals/safe-react/babel"],
+      },
+    }),
+  ],
+});
+```
+
+### Vite props unwrapping (deprecated)
 
 ```ts
 // vite.config.ts
@@ -182,12 +207,12 @@ import { createReactAlias } from "@preact-signals/safe-react/integrations/vite";
 // https://vitejs.dev/config/
 export default defineConfig({
   resolve: {
-    // add react alias
+    // add this
     alias: [createReactAlias()],
   },
   plugins: [
     react({
-      // using custom wrapper for jsx runtime and babel plugin for components
+      // add this
       jsxImportSource: "@preact-signals/safe-react/jsx",
       babel: {
         plugins: ["module:@preact-signals/safe-react/babel"],
@@ -197,28 +222,23 @@ export default defineConfig({
 });
 ```
 
-### Vite integration with `@preact-signals/utils`
+### Vite integration trackings signals in node_modules
+
+Allows to transpile components that uses `@trackSignals` in node_modules (For example: `@preact-signals/utils`)
 
 [Integration playground](https://stackblitz.com/edit/vitejs-vite-mhfwge?file=vite.config.ts)
-
-1. Install `vite-plugin-babel`
-2. Update config
 
 ```ts
 // vite.config.ts
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import babel from "vite-plugin-babel";
-import type { PluginOptions } from "@preact-signals/safe-react/babel";
-import { createReactAlias } from "@preact-signals/safe-react/integrations/vite";
+import reactSwc from "@vitejs/plugin-react-swc";
+import { createSWCTransformDepsPlugin } from "@preact-signals/safe-react/integrations/vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   resolve: {
     alias: [
-      // add react alias
-      createReactAlias(),
-      // replace @preact/signals-react with @preact-signals/safe-react for @preact-signals/utils
+      // if some lib uses signals it's probably using `@preact/signals-react`
       {
         find: "@preact/signals-react",
         replacement: "@preact-signals/safe-react",
@@ -226,26 +246,11 @@ export default defineConfig({
     ],
   },
   plugins: [
-    // processing `@preact-signals/utils/components` to enable tracking
-    babel({
-      filter: /@preact-signals\/utils/,
-      babelConfig: {
-        plugins: [
-          [
-            "module:@preact-signals/safe-react/babel",
-            {
-              mode: "manual",
-            } satisfies PluginOptions,
-          ],
-        ],
-      },
+    createSWCTransformDepsPlugin({
+      filter: (id) => id.includes("node_modules"),
     }),
-    react({
-      // using custom wrapper for jsx runtime and babel plugin for components
-      jsxImportSource: "@preact-signals/safe-react/jsx",
-      babel: {
-        plugins: ["module:@preact-signals/safe-react/babel"],
-      },
+    reactSwc({
+      plugins: [["@preact-signals/safe-react/swc", {}]],
     }),
   ],
 });
@@ -274,35 +279,7 @@ module.exports = {
       },
     ],
     "module:@preact-signals/safe-react/babel",
-    // transpiling jsx before preset
-    [
-      "@babel/plugin-transform-react-jsx",
-      {
-        runtime: "automatic",
-        importSource: "@preact-signals/safe-react/jsx",
-      },
-    ],
   ],
-};
-```
-
-#### Caveat
-
-Signals unwrapping via `React.createElement` is not supported yet in `react-native`. But since we are not using elements direct - we shouldn't care.
-
-```ts
-const s = signal(0);
-// not working
-const Component1 = () => {
-  return React.createElement("div", { a: s });
-};
-// working
-const Component2 = () => {
-  return React.createElement("div", { a: s.value });
-};
-// working
-const Component3 = () => {
-  return <div a={s} />
 };
 ```
 
@@ -324,7 +301,7 @@ const A = withTrackSignals(() => {
 
 Magic contains 2 parts:
 
-- babel plugin. Which transforms your components to subscribe to signals
+- babel/swc plugin. Which transforms your components to subscribe to signals
 
 It will be transformed to:
 
@@ -348,7 +325,7 @@ const A = () => {
 };
 ```
 
-- jsx runtime. Which unwraps signals while it passed as props to elements
+- (**Deprecated**) jsx runtime. Which unwraps signals while it passed as props to elements
 
 ```tsx
 const sig = signal(0);
@@ -357,7 +334,7 @@ const sig = signal(0);
 const A = () => <div data-a={sig}>{sig.value}</div>;
 ```
 
-#### How babel plugin works
+#### How babel/swc plugin works
 
 Babel plugin transforms your components to subscribe to signals. It works in 3 modes:
 

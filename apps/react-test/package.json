@@ -4,11 +4,14 @@
   "version": "0.0.25",
   "type": "module",
   "scripts": {
-    "dev:transform": "cross-env USE_TRANSFORM=1 vite",
-    "dev": "cross-env USE_TRANSFORM=0 vite",
-    "build": "cross-env USE_TRANSFORM=0 vite build",
-    "watch": "pnpm dev",
-    "preview": "vite preview"
+    "dev:patching": "cross-env TRACKING_METHOD='patching' vite",
+    "dev:babel": "cross-env TRACKING_METHOD='babel' vite",
+    "dev:swc": "cross-env TRACKING_METHOD='swc' vite",
+    "dev": "pnpm run dev:swc",
+    "build:patching": "cross-env TRACKING_METHOD='patching' vite build",
+    "build:babel": "cross-env TRACKING_METHOD='babel' vite build",
+    "build:swc": "cross-env TRACKING_METHOD='swc' vite build",
+    "build": "pnpm run build:swc"
   },
   "dependencies": {
     "@preact-signals/safe-react": "workspace:*",
@@ -21,6 +24,7 @@
   },
   "devDependencies": {
     "@babel/plugin-syntax-jsx": "^7.23.3",
+    "@t3-oss/env-core": "^0.7.1",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
     "@vitejs/plugin-react": "^4.1.1",
