@@ -14,7 +14,7 @@
     "vitest": "^0.34.6"
   },
   "scripts": {
-    "postinstall": "rustup update && cd ./packages/react/swc && rustup override set nightly && cd ../../.. && rustup target add wasm32-wasi",
+    "postinstall": "rustup update",
     "build": "turbo run build --filter=./packages/*",
     "build:with-apps": "turbo run build",
     "watch": "turbo run watch --parallel",
