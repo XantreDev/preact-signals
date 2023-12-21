@@ -435,6 +435,70 @@ for (const parser of ["swc", "babel"] as const) {
         options: TransformerTestOptions.makeFromMode(parser, "manual"),
       });
     });
+
+    describe.concurrent("imports before directives", () => {
+      const inputCode = `
+      'use client';
+      'use strict';
+
+			const MyComponent = () => {
+				signal.value;
+				return <div>Hello World</div>;
+			};
+    `;
+      it("esm", async ({ expect }) => {
+        const expectedOutput = `
+      'use client';
+      'use strict';
+
+      import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
+      const MyComponent = () => {
+        var _effect = _useSignals();
+        try {
+          signal.value;
+          return <div>Hello World</div>;
+        } finally {
+          _effect.f();
+        }
+      }
+    `;
+
+        await runTest(
+          expect,
+          inputCode,
+          expectedOutput,
+          TransformerTestOptions.makeFromMode(parser, "all"),
+          false,
+          false
+        );
+      });
+
+      it("cjs", async ({ expect }) => {
+        const expectedOutput = `
+      'use client'; 
+      'use strict';
+
+      var _useSignals = require("@preact-signals/safe-react/tracking").useSignals;
+      const MyComponent = () => {
+        var _effect = _useSignals();
+        try {
+          signal.value;
+          return <div>Hello World</div>;
+        } finally {
+          _effect.f();
+        }
+      };
+    `;
+        await runTest(
+          expect,
+          inputCode,
+          expectedOutput,
+          TransformerTestOptions.makeFromMode(parser, "all"),
+          true,
+          false
+        );
+      });
+    });
   });
 
   describe.concurrent("all mode transformations " + parser, () => {

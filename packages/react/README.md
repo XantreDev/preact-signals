@@ -3,7 +3,7 @@
 This is community driven preact/signals integration for React, based on official `@preact/signals-react` integration, since it's patching react - there are a lot of problems in different environments and bundlers. This package tries to solve this problem by this steps:
 
 - no runtime react internals patching
-- uses babel plugin to subscribe your components to signals (based on official `@preact/signals-react-transform`).
+- uses babel/swc plugin to subscribe your components to signals (based on official `@preact/signals-react-transform`).
 - if environment doesn't support babel plugin - exports HOC to subscribe your components to signals
 - achieves the same features by bundler aliasing for react
 
@@ -29,11 +29,14 @@ There are two ways of tracking signals:
   - [Optimization: Put signal into JSX](#optimization-put-signal-into-jsx)
   - [Prop signal unwrapping](#prop-signal-unwrapping)
 - [Installation](#installation)
+
   - automatic
-    - [Vite](#vite-integration)
-    - [Vite with `@preact-signals/utils`](#vite-integration-with-preact-signalsutils)
+    - [Next.js](#nextjs-integration)
+    - [Vite swc](#vite-integration-swc)
+    - [Vite babel](#vite-integration-babel)
     - [react-native](#react-native-integration)
-  - [Manual (next.js, webpack, etc)](#manual-integration)
+  - [Manual (webpack, remix, etc)](#manual-integration)
+
 - [Guide / API](https://github.com/preactjs/signals/#guide--api)
   - [`signal(initialValue)`](https://github.com/preactjs/signals/#signalinitialvalue)
     - [`signal.peek()`](https://github.com/preactjs/signals/#signalpeek)
@@ -153,11 +156,27 @@ npm install @preact-signals/safe-react
 Integrations:
 
 - Automatic
+  - [Next.js](#nextjs-integration)
   - [Vite swc](#vite-integration-swc)
   - [Vite babel](#vite-integration-babel)
   - [Vite with `@preact-signals/utils`](#vite-integration-with-preact-signalsutils)
   - [react-native](#react-native-integration)
 - [Manual (next.js, webpack, etc)](#manual-integration)
+
+### Next.js integration
+
+```js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    swcPlugins: [
+      ["@preact-signals/safe-react/swc", {} /* plugin options here */],
+    ],
+  },
+};
+
+module.exports = nextConfig;
+```
 
 ### Vite integration (swc)
 
@@ -301,7 +320,7 @@ const A = withTrackSignals(() => {
 
 Magic contains 2 parts:
 
-- babel/swc plugin. Which transforms your components to subscribe to signals
+- parser plugin. Which transforms your components to subscribe to signals
 
 It will be transformed to:
 
@@ -334,15 +353,22 @@ const sig = signal(0);
 const A = () => <div data-a={sig}>{sig.value}</div>;
 ```
 
-#### How babel/swc plugin works
+#### How parser plugins works
 
-Babel plugin transforms your components to subscribe to signals. It works in 3 modes:
+Supported parsers:
+
+- swc
+- babel
+
+Parser plugin transforms your components to subscribe to signals. It works in 3 modes:
 
 - `all` (default) - all components will be wrapped with try/finally block to track signals
 - `manual` - you should wrap your components with `@trackSignals` directive to track signals
 - `auto` - all component which contains `.value` access will be wrapped with try/finally block to track signals
 
 ##### How to specify mode
+
+- babel
 
 ```json
 {
@@ -357,7 +383,21 @@ Babel plugin transforms your components to subscribe to signals. It works in 3 m
 }
 ```
 
-How babel plugin detects components?
+- swc
+  ```json
+  {
+    "plugins": [
+      [
+        "@preact-signals/safe-react/swc",
+        {
+          "mode": "manual"
+        }
+      ]
+    ]
+  }
+  ```
+
+##### How parser plugin detects components?
 
 - function starting with capital letter
 - function uses jsx syntax
@@ -411,7 +451,63 @@ const A = () => {
 
 - Manual integration: you need to wrap your component with `withTrackSignals` HOC
 - Automatic integration:
-  Probably your component doesn't meet the criteria from [How babel plugin detects components?](#how-babel-plugin-detects-components) section. You can use `@trackSignals` to opt-in to tracking for a component that doesn't meet the criteria above.
+  Probably your component doesn't meet the criteria from [How parser plugin detects components?](#how-parser-plugin-detects-components) section. You can use `@trackSignals` to opt-in to tracking for a component that doesn't meet the criteria above.
+
+#### Automatic integration with Server Components: `Maybe one of these should be marked as a client entry with "use client":`
+
+Some of server side component is transformed to track signals.
+Solutions:
+
+- mark it as client side component with `use client` directive
+
+```tsx
+"use client";
+
+const A = () => <div>{sig.value}</div>;
+```
+
+- opt out from tracking with `@noTrackSignals` directive`
+
+```tsx
+/**
+ * @noTrackSignals
+ */
+const Page = () => (
+  <head>
+    <title>Page title</title>
+  </head>
+);
+```
+
+- use `auto` mode of plugin, to transform only components which uses `.value` access. [How parser plugin detects components?](#how-parser-plugin-detects-components)
+
+```js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    swcPlugins: [
+      [
+        "@preact-signals/safe-react/swc",
+        {
+          mode: "auto",
+        },
+      ],
+    ],
+  },
+};
+
+module.exports = nextConfig;
+```
+
+- **not recommended because of performance overhead** make component async (since component will be transformed only if it's sync)
+
+```tsx
+const Page = async () => (
+  <head>
+    <title>Page title</title>
+  </head>
+);
+```
 
 #### Automatic integration: `Rendered more hooks than during the previous render`
 

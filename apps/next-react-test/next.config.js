@@ -1,4 +1,8 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  experimental: {
+    swcPlugins: [[require.resolve("@preact-signals/safe-react/swc"), {}]],
+  },
+};
 
 module.exports = nextConfig;

@@ -433,8 +433,8 @@ where
         self.import_use_signals = None;
         n.visit_mut_children_with(self);
         if let Some(ident) = &self.import_use_signals {
-            n.body.insert(
-                0,
+            prepend_stmt(
+                &mut n.body,
                 ModuleItem::ModuleDecl(
                     add_import(
                         ident.clone(),
@@ -987,5 +987,34 @@ export default (()=>{
         _effect.f();
     }
 });
+"#
+);
+
+test!(
+    get_syntax(),
+    |tester| as_folder(SignalsTransformVisitor::from_default(
+        tester.comments.clone(),
+        false
+    )),
+    import_goes_after_directives,
+    // Input codes
+    r#"
+'use strict';
+
+const Bebe = () => <div>{a.value}</div>
+"#,
+    // Expected codes
+    r#"
+'use strict';
+
+import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
+const Bebe = ()=>{
+    var _effect = _useSignals();
+    try {
+        return <div>{a.value}</div>;
+    } finally{
+        _effect.f();
+    }
+}
 "#
 );

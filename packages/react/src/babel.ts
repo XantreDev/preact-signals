@@ -8,7 +8,7 @@ import {
   NodePath,
   template,
 } from "@babel/core";
-import { isModule, addNamed, addNamespace } from "@babel/helper-module-imports";
+import { isModule, addNamed } from "@babel/helper-module-imports";
 import type { VisitNodeObject } from "@babel/traverse";
 import debug from "debug";
 
@@ -351,6 +351,12 @@ function createImportLazily(
     if (isModule(path)) {
       let reference: BabelTypes.Identifier = get(pass, `imports/${importName}`);
       if (reference) return t.cloneNode(reference);
+      /* const direcitves: BabelTypes.Statement[] = [];
+      for (let statement of path.get("body")) {
+        if (statement.isStringLiteral()) {
+          direcitves.push(statement.node);
+        }
+      } */
       reference = addNamed(path, importName, source, {
         importedInterop: "uncompiled",
         importPosition: "after",
