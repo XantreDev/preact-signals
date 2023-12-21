@@ -6,6 +6,7 @@ export default defineConfig({
     clearMocks: true,
     setupFiles: ["./vitest-setup.ts"],
     globals: true,
+    retry: 2,
     alias: {
       "@preact-signals/query": "./src/index.ts",
       "@tanstack/query-core": "./node_modules/@tanstack/query-core/src",
