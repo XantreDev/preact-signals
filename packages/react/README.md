@@ -127,13 +127,13 @@ const Counter = () => <div data-count={count}>Value: {count.value}</div>;
 
 Comparison table:
 
-| Feature             | `@preact/signals-react` | `@preact-signals/safe-react` (automatic) | `@preact-signals/safe-react` (manual) |
-| ------------------- | ----------------------- | ---------------------------------------- | ------------------------------------- |
-| Monkey patch free   | ❌                      | ✅                                       | ✅                                    |
-| Tracking type       | automatic               | automatic                                | manual with HOC                       |
-| Hooks               | ✅                      | ✅                                       | ✅                                    |
-| Prop unwrapping     | ❌                      | ✅(deprecated)                           | ❌                                    |
-| Put signal into JSX | ✅                      | ✅                                       | ✅                                    |
+| Feature             | `@preact/signals-react`            | `@preact-signals/safe-react` (automatic) | `@preact-signals/safe-react` (manual) |
+| ------------------- | ---------------------------------- | ---------------------------------------- | ------------------------------------- |
+| Monkey patch free   | ✅ (after 2.0.0 with babel plugin) | ✅                                       | ✅                                    |
+| Tracking type       | automatic                          | automatic                                | manual with HOC                       |
+| Hooks               | ✅                                 | ✅                                       | ✅                                    |
+| Prop unwrapping     | ❌ (removed in 2.0.0)              | ✅(deprecated)                           | ❌                                    |
+| Put signal into JSX | ✅                                 | ✅                                       | ✅                                    |
 
 ## Alterations from `@preact/signals-react`
 
