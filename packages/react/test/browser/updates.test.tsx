@@ -155,7 +155,7 @@ describe("@preact/signals-react updating", () => {
 
       /**
        *
-       * @trackSignals
+       * @useSignals
        **/
       function App() {
         const value = _sig.value;
@@ -210,7 +210,7 @@ describe("@preact/signals-react updating", () => {
 
       /**
        *
-       * @trackSignals
+       * @useSignals
        **/
       function App() {
         // @ts-expect-error React types don't allow signals on DOM elements :/
@@ -255,7 +255,7 @@ describe("@preact/signals-react updating", () => {
 
       /**
        *
-       * @trackSignals
+       * @useSignals
        **/
       function Child() {
         const value = sig.value;
@@ -281,7 +281,7 @@ describe("@preact/signals-react updating", () => {
 
       /**
        *
-       * @trackSignals
+       * @useSignals
        **/
       function Inner() {
         const value = sig.value;
@@ -290,7 +290,7 @@ describe("@preact/signals-react updating", () => {
 
       /**
        *
-       * @trackSignals
+       * @useSignals
        **/
       function App() {
         sig.value;
@@ -312,7 +312,7 @@ describe("@preact/signals-react updating", () => {
       const Inner = forwardRef(
         /**
          *
-         * @trackSignals
+         * @useSignals
          **/
         () => {
           return <p>{sig.value}</p>;
@@ -337,7 +337,7 @@ describe("@preact/signals-react updating", () => {
 
       /**
        *
-       * @trackSignals
+       * @useSignals
        **/
       const Test = () => <p>{sig.value}</p>;
       const App = () => (
@@ -363,7 +363,7 @@ describe("@preact/signals-react updating", () => {
       const Test = memo(
         /**
          *
-         * @trackSignals
+         * @useSignals
          **/
         () => <p>{sig.value}</p>
       );
@@ -389,7 +389,7 @@ describe("@preact/signals-react updating", () => {
 
       /**
        *
-       * @trackSignals
+       * @useSignals
        **/
       const Test = () => {
         return (
@@ -419,7 +419,7 @@ describe("@preact/signals-react updating", () => {
       let increment: () => void;
       /**
        *
-       * @trackSignals
+       * @useSignals
        **/
       const Test = () => {
         const [state, dispatch] = useReducer(
@@ -570,7 +570,7 @@ describe("@preact/signals-react updating", () => {
       const Origin = spyOn(
         /**
          *
-         * @trackSignals
+         * @useSignals
          **/
         function Origin() {
           const origin = useContext(URLModelContext).origin;
@@ -581,7 +581,7 @@ describe("@preact/signals-react updating", () => {
       const Pathname = spyOn(
         /**
          *
-         * @trackSignals
+         * @useSignals
          **/
         function Pathname() {
           const pathname = useContext(URLModelContext).pathname;
@@ -592,7 +592,7 @@ describe("@preact/signals-react updating", () => {
       const Search = spyOn(
         /**
          *
-         * @trackSignals
+         * @useSignals
          **/
         function Search() {
           const search = useContext(URLModelContext).search;
@@ -604,7 +604,7 @@ describe("@preact/signals-react updating", () => {
       const UpdateURL = spyOn(
         /**
          *
-         * @trackSignals
+         * @useSignals
          **/
         function UpdateURL() {
           const update = useContext(URLModelContext).update;
@@ -634,7 +634,7 @@ describe("@preact/signals-react updating", () => {
       const URLModelProvider = spyOn(
         /**
          *
-         * @trackSignals
+         * @useSignals
          **/
         function SignalProvider({ children }) {
           const url = useSignal(new URL("https://domain.com/test?a=1"));
@@ -700,7 +700,7 @@ describe("@preact/signals-react updating", () => {
 
       /**
        *
-       * @trackSignals
+       * @useSignals
        **/
       function Child({ num }: { num: Signal<number> }) {
         childSpy();
@@ -709,7 +709,7 @@ describe("@preact/signals-react updating", () => {
 
       /**
        *
-       * @trackSignals
+       * @useSignals
        **/
       function Parent({ num }: { num: Signal<number> }) {
         parentSpy();
@@ -737,7 +737,7 @@ describe("@preact/signals-react updating", () => {
 
       /**
        *
-       * @trackSignals
+       * @useSignals
        **/
       function App() {
         renderSpy();
@@ -772,7 +772,7 @@ describe("@preact/signals-react updating", () => {
       it("should create a signal from a primitive value", async () => {
         /**
          *
-         * @trackSignals
+         * @useSignals
          **/
         function App() {
           const count = useSignal(1);
@@ -803,7 +803,7 @@ describe("@preact/signals-react updating", () => {
 
         /**
          *
-         * @trackSignals
+         * @useSignals
          **/
         function App() {
           useSignalEffect(() =>
@@ -849,7 +849,7 @@ describe("@preact/signals-react updating", () => {
 
         /**
          *
-         * @trackSignals
+         * @useSignals
          **/
         function App() {
           useSignalEffect(() => {
@@ -896,7 +896,7 @@ describe("@preact/signals-react updating", () => {
 
         /**
          *
-         * @trackSignals
+         * @useSignals
          **/
         function App() {
           useSignalEffect(() => {
@@ -932,7 +932,7 @@ describe("@preact/signals-react updating", () => {
     vi.mocked(useSignals).mockClear();
     /**
      *
-     * @trackSignals
+     * @useSignals
      **/
     function App() {
       return <p>{useTest()}</p>;

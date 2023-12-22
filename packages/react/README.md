@@ -243,7 +243,7 @@ export default defineConfig({
 
 ### Vite integration trackings signals in node_modules
 
-Allows to transpile components that uses `@trackSignals` in node_modules (For example: `@preact-signals/utils`)
+Allows to transpile components that uses `@useSignals` in node_modules (For example: `@preact-signals/utils`)
 
 [Integration playground](https://stackblitz.com/edit/vitejs-vite-mhfwge?file=vite.config.ts)
 
@@ -363,7 +363,7 @@ Supported parsers:
 Parser plugin transforms your components to subscribe to signals. It works in 3 modes:
 
 - `all` (default) - all components will be wrapped with try/finally block to track signals
-- `manual` - you should wrap your components with `@trackSignals` directive to track signals
+- `manual` - you should wrap your components with `@useSignals` directive to track signals
 - `auto` - all component which contains `.value` access will be wrapped with try/finally block to track signals
 
 ##### How to specify mode
@@ -409,13 +409,13 @@ const A = () => <div>{sig.value}</div>;
 const a = () => <div>{sig.value}</div>;
 // will be transformed
 /**
- * @trackSignals
+ * @useSignals
  */
 const b = () => <div>{sig.value}</div>;
 ```
 
-You can use `@trackSignals` to opt-in to tracking for a component that doesn't meet the criteria above.
-Or you can use `@noTrackSignals` to opt-out of tracking for a component that does meet the criteria above.
+You can use `@useSignals` to opt-in to tracking for a component that doesn't meet the criteria above.
+Or you can use `@noUseSignals` to opt-out of tracking for a component that does meet the criteria above.
 
 #### Manual integration
 
@@ -451,7 +451,7 @@ const A = () => {
 
 - Manual integration: you need to wrap your component with `withTrackSignals` HOC
 - Automatic integration:
-  Probably your component doesn't meet the criteria from [How parser plugin detects components?](#how-parser-plugin-detects-components) section. You can use `@trackSignals` to opt-in to tracking for a component that doesn't meet the criteria above.
+  Probably your component doesn't meet the criteria from [How parser plugin detects components?](#how-parser-plugin-detects-components) section. You can use `@useSignals` to opt-in to tracking for a component that doesn't meet the criteria above.
 
 #### Automatic integration with Server Components: `Maybe one of these should be marked as a client entry with "use client":`
 
@@ -466,11 +466,11 @@ Solutions:
 const A = () => <div>{sig.value}</div>;
 ```
 
-- opt out from tracking with `@noTrackSignals` directive`
+- opt out from tracking with `@noUseSignals` directive`
 
 ```tsx
 /**
- * @noTrackSignals
+ * @noUseSignals
  */
 const Page = () => (
   <head>
@@ -528,11 +528,11 @@ It isn't working, because transform think that `B` is a component, but it's just
 
 - rename `B` to `renderB` and use it as `renderButton={renderB}`. Since transform transforms only function starting with capital letter.
 - use `React.createElement(B)` instead of `B()`
-- Add `@noTrackSignals` directive to `B` function
+- Add `@noUseSignals` directive to `B` function
 
 ```tsx
 /**
- * @noTrackSignals
+ * @noUseSignals
  */
 const B = () => <button>Some content</button>;
 ```

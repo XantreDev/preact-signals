@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 /**
  * 
- * @noTrackSignals
+ * @noUseSignals
  */
 export default function RootLayout({
   children,

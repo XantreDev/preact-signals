@@ -334,8 +334,8 @@ for (const parser of ["swc", "babel"] as const) {
       it("opt-out comment overrides opt-in comment", async () => {
         const inputCode = `
        	/**
-       	 * @noTrackSignals
-       	 * @trackSignals
+       	 * @noUseSignals
+       	 * @useSignals
        	 */
        	function MyComponent() {
        		return <div>{signal.value}</div>;
@@ -407,8 +407,8 @@ for (const parser of ["swc", "babel"] as const) {
       it("opt-out comment overrides opt-in comment", async () => {
         const inputCode = `
       	/**
-      	 * @noTrackSignals
-      	 * @trackSignals
+      	 * @noUseSignals
+      	 * @useSignals
       	 */
       	function MyComponent() {
       		return <div>{signal.value}</div>;
@@ -506,7 +506,7 @@ for (const parser of ["swc", "babel"] as const) {
       expect,
     }) => {
       const inputCode = `
-				/** @noTrackSignals */
+				/** @noUseSignals */
 				const MyComponent = () => {
 					return <div>{signal.value}</div>;
 				};
@@ -528,7 +528,7 @@ for (const parser of ["swc", "babel"] as const) {
       expect,
     }) => {
       const inputCode = `
-				/** @noTrackSignals */
+				/** @noUseSignals */
 				function MyComponent() {
 					return <div>{signal.value}</div>;
 				}

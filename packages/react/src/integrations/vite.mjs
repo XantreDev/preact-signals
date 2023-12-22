@@ -35,7 +35,7 @@ export const createSWCTransformDepsPlugin = ({ filter }) => [
     enforce: "pre",
     name: "vite:preact-signals-safe-react",
     transform(code, id) {
-      if (filter(id) && code.includes("@trackSignals")) {
+      if (filter(id) && code.includes("@useSignals")) {
         this.debug(`transforming ${id}`);
         return transform(code, {
           filename: id,
