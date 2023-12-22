@@ -1,5 +1,18 @@
 # @preact-signals/utils
 
+## 0.13.0
+
+### Minor Changes
+
+- 75d8a9f: # Breaking Changes
+
+  This release changes opt-in and opt-out directives to be the same as in `@preact/signals-react`.
+
+  `@trackSignals` -> `@useSignals`
+  `@noTrackSignals` -> `@noUseSignals`
+
+  To support new directives, you can just find and replace all instances of the old directives with the new ones.
+
 ## 0.12.3
 
 ### Patch Changes
