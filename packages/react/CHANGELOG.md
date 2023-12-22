@@ -1,5 +1,15 @@
 # @preact-signals/safe-react
 
+## 0.4.0
+
+### Minor Changes
+
+- fa41dfe: Added next.js support via swc plugin
+- 8d728a5: - added SWC plugin, which behaves the same as Babel plugin.
+  - added vite plugin, which for transpiling parts of node_modules.
+    Updated information about SWC plugin in README
+- 7db50e6: Changed cjs implementation from namespace to named import to align with swc plugin
+
 ## 0.3.1
 
 ### Patch Changes
