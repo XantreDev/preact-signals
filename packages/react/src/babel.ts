@@ -17,8 +17,8 @@ interface PluginArgs {
   template: typeof BabelTemplate;
 }
 
-const optOutCommentIdentifier = /(^|\s)@noTrackSignals(\s|$)/;
-const optInCommentIdentifier = /(^|\s)@trackSignals(\s|$)/;
+const optOutCommentIdentifier = /(^|\s)@noUseSignals(\s|$)/;
+const optInCommentIdentifier = /(^|\s)@useSignals(\s|$)/;
 const dataNamespace = "@preact-signals/safe-react/babel";
 const defaultImportSource = "@preact-signals/safe-react/tracking";
 const importName = "useSignals";
@@ -428,7 +428,7 @@ export interface PluginOptions {
   /**
    * Specify the mode to use:
    * - `auto`: Automatically wrap all components that use signals.
-   * - `manual`: Only wrap components that are annotated with `@trackSignals` in a JSX comment.
+   * - `manual`: Only wrap components that are annotated with `@useSignals` in a JSX comment.
    * - `all`: Makes all components reactive to signals.
    *   @default "all"
    */

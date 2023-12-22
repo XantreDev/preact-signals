@@ -39,12 +39,12 @@ fn get_import_source(str: &str) -> Str {
     }
 }
 fn is_track_signals_directive(string: &str) -> bool {
-    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r#"\s@trackSignals\s"#).unwrap());
+    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r#"\s@useSignals\s"#).unwrap());
 
     RE.is_match(string)
 }
 fn is_no_track_signals_directive(string: &str) -> bool {
-    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r#"\s@noTrackSignals\s"#).unwrap());
+    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r#"\s@noUseSignals\s"#).unwrap());
 
     RE.is_match(string)
 }
@@ -176,7 +176,7 @@ where
             match (is_track_signals, is_no_track_signals) {
                 (true, true) => {
                     // TODO: warn
-                    // println!("component uses both @trackSignals and @noTrackSignals at the same time, ignoring @trackSignals");
+                    // println!("component uses both @useSignals and @noUseSignals at the same time, ignoring @useSignals");
                     ShouldTrack::OptOut
                 }
                 (true, false) => ShouldTrack::OptIn,
@@ -634,39 +634,39 @@ test!(
     // Input codes
     r#"
 /**
- * @trackSignals
+ * @useSignals
  */
 function a(){
     return 10;
 }
 
 /**
- * @trackSignals
+ * @useSignals
  */
 const b = () => {
     return 10;
 }
 
 /**
- * @trackSignals
+ * @useSignals
  */
 const c = function(){
     return 10
 };
 /**
- * @trackSignals
+ * @useSignals
  */
 const d = () => 10
 
 /**
- * @trackSignals
+ * @useSignals
  */
 export function boba(){
     return 10
 }
 
 /**
- * @trackSignals
+ * @useSignals
  */
 export const boba2 = () => 10
 "#,
@@ -737,13 +737,13 @@ test!(
     r#"
 function Asdjsadf(){
     /**
-     * @trackSignals
+     * @useSignals
      */
     function B(){
         return <div />
     };
     /**
-     * @trackSignals
+     * @useSignals
      */
     function c(){
         return 5
@@ -833,8 +833,8 @@ test!(
     // Input codes
     r#"
 /**
- * @noTrackSignals
- * @trackSignals
+ * @noUseSignals
+ * @useSignals
  */
 function MyComponent() {
     return <div>{signal.value}</div>;
@@ -843,8 +843,8 @@ function MyComponent() {
     // Expected codes
     r#"
 /**
- * @noTrackSignals
- * @trackSignals
+ * @noUseSignals
+ * @useSignals
  */
 function MyComponent() {
     return <div>{signal.value}</div>;

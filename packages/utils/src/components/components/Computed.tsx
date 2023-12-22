@@ -7,7 +7,7 @@ export type ComputedProps = {
 };
 
 /**
- * @trackSignals
+ * @useSignals
  */
 export const Computed = ({ children }: ComputedProps): JSX.Element =>
   useComputedOnce(children).value as JSX.Element;

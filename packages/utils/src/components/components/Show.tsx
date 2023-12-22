@@ -13,7 +13,7 @@ export type ShowProps<T extends Reactive<any>> = {
 };
 
 /**
- * @trackSignals
+ * @useSignals
  */
 export const Show = <const T extends Reactive<any>>(
   props: ShowProps<T>

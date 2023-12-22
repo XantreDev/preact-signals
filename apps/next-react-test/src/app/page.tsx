@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Counter } from "./Counter";
 
 /**
- * @noTrackSignals
+ * @noUseSignals
  */
 export default function Home() {
   return (
