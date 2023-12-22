@@ -4,7 +4,7 @@ This is community driven preact/signals integration for React, based on official
 
 - no runtime react internals patching
 - uses babel/swc plugin to subscribe your components to signals (based on official `@preact/signals-react-transform`).
-- if environment doesn't support babel plugin - exports HOC to subscribe your components to signals
+- if environment doesn't support babel/swc plugin - exports HOC to subscribe your components to signals
 - achieves the same features by bundler aliasing for react
 
 ## Signals
@@ -18,7 +18,7 @@ Read the [announcement post](https://preactjs.com/blog/introducing-signals/) to 
 
 There are two ways of tracking signals:
 
-- `automatic` - using babel plugin to subscribe your components to signals (based on official `@preact/signals-react-transform`).
+- `automatic` - using swc/babel plugin to subscribe your components to signals (based on official `@preact/signals-react-transform`).
 - `manual` - manual adding tracking to your components with HOC
 
 ## Table of Contents
@@ -219,7 +219,7 @@ export default defineConfig({
 ```ts
 // vite.config.ts
 import { defineConfig } from "vite";
-// using react babel, since preact-signals integration has no swc plugin yet
+// can be used with swc plugin, too
 import react from "@vitejs/plugin-react";
 import { createReactAlias } from "@preact-signals/safe-react/integrations/vite";
 
