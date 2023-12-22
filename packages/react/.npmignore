@@ -1,0 +1,5 @@
+.swc
+node_modules
+.cargo
+swc/target
+.turbo
