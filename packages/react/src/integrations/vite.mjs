@@ -2,6 +2,7 @@
 import { createRequire } from "node:module";
 import { transform } from "@swc/core";
 import path from "node:path";
+import fs from "node:fs";
 
 const require = createRequire(import.meta.url);
 /**
@@ -27,6 +28,51 @@ export const createReactAlias = () => {
 
 /**
  *
+ * @param {string} code
+ * @param {string} filename
+ * @returns
+ */
+const transformSignals = (code, filename) =>
+  transform(code, {
+    filename: filename,
+    jsc: {
+      target: "esnext",
+      parser: {
+        syntax: "typescript",
+        tsx: true,
+      },
+      experimental: {
+        plugins: [["@preact-signals/safe-react/swc", { mode: "manual" }]],
+      },
+    },
+  });
+
+/**
+ *
+ * @param {{filter: (id: string) => boolean;}} options
+ * @returns {import('esbuild').Plugin}
+ */
+export const esbuildPluginBabel = (options) => ({
+  name: "swc",
+
+  setup(build) {
+    build.onLoad({ filter: /.*/ }, async (args) => {
+      if (!options.filter(args.path)) return;
+
+      const contents = await fs.promises.readFile(args.path, "utf8");
+      if (!contents.includes("@useSignals")) {
+        return { contents };
+      }
+
+      return transformSignals(contents, args.path).then((it) => ({
+        contents: it.code,
+      }));
+    });
+  },
+});
+
+/**
+ *
  * @param {{filter: (id: string) => boolean}} param0
  * @returns {import('vite').PluginOption}
  */
@@ -34,22 +80,22 @@ export const createSWCTransformDepsPlugin = ({ filter }) => [
   {
     enforce: "pre",
     name: "vite:preact-signals-safe-react",
+    config() {
+      return {
+        optimizeDeps: {
+          esbuildOptions: {
+            plugins: [esbuildPluginBabel({ filter })],
+          },
+        },
+      };
+    },
     transform(code, id) {
       if (filter(id) && code.includes("@useSignals")) {
         this.debug(`transforming ${id}`);
-        return transform(code, {
-          filename: id,
-          jsc: {
-            target: "esnext",
-            parser: {
-              syntax: "typescript",
-              tsx: true,
-            },
-            experimental: {
-              plugins: [["@preact-signals/safe-react/swc", { mode: "manual" }]],
-            },
-          },
-        }).then((it) => it.code);
+        return transformSignals(code, id).then((it) => ({
+          code: it.code,
+          map: it.map,
+        }));
       }
     },
   },
