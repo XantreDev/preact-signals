@@ -1,5 +1,11 @@
 # @preact-signals/safe-react
 
+## 0.5.1
+
+### Patch Changes
+
+- 1c96810: Fix vite SWC integration in dev mode
+
 ## 0.5.0
 
 ### Minor Changes
