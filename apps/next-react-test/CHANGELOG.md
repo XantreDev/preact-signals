@@ -1,5 +1,12 @@
 # next-react-test
 
+## 0.1.10
+
+### Patch Changes
+
+- Updated dependencies [1c96810]
+  - @preact-signals/safe-react@0.5.1
+
 ## 0.1.9
 
 ### Patch Changes
