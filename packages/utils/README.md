@@ -100,27 +100,27 @@ Library consist from many entries:
 
 ## Main Entry: `@preact-signals/utils`
 
-### `Uncached`/`$`
+### `ReactiveRef`/`$`
 
-The `Uncached` type functions similarly to a Preact signal, essentially wrapping a function that can be passed into props or JSX. You can create it using the `$` function.
+The `ReactiveRef` type functions similarly to a Preact signal, essentially wrapping a function that can be passed into props or JSX. You can create it using the `$` function.
 
 ```tsx
 const sig = signal(1);
 <div>{$(() => sig.value * 10)}</div>;
 ```
 
-### `WritableUncached`/`$w`
+### `WritableReactiveRef`/`$w`
 
-The `WritableUncached` creates editable signal from getter and setter functions.
+Creates editable signal from getter and setter functions.
 
 ```ts
 const a = signal({ a: 1 });
 const aField = $w({
   get() {
-    return a().a;
+    return a.value.a;
   },
   set(value) {
-    a({ a: value });
+    a.value = { a: value };
   },
 });
 
@@ -422,7 +422,7 @@ import { Switch, Match } from "@preact-signals/utils/components";
 
 ## `@preact-signals/utils/hocs`: High Order Components (HOCs)
 
-HOCs in this entry allow you to inject signals or `uncached` instances into props, aiding in the creation of reusable and composable logic across various components.
+HOCs in this entry allow you to inject signals or `ReactiveRef`-s into props, aiding in the creation of reusable and composable logic across various components.
 
 Examples:
 
