@@ -6,12 +6,15 @@
 
 ![Example](./example.png)
 
+## [Documentation](https://tsdocs.dev/docs/@preact-signals/utils)
+
 ## Prerequisites
 
 Ensure that [one of the preact signals runtimes](https://github.com/preactjs/signals) is installed:
 
 - `@preact/signals` for `preact`, requiring an [additional step](#preactsignals-additional-step).
 - `@preact/signals-core` for vanilla js requiring an additional step.
+- `@preact-signals/safe-react` for `react`, requiring an [additional step](#preact-signalssafe-react-additional-step).
 - `@preact/signals-react` for `react`.
 
 ### `@preact/signals-core` additional step:
@@ -44,6 +47,24 @@ export default defineConfig({
       alias: {
         "@preact/signals-react": "@preact/signals-core",
       },
+    },
+  },
+});
+```
+
+### `@preact-signals/safe-react` additional step:
+
+Resolve `@preact-signals/safe-react` as `@preact/signals-react`
+
+#### Vite example:
+
+```ts
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  resolve: {
+    alias: {
+      "@preact/signals-react": "@preact-signals/safe-react",
     },
   },
 });
@@ -100,27 +121,27 @@ Library consist from many entries:
 
 ## Main Entry: `@preact-signals/utils`
 
-### `Uncached`/`$`
+### `ReactiveRef`/`$`
 
-The `Uncached` type functions similarly to a Preact signal, essentially wrapping a function that can be passed into props or JSX. You can create it using the `$` function.
+The `ReactiveRef` type functions similarly to a Preact signal, essentially wrapping a function that can be passed into props or JSX. You can create it using the `$` function.
 
 ```tsx
 const sig = signal(1);
 <div>{$(() => sig.value * 10)}</div>;
 ```
 
-### `WritableUncached`/`$w`
+### `WritableReactiveRef`/`$w`
 
-The `WritableUncached` creates editable signal from getter and setter functions.
+Creates editable signal from getter and setter functions.
 
 ```ts
 const a = signal({ a: 1 });
 const aField = $w({
   get() {
-    return a().a;
+    return a.value.a;
   },
   set(value) {
-    a({ a: value });
+    a.value = { a: value };
   },
 });
 
@@ -422,7 +443,7 @@ import { Switch, Match } from "@preact-signals/utils/components";
 
 ## `@preact-signals/utils/hocs`: High Order Components (HOCs)
 
-HOCs in this entry allow you to inject signals or `uncached` instances into props, aiding in the creation of reusable and composable logic across various components.
+HOCs in this entry allow you to inject signals or `ReactiveRef`-s into props, aiding in the creation of reusable and composable logic across various components.
 
 Examples:
 

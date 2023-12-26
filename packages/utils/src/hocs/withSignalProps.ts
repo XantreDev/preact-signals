@@ -1,16 +1,19 @@
 import { type ReadonlySignal, Signal } from "@preact-signals/unified-signals";
 import type { Fn, Objects } from "hotscript";
 import { createTransformProps } from "react-fast-hoc";
-import type { Uncached } from "../$";
+import type { ReactiveRef } from "../$";
 
 export interface WithSignalProp extends Fn {
   return: this["arg1"] extends "children"
     ? this["arg0"]
     : this["arg0"] extends (...args: any[]) => any
-    ? this["arg0"]
-    : this["arg0"] extends Uncached<any> | ReadonlySignal<any>
-    ? never | Uncached<this["arg0"]> | ReadonlySignal<this["arg0"]>
-    : this["arg0"] | Uncached<this["arg0"]> | ReadonlySignal<this["arg0"]>;
+      ? this["arg0"]
+      : this["arg0"] extends ReactiveRef<any> | ReadonlySignal<any>
+        ? never | ReactiveRef<this["arg0"]> | ReadonlySignal<this["arg0"]>
+        :
+            | this["arg0"]
+            | ReactiveRef<this["arg0"]>
+            | ReadonlySignal<this["arg0"]>;
 }
 
 class WithSignalPropsHandler

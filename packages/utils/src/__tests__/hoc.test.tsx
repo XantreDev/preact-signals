@@ -6,7 +6,7 @@ import {
 } from "@preact-signals/unified-signals";
 import React, { PropsWithChildren } from "react";
 import { assert, describe, expect, expectTypeOf, it, vi } from "vitest";
-import { $, Uncached } from "../$";
+import { $, ReactiveRef } from "../$";
 import { ReactiveProps, reactifyLite, withSignalProps } from "../hocs";
 import { reactify } from "../hocs/reactify";
 import { itRenderer } from "./utils";
@@ -79,7 +79,7 @@ describe("withSignalProps()", () => {
     expectTypeOf(B)
       .parameter(0)
       .toHaveProperty("value")
-      .toEqualTypeOf<number | Uncached<number> | ReadonlySignal<number>>();
+      .toEqualTypeOf<number | ReactiveRef<number> | ReadonlySignal<number>>();
     expectTypeOf(B)
       .parameter(0)
       .toHaveProperty("children")
@@ -96,7 +96,7 @@ describe("reactifyLite()", () => {
     expectTypeOf(A)
       .parameter(0)
       .toHaveProperty("value")
-      .toEqualTypeOf<number | Uncached<number> | ReadonlySignal<number>>();
+      .toEqualTypeOf<number | ReactiveRef<number> | ReadonlySignal<number>>();
   });
 
   it("should throw on not explicitly defined reactive props", () => {
