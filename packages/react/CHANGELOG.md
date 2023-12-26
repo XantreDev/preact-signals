@@ -1,5 +1,11 @@
 # @preact-signals/safe-react
 
+## 0.5.2
+
+### Patch Changes
+
+- 9b02260: Update README with integration playgrounds
+
 ## 0.5.1
 
 ### Patch Changes
