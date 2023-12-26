@@ -6,12 +6,15 @@
 
 ![Example](./example.png)
 
+## [Documentation](https://tsdocs.dev/docs/@preact-signals/utils)
+
 ## Prerequisites
 
 Ensure that [one of the preact signals runtimes](https://github.com/preactjs/signals) is installed:
 
 - `@preact/signals` for `preact`, requiring an [additional step](#preactsignals-additional-step).
 - `@preact/signals-core` for vanilla js requiring an additional step.
+- `@preact-signals/safe-react` for `react`, requiring an [additional step](#preact-signalssafe-react-additional-step).
 - `@preact/signals-react` for `react`.
 
 ### `@preact/signals-core` additional step:
@@ -44,6 +47,24 @@ export default defineConfig({
       alias: {
         "@preact/signals-react": "@preact/signals-core",
       },
+    },
+  },
+});
+```
+
+### `@preact-signals/safe-react` additional step:
+
+Resolve `@preact-signals/safe-react` as `@preact/signals-react`
+
+#### Vite example:
+
+```ts
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  resolve: {
+    alias: {
+      "@preact/signals-react": "@preact-signals/safe-react",
     },
   },
 });
