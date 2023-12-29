@@ -1,5 +1,11 @@
 # @preact-signals/utils
 
+## 0.14.1
+
+### Patch Changes
+
+- 7999b3f: Reexport `writableRefOfArrayProp` and `writableRefOfObjectProp`
+
 ## 0.14.0
 
 ### Minor Changes
