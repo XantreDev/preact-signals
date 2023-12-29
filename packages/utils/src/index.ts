@@ -23,6 +23,8 @@ export {
   unwrapReactive,
   rafReaction,
   isExplicitFalsy,
+  writableRefOfArrayProp, 
+  writableRefOfObjectProp,
   type ExplicitFalsy,
   type GetTruthyValue,
   type GetValue,
