@@ -1,5 +1,11 @@
 # @preact-signals/query
 
+## 1.3.11
+
+### Patch Changes
+
+- 97be1be: Fix: reexport `useMutation# @preact-signals/query
+
 ## 1.3.10
 
 ### Patch Changes
