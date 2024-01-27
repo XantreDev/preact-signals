@@ -1,0 +1,5 @@
+{
+  "main": "../dist/cjs/babel.cjs",
+  "react-native": "../src/babel.ts",
+  "types": "../dist/types/babel.d.ts"
+}

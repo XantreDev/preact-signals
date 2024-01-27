@@ -11,7 +11,6 @@ import {
   ResourceOptions,
   ResourceState,
   resource,
-  resource,
 } from "./resource";
 
 const sleep = (ms?: number) => new Promise((r) => setTimeout(r, ms));

@@ -7,9 +7,9 @@
   },
   "description": "Utils for @preact/signals",
   "sideEffects": [
-    "./src/store/sideEffects.ts",
-    "./dist/cjs/store/sideEffects.cjs",
-    "./dist/esm/store/sideEffects.mjs"
+    "./src/lib/store/sideEffects.ts",
+    "./dist/cjs/lib/store/sideEffects.cjs",
+    "./dist/esm/lib/store/sideEffects.mjs"
   ],
   "repository": {
     "directory": "packages/utils",
@@ -23,47 +23,59 @@
     "url": "https://github.com/XantreGodlike"
   },
   "type": "module",
-  "module": "./dist/esm/index.mjs",
-  "main": "./dist/cjs/index.cjs",
-  "types": "./dist/types/index.d.ts",
-  "source": "./src/index.ts",
-  "react-native": "./src/index.ts",
+  "module": "./dist/esm/lib/index.mjs",
+  "main": "./dist/cjs/lib/index.cjs",
+  "types": "./dist/types/lib/index.d.ts",
+  "source": "./src/lib/index.ts",
+  "react-native": "./src/lib/index.ts",
   "exports": {
     ".": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/esm/index.mjs",
-      "react-native": "./src/index.ts",
-      "require": "./dist/cjs/index.cjs"
+      "types": "./dist/types/lib/index.d.ts",
+      "import": "./dist/esm/lib/index.mjs",
+      "react-native": "./src/lib/index.ts",
+      "require": "./dist/cjs/lib/index.cjs"
     },
     "./hooks": {
-      "types": "./dist/types/hooks/index.d.ts",
-      "import": "./dist/esm/hooks/index.mjs",
-      "react-native": "./src/hooks/index.ts",
-      "require": "./dist/cjs/hooks/index.cjs"
+      "types": "./dist/types/lib/hooks/index.d.ts",
+      "import": "./dist/esm/lib/hooks/index.mjs",
+      "react-native": "./src/lib/hooks/index.ts",
+      "require": "./dist/cjs/lib/hooks/index.cjs"
     },
     "./components": {
-      "types": "./dist/types/components/index.d.ts",
-      "import": "./dist/esm/components/index.mjs",
-      "react-native": "./src/components/index.ts",
-      "require": "./dist/cjs/components/index.cjs"
+      "types": "./dist/types/lib/components/index.d.ts",
+      "import": "./dist/esm/lib/components/index.mjs",
+      "react-native": "./src/lib/components/index.ts",
+      "require": "./dist/cjs/lib/components/index.cjs"
     },
     "./hocs": {
-      "types": "./dist/types/hocs/index.d.ts",
-      "import": "./dist/esm/hocs/index.mjs",
-      "react-native": "./src/hocs/index.ts",
-      "require": "./dist/cjs/hocs/index.cjs"
+      "types": "./dist/types/lib/hocs/index.d.ts",
+      "import": "./dist/esm/lib/hocs/index.mjs",
+      "react-native": "./src/lib/hocs/index.ts",
+      "require": "./dist/cjs/lib/hocs/index.cjs"
     },
     "./store": {
-      "types": "./dist/types/store/index.d.ts",
-      "import": "./dist/esm/store/index.mjs",
-      "react-native": "./src/store/index.ts",
-      "require": "./dist/cjs/store/index.cjs"
+      "types": "./dist/types/lib/store/index.d.ts",
+      "import": "./dist/esm/lib/store/index.mjs",
+      "react-native": "./src/lib/store/index.ts",
+      "require": "./dist/cjs/lib/store/index.cjs"
     },
     "./store/hooks": {
-      "types": "./dist/types/hooks/store.d.ts",
-      "import": "./dist/esm/hooks/store.mjs",
-      "react-native": "./src/hooks/store.ts",
-      "require": "./dist/cjs/hooks/store.cjs"
+      "types": "./dist/types/lib/hooks/store.d.ts",
+      "import": "./dist/esm/lib/hooks/store.mjs",
+      "react-native": "./src/lib/hooks/store.ts",
+      "require": "./dist/cjs/lib/hooks/store.cjs"
+    },
+    "./macros": {
+      "types": "./dist/types/macros.d.ts",
+      "import": "./dist/esm/macros.mjs",
+      "react-native": "./src/macros.ts",
+      "require": "./dist/cjs/macros.cjs"
+    },
+    "./babel": {
+      "types": "./dist/types/babel.d.ts",
+      "import": "./dist/esm/babel.mjs",
+      "react-native": "./src/babel.ts",
+      "require": "./dist/cjs/babel.cjs"
     },
     "./package.json": "./package.json"
   },
@@ -79,19 +91,19 @@
   "typesVersions": {
     "*": {
       "hooks": [
-        "./dist/types/hooks/index.d.ts"
+        "./dist/types/lib/hooks/index.d.ts"
       ],
       "components": [
-        "./dist/types/components/index.d.ts"
+        "./dist/types/lib/components/index.d.ts"
       ],
       "hocs": [
-        "./dist/types/hocs/index.d.ts"
+        "./dist/types/lib/hocs/index.d.ts"
       ],
       "store": [
-        "./dist/types/store/index.d.ts"
+        "./dist/types/lib/store/index.d.ts"
       ],
       "store/hooks": [
-        "./dist/types/hooks/store.d.ts"
+        "./dist/types/lib/hooks/store.d.ts"
       ]
     }
   },
@@ -120,6 +132,9 @@
     }
   },
   "dependencies": {
+    "@babel/core": "^7.23.9",
+    "@babel/helper-module-imports": "7.22.15",
+    "@babel/traverse": "^7.23.4",
     "@preact-signals/unified-signals": "workspace:*",
     "react-fast-hoc": "0.3.2"
   },
@@ -128,6 +143,9 @@
     "@preact/signals-react": "^1.3.6",
     "@rollup/plugin-replace": "^5.0.5",
     "@rollup/plugin-typescript": "^11.1.5",
+    "@types/babel__core": "^7.20.4",
+    "@types/babel__helper-module-imports": "^7.18.3",
+    "@types/babel__traverse": "^7.20.4",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
     "check-export-map": "^1.3.0",
@@ -141,6 +159,7 @@
     "rollup-plugin-esbuild": "^5.0.0",
     "rollup-plugin-node-externals": "^6.1.2",
     "rollup-plugin-swc3": "^0.10.3",
+    "tinypool": "^0.8.2",
     "type-fest": "^3.13.1"
   },
   "keywords": [
