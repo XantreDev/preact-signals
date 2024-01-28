@@ -65,11 +65,11 @@
       "react-native": "./src/lib/hooks/store.ts",
       "require": "./dist/cjs/lib/hooks/store.cjs"
     },
-    "./macros": {
-      "types": "./dist/types/macros.d.ts",
-      "import": "./dist/esm/macros.mjs",
-      "react-native": "./src/macros.ts",
-      "require": "./dist/cjs/macros.cjs"
+    "./macro": {
+      "types": "./dist/types/macro.d.ts",
+      "import": "./dist/esm/macro.mjs",
+      "react-native": "./src/macro.ts",
+      "require": "./dist/cjs/macro.cjs"
     },
     "./babel": {
       "types": "./dist/types/babel.d.ts",
