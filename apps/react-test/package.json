@@ -7,15 +7,16 @@
     "dev:patching": "cross-env TRACKING_METHOD='patching' vite",
     "dev:babel": "cross-env TRACKING_METHOD='babel' vite",
     "dev:swc": "cross-env TRACKING_METHOD='swc' vite",
-    "dev": "pnpm run dev:swc",
+    "dev": "pnpm run dev:babel",
     "build:patching": "cross-env TRACKING_METHOD='patching' vite build",
     "build:babel": "cross-env TRACKING_METHOD='babel' vite build",
     "build:swc": "cross-env TRACKING_METHOD='swc' vite build",
-    "build": "pnpm run build:swc"
+    "build": "pnpm run build:babel"
   },
   "dependencies": {
     "@preact-signals/safe-react": "workspace:*",
     "@preact/signals-react": "^1.3.3",
+    "@preact-signals/utils": "workspace:*",
     "components-for-test": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

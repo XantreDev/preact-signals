@@ -45,7 +45,10 @@ export default defineConfig({
             ? {
                 jsxImportSource: "@preact-signals/safe-react/jsx",
                 babel: {
-                  plugins: ["module:@preact-signals/safe-react/babel"],
+                  plugins: [
+                    "module:@preact-signals/safe-react/babel",
+                    "module:@preact-signals/utils/babel",
+                  ],
                 },
               }
             : undefined
