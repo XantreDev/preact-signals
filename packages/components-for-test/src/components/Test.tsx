@@ -1,3 +1,4 @@
+import { TestCounterMacro } from "./TestMacro";
 import { TestFor } from "./TestFor";
 import { TestQuery } from "./TestQuery";
 import { TestResource } from "./TestResource";
@@ -22,6 +23,9 @@ const rootRoute = new RootRoute({
         <ul className="menu menu-vertical lg:menu-horizontal bg-base-200 rounded-box">
           <li>
             <Link to="/test-show">test show</Link>
+          </li>
+          <li>
+            <Link to="/test-counter-macros">test counter macros</Link>
           </li>
           <li>
             <Link to="/test-switch">test switch</Link>
@@ -83,6 +87,12 @@ const testUncachedJSXBindingsRoute = new Route({
   component: TextUncachedJSXBindings,
 });
 
+const testCounterMacrosRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/test-counter-macros",
+  component: TestCounterMacro,
+});
+
 const router = new Router({
   routeTree: rootRoute.addChildren([
     testShowRoute,
@@ -91,6 +101,7 @@ const router = new Router({
     testQueryRoute,
     testUncachedJSXBindingsRoute,
     testForRoute,
+    testCounterMacrosRoute,
   ]),
   history: createHashHistory(),
 });

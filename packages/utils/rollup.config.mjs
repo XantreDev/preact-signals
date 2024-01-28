@@ -14,12 +14,14 @@ const useSourceMap = true; // Generate source map files
 const useEsbuild = false; // `true` -> use esbuild, `false` use tsc
 
 const input = [
-  "src/index.ts",
-  "src/hooks/index.ts",
-  "src/hooks/store.ts",
-  "src/hocs/index.ts",
-  "src/components/index.ts",
-  "src/store/index.ts",
+  "src/lib/index.ts",
+  "src/lib/hooks/index.ts",
+  "src/lib/hooks/store.ts",
+  "src/lib/hocs/index.ts",
+  "src/lib/components/index.ts",
+  "src/lib/store/index.ts",
+  "src/babel.ts",
+  "src/macro.ts",
 ];
 
 const commonPlugins = [

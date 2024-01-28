@@ -6,7 +6,7 @@ export {
 
 export {
   isSignal as isRef, deepSignal as ref, type DeepSignal as Ref
-} from "../../store";
+} from "../../lib/store";
 export {
   isProxy,
   isReactive,
@@ -20,5 +20,5 @@ export {
   toRaw,
   toDeepReactive as toReactive,
   toDeepReadonly as toReadonly
-} from "../../store/publicReactivity";
+} from "../../lib/store/publicReactivity";
 

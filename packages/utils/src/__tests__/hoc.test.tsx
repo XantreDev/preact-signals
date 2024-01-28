@@ -2,13 +2,12 @@ import {
   ReadonlySignal,
   computed,
   signal,
-  useComputed,
 } from "@preact-signals/unified-signals";
 import React, { PropsWithChildren } from "react";
 import { assert, describe, expect, expectTypeOf, it, vi } from "vitest";
-import { $, ReactiveRef } from "../$";
-import { ReactiveProps, reactifyLite, withSignalProps } from "../hocs";
-import { reactify } from "../hocs/reactify";
+import { $, ReactiveRef } from "../lib/$";
+import { ReactiveProps, reactifyLite, withSignalProps } from "../lib/hocs";
+import { reactify } from "../lib/hocs/reactify";
 import { itRenderer } from "./utils";
 
 describe("withSignalProps()", () => {

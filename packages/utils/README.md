@@ -8,6 +8,31 @@
 
 ## [Documentation](https://tsdocs.dev/docs/@preact-signals/utils)
 
+## Table of Contents
+
+- [Installation](#installation)
+- [Main Entry: `@preact-signals/utils`](#main-entry-preact-signalsutils)
+  - [`ReactiveRef`/`$`](#reactiveref)
+  - [`WritableReactiveRef`/`$w`](#writablereactiveref)
+  - [Deep Reactivity (Port of Vue 3 deep tracking API)](#deep-reactivity-port-of-vue-3-deep-tracking-api)
+    - [`deepSignal`](#deepsignal)
+    - [Store API](#store-api)
+  - [`reaction`](#reaction)
+  - [`rafReaction`](#rafreaction)
+  - [`accessor`/`setter`](#accessorsetter)
+  - [`resource`](#resource)
+  - [`createFlatStore`](#createflatstore)
+  - [`createFlatStoreOfSignals`](#createflatstoreofsignals)
+- [`@preact-signals/utils/hooks`: Hooks for Signals](#preact-signalsutilshooks-hooks-for-signals)
+  - [Deep Reactivity Hooks](#deep-reactivity-hooks)
+  - [`useLinkedSignal`](#uselinkedsignal)
+- [`@preact-signals/utils/components`: Reactive Components](#preact-signalsutilscomponents-reactive-components)
+- [`@preact-signals/utils/hocs`: High Order Components (HOCs)](#preact-signalsutilshocs-high-order-components-hocs)
+  - [`reactifyLite`](#reactifylite)
+- [`@preact-signals/utils/macro`: Macros](#preact-signalsutilsmacro-macros)
+  - [Setup](#macro-setup)
+- [Inspired by:](#heavily-inspired-by)
+
 ## Prerequisites
 
 Ensure that [one of the preact signals runtimes](https://github.com/preactjs/signals) is installed:
@@ -472,6 +497,33 @@ const B = reactifyLite(Comp);
 // JSX transform idea. this is just idea, not implemented
 // use `$$` to pass props like in SolidJS
 <C a$$={a.value + b.value} />;
+```
+
+## `@preact-signals/utils/macro`: Macros
+
+This entry provides macros distributed as babel plugin. It's allows you to write code like this:
+
+```tsx
+import { $$ } from "@preact-signals/utils/macro";
+
+const a = signal(1);
+const b = signal(2);
+
+// $$ is macro, which will be replaced with $(() => ...)
+// $$(a.value + b.value) -> $(() => a.value + b.value)
+// C component will not be reexecuted if a or b changed
+const C = () => <div>{$$(a.value + b.value)}</div>;
+```
+
+### Macro setup
+
+To use macros you need to add babel plugin to your babel config:
+
+```json
+// babel.config.json
+{
+  "plugins": ["module:@preact-signals/utils/babel"]
+}
 ```
 
 ### Heavily inspired by:

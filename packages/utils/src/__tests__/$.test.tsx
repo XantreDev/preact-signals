@@ -2,7 +2,7 @@ import { computed, signal } from "@preact-signals/unified-signals";
 import React from "react";
 import { describe, expect, it } from "vitest";
 
-import { $, $w } from "../$";
+import { $, $w } from "../lib/$";
 import { createRenderer } from "./utils";
 
 describe("$()", () => {

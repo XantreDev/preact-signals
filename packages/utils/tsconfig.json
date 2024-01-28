@@ -3,9 +3,9 @@
     "noEmit": false,
     "emitDeclarationOnly": true,
     "rootDir": "./src",
-    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "tsBuildInfoFile": "./node_modules/.tsbuildinfo",
     "outDir": "./dist/types",
-    "types": ["./global.d.ts"]
+    "types": ["./global.d.ts"],
   },
   "exclude": [
     "**/dist/**",

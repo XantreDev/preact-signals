@@ -1,7 +1,7 @@
 import { signal } from "@preact-signals/unified-signals";
 import React from "react";
 import { describe, vi } from "vitest";
-import { itRenderer } from "../../__tests__/utils";
+import { itRenderer } from "../../../__tests__/utils";
 import { Match, Switch } from "../components";
 
 describe.concurrent("Switch()", () => {

@@ -6,8 +6,8 @@ import {
 } from "@preact-signals/unified-signals";
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
-import { $ } from "../..";
-import { Store, deepSignal } from "../../store";
+import { $ } from "../../lib";
+import { Store, deepSignal } from "../../lib/store";
 import { itRenderer, sleep } from "../utils";
 
 describe("store", () => {

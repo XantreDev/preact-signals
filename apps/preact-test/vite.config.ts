@@ -3,7 +3,13 @@ import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [preact()],
+  plugins: [
+    preact({
+      babel: {
+        plugins: ["module:@preact-signals/utils/babel"],
+      },
+    }),
+  ],
   resolve: {
     dedupe: ["preact"],
     alias: [

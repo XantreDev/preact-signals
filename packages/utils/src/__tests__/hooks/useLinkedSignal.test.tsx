@@ -1,7 +1,7 @@
 import { signal } from "@preact-signals/unified-signals";
 import React from "react";
 import { describe } from "vitest";
-import { useLinkedSignal } from "../../hooks";
+import { useLinkedSignal } from "../../lib/hooks";
 import { itRenderer } from "../utils";
 
 describe.concurrent("useLinkedSignal()", () => {
