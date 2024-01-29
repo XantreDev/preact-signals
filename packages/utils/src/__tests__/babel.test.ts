@@ -80,6 +80,33 @@ describe.concurrent("@preact-signals/utils/macro", () => {
         const a = _$(() => 1)
         `,
     ],
+    [
+      "is not break other imports",
+      `
+        import React from 'react';
+        import {readFileSync} from 'fs';
+        import * as path from 'path';
+      `,
+      `
+        import React from 'react';
+        import {readFileSync} from 'fs';
+        import * as path from 'path';
+      `,
+    ],
+    [
+      "is not break other imports (CJS)",
+      `
+        const React = require('react');
+        const {readFileSync} = require('fs');
+        const path = require('path');
+      `,
+      `
+        const React = require('react');
+        const {readFileSync} = require('fs');
+        const path = require('path');
+      `,
+      { isCJS: true },
+    ],
   ] as const;
 
   for (const [name, input, output, options] of success) {

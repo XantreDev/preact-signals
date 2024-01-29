@@ -81,7 +81,18 @@ interface PluginArgs {
 const reactiveRefIdent = "importIdentifier";
 const hasMacrosReference = "hasMacrosReference";
 
-const isImportMacrosName = (name: string) => "@preact-signals/utils/macro";
+const isImportMacrosName = (name: string) =>
+  name === "@preact-signals/utils/macro";
+
+const isVariableDeclaratorMacros = (
+  child: NodePath<BabelTypes.VariableDeclarator>
+) =>
+  child.node.init?.type === "CallExpression" &&
+  child.node.init.callee.type === "Identifier" &&
+  child.node.init.callee.name === "require" &&
+  child.node.init.arguments.length === 1 &&
+  child.node.init.arguments[0]?.type === "StringLiteral" &&
+  isImportMacrosName(child.node.init.arguments[0].value);
 
 export default function preactSignalsUtilsBabel(
   { types: t }: PluginArgs,
@@ -121,32 +132,18 @@ export default function preactSignalsUtilsBabel(
         );
       },
       ImportDeclaration(path, state) {
-        if (path.node.source.value !== "@preact-signals/utils/macro") return;
+        if (!isImportMacrosName( path.node.source.value)) return;
         self.set(state, hasMacrosReference, true);
         path.remove();
       },
       VariableDeclaration(path, state) {
-        const isMacros = (child: NodePath<BabelTypes.VariableDeclarator>) =>
-          looksLike(child, {
-            node: {
-              init: {
-                callee: {
-                  type: "Identifier",
-                  name: "require",
-                },
-                arguments: (args: [{ value: string }]) =>
-                  args.length === 1 && isImportMacrosName(args[0].value),
-              },
-            },
-          });
-
-        path
-          .get("declarations")
-          .filter(isMacros)
-          .forEach((child) => {
+        for (const child of path.get("declarations")) {
+          if (isVariableDeclaratorMacros(child)) {
+            console.log("found", child);
             self.set(state, hasMacrosReference, true);
             child.remove();
-          });
+          }
+        }
       },
     },
   };
