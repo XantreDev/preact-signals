@@ -1,5 +1,11 @@
 # @preact-signals/utils
 
+## 0.15.2
+
+### Patch Changes
+
+- ddd7223: Fixed exports field fallbacks
+
 ## 0.15.1
 
 ### Patch Changes
