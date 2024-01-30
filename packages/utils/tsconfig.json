@@ -5,13 +5,14 @@
     "rootDir": "./src",
     "tsBuildInfoFile": "./node_modules/.tsbuildinfo",
     "outDir": "./dist/types",
-    "types": ["./global.d.ts"],
+    "types": ["./global.d.ts"]
   },
   "exclude": [
     "**/dist/**",
     "**/__tests__/**",
     "**/__test__/**",
     "**/node_modules/**",
+    "./import-checker.mjs",
     "rollup.config.mjs",
     "vitest.config.ts",
     "setupVitest.ts",
