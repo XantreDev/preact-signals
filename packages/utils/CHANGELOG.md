@@ -1,5 +1,11 @@
 # @preact-signals/utils
 
+## 0.15.1
+
+### Patch Changes
+
+- c8bba5f: Fixed removal of all cjs imports by babel plugin
+
 ## 0.15.0
 
 ### Minor Changes
