@@ -1,5 +1,5 @@
 {
   "main": "../dist/cjs/lib/hocs/index.cjs",
-  "react-native": "../src/hocs/index.ts",
+  "react-native": "../src/lib/hocs/index.ts",
   "types": "../dist/types/lib/hocs/index.d.ts"
 }
