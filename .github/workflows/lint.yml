@@ -1,4 +1,5 @@
 name: Lint
+
 on:
   push:
     branches:
@@ -7,12 +8,12 @@ on:
     branches:
       - main
 
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 jobs:
   test:
-    env:
-      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
-    name: Lint x Test preact-signals monorepo
+    name: Test preact-signals monorepo
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -24,6 +25,29 @@ jobs:
           cache: "pnpm"
           node-version: latest
       - run: pnpm i
+      - run: cd ./packages/react/swc && rustup update && cd ../../..
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspace: "packages/react/swc"
       - run: pnpm build
       - run: pnpm lint
+  lint:
+    name: Lint preact-signals monorepo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest
+      - uses: actions/setup-node@v3
+        with:
+          cache: "pnpm"
+          node-version: latest
+      - run: pnpm i
+      - run: cd ./packages/react/swc && rustup update && cd ../../..
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspace: "packages/react/swc"
+      - run: pnpm build
       - run: pnpm test
