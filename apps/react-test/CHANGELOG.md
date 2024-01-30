@@ -1,5 +1,13 @@
 # react-test
 
+## 0.0.34
+
+### Patch Changes
+
+- Updated dependencies [ddd7223]
+  - @preact-signals/utils@0.15.2
+  - components-for-test@4.0.14
+
 ## 0.0.33
 
 ### Patch Changes
