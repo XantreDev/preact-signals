@@ -139,7 +139,6 @@ export default function preactSignalsUtilsBabel(
       VariableDeclaration(path, state) {
         for (const child of path.get("declarations")) {
           if (isVariableDeclaratorMacros(child)) {
-            console.log("found", child);
             self.set(state, hasMacrosReference, true);
             child.remove();
           }
