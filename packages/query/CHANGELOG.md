@@ -1,5 +1,13 @@
 # @preact-signals/query
 
+## 1.3.15
+
+### Patch Changes
+
+- ffabfd1: Marked `type-fest` as forward dependency. Fixes [#67](https://github.com/XantreGodlike/preact-signals/issues/67)
+- Updated dependencies [ffabfd1]
+  - @preact-signals/utils@0.15.3
+
 ## 1.3.14
 
 ### Patch Changes
