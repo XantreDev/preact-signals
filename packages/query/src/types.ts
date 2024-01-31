@@ -22,18 +22,24 @@ export interface StaticBaseQueryOptions<
   TError = unknown,
   TData = TQueryFnData,
   TQueryData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
+  TQueryKey extends QueryKey = QueryKey,
 > extends ContextOptions,
     Omit<
       QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>,
       NotSupportedInQuery$
-    > {}
+    > {
+  /**
+   * @description If `true` - executes and suspends the query on mount. Helpful to be sure that `data` is available on render.
+   * @default false 
+   */
+  eagerSuspense?: boolean;
+}
 
 export interface StaticQueryOptions<
   TQueryFnData = unknown,
   TError = unknown,
   TData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
+  TQueryKey extends QueryKey = QueryKey,
 > extends SetOptional<
     QueryObserverOptions<TQueryFnData, TError, TData, TQueryFnData, TQueryKey>,
     "queryKey"
@@ -51,7 +57,7 @@ export type UseQuery$ = <
   TQueryFnData = unknown,
   TError = unknown,
   TData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
+  TQueryKey extends QueryKey = QueryKey,
 >(
   options: () => StaticQueryOptions<TQueryFnData, TError, TData, TQueryKey>
 ) => UseQueryResult$<TData, TError>;
@@ -60,7 +66,7 @@ export interface StaticInfiniteQueryOptions<
   TError = unknown,
   TData = TQueryFnData,
   TQueryData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
+  TQueryKey extends QueryKey = QueryKey,
 > extends ContextOptions,
     SetOptional<
       InfiniteQueryObserverOptions<
@@ -82,7 +88,7 @@ export type UseInfiniteQuery$ = <
   TError = unknown,
   TData = TQueryFnData,
   TQueryData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
+  TQueryKey extends QueryKey = QueryKey,
 >(
   options: () => StaticInfiniteQueryOptions<
     TQueryFnData,
@@ -97,7 +103,7 @@ export interface StaticMutationOptions<
   TData = unknown,
   TError = unknown,
   TVariables = void,
-  TContext = unknown
+  TContext = unknown,
 > extends ContextOptions,
     Omit<
       MutationObserverOptions<TData, TError, TVariables, TContext>,
@@ -108,7 +114,7 @@ export type MutationResultMutateFunction$<
   TData = unknown,
   TError = unknown,
   TVariables = void,
-  TContext = unknown
+  TContext = unknown,
 > = (
   ...args: Parameters<MutateFunction<TData, TError, TVariables, TContext>>
 ) => void;
@@ -117,14 +123,14 @@ export type MutationResultMutateAsyncFunction$<
   TData = unknown,
   TError = unknown,
   TVariables = void,
-  TContext = unknown
+  TContext = unknown,
 > = MutateFunction<TData, TError, TVariables, TContext>;
 
 export type StaticMutationResult<
   TData = unknown,
   TError = unknown,
   TVariables = void,
-  TContext = unknown
+  TContext = unknown,
 > = OverrideProperties<
   MutationObserverResult<TData, TError, TVariables, TContext>,
   {
@@ -143,7 +149,7 @@ export type UseMutationResult$<
   TData = unknown,
   TError = unknown,
   TVariables = void,
-  TContext = unknown
+  TContext = unknown,
 > = ReadonlyFlatStore<
   StaticMutationResult<TData, TError, TVariables, TContext>
 >;

@@ -17,6 +17,8 @@ import { ensureStaleTime, shouldSuspend } from "./react-query/suspense";
 import { StaticBaseQueryOptions, UseBaseQueryResult$ } from "./types";
 import { useObserverStore } from "./useObserver";
 import { wrapFunctionsInUntracked } from "./utils";
+import { untracked } from "@preact-signals/unified-signals";
+import { useSignalEffect } from "@preact/signals";
 
 export const createBaseQuery =
   (Observer: typeof QueryObserver) =>
@@ -25,7 +27,7 @@ export const createBaseQuery =
     TError,
     TData,
     TQueryData,
-    TQueryKey extends QueryKey = QueryKey
+    TQueryKey extends QueryKey = QueryKey,
   >(
     options: () => StaticBaseQueryOptions<
       TQueryFnData,
@@ -93,6 +95,12 @@ export const createBaseQuery =
     });
     // @ts-expect-error actually it can be written
     state.dataSafe = undefined;
+    untracked(() => !!$options.value.eagerSuspense && dataComputed.value);
+    // TODO: cover case where suspense starts after change of queryKey
+    // useSignalEffect(() =>{
+    //   state.is
+    // })
+
     return useMemo(
       () =>
         new Proxy(state, {
