@@ -1,5 +1,11 @@
 # @preact-signals/utils
 
+## 0.15.3
+
+### Patch Changes
+
+- ffabfd1: Marked `type-fest` as forward dependency. Fixes [#67](https://github.com/XantreGodlike/preact-signals/issues/67)
+
 ## 0.15.2
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # components-for-test
 
+## 4.0.15
+
+### Patch Changes
+
+- Updated dependencies [ffabfd1]
+  - @preact-signals/query@1.3.15
+  - @preact-signals/utils@0.15.3
+
 ## 4.0.14
 
 ### Patch Changes
