@@ -12,7 +12,7 @@ env:
   TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 jobs:
   test:
-    name: Test preact-signals monorepo
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -30,9 +30,9 @@ jobs:
         with:
           workspaces: "packages/react/swc"
       - run: pnpm build
-      - run: pnpm lint
+      - run: pnpm test
   lint:
-    name: Lint preact-signals monorepo
+    name: Lint 
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -51,4 +51,4 @@ jobs:
         with:
           workspaces: "packages/react/swc"
       - run: pnpm build
-      - run: pnpm test
+      - run: pnpm lint
