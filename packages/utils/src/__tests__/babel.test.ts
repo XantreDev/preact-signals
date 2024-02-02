@@ -38,6 +38,20 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       `,
     ],
     [
+      "Correctly handles braces in arrow function if using object",
+      `
+      import { $$ } from "@preact-signals/utils/macro";
+
+      const a = $$({ a: 1 })
+    `,
+      `
+      import { $ as _$ } from "@preact-signals/utils";
+      const a = _$(() => ({
+        a: 1,
+      }));
+    `,
+    ],
+    [
       "CJS import",
       `
       const { $$ } = require("@preact-signals/utils/macro");
