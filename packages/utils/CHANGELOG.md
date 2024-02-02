@@ -1,5 +1,13 @@
 # @preact-signals/utils
 
+## 0.15.5
+
+### Patch Changes
+
+- 9b4a63f: Documented Next.js setup with `@preact-signals/safe-react`
+- Updated dependencies [1170fba]
+  - @preact-signals/unified-signals@0.2.4
+
 ## 0.15.4
 
 ### Patch Changes
