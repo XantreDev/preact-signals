@@ -1,5 +1,4 @@
 import * as signals from "@preact/signals-react";
-import { Untracked } from "./type";
 
 const throwNotSupportedByPreactSignalsRuntime = (): never => {
   // @ts-expect-error i am too lazy to write types for this
@@ -18,10 +17,11 @@ const {
   computed,
   effect,
   signal,
-  useComputed = throwNotSupportedByPreactSignalsRuntime,
-  useSignal = throwNotSupportedByPreactSignalsRuntime,
-  useSignalEffect = throwNotSupportedByPreactSignalsRuntime,
 } = signals;
+
+export const useComputed = signals?.useComputed ?? throwNotSupportedByPreactSignalsRuntime;
+export const useSignal = signals?.useSignal ?? throwNotSupportedByPreactSignalsRuntime;
+export const useSignalEffect = signals?.useSignalEffect ?? throwNotSupportedByPreactSignalsRuntime;
 
 export {
   Signal,
@@ -29,7 +29,4 @@ export {
   computed,
   effect,
   signal,
-  useComputed,
-  useSignal,
-  useSignalEffect,
 };
