@@ -1,5 +1,11 @@
 # @preact-signals/unified-signals
 
+## 0.2.4
+
+### Patch Changes
+
+- 1170fba: Fixed incorrect cjs output produced by rollup
+
 ## 0.2.3
 
 ### Patch Changes
