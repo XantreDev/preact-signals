@@ -2,7 +2,7 @@
   "compilerOptions": {
     "rootDir": "./src",
     "noEmit": false,
-    "outDir": "./dist/esm",
+    "outDir": "./dist/types",
     "emitDeclarationOnly": false,
     "sourceMap": true,
     "tsBuildInfoFile": "./dist/.tsbuildinfo"
@@ -10,6 +10,7 @@
   "exclude": [
     "**/dist/**",
     "**/node_modules/**",
+    "rollup.config.mjs",
     "vitest.config.ts",
     "**/*.test.*"
   ],

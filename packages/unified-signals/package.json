@@ -19,26 +19,27 @@
     "url": "https://github.com/XantreGodlike"
   },
   "type": "module",
-  "module": "./dist/esm/index.js",
-  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.mjs",
+  "main": "./dist/cjs/index.cjs",
   "types": "./src/index.d.ts",
   "source": "./src/index.ts",
   "react-native": "./src/index.ts",
   "exports": {
     ".": {
       "types": "./src/index.d.ts",
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js"
-    }
+      "import": "./dist/esm/index.mjs",
+      "require": "./dist/cjs/index.cjs",
+      "react-native": "./src/index.ts"
+    },
+    "./package.json": "./package.json"
   },
   "scripts": {
     "clean": "rimraf dist",
-    "build:esm": "tsc --outDir ./dist/esm",
-    "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
     "test": "vitest",
-    "lint": "tsc --noEmit",
-    "watch": "concurrently \"pnpm build:esm -w\" \"pnpm build:cjs -w\"",
-    "build": "pnpm clean && concurrently \"pnpm build:esm\" \"pnpm build:cjs\""
+    "lint": "tsc --noEmit && check-export-map",
+    "build:rollup": "rollup -c",
+    "watch": "pnpm build:rollup -w",
+    "build": "pnpm clean && pnpm build:rollup"
   },
   "peerDependencies": {
     "@preact/signals": ">=1.1.0",
@@ -63,7 +64,13 @@
   "devDependencies": {
     "@preact/signals-react": "1.3.4",
     "concurrently": "^8.2.2",
-    "happy-dom": "^10.11.2"
+    "happy-dom": "^10.11.2",
+    "check-export-map": "^1.3.0",
+    "rollup": "^3.29.4",
+    "rollup-plugin-esbuild": "^5.0.0",
+    "rollup-plugin-node-externals": "^6.1.2",
+    "@rollup/plugin-replace": "^5.0.5",
+    "@rollup/plugin-typescript": "^11.1.5"
   },
   "keywords": [],
   "license": "MIT"
