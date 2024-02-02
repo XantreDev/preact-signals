@@ -10,6 +10,10 @@
 
 ## Table of Contents
 
+- [Prerequisites](#prerequisites)
+  - [`@preact/signals-core` additional step:](#preactsignals-core-additional-step)
+  - [`@preact-signals/safe-react` additional step:](#preact-signals-safe-react-additional-step)
+  - [`@preact-signals/utils` additional step:](#preact-signals-utils-additional-step)
 - [Installation](#installation)
 - [Main Entry: `@preact-signals/utils`](#main-entry-preact-signalsutils)
   - [`ReactiveRef`/`$`](#reactiveref)
@@ -84,6 +88,7 @@ Resolve `@preact-signals/safe-react` as `@preact/signals-react`
 #### Vite example:
 
 ```ts
+// vite.config.ts
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -93,6 +98,39 @@ export default defineConfig({
     },
   },
 });
+```
+
+#### Astro example:
+
+```ts
+// astro.config.mjs
+import { defineConfig } from "astro/config";
+
+// https://astro.build/config
+export default defineConfig({
+  vite: {
+    resolve: {
+      alias: {
+        "@preact/signals-react": "@preact/signals-core",
+      },
+    },
+  },
+});
+```
+
+#### Next.js
+
+```ts
+// next.config.js
+module.exports = {
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@preact/signals-react": "@preact-signals/safe-react",
+    };
+    return config;
+  },
+};
 ```
 
 ### `@preact/signals` additional step:
