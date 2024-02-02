@@ -1,5 +1,13 @@
 # @preact-signals/query
 
+## 1.3.16
+
+### Patch Changes
+
+- Updated dependencies [caf17f2]
+  - @preact-signals/unified-signals@0.2.3
+  - @preact-signals/utils@0.15.4
+
 ## 1.3.15
 
 ### Patch Changes

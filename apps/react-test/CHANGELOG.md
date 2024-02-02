@@ -1,5 +1,12 @@
 # react-test
 
+## 0.0.36
+
+### Patch Changes
+
+- @preact-signals/utils@0.15.4
+- components-for-test@4.0.16
+
 ## 0.0.35
 
 ### Patch Changes
