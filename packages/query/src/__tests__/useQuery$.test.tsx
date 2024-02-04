@@ -422,4 +422,114 @@ describe("useQuery$()", () => {
       queue2.dispose();
     });
   });
+
+  describe("useQuery$ 'suspenseBehavior' prop", () => {
+    describe("eager", () => {
+      it("should suspend even if not used", async () => {
+        const S = vi.fn(() => null);
+        const key = queryKey();
+        let renderTimes = 0;
+        renderWithClient(
+          createQueryClient(),
+          <Suspense fallback={<S />}>
+            {createHooksComponentElement(() => {
+              renderTimes++;
+              useQuery$(() => ({
+                queryKey: key,
+                suspenseBehavior: "eager",
+                queryFn: () => sleep(5).then(() => "data"),
+              }));
+            })}
+          </Suspense>
+        );
+
+        expect(renderTimes).toBe(1);
+        expect(S).toHaveBeenCalledOnce();
+
+        await sleepRaf(10);
+
+        expect(renderTimes).toBe(2);
+        expect(S).toHaveBeenCalledOnce();
+      });
+    });
+    describe("lazy", () => {
+      it("should not suspend if not used", async () => {
+        const S = vi.fn(() => null);
+        const key = queryKey();
+        let renderTimes = 0;
+        renderWithClient(
+          createQueryClient(),
+          <Suspense fallback={<S />}>
+            {createHooksComponentElement(() => {
+              renderTimes++;
+              useQuery$(() => ({
+                queryKey: key,
+                suspenseBehavior: "lazy",
+                queryFn: () => sleep(5).then(() => "data"),
+              }));
+            })}
+          </Suspense>
+        );
+
+        expect(renderTimes).toBe(1);
+        expect(S).not.toHaveBeenCalled();
+
+        await sleepRaf(10);
+
+        expect(renderTimes).toBe(1);
+        expect(S).not.toHaveBeenCalled();
+      });
+      it("should load data even if not used", async () => {
+        const queryFn = vi.fn(fetchTime(10));
+
+        const key = queryKey();
+        renderWithClient(
+          createQueryClient(),
+          createHooksComponentElement(() => {
+            useQuery$(() => ({
+              queryKey: key,
+              suspenseBehavior: "lazy",
+              queryFn,
+            }));
+          })
+        );
+
+        expect(queryFn).toHaveBeenCalled();
+      });
+
+      it("should suspend if used", async () => {
+        const S = vi.fn(() => null);
+        const key = queryKey();
+        let renderTimes = 0;
+        const queue = queueSignal();
+        renderWithClient(
+          createQueryClient(),
+          <Suspense fallback={<S />}>
+            {createHooksComponentElement(() => {
+              renderTimes++;
+
+              queue.emit(
+                useQuery$(() => ({
+                  queryKey: key,
+                  suspenseBehavior: "lazy",
+                  queryFn: () => sleep(5).then(() => "data"),
+                })).data
+              );
+            })}
+          </Suspense>
+        );
+
+        expect(renderTimes).toBe(1);
+        expect(queue.queue).toEqual([]);
+        expect(S).toHaveBeenCalledOnce();
+
+        await sleepRaf(20);
+
+        expect(renderTimes).toBe(2);
+        expect(queue.queue).toEqual(["data"]);
+        expect(S).toHaveBeenCalledOnce();
+        queue.dispose();
+      });
+    });
+  });
 });
