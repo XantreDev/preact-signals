@@ -1,5 +1,11 @@
 # @preact-signals/unified-signals
 
+## 0.2.5
+
+### Patch Changes
+
+- d9dca82: Fixes `@preact-signals/utils` deepSignal wrong types by adding `@preact/signals-react` as non optional peerDependency
+
 ## 0.2.4
 
 ### Patch Changes
