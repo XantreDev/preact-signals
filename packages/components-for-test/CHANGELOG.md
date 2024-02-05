@@ -1,5 +1,12 @@
 # components-for-test
 
+## 4.0.18
+
+### Patch Changes
+
+- @preact-signals/query@1.3.18
+- @preact-signals/utils@0.15.6
+
 ## 4.0.17
 
 ### Patch Changes
