@@ -4,15 +4,15 @@
   "version": "0.0.1",
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
-    "@typescript-eslint/eslint-plugin": "^6.10.0",
-    "@typescript-eslint/parser": "^6.10.0",
-    "@vitest/ui": "^0.34.6",
-    "eslint": "^8.53.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "@vitest/ui": "^1.2.2",
+    "eslint": "^8.56.0",
     "rimraf": "^5.0.5",
     "shx": "^0.3.4",
-    "turbo": "^1.10.16",
-    "typescript": "^5.2.2",
-    "vitest": "^0.34.6"
+    "turbo": "^1.12.2",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.2"
   },
   "scripts": {
     "build": "turbo run build --filter=./packages/*",
@@ -25,6 +25,6 @@
     "release": "pnpm build && changeset publish"
   },
   "dependencies": {
-    "prettier": "^3.1.0"
+    "prettier": "^3.2.5"
   }
 }
