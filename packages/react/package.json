@@ -109,9 +109,8 @@
   "scripts": {
     "clean": "rimraf dist",
     "test": "vitest",
-    "build": "pnpm clean && rollup -c && pnpm build:types && pnpm build:swc",
+    "build": "node ./build.mjs",
     "build:types": "tsc --project tsconfig.build.json",
-    "build:swc": "cd ./swc/ && cargo build-wasi --release && shx cp ./target/wasm32-wasi/release/swc_plugin_preact_signals.wasm ../dist/swc.wasm",
     "build:rollup": "rollup -c",
     "lint": "check-export-map"
   },
@@ -154,6 +153,7 @@
     "rollup": "^3.29.4",
     "rollup-plugin-esbuild": "^5.0.0",
     "rollup-plugin-node-externals": "^6.1.2",
-    "vite": "^4.5.0"
+    "vite": "^4.5.0",
+    "zx": "^7.2.3"
   }
 }
