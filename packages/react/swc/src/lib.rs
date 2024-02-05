@@ -17,11 +17,10 @@ use serde_json;
 use std::path::PathBuf;
 use swc_core::{
     common::comments::Comments,
-    common::{comments::CommentKind, sync::Lazy, FileName, Span, DUMMY_SP},
+    common::{comments::CommentKind, sync::Lazy, Span, DUMMY_SP},
     ecma::{
         ast::*,
         atoms::Atom,
-        parser::{EsConfig, Syntax},
         utils::{prepend_stmt, private_ident},
         visit::{as_folder, noop_visit_mut_type, FoldWith, VisitMut, VisitMutWith},
     },
