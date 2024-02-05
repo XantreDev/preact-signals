@@ -32,7 +32,7 @@ jobs:
       - run: pnpm build
       - run: pnpm test
   lint:
-    name: Lint 
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -52,3 +52,24 @@ jobs:
           workspaces: "packages/react/swc"
       - run: pnpm build
       - run: pnpm lint
+      - run: pnpm eslint
+  build:
+    name: Build packages and apps
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest
+      - uses: actions/setup-node@v3
+        with:
+          cache: "pnpm"
+          node-version: latest
+      - run: pnpm i
+      - run: rustup toolchain install nightly-2023-12-23
+      - run: rustup target add wasm32-wasi --toolchain nightly-2023-12-23
+      - uses: Swatinem/rust-cache@v2
+
+        with:
+          workspaces: "packages/react/swc"
+      - run: pnpm build:with-apps
