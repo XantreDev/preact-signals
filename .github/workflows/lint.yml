@@ -30,8 +30,6 @@ jobs:
         with:
           workspaces: "packages/react/swc"
       - run: pnpm build
-        env:
-          CARGO_DEBUG: "true"
       - run: pnpm test
   lint:
     name: Lint
