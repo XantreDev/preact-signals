@@ -48,9 +48,6 @@
     "@preact-signals/safe-react": "*"
   },
   "peerDependenciesMeta": {
-    "@preact/signals-react": {
-      "optional": true
-    },
     "@preact/signals": {
       "optional": true
     },
