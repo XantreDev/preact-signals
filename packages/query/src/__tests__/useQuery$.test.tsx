@@ -424,35 +424,9 @@ describe("useQuery$()", () => {
   });
 
   describe("useQuery$ 'suspenseBehavior' prop", () => {
-    describe("eager", () => {
-      it("should suspend even if not used", async () => {
-        const S = vi.fn(() => null);
-        const key = queryKey();
-        let renderTimes = 0;
-        renderWithClient(
-          createQueryClient(),
-          <Suspense fallback={<S />}>
-            {createHooksComponentElement(() => {
-              renderTimes++;
-              useQuery$(() => ({
-                queryKey: key,
-                suspenseBehavior: "eager",
-                queryFn: () => sleep(5).then(() => "data"),
-              }));
-            })}
-          </Suspense>
-        );
-
-        expect(renderTimes).toBe(1);
-        expect(S).toHaveBeenCalledOnce();
-
-        await sleepRaf(10);
-
-        expect(renderTimes).toBe(2);
-        expect(S).toHaveBeenCalledOnce();
-      });
-    });
-    describe("lazy", () => {
+    const createShouldNotSuspend = (
+      behavior: "suspend-eagerly" | "suspend-on-access" | "load-on-access"
+    ) => {
       it("should not suspend if not used", async () => {
         const S = vi.fn(() => null);
         const key = queryKey();
@@ -464,7 +438,7 @@ describe("useQuery$()", () => {
               renderTimes++;
               useQuery$(() => ({
                 queryKey: key,
-                suspenseBehavior: "lazy",
+                suspenseBehavior: behavior,
                 queryFn: () => sleep(5).then(() => "data"),
               }));
             })}
@@ -479,24 +453,11 @@ describe("useQuery$()", () => {
         expect(renderTimes).toBe(1);
         expect(S).not.toHaveBeenCalled();
       });
-      it("should load data even if not used", async () => {
-        const queryFn = vi.fn(fetchTime(10));
+    };
 
-        const key = queryKey();
-        renderWithClient(
-          createQueryClient(),
-          createHooksComponentElement(() => {
-            useQuery$(() => ({
-              queryKey: key,
-              suspenseBehavior: "lazy",
-              queryFn,
-            }));
-          })
-        );
-
-        expect(queryFn).toHaveBeenCalled();
-      });
-
+    const createShouldSuspendIfUsed = (
+      behavior: "suspend-eagerly" | "suspend-on-access" | "load-on-access"
+    ) => {
       it("should suspend if used", async () => {
         const S = vi.fn(() => null);
         const key = queryKey();
@@ -511,7 +472,7 @@ describe("useQuery$()", () => {
               queue.emit(
                 useQuery$(() => ({
                   queryKey: key,
-                  suspenseBehavior: "lazy",
+                  suspenseBehavior: behavior,
                   queryFn: () => sleep(5).then(() => "data"),
                 })).data
               );
@@ -529,6 +490,119 @@ describe("useQuery$()", () => {
         expect(queue.queue).toEqual(["data"]);
         expect(S).toHaveBeenCalledOnce();
         queue.dispose();
+      });
+    };
+
+    describe("eager", () => {
+      const selfBehavior = "suspend-eagerly";
+      it("should suspend even if not used", async () => {
+        const S = vi.fn(() => null);
+        const key = queryKey();
+        let renderTimes = 0;
+        renderWithClient(
+          createQueryClient(),
+          <Suspense fallback={<S />}>
+            {createHooksComponentElement(() => {
+              renderTimes++;
+              useQuery$(() => ({
+                queryKey: key,
+                suspenseBehavior: selfBehavior,
+                queryFn: () => sleep(5).then(() => "data"),
+              }));
+            })}
+          </Suspense>
+        );
+
+        expect(renderTimes).toBe(1);
+        expect(S).toHaveBeenCalledOnce();
+
+        await sleepRaf(10);
+
+        expect(renderTimes).toBe(2);
+        expect(S).toHaveBeenCalledOnce();
+      });
+    });
+    describe("suspend-on-access", () => {
+      const selfBehavior = "suspend-on-access";
+      createShouldNotSuspend(selfBehavior);
+
+      it("should load data even if not used", async () => {
+        const queryFn = vi.fn(fetchTime(10));
+
+        const key = queryKey();
+        renderWithClient(
+          createQueryClient(),
+          createHooksComponentElement(() => {
+            useQuery$(() => ({
+              queryKey: key,
+              suspenseBehavior: selfBehavior,
+              queryFn,
+            }));
+          })
+        );
+
+        expect(queryFn).toHaveBeenCalled();
+      });
+
+      createShouldSuspendIfUsed(selfBehavior);
+    });
+
+    describe("load-on-access", () => {
+      const selfBehavior = "load-on-access";
+
+      createShouldNotSuspend(selfBehavior);
+
+      it("should load data even if not used", async () => {
+        const queryFn = vi.fn(fetchTime(10));
+
+        const key = queryKey();
+        renderWithClient(
+          createQueryClient(),
+          createHooksComponentElement(() => {
+            useQuery$(() => ({
+              queryKey: key,
+              suspenseBehavior: selfBehavior,
+              queryFn,
+            }));
+          })
+        );
+
+        expect(queryFn).toHaveBeenCalled();
+      });
+
+      createShouldSuspendIfUsed(selfBehavior);
+
+      it("should start fetching on first access", async () => {
+        const queryFn = vi.fn(fetchTime(10));
+        let q: null | { data?: string } = null;
+        let rendersCount = 0;
+
+        const key = queryKey();
+        renderWithClient(
+          createQueryClient(),
+          createHooksComponentElement(() => {
+            rendersCount;
+            q = useQuery$(() => ({
+              queryKey: key,
+              suspenseBehavior: selfBehavior,
+              queryFn,
+            }));
+          })
+        );
+
+        expect(queryFn).not.toHaveBeenCalled();
+        expect(rendersCount).toBe(1);
+
+        const getData = () => q?.data;
+
+        expect(getData()).toBe(undefined);
+        expect(queryFn).toHaveBeenCalledOnce();
+        expect(rendersCount).toBe(1);
+
+        await sleepRaf(20);
+
+        expect(getData()).toBe("data");
+        expect(queryFn).toHaveBeenCalledOnce();
       });
     });
   });

@@ -95,7 +95,11 @@ export const createBaseQuery =
     });
     // @ts-expect-error actually it can be written
     state.dataSafe = undefined;
-    untracked(() => !!$options.value.eagerSuspense && dataComputed.value);
+    untracked(
+      () =>
+        $options.value.suspenseBehavior === "suspend-eagerly" &&
+        dataComputed.value
+    );
     // TODO: cover case where suspense starts after change of queryKey
     // useSignalEffect(() =>{
     //   state.is

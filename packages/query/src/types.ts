@@ -17,6 +17,16 @@ export type SafeDataField<T> = { dataSafe: T | undefined };
 
 // For some reason in cannot use Accessor in generic types, because it inherits wrong
 
+interface SuspenseBehaviorProp {
+  /**
+   * @description If `suspend-eagerly` - executes and suspends the query on mount. Helpful to be access data in `useEffect`/`useLayoutEffect` without handling loading state.
+   * If `suspend-on-access` - executes query eagerly, but suspends the query on first access. Helpful to suspend child components if passing accessor as prop.
+   * If `load-on-access` - executes query on first access. Helpful to load data only when needed.
+   * @default `load-on-access`, will be changed to `suspend-on-access` in future
+   */
+  suspenseBehavior?: "suspend-eagerly" | "suspend-on-access" | "load-on-access";
+}
+
 export interface StaticBaseQueryOptions<
   TQueryFnData = unknown,
   TError = unknown,
@@ -27,13 +37,8 @@ export interface StaticBaseQueryOptions<
     Omit<
       QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>,
       NotSupportedInQuery$
-    > {
-  /**
-   * @description If `true` - executes and suspends the query on mount. Helpful to be sure that `data` is available on render.
-   * @default false 
-   */
-  eagerSuspense?: boolean;
-}
+    >,
+    SuspenseBehaviorProp {}
 
 export interface StaticQueryOptions<
   TQueryFnData = unknown,
@@ -41,9 +46,16 @@ export interface StaticQueryOptions<
   TData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey,
 > extends SetOptional<
-    QueryObserverOptions<TQueryFnData, TError, TData, TQueryFnData, TQueryKey>,
-    "queryKey"
-  > {}
+      QueryObserverOptions<
+        TQueryFnData,
+        TError,
+        TData,
+        TQueryFnData,
+        TQueryKey
+      >,
+      "queryKey"
+    >,
+    SuspenseBehaviorProp {}
 
 export type UseBaseQueryResult$<TData = unknown, TError = unknown> = FlatStore<
   QueryObserverResult<TData, TError> & SafeDataField<TData>
