@@ -1,11 +1,11 @@
 import { signal, untracked } from "@preact-signals/unified-signals";
 import { Show } from "@preact-signals/utils/components";
 import { useSignalEffectOnce } from "@preact-signals/utils/hooks";
-import { render } from "@testing-library/react";
-import React, { Suspense } from "react";
+import { render, waitFor } from "@testing-library/react";
+import React, { Suspense, createElement } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { describe, expect, it, vi } from "vitest";
-import { QueryClientProvider } from "../react-query";
+import { QueryClientProvider, useQuery } from "../react-query";
 import { useQuery$ } from "../useQuery$";
 import {
   createHooksComponentElement,
@@ -422,4 +422,301 @@ describe("useQuery$()", () => {
       queue2.dispose();
     });
   });
+
+  describe("useQuery$ 'suspenseBehavior' prop", () => {
+    const createParam = (
+      behavior: "suspend-eagerly" | "suspend-on-access" | "load-on-access"
+    ) => ({
+      suspenseBehavior: behavior,
+      suspense: true,
+    });
+    const createShouldNotSuspend = (
+      behavior: "suspend-eagerly" | "suspend-on-access" | "load-on-access"
+    ) => {
+      it("should not suspend if not used", async () => {
+        const S = vi.fn(() => null);
+        const key = queryKey();
+        let renderTimes = 0;
+        renderWithClient(
+          createQueryClient(),
+          <Suspense fallback={<S />}>
+            {createHooksComponentElement(() => {
+              renderTimes++;
+              useQuery$(() => ({
+                queryKey: key,
+                ...createParam(behavior),
+                queryFn: () => sleep(5).then(() => "data"),
+              }));
+            })}
+          </Suspense>
+        );
+
+        expect(renderTimes).toBe(1);
+        expect(S).not.toHaveBeenCalled();
+
+        await sleepRaf(10);
+
+        expect(renderTimes).toBe(1);
+        expect(S).not.toHaveBeenCalled();
+      });
+    };
+
+    const createShouldSuspendIfUsed = (
+      behavior: "suspend-eagerly" | "suspend-on-access" | "load-on-access"
+    ) => {
+      it("should suspend if used", async () => {
+        const S = vi.fn(() => null);
+        const key = queryKey();
+        let renderTimes = 0;
+        const queue = queueSignal();
+        renderWithClient(
+          createQueryClient(),
+          <Suspense fallback={<S />}>
+            {createHooksComponentElement(() => {
+              renderTimes++;
+
+              queue.emit(
+                useQuery$(() => ({
+                  queryKey: key,
+                  ...createParam(behavior),
+                  queryFn: () => sleep(5).then(() => "data"),
+                })).data
+              );
+            })}
+          </Suspense>
+        );
+
+        expect(renderTimes).toBe(1);
+        expect(queue.queue).toEqual([]);
+        expect(S).toHaveBeenCalledOnce();
+
+        await sleepRaf(20);
+
+        expect(renderTimes).toBe(2);
+        expect(queue.queue).toEqual(["data"]);
+        expect(S).toHaveBeenCalledOnce();
+        queue.dispose();
+      });
+    };
+
+    describe("eager", () => {
+      const selfBehavior = "suspend-eagerly";
+      it("should suspend even if not used", async () => {
+        const S = vi.fn(() => null);
+        const key = queryKey();
+        let renderTimes = 0;
+        renderWithClient(
+          createQueryClient(),
+          <Suspense fallback={<S />}>
+            {createHooksComponentElement(() => {
+              renderTimes++;
+              useQuery$(() => ({
+                queryKey: key,
+                ...createParam(selfBehavior),
+                queryFn: () => sleep(5).then(() => "data"),
+              }));
+            })}
+          </Suspense>
+        );
+
+        expect(renderTimes).toBe(1);
+        expect(S).toHaveBeenCalledOnce();
+
+        await sleepRaf(10);
+
+        expect(renderTimes).toBe(2);
+        expect(S).toHaveBeenCalledOnce();
+      });
+      it("should suspend on key change", async () => {
+        const S = vi.fn(() => "suspense");
+        const keySig = signal(queryKey());
+        const Cmp = vi.fn(() => {
+          useQuery$(() => ({
+            queryKey: keySig.value,
+            ...createParam(selfBehavior),
+            queryFn: () => sleep(5).then(() => "data"),
+          }));
+
+          return "loaded";
+        });
+        const root = renderWithClient(
+          createQueryClient(),
+          <Suspense fallback={<S />}>{createElement(Cmp)}</Suspense>
+        );
+
+        expect(Cmp).toHaveBeenCalledOnce();
+        expect(S).toHaveBeenCalledOnce();
+        await waitFor(() => root.getByText("suspense"));
+        await waitFor(() => root.getByText("loaded"));
+
+        expect(Cmp).toHaveBeenCalledTimes(2);
+        expect(S).toHaveBeenCalledOnce();
+
+        keySig.value = queryKey();
+        expect(Cmp).toHaveBeenCalledTimes(3);
+        await waitFor(() => root.getByText("suspense"));
+        expect(S).toHaveBeenCalledTimes(2);
+        await waitFor(() => root.getByText("loaded"));
+
+        // TODO: it should be 4, but it's 5. Because of preact-signals/react bug
+        expect(Cmp).toHaveBeenCalledTimes(5);
+      });
+    });
+    describe("suspend-on-access", () => {
+      const selfBehavior = "suspend-on-access";
+      createShouldNotSuspend(selfBehavior);
+      it("must load data immediately", async () => {
+        const queryFn = vi.fn(fetchTime(10));
+        const key = queryKey();
+        renderWithClient(
+          createQueryClient(),
+          createHooksComponentElement(() => {
+            useQuery$(() => ({
+              queryKey: key,
+              ...createParam(selfBehavior),
+              queryFn,
+            }));
+
+            expect(queryFn).toHaveBeenCalled();
+          })
+        );
+
+        expect(queryFn).toHaveBeenCalled();
+      });
+
+      it("should load data even if not used", async () => {
+        const queryFn = vi.fn(fetchTime(10));
+
+        const key = queryKey();
+        renderWithClient(
+          createQueryClient(),
+          createHooksComponentElement(() => {
+            useQuery$(() => ({
+              queryKey: key,
+              ...createParam(selfBehavior),
+              queryFn,
+            }));
+          })
+        );
+
+        expect(queryFn).toHaveBeenCalled();
+      });
+
+      createShouldSuspendIfUsed(selfBehavior);
+    });
+
+    describe("load-on-access", () => {
+      const selfBehavior = "load-on-access";
+
+      createShouldNotSuspend(selfBehavior);
+
+      it("should load data after mount even if not used", async () => {
+        const queryFn = vi.fn(fetchTime(10));
+
+        const key = queryKey();
+        renderWithClient(
+          createQueryClient(),
+          createHooksComponentElement(() => {
+            useQuery$(() => ({
+              queryKey: key,
+              ...createParam(selfBehavior),
+              queryFn,
+            }));
+
+            expect(queryFn).not.toHaveBeenCalled();
+          })
+        );
+
+        expect(queryFn).toHaveBeenCalled();
+      });
+
+      createShouldSuspendIfUsed(selfBehavior);
+
+      it("should start fetching on first access", async () => {
+        const queryFn = vi.fn(fetchTime(10));
+        let q: null | { data?: string } = null;
+        let rendersCount = 0;
+
+        const key = queryKey();
+        renderWithClient(
+          createQueryClient(),
+          createHooksComponentElement(() => {
+            q = useQuery$(() => ({
+              queryKey: key,
+              ...createParam(selfBehavior),
+              queryFn,
+            }));
+
+            if (++rendersCount === 1) {
+              expect(queryFn).not.toHaveBeenCalled();
+              q.data;
+            }
+          })
+        );
+
+        const getData = () => {
+          try {
+            return q?.data;
+          } catch (e) {
+            return undefined;
+          }
+        };
+
+        expect(getData()).toBe(undefined);
+        expect(queryFn).toHaveBeenCalledOnce();
+        expect(rendersCount).toBe(1);
+
+        await sleepRaf(20);
+
+        expect(rendersCount).toBe(2);
+        expect(getData()).toBe("data");
+        expect(queryFn).toHaveBeenCalledOnce();
+      });
+    });
+  });
 });
+
+// it("useQuery experiment", async () => {
+//   const queryFn = vi.fn(fetchTime(10));
+//   let q: null | { data?: string } = null;
+//   let rendersCount = 0;
+//   const S = vi.fn(() => "suspense");
+
+//   const keySig = signal(queryKey());
+//   const root = renderWithClient(
+//     createQueryClient(),
+
+//     <Suspense fallback={<S />}>
+//       {createElement(() => {
+//         ++rendersCount;
+//         q = useQuery({
+//           queryKey: keySig.value,
+//           suspense: true,
+//           queryFn,
+//         });
+
+//         // expect(queryFn).toHaveBeenCalled();
+
+//         return "loaded";
+//       })}
+//     </Suspense>
+//   );
+
+//   expect(q).toBeNull();
+//   expect(queryFn).toHaveBeenCalledOnce();
+//   expect(rendersCount).toBe(1);
+
+//   await waitFor(() => root.getByText("loaded"));
+
+//   expect(rendersCount).toBe(2);
+//   expect((q as any as { data?: string })?.data).toBe("data");
+//   expect(queryFn).toHaveBeenCalledOnce();
+
+//   keySig.value = queryKey();
+//   expect(rendersCount).toBe(3);
+//   await waitFor(() => root.getByText("suspense"));
+
+//   expect(rendersCount).toBe(4);
+//   expect(queryFn).toHaveBeenCalledTimes(2);
+//   await waitFor(() => root.getByText("loaded"));
+// });

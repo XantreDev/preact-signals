@@ -17,27 +17,45 @@ export type SafeDataField<T> = { dataSafe: T | undefined };
 
 // For some reason in cannot use Accessor in generic types, because it inherits wrong
 
+interface SuspenseBehaviorProp {
+  /**
+   * @description If `suspend-eagerly` - executes and suspends the query on mount. Helpful to be access data in `useEffect`/`useLayoutEffect` without handling loading state.
+   * If `suspend-on-access` - executes query eagerly, but suspends the query on first access. Helpful to suspend child components if passing accessor as prop.
+   * If `load-on-access` - executes query on first access. Helpful to load data only when needed.
+   * @default `load-on-access`, will be changed to `suspend-on-access` in future
+   */
+  suspenseBehavior?: "suspend-eagerly" | "suspend-on-access" | "load-on-access";
+}
+
 export interface StaticBaseQueryOptions<
   TQueryFnData = unknown,
   TError = unknown,
   TData = TQueryFnData,
   TQueryData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
+  TQueryKey extends QueryKey = QueryKey,
 > extends ContextOptions,
     Omit<
       QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>,
       NotSupportedInQuery$
-    > {}
+    >,
+    SuspenseBehaviorProp {}
 
 export interface StaticQueryOptions<
   TQueryFnData = unknown,
   TError = unknown,
   TData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
+  TQueryKey extends QueryKey = QueryKey,
 > extends SetOptional<
-    QueryObserverOptions<TQueryFnData, TError, TData, TQueryFnData, TQueryKey>,
-    "queryKey"
-  > {}
+      QueryObserverOptions<
+        TQueryFnData,
+        TError,
+        TData,
+        TQueryFnData,
+        TQueryKey
+      >,
+      "queryKey"
+    >,
+    SuspenseBehaviorProp {}
 
 export type UseBaseQueryResult$<TData = unknown, TError = unknown> = FlatStore<
   QueryObserverResult<TData, TError> & SafeDataField<TData>
@@ -51,7 +69,7 @@ export type UseQuery$ = <
   TQueryFnData = unknown,
   TError = unknown,
   TData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
+  TQueryKey extends QueryKey = QueryKey,
 >(
   options: () => StaticQueryOptions<TQueryFnData, TError, TData, TQueryKey>
 ) => UseQueryResult$<TData, TError>;
@@ -60,8 +78,9 @@ export interface StaticInfiniteQueryOptions<
   TError = unknown,
   TData = TQueryFnData,
   TQueryData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
+  TQueryKey extends QueryKey = QueryKey,
 > extends ContextOptions,
+    SuspenseBehaviorProp,
     SetOptional<
       InfiniteQueryObserverOptions<
         TQueryFnData,
@@ -82,7 +101,7 @@ export type UseInfiniteQuery$ = <
   TError = unknown,
   TData = TQueryFnData,
   TQueryData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
+  TQueryKey extends QueryKey = QueryKey,
 >(
   options: () => StaticInfiniteQueryOptions<
     TQueryFnData,
@@ -97,7 +116,7 @@ export interface StaticMutationOptions<
   TData = unknown,
   TError = unknown,
   TVariables = void,
-  TContext = unknown
+  TContext = unknown,
 > extends ContextOptions,
     Omit<
       MutationObserverOptions<TData, TError, TVariables, TContext>,
@@ -108,7 +127,7 @@ export type MutationResultMutateFunction$<
   TData = unknown,
   TError = unknown,
   TVariables = void,
-  TContext = unknown
+  TContext = unknown,
 > = (
   ...args: Parameters<MutateFunction<TData, TError, TVariables, TContext>>
 ) => void;
@@ -117,14 +136,14 @@ export type MutationResultMutateAsyncFunction$<
   TData = unknown,
   TError = unknown,
   TVariables = void,
-  TContext = unknown
+  TContext = unknown,
 > = MutateFunction<TData, TError, TVariables, TContext>;
 
 export type StaticMutationResult<
   TData = unknown,
   TError = unknown,
   TVariables = void,
-  TContext = unknown
+  TContext = unknown,
 > = OverrideProperties<
   MutationObserverResult<TData, TError, TVariables, TContext>,
   {
@@ -143,7 +162,7 @@ export type UseMutationResult$<
   TData = unknown,
   TError = unknown,
   TVariables = void,
-  TContext = unknown
+  TContext = unknown,
 > = ReadonlyFlatStore<
   StaticMutationResult<TData, TError, TVariables, TContext>
 >;
