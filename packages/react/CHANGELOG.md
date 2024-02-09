@@ -1,5 +1,12 @@
 # @preact-signals/safe-react
 
+## 0.5.3
+
+### Patch Changes
+
+- 0419e8c: Decreased package size by optimizing wasm
+- d34885d: Fixed installation in runtimes without wasm support
+
 ## 0.5.2
 
 ### Patch Changes

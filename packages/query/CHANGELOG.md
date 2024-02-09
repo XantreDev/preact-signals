@@ -1,5 +1,11 @@
 # @preact-signals/query
 
+## 1.4.0
+
+### Minor Changes
+
+- e0d55b4: Added `suspenseBehavior` prop to more control on suspense queries [#60](https://github.com/XantreGodlike/preact-signals/issues/60)
+
 ## 1.3.18
 
 ### Patch Changes
