@@ -18,7 +18,7 @@ import { StaticBaseQueryOptions, UseBaseQueryResult$ } from "./types";
 import { useObserverStore } from "./useObserver";
 import { wrapFunctionsInUntracked } from "./utils";
 import { untracked } from "@preact-signals/unified-signals";
-import { useSignalEffect } from "@preact/signals";
+import { $ } from "@preact-signals/utils";
 
 export const createBaseQuery =
   (Observer: typeof QueryObserver) =>
@@ -43,6 +43,9 @@ export const createBaseQuery =
     });
     const $isRestoring = useIsRestoring$();
     const $errorBoundary = useQueryErrorResetBoundary$();
+    const $suspenseBehavior = $(
+      () => $options.value.suspenseBehavior ?? "load-on-access"
+    );
     const $defaultedOptions = useComputedOnce(() => {
       const defaulted = wrapFunctionsInUntracked(
         $queryClient.value.defaultQueryOptions($options.value)
@@ -75,6 +78,10 @@ export const createBaseQuery =
     }));
     useClearResetErrorBoundary$($errorBoundary);
 
+    const $shouldSuspend = $(() =>
+      shouldSuspend($defaultedOptions.value, state, $isRestoring.value)
+    );
+
     const dataComputed = useComputedOnce(() => {
       if (
         getHasError({
@@ -86,24 +93,47 @@ export const createBaseQuery =
       ) {
         throw state.error;
       }
-      if (shouldSuspend($defaultedOptions.value, state, $isRestoring.value)) {
+      if ($shouldSuspend.value) {
         // will not refetch if already fetching
         // should suspend is not using data, so all will work fine
         throw $observer.value.fetchOptimistic($defaultedOptions.value);
       }
       return state.data;
     });
+    untracked(() => {
+      if (
+        $shouldSuspend.value &&
+        $suspenseBehavior.value !== "load-on-access"
+      ) {
+        try {
+          dataComputed.value;
+        } catch (e) {
+          if ($suspenseBehavior.value === "suspend-eagerly") {
+            throw e;
+          }
+        }
+      }
+    });
+
+    const willSuspendOrThrow = useComputedOnce(() => {
+      if (
+        !$shouldSuspend.value ||
+        $suspenseBehavior.value !== "suspend-eagerly"
+      ) {
+        return false;
+      }
+
+      try {
+        dataComputed.value;
+        return false;
+      } catch {
+        return true;
+      }
+    });
+    willSuspendOrThrow.value;
+
     // @ts-expect-error actually it can be written
     state.dataSafe = undefined;
-    untracked(
-      () =>
-        $options.value.suspenseBehavior === "suspend-eagerly" &&
-        dataComputed.value
-    );
-    // TODO: cover case where suspense starts after change of queryKey
-    // useSignalEffect(() =>{
-    //   state.is
-    // })
 
     return useMemo(
       () =>

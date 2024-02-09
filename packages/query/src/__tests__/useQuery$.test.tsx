@@ -1,11 +1,11 @@
 import { signal, untracked } from "@preact-signals/unified-signals";
 import { Show } from "@preact-signals/utils/components";
 import { useSignalEffectOnce } from "@preact-signals/utils/hooks";
-import { render } from "@testing-library/react";
-import React, { Suspense } from "react";
+import { render, waitFor } from "@testing-library/react";
+import React, { Suspense, createElement } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { describe, expect, it, vi } from "vitest";
-import { QueryClientProvider } from "../react-query";
+import { QueryClientProvider, useQuery } from "../react-query";
 import { useQuery$ } from "../useQuery$";
 import {
   createHooksComponentElement,
@@ -424,6 +424,12 @@ describe("useQuery$()", () => {
   });
 
   describe("useQuery$ 'suspenseBehavior' prop", () => {
+    const createParam = (
+      behavior: "suspend-eagerly" | "suspend-on-access" | "load-on-access"
+    ) => ({
+      suspenseBehavior: behavior,
+      suspense: true,
+    });
     const createShouldNotSuspend = (
       behavior: "suspend-eagerly" | "suspend-on-access" | "load-on-access"
     ) => {
@@ -438,7 +444,7 @@ describe("useQuery$()", () => {
               renderTimes++;
               useQuery$(() => ({
                 queryKey: key,
-                suspenseBehavior: behavior,
+                ...createParam(behavior),
                 queryFn: () => sleep(5).then(() => "data"),
               }));
             })}
@@ -472,7 +478,7 @@ describe("useQuery$()", () => {
               queue.emit(
                 useQuery$(() => ({
                   queryKey: key,
-                  suspenseBehavior: behavior,
+                  ...createParam(behavior),
                   queryFn: () => sleep(5).then(() => "data"),
                 })).data
               );
@@ -506,7 +512,7 @@ describe("useQuery$()", () => {
               renderTimes++;
               useQuery$(() => ({
                 queryKey: key,
-                suspenseBehavior: selfBehavior,
+                ...createParam(selfBehavior),
                 queryFn: () => sleep(5).then(() => "data"),
               }));
             })}
@@ -521,10 +527,62 @@ describe("useQuery$()", () => {
         expect(renderTimes).toBe(2);
         expect(S).toHaveBeenCalledOnce();
       });
+      it("should suspend on key change", async () => {
+        const S = vi.fn(() => "suspense");
+        const keySig = signal(queryKey());
+        const Cmp = vi.fn(() => {
+          useQuery$(() => ({
+            queryKey: keySig.value,
+            ...createParam(selfBehavior),
+            queryFn: () => sleep(5).then(() => "data"),
+          }));
+
+          return "loaded";
+        });
+        const root = renderWithClient(
+          createQueryClient(),
+          <Suspense fallback={<S />}>{createElement(Cmp)}</Suspense>
+        );
+
+        expect(Cmp).toHaveBeenCalledOnce();
+        expect(S).toHaveBeenCalledOnce();
+        await waitFor(() => root.getByText("suspense"));
+        await waitFor(() => root.getByText("loaded"));
+
+        expect(Cmp).toHaveBeenCalledTimes(2);
+        expect(S).toHaveBeenCalledOnce();
+
+        keySig.value = queryKey();
+        expect(Cmp).toHaveBeenCalledTimes(3);
+        await waitFor(() => root.getByText("suspense"));
+        expect(S).toHaveBeenCalledTimes(2);
+        await waitFor(() => root.getByText("loaded"));
+
+        // TODO: it should be 4, but it's 5. Because of preact-signals/react bug
+        expect(Cmp).toHaveBeenCalledTimes(5);
+      });
     });
     describe("suspend-on-access", () => {
       const selfBehavior = "suspend-on-access";
       createShouldNotSuspend(selfBehavior);
+      it("must load data immediately", async () => {
+        const queryFn = vi.fn(fetchTime(10));
+        const key = queryKey();
+        renderWithClient(
+          createQueryClient(),
+          createHooksComponentElement(() => {
+            useQuery$(() => ({
+              queryKey: key,
+              ...createParam(selfBehavior),
+              queryFn,
+            }));
+
+            expect(queryFn).toHaveBeenCalled();
+          })
+        );
+
+        expect(queryFn).toHaveBeenCalled();
+      });
 
       it("should load data even if not used", async () => {
         const queryFn = vi.fn(fetchTime(10));
@@ -535,7 +593,7 @@ describe("useQuery$()", () => {
           createHooksComponentElement(() => {
             useQuery$(() => ({
               queryKey: key,
-              suspenseBehavior: selfBehavior,
+              ...createParam(selfBehavior),
               queryFn,
             }));
           })
@@ -552,7 +610,7 @@ describe("useQuery$()", () => {
 
       createShouldNotSuspend(selfBehavior);
 
-      it("should load data even if not used", async () => {
+      it("should load data after mount even if not used", async () => {
         const queryFn = vi.fn(fetchTime(10));
 
         const key = queryKey();
@@ -561,9 +619,11 @@ describe("useQuery$()", () => {
           createHooksComponentElement(() => {
             useQuery$(() => ({
               queryKey: key,
-              suspenseBehavior: selfBehavior,
+              ...createParam(selfBehavior),
               queryFn,
             }));
+
+            expect(queryFn).not.toHaveBeenCalled();
           })
         );
 
@@ -581,19 +641,26 @@ describe("useQuery$()", () => {
         renderWithClient(
           createQueryClient(),
           createHooksComponentElement(() => {
-            rendersCount;
             q = useQuery$(() => ({
               queryKey: key,
-              suspenseBehavior: selfBehavior,
+              ...createParam(selfBehavior),
               queryFn,
             }));
+
+            if (++rendersCount === 1) {
+              expect(queryFn).not.toHaveBeenCalled();
+              q.data;
+            }
           })
         );
 
-        expect(queryFn).not.toHaveBeenCalled();
-        expect(rendersCount).toBe(1);
-
-        const getData = () => q?.data;
+        const getData = () => {
+          try {
+            return q?.data;
+          } catch (e) {
+            return undefined;
+          }
+        };
 
         expect(getData()).toBe(undefined);
         expect(queryFn).toHaveBeenCalledOnce();
@@ -601,9 +668,55 @@ describe("useQuery$()", () => {
 
         await sleepRaf(20);
 
+        expect(rendersCount).toBe(2);
         expect(getData()).toBe("data");
         expect(queryFn).toHaveBeenCalledOnce();
       });
     });
   });
 });
+
+// it("useQuery experiment", async () => {
+//   const queryFn = vi.fn(fetchTime(10));
+//   let q: null | { data?: string } = null;
+//   let rendersCount = 0;
+//   const S = vi.fn(() => "suspense");
+
+//   const keySig = signal(queryKey());
+//   const root = renderWithClient(
+//     createQueryClient(),
+
+//     <Suspense fallback={<S />}>
+//       {createElement(() => {
+//         ++rendersCount;
+//         q = useQuery({
+//           queryKey: keySig.value,
+//           suspense: true,
+//           queryFn,
+//         });
+
+//         // expect(queryFn).toHaveBeenCalled();
+
+//         return "loaded";
+//       })}
+//     </Suspense>
+//   );
+
+//   expect(q).toBeNull();
+//   expect(queryFn).toHaveBeenCalledOnce();
+//   expect(rendersCount).toBe(1);
+
+//   await waitFor(() => root.getByText("loaded"));
+
+//   expect(rendersCount).toBe(2);
+//   expect((q as any as { data?: string })?.data).toBe("data");
+//   expect(queryFn).toHaveBeenCalledOnce();
+
+//   keySig.value = queryKey();
+//   expect(rendersCount).toBe(3);
+//   await waitFor(() => root.getByText("suspense"));
+
+//   expect(rendersCount).toBe(4);
+//   expect(queryFn).toHaveBeenCalledTimes(2);
+//   await waitFor(() => root.getByText("loaded"));
+// });

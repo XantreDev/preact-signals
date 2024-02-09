@@ -51,7 +51,19 @@ export default defineConfig({
 });
 ```
 
+## Table of Contents
+
+- [API Overview](#api-overview)
+- [Query Hooks: `useQuery$, useInfiniteQuery$`](#query-hooks-usequery-useinfinitequery)
+- [Mutation Hooks: `useMutation$`](#mutation-hooks-usemutation)
+- [Accessing the Client: `useQueryClient$`](#accessing-the-client-usequeryclient)
+- [Filtering with Hooks: `useIsFetching$`](#filtering-with-hooks-useisfetching)
+- [Configuring suspense behavior for `useQuery$` and `useInfiniteQuery$`](#configuring-suspense-behavior-for-usequery-and-useinfinitequery)
+- [License](#license)
+
 ## API Overview
+
+[Doumentation](https://tsdocs.dev/docs/@preact-signals/query)
 
 Experience the reactive elegance of `@tanstack/react-query` with `@preact-signals/query`.
 
@@ -180,6 +192,23 @@ return (
     </div>
   </>
 );
+```
+
+## Configuring suspense behavior for `useQuery$` and `useInfiniteQuery$`
+
+If you turn suspense on, the query will fetch after component render (if `data` is not accessed) or on the first access of `data`. But you can alter this behavior with `suspenseBehavior` option (`load-on-access` is default).
+
+- `suspend-eagerly` - executes and suspends the query on mount. Data field will always be loaded. Helpful to be access data without worry about `.data` field will throw a Promise.
+- `suspend-on-access` - pre executes a query, but suspends only on first access of `.data` field. Helpful to suspend child components if passing accessor as prop.
+- `load-on-access` - executes query on first access of `.data` field or if unused on `useEffect`. Legacy behavior, will be changed to `suspend-on-access` in next major release.
+
+```tsx
+const query = useQuery$(() => ({
+  queryKey: ["key"],
+  queryFn: fetchStatistics,
+  suspense: true,
+  suspenseBehavior: "suspend-eagerly",
+}));
 ```
 
 ## License
