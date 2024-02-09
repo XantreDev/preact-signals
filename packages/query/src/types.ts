@@ -80,6 +80,7 @@ export interface StaticInfiniteQueryOptions<
   TQueryData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey,
 > extends ContextOptions,
+    SuspenseBehaviorProp,
     SetOptional<
       InfiniteQueryObserverOptions<
         TQueryFnData,
