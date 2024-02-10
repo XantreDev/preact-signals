@@ -33,6 +33,8 @@
 - [`@preact-signals/utils/components`: Reactive Components](#preact-signalsutilscomponents-reactive-components)
 - [`@preact-signals/utils/hocs`: High Order Components (HOCs)](#preact-signalsutilshocs-high-order-components-hocs)
   - [`reactifyLite`](#reactifylite)
+  - [Troubleshooting](#troubleshooting)
+    - [Third party libraries is not working with HOCs](#third-party-libraries-is-not-working-with-hocs-while-using-preact-signalssafe-react-or-preactsignals-react-with-babel)
 - [`@preact-signals/utils/macro`: Macros](#preact-signalsutilsmacro-macros)
   - [Setup](#macro-setup)
 - [Inspired by:](#heavily-inspired-by)
@@ -522,7 +524,7 @@ const b = signal(5);
 
 ### `reactifyLite`
 
-Makes you component truly reactive. Your props are will be use getter to signals under the hood. So you can safely pass it into effect or reactive component like `Show` or `Switch` without worries about tracking.
+Makes you component truly reactive. Your props are will be use getter to signals under the hood (destructuring forces a whole component to rerender - so you should avoid it). So you can safely pass it into effect or reactive component like `Show` or `Switch` without worries about tracking.
 
 ```tsx
 const Comp = (props: ReactiveProps<{ a: number }>) => (
@@ -531,11 +533,37 @@ const Comp = (props: ReactiveProps<{ a: number }>) => (
 
 const B = reactifyLite(Comp);
 <B a={$(() => a.value + b.value)} />;
-
-// JSX transform idea. this is just idea, not implemented
-// use `$$` to pass props like in SolidJS
-<C a$$={a.value + b.value} />;
 ```
+
+### Troubleshooting
+
+#### Third party libraries is not working with HOCs while using `@preact-signals/safe-react` or `@preact/signals-react` with babel
+
+If you are using `reactifyLite` or `withSignalProps` and you component has no reaction on signal changes, probably parent the component has no signals tracking.
+
+- `@preact-signals/safe-react` solution is to wrap component with HOC `withTrackSignals` to ensure that all signals will be tracked.
+
+```tsx
+import { withTrackSignals } from "@preact-signals/safe-react/manual";
+import { withSignalProps } from "@preact-signals/utils/hocs";
+
+const View$ = withSignalProps(withTrackSignals(View));
+```
+
+- `@preact/signals-react` has no `withTrackSignals` HOC, but we can use this workaround:
+
+```tsx
+import { useSignals } from "@preact/signals-react/runtime";
+
+/**
+ * @useSignals
+ */
+const _View = (...args) => View(...args);
+
+const View$ = withSignalProps(_View);
+```
+
+If you wrapped some component with
 
 ## `@preact-signals/utils/macro`: Macros
 
