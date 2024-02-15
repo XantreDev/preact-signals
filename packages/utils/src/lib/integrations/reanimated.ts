@@ -1,6 +1,5 @@
 import {
   ReadonlySignal,
-  untracked,
   useComputed,
   useSignal,
   useSignalEffect,
@@ -65,10 +64,12 @@ export const useSharedValueOfAccessor = <T>(
   accessor: () => T,
   setter: SharedValueSetter<T> = defaultSharedValueSetter
 ): DerivedValue<T> => {
-  const shared = useSharedValue(untracked(accessor));
+  // memoizing accessor value to not to break animations when accessor deps are changed but value is not
+  const accessorSignal = useComputed(accessor);
+  const shared = useSharedValue(accessorSignal.peek());
 
   useSignalEffect(() => {
-    setter(shared, accessor());
+    setter(shared, accessorSignal.value);
   });
 
   return shared;
@@ -100,14 +101,16 @@ export const useSpringSharedValueOfAccessor = <T extends AnimatableValue>(
   accessor: () => T,
   params?: Parameters<typeof withSpring>[1]
 ) =>
-  useSharedValueOfAccessor(accessor, (shared, newValue) => {
-    shared.value = withSpring(newValue, params);
+  useAnimatedSharedValueOfAccessor(accessor, {
+    type: "spring",
+    params,
   });
 
 export const useTimingSharedValueOfAccessor = <T extends AnimatableValue>(
   accessor: () => T,
   params?: Parameters<typeof withTiming>[1]
 ) =>
-  useSharedValueOfAccessor(accessor, (shared, newValue) => {
-    shared.value = withTiming(newValue, params);
+  useAnimatedSharedValueOfAccessor(accessor, {
+    type: "timing",
+    params,
   });
