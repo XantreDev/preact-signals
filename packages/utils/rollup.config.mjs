@@ -20,6 +20,7 @@ const input = [
   "src/lib/hocs/index.ts",
   "src/lib/components/index.ts",
   "src/lib/store/index.ts",
+  "src/lib/integrations/reanimated.ts",
   "src/babel.ts",
   "src/macro.ts",
 ];

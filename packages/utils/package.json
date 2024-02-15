@@ -77,6 +77,12 @@
       "react-native": "./src/babel.ts",
       "require": "./dist/cjs/babel.cjs"
     },
+    "./integrations/reanimated": {
+      "types": "./dist/types/lib/integrations/reanimated.d.ts",
+      "import": "./dist/esm/lib/integrations/reanimated.mjs",
+      "react-native": "./src/lib/integrations/reanimated.ts",
+      "require": "./dist/cjs/lib/integrations/reanimated.cjs"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -112,7 +118,8 @@
     "@preact/signals": ">=1.1.0",
     "@preact/signals-core": ">=1.1.0",
     "@preact/signals-react": ">=1.2.0",
-    "react": "17.*.* || 18.*.*"
+    "react": "17.*.* || 18.*.*",
+    "react-native-reanimated": ">=2.2.0"
   },
   "peerDependenciesMeta": {
     "react": {
@@ -128,6 +135,9 @@
       "optional": true
     },
     "@preact-signals/safe-react": {
+      "optional": true
+    },
+    "react-native-reanimated": {
       "optional": true
     }
   },
