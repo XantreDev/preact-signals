@@ -6,41 +6,13 @@
 
 # hocs
 
-## Modules
-
-- [\<internal\>](-internal--1.md)
-
 ## Interfaces
 
 ### ReactifyLiteFn
 
-Base interface for all functions.
-
-#### Description
-
-You need to extend this interface to create a function
-that can be composed with other HOTScript functions.
-Usually you will just convert some utility type you already have
-by wrapping it inside a HOTScript function.
-
-Use `this['args']`, `this['arg0']`, `this['arg1']` etc to access
-function arguments.
-
-The `return` property is the value returned by your function.
-
-#### Example
-
-```ts
-export interface CustomOmitFn extends Fn {
- return: Omit<this['arg0'], this['arg1']>
-}
-
-type T = Call<CustomOmitFn, { a, b, c }, 'a'> // { b, c }
-```
-
 #### Extends
 
-- [`Fn`](-internal--1.md#fn)
+- `Fn`
 
 #### Properties
 
@@ -52,7 +24,7 @@ type T = Call<CustomOmitFn, { a, b, c }, 'a'> // { b, c }
 
 ###### Inherited from
 
-[`Fn`](-internal--1.md#fn).[`[rawArgs]`](-internal--1.md#%5Brawargs%5D)
+`Fn.[rawArgs]`
 
 ###### Source
 
@@ -66,7 +38,7 @@ arg0: never;
 
 ###### Inherited from
 
-[`Fn`](-internal--1.md#fn).[`arg0`](-internal--1.md#arg0)
+`Fn.arg0`
 
 ###### Source
 
@@ -80,7 +52,7 @@ arg1: never;
 
 ###### Inherited from
 
-[`Fn`](-internal--1.md#fn).[`arg1`](-internal--1.md#arg1)
+`Fn.arg1`
 
 ###### Source
 
@@ -94,7 +66,7 @@ arg2: never;
 
 ###### Inherited from
 
-[`Fn`](-internal--1.md#fn).[`arg2`](-internal--1.md#arg2)
+`Fn.arg2`
 
 ###### Source
 
@@ -108,7 +80,7 @@ arg3: never;
 
 ###### Inherited from
 
-[`Fn`](-internal--1.md#fn).[`arg3`](-internal--1.md#arg3)
+`Fn.arg3`
 
 ###### Source
 
@@ -122,7 +94,7 @@ args: never;
 
 ###### Inherited from
 
-[`Fn`](-internal--1.md#fn).[`args`](-internal--1.md#args)
+`Fn.args`
 
 ###### Source
 
@@ -136,43 +108,19 @@ return: never;
 
 ###### Overrides
 
-[`Fn`](-internal--1.md#fn).[`return`](-internal--1.md#return)
+`Fn.return`
 
 ###### Source
 
-[hocs/reactifyLite.ts:21](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hocs/reactifyLite.ts#L21)
+[hocs/reactifyLite.ts:21](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hocs/reactifyLite.ts#L21)
 
 ***
 
 ### WithSignalProp
 
-Base interface for all functions.
-
-#### Description
-
-You need to extend this interface to create a function
-that can be composed with other HOTScript functions.
-Usually you will just convert some utility type you already have
-by wrapping it inside a HOTScript function.
-
-Use `this['args']`, `this['arg0']`, `this['arg1']` etc to access
-function arguments.
-
-The `return` property is the value returned by your function.
-
-#### Example
-
-```ts
-export interface CustomOmitFn extends Fn {
- return: Omit<this['arg0'], this['arg1']>
-}
-
-type T = Call<CustomOmitFn, { a, b, c }, 'a'> // { b, c }
-```
-
 #### Extends
 
-- [`Fn`](-internal--1.md#fn)
+- `Fn`
 
 #### Properties
 
@@ -184,7 +132,7 @@ type T = Call<CustomOmitFn, { a, b, c }, 'a'> // { b, c }
 
 ###### Inherited from
 
-[`Fn`](-internal--1.md#fn).[`[rawArgs]`](-internal--1.md#%5Brawargs%5D)
+`Fn.[rawArgs]`
 
 ###### Source
 
@@ -198,7 +146,7 @@ arg0: never;
 
 ###### Inherited from
 
-[`Fn`](-internal--1.md#fn).[`arg0`](-internal--1.md#arg0)
+`Fn.arg0`
 
 ###### Source
 
@@ -212,7 +160,7 @@ arg1: never;
 
 ###### Inherited from
 
-[`Fn`](-internal--1.md#fn).[`arg1`](-internal--1.md#arg1)
+`Fn.arg1`
 
 ###### Source
 
@@ -226,7 +174,7 @@ arg2: never;
 
 ###### Inherited from
 
-[`Fn`](-internal--1.md#fn).[`arg2`](-internal--1.md#arg2)
+`Fn.arg2`
 
 ###### Source
 
@@ -240,7 +188,7 @@ arg3: never;
 
 ###### Inherited from
 
-[`Fn`](-internal--1.md#fn).[`arg3`](-internal--1.md#arg3)
+`Fn.arg3`
 
 ###### Source
 
@@ -254,7 +202,7 @@ args: never;
 
 ###### Inherited from
 
-[`Fn`](-internal--1.md#fn).[`args`](-internal--1.md#args)
+`Fn.args`
 
 ###### Source
 
@@ -268,11 +216,11 @@ return: never;
 
 ###### Overrides
 
-[`Fn`](-internal--1.md#fn).[`return`](-internal--1.md#return)
+`Fn.return`
 
 ###### Source
 
-[hocs/withSignalProps.ts:7](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hocs/withSignalProps.ts#L7)
+[hocs/withSignalProps.ts:7](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hocs/withSignalProps.ts#L7)
 
 ## Type Aliases
 
@@ -286,11 +234,11 @@ type ReactiveProps<T>: Opaque<T, "reactify.reactive-props">;
 
 | Type parameter |
 | :------ |
-| `T` extends [`Record`](-internal--1.md#recordkt)\<`any`, `any`\> |
+| `T` extends `Record`\<`any`, `any`\> |
 
 #### Source
 
-[hocs/reactifyLite.ts:26](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hocs/reactifyLite.ts#L26)
+[hocs/reactifyLite.ts:26](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hocs/reactifyLite.ts#L26)
 
 ## Functions
 
@@ -312,7 +260,7 @@ Because of this limitations you should mark props as `ReactiveProps` to be sure 
 
 | Type parameter | Value |
 | :------ | :------ |
-| `TComponent` extends [`ComponentType`](-internal--1.md#componenttypep)\<`any`\> | [`FC`](-internal--1.md#fcp)\<`any`\> |
+| `TComponent` extends `ComponentType`\<`any`\> | `FC`\<`any`\> |
 
 #### Parameters
 
@@ -322,7 +270,7 @@ Because of this limitations you should mark props as `ReactiveProps` to be sure 
 
 #### Returns
 
-[`ChangeComponentProps`](-internal--1.md#changecomponentpropstcomponenttnewprops)\<`TComponent`, [`Equal`](-internal--1.md#equalab)\<`TComponent` extends [`ElementType`](-internal--1.md#elementtypep)\<`any`\> ? [`ComponentPropsWithRef`](-internal--1.md#componentpropswithreft)\<`TComponent`\> : `never`, *typeof* [`_`](-internal--1.md#_-1)\> extends `true` ? [] : [`TComponent` extends [`ElementType`](-internal--1.md#elementtypep)\<`any`\> ? [`ComponentPropsWithRef`](-internal--1.md#componentpropswithreft)\<`TComponent`\> : `never`] extends `args` ? `args` : `never` extends [`arg`, `...any[]`] ? `arg` : `never` extends [`ReactiveProps`](hocs.md#reactivepropst)\<[`Record`](-internal--1.md#recordkt)\<`any`, `any`\>\> ? [`MapValuesImpl`](-internal--1.md#mapvaluesimpltfn)\<[`UnwrapOpaque`](-internal--1.md#unwrapopaqueopaquetype)\<[`Record`](-internal--1.md#recordkt)\<`any`, `any`\> & [`Tagged`](-internal--1.md#taggedtoken)\<`"reactify.reactive-props"`\> & [`Equal`](-internal--1.md#equalab)\<`TComponent` extends [`ElementType`](-internal--1.md#elementtypep)\<`any`\> ? [`ComponentPropsWithRef`](-internal--1.md#componentpropswithreft)\<`TComponent`\> : `never`, *typeof* [`_`](-internal--1.md#_-1)\> extends `true` ? [] : [`TComponent` extends [`ElementType`](-internal--1.md#elementtypep)\<`any`\> ? [`ComponentPropsWithRef`](-internal--1.md#componentpropswithreft)\<`TComponent`\> : `never`] extends `args` ? `args` : `never` extends [`arg`, `...any[]`] ? `arg` : `never`\>, [`WithSignalProp`](hocs.md#withsignalprop)\> : `never`\>
+`ChangeComponentProps`\<`TComponent`, `Equal`\<`TComponent` extends `ElementType`\<`any`\> ? `ComponentPropsWithRef`\<`TComponent`\> : `never`, *typeof* `_`\> extends `true` ? [] : [`TComponent` extends `ElementType`\<`any`\> ? `ComponentPropsWithRef`\<`TComponent`\> : `never`] extends `args` ? `args` : `never` extends [`arg`, `...any[]`] ? `arg` : `never` extends [`ReactiveProps`](hocs.md#reactivepropst)\<`Record`\<`any`, `any`\>\> ? `MapValuesImpl`\<`UnwrapOpaque`\<`Record`\<`any`, `any`\> & `Tagged`\<`"reactify.reactive-props"`\> & `Equal`\<`TComponent` extends `ElementType`\<`any`\> ? `ComponentPropsWithRef`\<`TComponent`\> : `never`, *typeof* `_`\> extends `true` ? [] : [`TComponent` extends `ElementType`\<`any`\> ? `ComponentPropsWithRef`\<`TComponent`\> : `never`] extends `args` ? `args` : `never` extends [`arg`, `...any[]`] ? `arg` : `never`\>, [`WithSignalProp`](hocs.md#withsignalprop)\> : `never`\>
 
 #### Example
 
@@ -348,7 +296,7 @@ const App = () => {
 
 #### Source
 
-[hocs/reactifyLite.ts:122](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hocs/reactifyLite.ts#L122)
+[hocs/reactifyLite.ts:122](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hocs/reactifyLite.ts#L122)
 
 ***
 
@@ -364,7 +312,7 @@ Allows to pass props to third party components that are not aware of signals. Th
 
 | Type parameter | Value |
 | :------ | :------ |
-| `TComponent` extends [`ComponentType`](-internal--1.md#componenttypep)\<`any`\> | [`FC`](-internal--1.md#fcp)\<`any`\> |
+| `TComponent` extends `ComponentType`\<`any`\> | `FC`\<`any`\> |
 
 #### Parameters
 
@@ -374,8 +322,8 @@ Allows to pass props to third party components that are not aware of signals. Th
 
 #### Returns
 
-[`ChangeComponentProps`](-internal--1.md#changecomponentpropstcomponenttnewprops)\<`TComponent`, [`MapValuesImpl`](-internal--1.md#mapvaluesimpltfn)\<[`Equal`](-internal--1.md#equalab)\<`TComponent` extends [`ElementType`](-internal--1.md#elementtypep)\<`any`\> ? [`ComponentPropsWithRef`](-internal--1.md#componentpropswithreft)\<`TComponent`\> : `never`, *typeof* [`_`](-internal--1.md#_-1)\> extends `true` ? [] : [`TComponent` extends [`ElementType`](-internal--1.md#elementtypep)\<`any`\> ? [`ComponentPropsWithRef`](-internal--1.md#componentpropswithreft)\<`TComponent`\> : `never`] extends `args` ? `args` : `never` extends [`arg`, `...any[]`] ? `arg` : `never`, [`WithSignalProp`](hocs.md#withsignalprop)\>\>
+`ChangeComponentProps`\<`TComponent`, `MapValuesImpl`\<`Equal`\<`TComponent` extends `ElementType`\<`any`\> ? `ComponentPropsWithRef`\<`TComponent`\> : `never`, *typeof* `_`\> extends `true` ? [] : [`TComponent` extends `ElementType`\<`any`\> ? `ComponentPropsWithRef`\<`TComponent`\> : `never`] extends `args` ? `args` : `never` extends [`arg`, `...any[]`] ? `arg` : `never`, [`WithSignalProp`](hocs.md#withsignalprop)\>\>
 
 #### Source
 
-[hocs/withSignalProps.ts:43](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hocs/withSignalProps.ts#L43)
+[hocs/withSignalProps.ts:43](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hocs/withSignalProps.ts#L43)

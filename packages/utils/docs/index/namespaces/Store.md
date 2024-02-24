@@ -11,7 +11,7 @@
 ### DeepReadonly\<T\>
 
 ```ts
-type DeepReadonly<T>: T extends Builtin ? T : T extends Map<infer K, infer V> ? ReadonlyMap<DeepReadonly<K>, DeepReadonly<V>> : T extends ReadonlyMap<infer K, infer V> ? ReadonlyMap<DeepReadonly<K>, DeepReadonly<V>> : T extends WeakMap<infer K, infer V> ? WeakMap<DeepReadonly<K>, DeepReadonly<V>> : T extends Set<infer U> ? ReadonlySet<DeepReadonly<U>> : T extends ReadonlySet<infer U> ? ReadonlySet<DeepReadonly<U>> : T extends WeakSet<infer U> ? WeakSet<DeepReadonly<U>> : T extends Promise<infer U> ? Promise<DeepReadonly<U>> : T extends Signal<infer U> ? Readonly<ReadonlySignal<DeepReadonly<U>>> : T extends Object ? { readonly [K in keyof T]: DeepReadonly<T[K]> } : Readonly<T>;
+type DeepReadonly<T>: T extends Builtin ? T : T extends Map<infer K, infer V> ? ReadonlyMap<DeepReadonly<K>, DeepReadonly<V>> : T extends ReadonlyMap<infer K, infer V> ? ReadonlyMap<DeepReadonly<K>, DeepReadonly<V>> : T extends WeakMap<infer K, infer V> ? WeakMap<DeepReadonly<K>, DeepReadonly<V>> : T extends Set<infer U> ? ReadonlySet<DeepReadonly<U>> : T extends ReadonlySet<infer U> ? ReadonlySet<DeepReadonly<U>> : T extends WeakSet<infer U> ? WeakSet<DeepReadonly<U>> : T extends Promise<infer U> ? Promise<DeepReadonly<U>> : T extends Signal<infer U> ? Readonly<ReadonlySignal<DeepReadonly<U>>> : T extends {} ? { readonly [K in keyof T]: DeepReadonly<T[K]> } : Readonly<T>;
 ```
 
 #### Type parameters
@@ -22,14 +22,16 @@ type DeepReadonly<T>: T extends Builtin ? T : T extends Map<infer K, infer V> ? 
 
 #### Source
 
-[store/reactivity.ts:170](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/reactivity.ts#L170)
+[store/reactivity.ts:170](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/reactivity.ts#L170)
 
 ***
 
 ### Raw\<T\>
 
 ```ts
-type Raw<T>: T & Object;
+type Raw<T>: T & {
+  [RawSymbol]: true;
+};
 ```
 
 #### Type declaration
@@ -48,14 +50,16 @@ optional [RawSymbol]: true;
 
 #### Source
 
-[store/reactivity.ts:364](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/reactivity.ts#L364)
+[store/reactivity.ts:364](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/reactivity.ts#L364)
 
 ***
 
 ### ShallowReactive\<T\>
 
 ```ts
-type ShallowReactive<T>: T & Object;
+type ShallowReactive<T>: T & {
+  [ShallowReactiveMarker]: true;
+};
 ```
 
 #### Type declaration
@@ -74,7 +78,7 @@ optional [ShallowReactiveMarker]: true;
 
 #### Source
 
-[store/reactivity.ts:125](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/reactivity.ts#L125)
+[store/reactivity.ts:125](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/reactivity.ts#L125)
 
 ***
 
@@ -92,7 +96,7 @@ type UnwrapNestedSignals<T>: T extends Signal ? T : UnwrapSignalSimple<T>;
 
 #### Source
 
-[store/reactivity.ts:25](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/reactivity.ts#L25)
+[store/reactivity.ts:25](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/reactivity.ts#L25)
 
 ## Functions
 
@@ -132,7 +136,7 @@ const obj = reactive({ count: 0 })
 
 #### Source
 
-[store/reactivity.ts:108](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/reactivity.ts#L108)
+[store/reactivity.ts:108](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/reactivity.ts#L108)
 
 ***
 
@@ -186,7 +190,7 @@ copy.count++ // warning!
 
 #### Source
 
-[store/reactivity.ts:220](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/reactivity.ts#L220)
+[store/reactivity.ts:220](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/reactivity.ts#L220)
 
 ***
 
@@ -211,7 +215,7 @@ Checks if an object is a proxy created by [deepReactive](Store.md#deepreactive),
 
 #### Source
 
-[store/reactivity.ts:358](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/reactivity.ts#L358)
+[store/reactivity.ts:358](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/reactivity.ts#L358)
 
 ***
 
@@ -248,7 +252,7 @@ isReactive(shallowReactive({}))     // => true
 
 #### Source
 
-[store/reactivity.ts:327](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/reactivity.ts#L327)
+[store/reactivity.ts:327](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/reactivity.ts#L327)
 
 ***
 
@@ -277,7 +281,7 @@ both considered readonly, as is a computed ref without a set function.
 
 #### Source
 
-[store/reactivity.ts:344](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/reactivity.ts#L344)
+[store/reactivity.ts:344](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/reactivity.ts#L344)
 
 ***
 
@@ -299,7 +303,7 @@ isShallow(value): boolean
 
 #### Source
 
-[store/reactivity.ts:348](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/reactivity.ts#L348)
+[store/reactivity.ts:348](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/reactivity.ts#L348)
 
 ***
 
@@ -346,7 +350,7 @@ state graph.
 
 #### Source
 
-[store/reactivity.ts:387](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/reactivity.ts#L387)
+[store/reactivity.ts:387](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/reactivity.ts#L387)
 
 ***
 
@@ -401,7 +405,7 @@ state.nested.bar++
 
 #### Source
 
-[store/reactivity.ts:156](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/reactivity.ts#L156)
+[store/reactivity.ts:156](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/reactivity.ts#L156)
 
 ***
 
@@ -432,7 +436,7 @@ unwrapped.
 
 #### Returns
 
-[`Readonly`](../-internal-.md#readonlyt)\<`T`\>
+`Readonly`\<`T`\>
 
 #### Example
 
@@ -456,7 +460,7 @@ state.nested.bar++
 
 #### Source
 
-[store/reactivity.ts:261](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/reactivity.ts#L261)
+[store/reactivity.ts:261](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/reactivity.ts#L261)
 
 ***
 
@@ -488,7 +492,7 @@ If the given value is not an object, the original value itself is returned.
 
 #### Source
 
-[store/reactivity.ts:399](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/reactivity.ts#L399)
+[store/reactivity.ts:399](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/reactivity.ts#L399)
 
 ***
 
@@ -520,7 +524,7 @@ If the given value is not an object, the original value itself is returned.
 
 #### Source
 
-[store/reactivity.ts:409](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/reactivity.ts#L409)
+[store/reactivity.ts:409](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/reactivity.ts#L409)
 
 ***
 
@@ -568,4 +572,4 @@ console.log(toRaw(reactiveFoo) === foo) // true
 
 #### Source
 
-[store/reactivity.ts:86](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/reactivity.ts#L86)
+[store/reactivity.ts:86](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/reactivity.ts#L86)

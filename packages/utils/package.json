@@ -101,7 +101,7 @@
     "lint": "tsc --noEmit --emitDeclarationOnly false && check-export-map && node ./import-checker.mjs",
     "build": "pnpm clean && rollup -c && pnpm build:types",
     "build:types": "tsc",
-    "build:docs": "node ./build-typedoc.mjs",
+    "build:docs": "pnpm clean:docs && node ./build-typedoc.mjs",
     "build:rollup": "rollup -c",
     "watch": "concurrently \"pnpm build:rollup -w\" \"pnpm build:types -w\""
   },
@@ -184,7 +184,6 @@
     "rollup-plugin-node-externals": "^6.1.2",
     "typedoc": "^0.25.8",
     "typedoc-plugin-markdown": "4.0.0-next.53",
-    "typedoc-plugin-missing-exports": "^2.2.0",
     "zx": "^7.2.3"
   },
   "keywords": [

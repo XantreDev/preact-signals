@@ -6,10 +6,6 @@
 
 # integrations/reanimated
 
-## Modules
-
-- [\<internal\>](-internal-.md)
-
 ## Type Aliases
 
 ### SharedValueSetter\<T\>
@@ -26,7 +22,7 @@ type SharedValueSetter<T>: SignalInteropSetter<SharedValue<T>, T>;
 
 #### Source
 
-[integrations/reanimated.ts:100](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/integrations/reanimated.ts#L100)
+[integrations/reanimated.ts:100](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L100)
 
 ***
 
@@ -56,7 +52,7 @@ type SignalInteropSetter<TTarget, TSource>: (target, source) => unknown;
 
 #### Source
 
-[integrations/reanimated.ts:96](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/integrations/reanimated.ts#L96)
+[integrations/reanimated.ts:96](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L96)
 
 ## Functions
 
@@ -70,18 +66,18 @@ useAnimatedSharedValueOfAccessor<T>(accessor, animateOptions): Readonly<SharedVa
 
 | Type parameter |
 | :------ |
-| `T` extends [`AnimatableValue`](-internal-.md#animatablevalue) |
+| `T` extends `AnimatableValue` |
 
 #### Parameters
 
 | Parameter | Type |
 | :------ | :------ |
 | `accessor` | () => `T` |
-| `animateOptions` | `Object` \| `Object` |
+| `animateOptions` | \{ `params`: `TimingConfig`; `type`: `"timing"`; } \| \{ `params`: `SpringConfig`; `type`: `"spring"`; } |
 
 #### Returns
 
-[`Readonly`](../index/-internal-.md#readonlyt)\<[`SharedValue`](-internal-.md#sharedvaluevalue)\<`T`\>\>
+`Readonly`\<`SharedValue`\<`T`\>\>
 
 #### Description
 
@@ -117,7 +113,7 @@ function ExampleComponent() {
 
 #### Source
 
-[integrations/reanimated.ts:146](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/integrations/reanimated.ts#L146)
+[integrations/reanimated.ts:146](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L146)
 
 ***
 
@@ -138,16 +134,16 @@ useComputedOfSharedValue<T, TResult>(shared, compute): ReadonlySignal<TResult>
 
 | Parameter | Type |
 | :------ | :------ |
-| `shared` | [`Readonly`](../index/-internal-.md#readonlyt)\<[`SharedValue`](-internal-.md#sharedvaluevalue)\<`T`\>\> |
+| `shared` | `Readonly`\<`SharedValue`\<`T`\>\> |
 | `compute` | (`v`) => `TResult` |
 
 #### Returns
 
-[`ReadonlySignal`](../-internal--1.md#readonlysignalt)\<`TResult`\>
+`ReadonlySignal`\<`TResult`\>
 
 #### Source
 
-[integrations/reanimated.ts:52](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/integrations/reanimated.ts#L52)
+[integrations/reanimated.ts:52](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L52)
 
 ***
 
@@ -172,11 +168,11 @@ useSharedValueOfAccessor<T>(accessor, setter): Readonly<SharedValue<T>>
 
 #### Returns
 
-[`Readonly`](../index/-internal-.md#readonlyt)\<[`SharedValue`](-internal-.md#sharedvaluevalue)\<`T`\>\>
+`Readonly`\<`SharedValue`\<`T`\>\>
 
 #### Source
 
-[integrations/reanimated.ts:101](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/integrations/reanimated.ts#L101)
+[integrations/reanimated.ts:101](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L101)
 
 ***
 
@@ -196,11 +192,11 @@ useSharedValueOfSignal<T>(_sig): Readonly<SharedValue<T>>
 
 | Parameter | Type |
 | :------ | :------ |
-| `_sig` | [`ReadonlySignal`](../-internal--1.md#readonlysignalt)\<`T`\> |
+| `_sig` | `ReadonlySignal`\<`T`\> |
 
 #### Returns
 
-[`Readonly`](../index/-internal-.md#readonlyt)\<[`SharedValue`](-internal-.md#sharedvaluevalue)\<`T`\>\>
+`Readonly`\<`SharedValue`\<`T`\>\>
 
 #### Description
 
@@ -224,7 +220,7 @@ function ExampleComponent() {
 
 #### Source
 
-[integrations/reanimated.ts:79](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/integrations/reanimated.ts#L79)
+[integrations/reanimated.ts:79](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L79)
 
 ***
 
@@ -244,11 +240,11 @@ useSignalOfSharedValue<T>(shared): ReadonlySignal<T>
 
 | Parameter | Type |
 | :------ | :------ |
-| `shared` | [`Readonly`](../index/-internal-.md#readonlyt)\<[`SharedValue`](-internal-.md#sharedvaluevalue)\<`T`\>\> |
+| `shared` | `Readonly`\<`SharedValue`\<`T`\>\> |
 
 #### Returns
 
-[`ReadonlySignal`](../-internal--1.md#readonlysignalt)\<`T`\>
+`ReadonlySignal`\<`T`\>
 
 #### Example
 
@@ -270,7 +266,7 @@ function ExampleComponent() {
 
 #### Source
 
-[integrations/reanimated.ts:38](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/integrations/reanimated.ts#L38)
+[integrations/reanimated.ts:38](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L38)
 
 ***
 
@@ -284,22 +280,22 @@ useSpringSharedValueOfAccessor<T>(accessor, params?): Readonly<SharedValue<T>>
 
 | Type parameter |
 | :------ |
-| `T` extends [`AnimatableValue`](-internal-.md#animatablevalue) |
+| `T` extends `AnimatableValue` |
 
 #### Parameters
 
 | Parameter | Type |
 | :------ | :------ |
 | `accessor` | () => `T` |
-| `params`? | [`SpringConfig`](-internal-.md#springconfig) |
+| `params`? | `SpringConfig` |
 
 #### Returns
 
-[`Readonly`](../index/-internal-.md#readonlyt)\<[`SharedValue`](-internal-.md#sharedvaluevalue)\<`T`\>\>
+`Readonly`\<`SharedValue`\<`T`\>\>
 
 #### Source
 
-[integrations/reanimated.ts:168](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/integrations/reanimated.ts#L168)
+[integrations/reanimated.ts:168](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L168)
 
 ***
 
@@ -313,19 +309,19 @@ useTimingSharedValueOfAccessor<T>(accessor, params?): Readonly<SharedValue<T>>
 
 | Type parameter |
 | :------ |
-| `T` extends [`AnimatableValue`](-internal-.md#animatablevalue) |
+| `T` extends `AnimatableValue` |
 
 #### Parameters
 
 | Parameter | Type |
 | :------ | :------ |
 | `accessor` | () => `T` |
-| `params`? | [`TimingConfig`](-internal-.md#timingconfig) |
+| `params`? | `TimingConfig` |
 
 #### Returns
 
-[`Readonly`](../index/-internal-.md#readonlyt)\<[`SharedValue`](-internal-.md#sharedvaluevalue)\<`T`\>\>
+`Readonly`\<`SharedValue`\<`T`\>\>
 
 #### Source
 
-[integrations/reanimated.ts:177](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/integrations/reanimated.ts#L177)
+[integrations/reanimated.ts:177](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L177)

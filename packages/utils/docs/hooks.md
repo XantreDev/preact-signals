@@ -6,10 +6,6 @@
 
 # hooks
 
-## Modules
-
-- [\<internal\>](-internal--1.md)
-
 ## Type Aliases
 
 ### AnyRecord
@@ -20,7 +16,7 @@ type AnyRecord: Record<any, any>;
 
 #### Source
 
-[hooks/flat-store.ts:6](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hooks/flat-store.ts#L6)
+[hooks/flat-store.ts:6](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hooks/flat-store.ts#L6)
 
 ***
 
@@ -38,7 +34,7 @@ type UnwrapSignalDeep<T>: T extends ReadonlySignal<infer V> ? UnwrapSignalDeep<V
 
 #### Source
 
-[hooks/useLinkedSignal.ts:8](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hooks/useLinkedSignal.ts#L8)
+[hooks/useLinkedSignal.ts:8](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hooks/useLinkedSignal.ts#L8)
 
 ## Functions
 
@@ -62,11 +58,11 @@ useComputedFlatStore<T>(storeUpdater): Readonly<FlatStore<T>>
 
 #### Returns
 
-[`Readonly`](index/-internal-.md#readonlyt)\<[`FlatStore`](index/README.md#flatstoret)\<`T`\>\>
+`Readonly`\<[`FlatStore`](index/README.md#flatstoret)\<`T`\>\>
 
 #### Source
 
-[hooks/flat-store.ts:33](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hooks/flat-store.ts#L33)
+[hooks/flat-store.ts:33](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hooks/flat-store.ts#L33)
 
 ***
 
@@ -90,13 +86,13 @@ useComputedOnce<T>(compute): ReadonlySignal<T>
 
 #### Returns
 
-[`ReadonlySignal`](-internal--1.md#readonlysignalt)\<`T`\>
+`ReadonlySignal`\<`T`\>
 
 static reference computed
 
 #### Source
 
-[hooks/useComputedOnce.ts:9](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hooks/useComputedOnce.ts#L9)
+[hooks/useComputedOnce.ts:9](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hooks/useComputedOnce.ts#L9)
 
 ***
 
@@ -124,7 +120,7 @@ useDeepReactive<T>(creator): UnwrapNestedSignals<T>
 
 #### Source
 
-[hooks/store.ts:9](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hooks/store.ts#L9)
+[hooks/store.ts:9](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hooks/store.ts#L9)
 
 ***
 
@@ -152,7 +148,7 @@ useDeepSignal<T>(creator): WrapDeepSignal<T>
 
 #### Source
 
-[hooks/store.ts:6](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hooks/store.ts#L6)
+[hooks/store.ts:6](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hooks/store.ts#L6)
 
 ***
 
@@ -178,11 +174,11 @@ Create a flat store and its setter.
 
 #### Returns
 
-readonly [[`FlatStore`](index/README.md#flatstoret)\<`T`\>, [`FlatStoreSetter`](-internal--1.md#flatstoresettert)\<`T`\>]
+readonly [[`FlatStore`](index/README.md#flatstoret)\<`T`\>, `FlatStoreSetter`\<`T`\>]
 
 #### Source
 
-[hooks/flat-store.ts:11](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hooks/flat-store.ts#L11)
+[hooks/flat-store.ts:11](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hooks/flat-store.ts#L11)
 
 ***
 
@@ -206,11 +202,11 @@ useFlatStoreOfSignals<T>(storeCreator): readonly [FlatStore<SetReadonly<{ [TKey 
 
 #### Returns
 
-readonly [[`FlatStore`](index/README.md#flatstoret)\<[`SetReadonly`](-internal--1.md#setreadonlybasetypekeys)\<`{ [TKey in string | number | symbol]: T[TKey] extends ReadonlySignal<TValue> ? TValue : T[TKey] }`, keyof `{ [TKey in string | number | symbol as IfNever<ReadonlyKeysOf<T[TKey]>, never, T[TKey] extends ReadonlySignal<unknown> ? TKey : never>]: T[TKey] }`\>\>, [`FlatStoreSetter`](-internal--1.md#flatstoresettert)\<[`SetReadonly`](-internal--1.md#setreadonlybasetypekeys)\<`{ [TKey in string | number | symbol]: T[TKey] extends ReadonlySignal<TValue> ? TValue : T[TKey] }`, keyof `{ [TKey in string | number | symbol as IfNever<ReadonlyKeysOf<T[TKey]>, never, T[TKey] extends ReadonlySignal<unknown> ? TKey : never>]: T[TKey] }`\>\>]
+readonly [[`FlatStore`](index/README.md#flatstoret)\<`SetReadonly`\<`{ [TKey in string | number | symbol]: T[TKey] extends ReadonlySignal<TValue> ? TValue : T[TKey] }`, keyof `{ [TKey in string | number | symbol as IfNever<ReadonlyKeysOf<T[TKey]>, never, T[TKey] extends ReadonlySignal<unknown> ? TKey : never>]: T[TKey] }`\>\>, `FlatStoreSetter`\<`SetReadonly`\<`{ [TKey in string | number | symbol]: T[TKey] extends ReadonlySignal<TValue> ? TValue : T[TKey] }`, keyof `{ [TKey in string | number | symbol as IfNever<ReadonlyKeysOf<T[TKey]>, never, T[TKey] extends ReadonlySignal<unknown> ? TKey : never>]: T[TKey] }`\>\>]
 
 #### Source
 
-[hooks/flat-store.ts:20](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hooks/flat-store.ts#L20)
+[hooks/flat-store.ts:20](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hooks/flat-store.ts#L20)
 
 ***
 
@@ -240,7 +236,7 @@ Allows to create signal function which is called only once, without dependencies
 
 #### Source
 
-[hooks/utility.ts:16](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hooks/utility.ts#L16)
+[hooks/utility.ts:16](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hooks/utility.ts#L16)
 
 ***
 
@@ -264,7 +260,7 @@ useLinkedSignal<T>(value): ReadonlySignal<UnwrapSignalDeep<T>>
 
 #### Returns
 
-[`ReadonlySignal`](-internal--1.md#readonlysignalt)\<[`UnwrapSignalDeep`](hooks.md#unwrapsignaldeept)\<`T`\>\>
+`ReadonlySignal`\<[`UnwrapSignalDeep`](hooks.md#unwrapsignaldeept)\<`T`\>\>
 
 #### Example
 
@@ -286,7 +282,7 @@ console.log(s3.peek())
 
 #### Source
 
-[hooks/useLinkedSignal.ts:36](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hooks/useLinkedSignal.ts#L36)
+[hooks/useLinkedSignal.ts:36](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hooks/useLinkedSignal.ts#L36)
 
 ***
 
@@ -312,16 +308,16 @@ creates reaction on mount and dispose on unmount
 | Parameter | Type |
 | :------ | :------ |
 | `deps` | () => `T` |
-| `fn` | (`dep`, `options`) => `void` \| [`ReactionDispose`](-internal--1.md#reactiondispose) |
-| `options`? | [`ReactionOptions`](-internal--1.md#reactionoptions) |
+| `fn` | (`dep`, `options`) => `void` \| `ReactionDispose` |
+| `options`? | `ReactionOptions` |
 
 #### Returns
 
-[`Dispose`](-internal--1.md#dispose)
+`Dispose`
 
 #### Source
 
-[hooks/useReaction.ts:8](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hooks/useReaction.ts#L8)
+[hooks/useReaction.ts:8](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hooks/useReaction.ts#L8)
 
 ***
 
@@ -351,7 +347,7 @@ useResource<TResult, TSource, TRefreshing>(options): CreateResourceReturn<TResul
 
 #### Source
 
-[hooks/resource.ts:14](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hooks/resource.ts#L14)
+[hooks/resource.ts:14](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hooks/resource.ts#L14)
 
 ***
 
@@ -379,7 +375,7 @@ useShallowReactive<T>(creator): ShallowReactive<T>
 
 #### Source
 
-[hooks/store.ts:12](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hooks/store.ts#L12)
+[hooks/store.ts:12](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hooks/store.ts#L12)
 
 ***
 
@@ -399,17 +395,17 @@ useSignalContext<T>(context): ReadonlySignal<T>
 
 | Parameter | Type | Description |
 | :------ | :------ | :------ |
-| `context` | [`Context`](index/-internal-.md#contextt)\<`T`\> |  |
+| `context` | `Context`\<`T`\> |  |
 
 #### Returns
 
-[`ReadonlySignal`](-internal--1.md#readonlysignalt)\<`T`\>
+`ReadonlySignal`\<`T`\>
 
 signal of context value
 
 #### Source
 
-[hooks/utility.ts:51](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hooks/utility.ts#L51)
+[hooks/utility.ts:51](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hooks/utility.ts#L51)
 
 ***
 
@@ -425,7 +421,7 @@ Creates effect with with first provided function
 
 | Parameter | Type |
 | :------ | :------ |
-| `_effect` | () => `void` \| [`Dispose`](-internal--1.md#dispose-1) |
+| `_effect` | () => `void` \| `Dispose` |
 
 #### Returns
 
@@ -433,7 +429,7 @@ Creates effect with with first provided function
 
 #### Source
 
-[hooks/utility.ts:59](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hooks/utility.ts#L59)
+[hooks/utility.ts:59](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hooks/utility.ts#L59)
 
 ***
 
@@ -459,11 +455,11 @@ Creates computed which will subscribe tp reactive value
 
 #### Returns
 
-[`ReadonlySignal`](-internal--1.md#readonlysignalt)\<[`GetValue`](index/README.md#getvaluet)\<`T`\>\>
+`ReadonlySignal`\<[`GetValue`](index/README.md#getvaluet)\<`T`\>\>
 
 #### Source
 
-[hooks/utility.ts:28](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hooks/utility.ts#L28)
+[hooks/utility.ts:28](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hooks/utility.ts#L28)
 
 ***
 
@@ -489,8 +485,8 @@ Creates signal which state is always equal to state passed to hook
 
 #### Returns
 
-[`ReadonlySignal`](-internal--1.md#readonlysignalt)\<`T`\>
+`ReadonlySignal`\<`T`\>
 
 #### Source
 
-[hooks/utility.ts:37](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/hooks/utility.ts#L37)
+[hooks/utility.ts:37](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/hooks/utility.ts#L37)

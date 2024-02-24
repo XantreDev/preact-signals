@@ -6,10 +6,6 @@
 
 # index
 
-## Modules
-
-- [\<internal\>](-internal-.md)
-
 ## Namespaces
 
 - [Store](namespaces/Store.md)
@@ -62,7 +58,7 @@ new DeepSignal<T>(value): DeepSignal<T>
 
 ###### Source
 
-[store/deepSignal.ts:35](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/deepSignal.ts#L35)
+[store/deepSignal.ts:35](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/deepSignal.ts#L35)
 
 #### Properties
 
@@ -74,7 +70,7 @@ __not_exist_deepSignal: true;
 
 ###### Source
 
-[store/deepSignal.ts:46](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/deepSignal.ts#L46)
+[store/deepSignal.ts:46](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/deepSignal.ts#L46)
 
 ##### brand
 
@@ -156,7 +152,7 @@ set value(value): void
 
 ###### Source
 
-[store/deepSignal.ts:41](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/deepSignal.ts#L41)
+[store/deepSignal.ts:41](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/deepSignal.ts#L41)
 
 #### Methods
 
@@ -270,7 +266,7 @@ Usually you don't need to use it directly, use `$` function instead.
 
 #### Extends
 
-- `Signal`\<`T`\>.[`Element`](../-internal-.md#element)
+- `Signal`\<`T`\>.`Element`
 
 #### Type parameters
 
@@ -302,7 +298,7 @@ new Uncached<T>(accessor): Uncached<T>
 
 ###### Source
 
-[$.ts:19](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/$.ts#L19)
+[$.ts:19](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/$.ts#L19)
 
 #### Properties
 
@@ -328,7 +324,7 @@ key: null | string;
 
 ###### Inherited from
 
-[`Element`](../-internal-.md#element).[`key`](../-internal-.md#key)
+`Signal.key`
 
 ###### Source
 
@@ -342,7 +338,7 @@ props: any;
 
 ###### Inherited from
 
-[`Element`](../-internal-.md#element).[`props`](../-internal-.md#props)
+`Signal.props`
 
 ###### Source
 
@@ -356,7 +352,7 @@ type: string | JSXElementConstructor<any>;
 
 ###### Inherited from
 
-[`Element`](../-internal-.md#element).[`type`](../-internal-.md#type)
+`Signal.type`
 
 ###### Source
 
@@ -376,7 +372,7 @@ get value(): T
 
 ###### Source
 
-[$.ts:20](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/$.ts#L20)
+[$.ts:20](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/$.ts#L20)
 
 #### Methods
 
@@ -394,7 +390,7 @@ _a(): T
 
 ###### Source
 
-[$.ts:25](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/$.ts#L25)
+[$.ts:25](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/$.ts#L25)
 
 ##### peek()
 
@@ -412,7 +408,7 @@ peek(): T
 
 ###### Source
 
-[$.ts:21](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/$.ts#L21)
+[$.ts:21](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/$.ts#L21)
 
 ##### subscribe()
 
@@ -477,7 +473,7 @@ toString(): string
 
 ###### Source
 
-[$.ts:23](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/$.ts#L23)
+[$.ts:23](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/$.ts#L23)
 
 ##### valueOf()
 
@@ -495,7 +491,7 @@ valueOf(): T
 
 ###### Source
 
-[$.ts:22](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/$.ts#L22)
+[$.ts:22](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/$.ts#L22)
 
 ***
 
@@ -506,7 +502,7 @@ Usually you don't need to use it directly, use `$w` function instead.
 
 #### Extends
 
-- [`Uncached`](README.md#uncachedt)\<`T`\>.[`Element`](../-internal-.md#element)
+- [`Uncached`](README.md#uncachedt)\<`T`\>.`Element`
 
 #### Type parameters
 
@@ -539,7 +535,7 @@ new WritableUncached<T>(get, set): WritableUncached<T>
 
 ###### Source
 
-[$.ts:34](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/$.ts#L34)
+[$.ts:34](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/$.ts#L34)
 
 #### Properties
 
@@ -565,7 +561,7 @@ key: null | string;
 
 ###### Inherited from
 
-[`Element`](../-internal-.md#element).[`key`](../-internal-.md#key)
+[`Uncached`](README.md#uncachedt).[`key`](README.md#key-1)
 
 ###### Source
 
@@ -579,7 +575,7 @@ props: any;
 
 ###### Inherited from
 
-[`Element`](../-internal-.md#element).[`props`](../-internal-.md#props)
+[`Uncached`](README.md#uncachedt).[`props`](README.md#props-1)
 
 ###### Source
 
@@ -593,7 +589,7 @@ type: string | JSXElementConstructor<any>;
 
 ###### Inherited from
 
-[`Element`](../-internal-.md#element).[`type`](../-internal-.md#type)
+[`Uncached`](README.md#uncachedt).[`type`](README.md#type-1)
 
 ###### Source
 
@@ -615,7 +611,7 @@ set value(value): void
 
 ###### Source
 
-[$.ts:33](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/$.ts#L33)
+[$.ts:33](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/$.ts#L33)
 
 #### Methods
 
@@ -637,7 +633,7 @@ _a(): T
 
 ###### Source
 
-[$.ts:25](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/$.ts#L25)
+[$.ts:25](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/$.ts#L25)
 
 ##### \_s()
 
@@ -657,7 +653,7 @@ _s(value): void
 
 ###### Source
 
-[$.ts:35](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/$.ts#L35)
+[$.ts:35](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/$.ts#L35)
 
 ##### peek()
 
@@ -675,7 +671,7 @@ peek(): T
 
 ###### Source
 
-[$.ts:21](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/$.ts#L21)
+[$.ts:21](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/$.ts#L21)
 
 ##### subscribe()
 
@@ -740,7 +736,7 @@ toString(): string
 
 ###### Source
 
-[$.ts:23](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/$.ts#L23)
+[$.ts:23](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/$.ts#L23)
 
 ##### valueOf()
 
@@ -758,7 +754,7 @@ valueOf(): T
 
 ###### Source
 
-[$.ts:22](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/$.ts#L22)
+[$.ts:22](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/$.ts#L22)
 
 ## Interfaces
 
@@ -780,7 +776,7 @@ interface Accessor(): T
 
 #### Source
 
-[utils/type.ts:5](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/type.ts#L5)
+[utils/type.ts:5](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/type.ts#L5)
 
 ***
 
@@ -802,7 +798,7 @@ interface Errored(): undefined
 
 #### Source
 
-[resource/resource.ts:70](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L70)
+[resource/resource.ts:70](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L70)
 
 #### Properties
 
@@ -814,7 +810,7 @@ error: unknown;
 
 ###### Source
 
-[resource/resource.ts:68](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L68)
+[resource/resource.ts:68](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L68)
 
 ##### latest
 
@@ -824,7 +820,7 @@ latest: undefined | T;
 
 ###### Source
 
-[resource/resource.ts:69](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L69)
+[resource/resource.ts:69](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L69)
 
 ##### loading
 
@@ -834,7 +830,7 @@ loading: false;
 
 ###### Source
 
-[resource/resource.ts:67](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L67)
+[resource/resource.ts:67](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L67)
 
 ##### state
 
@@ -844,7 +840,7 @@ state: "errored";
 
 ###### Source
 
-[resource/resource.ts:66](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L66)
+[resource/resource.ts:66](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L66)
 
 ***
 
@@ -866,7 +862,7 @@ interface Pending(): undefined
 
 #### Source
 
-[resource/resource.ts:46](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L46)
+[resource/resource.ts:46](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L46)
 
 #### Properties
 
@@ -878,7 +874,7 @@ error: undefined;
 
 ###### Source
 
-[resource/resource.ts:44](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L44)
+[resource/resource.ts:44](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L44)
 
 ##### latest
 
@@ -888,7 +884,7 @@ latest: undefined | T;
 
 ###### Source
 
-[resource/resource.ts:45](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L45)
+[resource/resource.ts:45](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L45)
 
 ##### loading
 
@@ -898,7 +894,7 @@ loading: true;
 
 ###### Source
 
-[resource/resource.ts:43](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L43)
+[resource/resource.ts:43](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L43)
 
 ##### state
 
@@ -908,7 +904,7 @@ state: "pending";
 
 ###### Source
 
-[resource/resource.ts:42](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L42)
+[resource/resource.ts:42](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L42)
 
 ***
 
@@ -930,7 +926,7 @@ interface Ready(): T
 
 #### Source
 
-[resource/resource.ts:54](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L54)
+[resource/resource.ts:54](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L54)
 
 #### Properties
 
@@ -942,7 +938,7 @@ error: undefined;
 
 ###### Source
 
-[resource/resource.ts:52](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L52)
+[resource/resource.ts:52](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L52)
 
 ##### latest
 
@@ -952,7 +948,7 @@ latest: T;
 
 ###### Source
 
-[resource/resource.ts:53](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L53)
+[resource/resource.ts:53](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L53)
 
 ##### loading
 
@@ -962,7 +958,7 @@ loading: false;
 
 ###### Source
 
-[resource/resource.ts:51](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L51)
+[resource/resource.ts:51](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L51)
 
 ##### state
 
@@ -972,7 +968,7 @@ state: "ready";
 
 ###### Source
 
-[resource/resource.ts:50](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L50)
+[resource/resource.ts:50](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L50)
 
 ***
 
@@ -994,7 +990,7 @@ interface Refreshing(): undefined
 
 #### Source
 
-[resource/resource.ts:62](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L62)
+[resource/resource.ts:62](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L62)
 
 #### Properties
 
@@ -1006,7 +1002,7 @@ error: undefined;
 
 ###### Source
 
-[resource/resource.ts:60](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L60)
+[resource/resource.ts:60](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L60)
 
 ##### latest
 
@@ -1016,7 +1012,7 @@ latest: undefined | T;
 
 ###### Source
 
-[resource/resource.ts:61](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L61)
+[resource/resource.ts:61](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L61)
 
 ##### loading
 
@@ -1026,7 +1022,7 @@ loading: true;
 
 ###### Source
 
-[resource/resource.ts:59](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L59)
+[resource/resource.ts:59](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L59)
 
 ##### state
 
@@ -1036,7 +1032,7 @@ state: "refreshing";
 
 ###### Source
 
-[resource/resource.ts:58](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L58)
+[resource/resource.ts:58](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L58)
 
 ***
 
@@ -1064,7 +1060,7 @@ interface Setter(value): T
 
 #### Source
 
-[utils/type.ts:26](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/type.ts#L26)
+[utils/type.ts:26](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/type.ts#L26)
 
 ```ts
 interface Setter(value): T
@@ -1074,7 +1070,7 @@ interface Setter(value): T
 
 | Parameter | Type |
 | :------ | :------ |
-| `value` | [`Exclude`](-internal-.md#excludetu)\<`T`, `Function`\> |
+| `value` | `Exclude`\<`T`, `Function`\> |
 
 #### Returns
 
@@ -1082,7 +1078,7 @@ interface Setter(value): T
 
 #### Source
 
-[utils/type.ts:27](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/type.ts#L27)
+[utils/type.ts:27](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/type.ts#L27)
 
 ```ts
 interface Setter(value): T
@@ -1092,7 +1088,7 @@ interface Setter(value): T
 
 | Parameter | Type |
 | :------ | :------ |
-| `value` | [`Exclude`](-internal-.md#excludetu)\<`T`, `Function`\> \| (`prev`) => `T` |
+| `value` | `Exclude`\<`T`, `Function`\> \| (`prev`) => `T` |
 
 #### Returns
 
@@ -1100,7 +1096,7 @@ interface Setter(value): T
 
 #### Source
 
-[utils/type.ts:28](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/type.ts#L28)
+[utils/type.ts:28](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/type.ts#L28)
 
 ***
 
@@ -1124,7 +1120,7 @@ interface Unresolved(): undefined
 
 #### Source
 
-[resource/resource.ts:38](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L38)
+[resource/resource.ts:38](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L38)
 
 #### Properties
 
@@ -1136,7 +1132,7 @@ error: undefined;
 
 ###### Source
 
-[resource/resource.ts:36](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L36)
+[resource/resource.ts:36](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L36)
 
 ##### latest
 
@@ -1146,7 +1142,7 @@ latest: undefined | T;
 
 ###### Source
 
-[resource/resource.ts:37](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L37)
+[resource/resource.ts:37](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L37)
 
 ##### loading
 
@@ -1156,7 +1152,7 @@ loading: false;
 
 ###### Source
 
-[resource/resource.ts:35](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L35)
+[resource/resource.ts:35](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L35)
 
 ##### state
 
@@ -1166,7 +1162,7 @@ state: "unresolved";
 
 ###### Source
 
-[resource/resource.ts:34](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L34)
+[resource/resource.ts:34](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L34)
 
 ## Type Aliases
 
@@ -1178,7 +1174,7 @@ type AnyReactive: Reactive<any>;
 
 #### Source
 
-[utils/type.ts:9](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/type.ts#L9)
+[utils/type.ts:9](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/type.ts#L9)
 
 ***
 
@@ -1207,7 +1203,7 @@ type CreateFunction<TArgs, TResult>: (...args) => TResult;
 
 #### Source
 
-[utils/type.ts:31](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/type.ts#L31)
+[utils/type.ts:31](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/type.ts#L31)
 
 ***
 
@@ -1226,7 +1222,7 @@ type CreateResourceReturn<TResult, TRefreshing>: [ResourceState<TResult>, Resour
 
 #### Source
 
-[resource/createResource.ts:9](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/createResource.ts#L9)
+[resource/createResource.ts:9](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/createResource.ts#L9)
 
 ***
 
@@ -1238,7 +1234,7 @@ type ExplicitFalsy: false | null | undefined;
 
 #### Source
 
-[utils/explicitFalsy.ts:1](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/explicitFalsy.ts#L1)
+[utils/explicitFalsy.ts:1](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/explicitFalsy.ts#L1)
 
 ***
 
@@ -1252,11 +1248,11 @@ type FlatStore<T>: Opaque<T, "@preact-signals/utils;flatStore">;
 
 | Type parameter |
 | :------ |
-| `T` extends [`Record`](../-internal--1.md#recordkt)\<`any`, `any`\> |
+| `T` extends `Record`\<`any`, `any`\> |
 
 #### Source
 
-[flat-store/createFlatStore.ts:79](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/flat-store/createFlatStore.ts#L79)
+[flat-store/createFlatStore.ts:79](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/flat-store/createFlatStore.ts#L79)
 
 ***
 
@@ -1270,11 +1266,11 @@ type FlatStoreOfSignalsBody<T>: SetReadonly<{ [TKey in keyof T]: T[TKey] extends
 
 | Type parameter |
 | :------ |
-| `T` extends [`Record`](../-internal--1.md#recordkt)\<`any`, `any`\> |
+| `T` extends `Record`\<`any`, `any`\> |
 
 #### Source
 
-[flat-store/createFlatStore.ts:111](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/flat-store/createFlatStore.ts#L111)
+[flat-store/createFlatStore.ts:111](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/flat-store/createFlatStore.ts#L111)
 
 ***
 
@@ -1293,7 +1289,7 @@ type GetTruthyValue<T, TFalsy>: T extends Accessor<infer U | TFalsy> ? U : T ext
 
 #### Source
 
-[utils/type.ts:11](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/type.ts#L11)
+[utils/type.ts:11](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/type.ts#L11)
 
 ***
 
@@ -1311,7 +1307,7 @@ type GetValue<T>: T extends Accessor<infer U> ? U : T extends ReadonlySignal<inf
 
 #### Source
 
-[utils/type.ts:19](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/type.ts#L19)
+[utils/type.ts:19](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/type.ts#L19)
 
 ***
 
@@ -1329,7 +1325,7 @@ type InitializedResource<T>: Ready<T> | Refreshing<T> | Errored<T>;
 
 #### Source
 
-[resource/resource.ts:90](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L90)
+[resource/resource.ts:90](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L90)
 
 ***
 
@@ -1347,7 +1343,7 @@ type Reactive<T>: ReadonlySignal<T> | Accessor<T>;
 
 #### Source
 
-[utils/type.ts:7](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/type.ts#L7)
+[utils/type.ts:7](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/type.ts#L7)
 
 ***
 
@@ -1361,11 +1357,11 @@ type ReadonlyFlatStore<T>: Readonly<FlatStore<T>>;
 
 | Type parameter |
 | :------ |
-| `T` extends [`Record`](../-internal--1.md#recordkt)\<`any`, `any`\> |
+| `T` extends `Record`\<`any`, `any`\> |
 
 #### Source
 
-[flat-store/createFlatStore.ts:84](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/flat-store/createFlatStore.ts#L84)
+[flat-store/createFlatStore.ts:84](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/flat-store/createFlatStore.ts#L84)
 
 ***
 
@@ -1383,14 +1379,41 @@ type ReadonlySignalsKeys<T>: keyof { [TKey in keyof T as IfNever<ReadonlyKeysOf<
 
 #### Source
 
-[flat-store/createFlatStore.ts:119](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/flat-store/createFlatStore.ts#L119)
+[flat-store/createFlatStore.ts:119](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/flat-store/createFlatStore.ts#L119)
 
 ***
 
 ### Resource\<TResult, TSource, TRefreshing, TSourceData\>
 
 ```ts
-type Resource<TResult, TSource, TRefreshing, TSourceData>: ResourceState<TResult> & Object;
+type Resource<TResult, TSource, TRefreshing, TSourceData>: ResourceState<TResult> & {
+  _mutate: ResourceActions<TResult | undefined, TRefreshing>["mutate"];
+  _refetch: ResourceActions<TResult, TRefreshing>["refetch"];
+  _state: FlatStore<ResourceStore<TResult, TSource>>;
+  abortController: AbortController | null;
+  fetcher: ResourceFetcher<TSourceData, TResult, TRefreshing>;
+  isInitialValueProvided: boolean;
+  manualActivation: boolean;
+  mutate: ResourceActions<TResult | undefined, TRefreshing>["mutate"];
+  pr: Promise<TResult> | null;
+  refetch: ResourceActions<TResult, TRefreshing>["refetch"];
+  refetchData: boolean | TRefreshing;
+  refetchEffect: null | () => void;
+  refreshDummy$: Signal<boolean>;
+  setter: FlatStoreSetter<ResourceStore<TResult, TSource>>;
+  get initialized: boolean;
+  _fetch: void;
+  _init: void;
+  _latest: undefined | TResult;
+  _onRead: void;
+  _read: undefined | TResult;
+  activate: Dispose;
+  dispose: void;
+  refetchDetector: {
+     refetching: TRefreshing | boolean;
+     source: GetValue<TSource>;
+  };
+};
 ```
 
 #### Type declaration
@@ -1567,7 +1590,7 @@ A function that should be used to activate the resource with manualActivation op
 
 ###### Returns
 
-[`Dispose`](../-internal--1.md#dispose-1)
+`Dispose`
 
 ##### dispose()
 
@@ -1581,7 +1604,12 @@ A function that should be used to activate the resource with manualActivation op
 
 ###### Returns
 
-`Object`
+```ts
+{
+  refetching: TRefreshing | boolean;
+  source: GetValue<TSource>;
+}
+```
 
 ###### refetching
 
@@ -1606,14 +1634,17 @@ source: GetValue<TSource>;
 
 #### Source
 
-[resource/resource.ts:155](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L155)
+[resource/resource.ts:155](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L155)
 
 ***
 
 ### ResourceActions\<TResult, TRefetch\>
 
 ```ts
-type ResourceActions<TResult, TRefetch>: Object;
+type ResourceActions<TResult, TRefetch>: {
+  mutate: Setter<TResult>;
+  refetch: (info?) => TResult | Promise<TResult> | undefined | null;
+};
 ```
 
 #### Type parameters
@@ -1649,7 +1680,7 @@ refetch: (info?) => TResult | Promise<TResult> | undefined | null;
 
 #### Source
 
-[resource/resource.ts:92](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L92)
+[resource/resource.ts:92](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L92)
 
 ***
 
@@ -1680,14 +1711,18 @@ type ResourceFetcher<TSourceData, TResult, TRefreshing>: (k, info) => TResult | 
 
 #### Source
 
-[resource/resource.ts:99](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L99)
+[resource/resource.ts:99](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L99)
 
 ***
 
 ### ResourceFetcherInfo\<TSourceData, TRefreshing\>
 
 ```ts
-type ResourceFetcherInfo<TSourceData, TRefreshing>: Object;
+type ResourceFetcherInfo<TSourceData, TRefreshing>: {
+  refetching: TRefreshing | boolean;
+  signal: AbortSignal;
+  value: TSourceData | undefined;
+};
 ```
 
 #### Type parameters
@@ -1721,14 +1756,22 @@ value: TSourceData | undefined;
 
 #### Source
 
-[resource/resource.ts:104](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L104)
+[resource/resource.ts:104](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L104)
 
 ***
 
 ### ResourceOptions\<TResult, TSource, TRefreshing, TSourceData\>
 
 ```ts
-type ResourceOptions<TResult, TSource, TRefreshing, TSourceData>: Object & Object | Object;
+type ResourceOptions<TResult, TSource, TRefreshing, TSourceData>: {
+  fetcher: ResourceFetcher<TSourceData, TResult, TRefreshing>;
+  initialValue: TResult;
+  source: TSource;
+  } & {
+  lazy: boolean;
+  } | {
+  manualActivation: boolean;
+};
 ```
 
 #### Type parameters
@@ -1742,7 +1785,7 @@ type ResourceOptions<TResult, TSource, TRefreshing, TSourceData>: Object & Objec
 
 #### Source
 
-[resource/resource.ts:110](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L110)
+[resource/resource.ts:110](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L110)
 
 ***
 
@@ -1764,7 +1807,7 @@ type ResourceSource<S>: () => S | false | null | undefined;
 
 #### Source
 
-[resource/resource.ts:97](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L97)
+[resource/resource.ts:97](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L97)
 
 ***
 
@@ -1787,7 +1830,7 @@ type ResourceState<T>:
 
 #### Source
 
-[resource/resource.ts:83](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L83)
+[resource/resource.ts:83](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L83)
 
 ***
 
@@ -1805,7 +1848,7 @@ type SolidSignalApi<T>: readonly [Accessor<T>, Setter<T>];
 
 #### Source
 
-[utils/toSolidApi.ts:8](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/toSolidApi.ts#L8)
+[utils/toSolidApi.ts:8](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/toSolidApi.ts#L8)
 
 ***
 
@@ -1823,7 +1866,7 @@ type UnwrapSignal<T>: T extends DeepSignal<infer V> ? UnwrapSignalSimple<V> : T 
 
 #### Source
 
-[store/deepSignal.ts:12](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/deepSignal.ts#L12)
+[store/deepSignal.ts:12](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/deepSignal.ts#L12)
 
 ***
 
@@ -1835,7 +1878,11 @@ type UnwrapSignalSimple<T>: T extends
   | CollectionTypes
   | BaseTypes
   | Signal
-  | Object ? T : T extends ReadonlyArray<any> ? { [K in keyof T]: UnwrapSignalSimple<T[K]> } : T extends object & Object ? { [P in keyof T]: P extends symbol ? T[P] : UnwrapSignal<T[P]> } : T;
+  | {
+  [RawSymbol]: true;
+  } ? T : T extends ReadonlyArray<any> ? { [K in keyof T]: UnwrapSignalSimple<T[K]> } : T extends object & {
+  [ShallowReactiveMarker]: never;
+  } ? { [P in keyof T]: P extends symbol ? T[P] : UnwrapSignal<T[P]> } : T;
 ```
 
 #### Type parameters
@@ -1846,7 +1893,7 @@ type UnwrapSignalSimple<T>: T extends
 
 #### Source
 
-[store/deepSignal.ts:18](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/deepSignal.ts#L18)
+[store/deepSignal.ts:18](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/deepSignal.ts#L18)
 
 ***
 
@@ -1864,14 +1911,17 @@ type WrapDeepSignal<T>: T extends Signal<any> ? T : DeepSignal<UnwrapSignal<T>>;
 
 #### Source
 
-[store/deepSignal.ts:49](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/deepSignal.ts#L49)
+[store/deepSignal.ts:49](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/deepSignal.ts#L49)
 
 ***
 
 ### WritableRefOptions\<T\>
 
 ```ts
-type WritableRefOptions<T>: Object;
+type WritableRefOptions<T>: {
+  get: T;
+  set: void;
+};
 ```
 
 #### Type parameters
@@ -1902,7 +1952,7 @@ type WritableRefOptions<T>: Object;
 
 #### Source
 
-[$.ts:47](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/$.ts#L47)
+[$.ts:47](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/$.ts#L47)
 
 ## Functions
 
@@ -1952,7 +2002,7 @@ const sig = signal(1);
 
 #### Source
 
-[$.ts:118](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/$.ts#L118)
+[$.ts:118](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/$.ts#L118)
 
 ***
 
@@ -2029,7 +2079,7 @@ const ref = $w({
 
 #### Source
 
-[$.ts:167](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/$.ts#L167)
+[$.ts:167](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/$.ts#L167)
 
 ***
 
@@ -2057,7 +2107,7 @@ accessorOfReactive<T>(signalOrAccessor): Accessor<GetValue<T>>
 
 #### Source
 
-[utils/reactive.ts:3](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/reactive.ts#L3)
+[utils/reactive.ts:3](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/reactive.ts#L3)
 
 ***
 
@@ -2077,7 +2127,7 @@ accessorOfSignal<T>(s): Accessor<T>
 
 | Parameter | Type |
 | :------ | :------ |
-| `s` | [`ReadonlySignal`](../-internal--1.md#readonlysignalt)\<`T`\> |
+| `s` | `ReadonlySignal`\<`T`\> |
 
 #### Returns
 
@@ -2085,7 +2135,7 @@ accessorOfSignal<T>(s): Accessor<T>
 
 #### Source
 
-[utils/getter.ts:8](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/getter.ts#L8)
+[utils/getter.ts:8](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/getter.ts#L8)
 
 ***
 
@@ -2099,7 +2149,7 @@ createFlatStore<T>(initialState): readonly [FlatStore<T>, FlatStoreSetter<T>]
 
 | Type parameter |
 | :------ |
-| `T` extends [`Record`](../-internal--1.md#recordkt)\<`any`, `any`\> |
+| `T` extends `Record`\<`any`, `any`\> |
 
 #### Parameters
 
@@ -2109,11 +2159,11 @@ createFlatStore<T>(initialState): readonly [FlatStore<T>, FlatStoreSetter<T>]
 
 #### Returns
 
-readonly [[`FlatStore`](README.md#flatstoret)\<`T`\>, [`FlatStoreSetter`](../-internal--1.md#flatstoresettert)\<`T`\>]
+readonly [[`FlatStore`](README.md#flatstoret)\<`T`\>, `FlatStoreSetter`\<`T`\>]
 
 #### Source
 
-[flat-store/createFlatStore.ts:161](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/flat-store/createFlatStore.ts#L161)
+[flat-store/createFlatStore.ts:161](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/flat-store/createFlatStore.ts#L161)
 
 ***
 
@@ -2127,7 +2177,7 @@ createFlatStoreOfSignals<T>(initialState): readonly [FlatStore<SetReadonly<{ [TK
 
 | Type parameter |
 | :------ |
-| `T` extends [`Record`](../-internal--1.md#recordkt)\<`any`, `any`\> |
+| `T` extends `Record`\<`any`, `any`\> |
 
 #### Parameters
 
@@ -2137,11 +2187,11 @@ createFlatStoreOfSignals<T>(initialState): readonly [FlatStore<SetReadonly<{ [TK
 
 #### Returns
 
-readonly [[`FlatStore`](README.md#flatstoret)\<[`SetReadonly`](../-internal--1.md#setreadonlybasetypekeys)\<`{ [TKey in string | number | symbol]: T[TKey] extends ReadonlySignal<TValue> ? TValue : T[TKey] }`, keyof `{ [TKey in string | number | symbol as IfNever<ReadonlyKeysOf<T[TKey]>, never, T[TKey] extends ReadonlySignal<unknown> ? TKey : never>]: T[TKey] }`\>\>, [`FlatStoreSetter`](../-internal--1.md#flatstoresettert)\<[`SetReadonly`](../-internal--1.md#setreadonlybasetypekeys)\<`{ [TKey in string | number | symbol]: T[TKey] extends ReadonlySignal<TValue> ? TValue : T[TKey] }`, keyof `{ [TKey in string | number | symbol as IfNever<ReadonlyKeysOf<T[TKey]>, never, T[TKey] extends ReadonlySignal<unknown> ? TKey : never>]: T[TKey] }`\>\>]
+readonly [[`FlatStore`](README.md#flatstoret)\<`SetReadonly`\<`{ [TKey in string | number | symbol]: T[TKey] extends ReadonlySignal<TValue> ? TValue : T[TKey] }`, keyof `{ [TKey in string | number | symbol as IfNever<ReadonlyKeysOf<T[TKey]>, never, T[TKey] extends ReadonlySignal<unknown> ? TKey : never>]: T[TKey] }`\>\>, `FlatStoreSetter`\<`SetReadonly`\<`{ [TKey in string | number | symbol]: T[TKey] extends ReadonlySignal<TValue> ? TValue : T[TKey] }`, keyof `{ [TKey in string | number | symbol as IfNever<ReadonlyKeysOf<T[TKey]>, never, T[TKey] extends ReadonlySignal<unknown> ? TKey : never>]: T[TKey] }`\>\>]
 
 #### Source
 
-[flat-store/createFlatStore.ts:169](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/flat-store/createFlatStore.ts#L169)
+[flat-store/createFlatStore.ts:169](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/flat-store/createFlatStore.ts#L169)
 
 ***
 
@@ -2192,7 +2242,7 @@ const [resource, { mutate, refetch }] = createResource({
 
 #### Source
 
-[resource/createResource.ts:39](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/createResource.ts#L39)
+[resource/createResource.ts:39](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/createResource.ts#L39)
 
 ***
 
@@ -2222,7 +2272,7 @@ Takes an inner value and returns a reactive and mutable signal, with deepReactiv
 
 #### Source
 
-[store/deepSignal.ts:59](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/deepSignal.ts#L59)
+[store/deepSignal.ts:59](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/deepSignal.ts#L59)
 
 ***
 
@@ -2236,7 +2286,7 @@ flatStore<T>(initialState): FlatStore<T>
 
 | Type parameter |
 | :------ |
-| `T` extends [`Record`](../-internal--1.md#recordkt)\<`any`, `any`\> |
+| `T` extends `Record`\<`any`, `any`\> |
 
 #### Parameters
 
@@ -2250,7 +2300,7 @@ flatStore<T>(initialState): FlatStore<T>
 
 #### Source
 
-[flat-store/createFlatStore.ts:93](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/flat-store/createFlatStore.ts#L93)
+[flat-store/createFlatStore.ts:93](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/flat-store/createFlatStore.ts#L93)
 
 ***
 
@@ -2264,7 +2314,7 @@ flatStoreOfSignals<T>(initialState): FlatStore<SetReadonly<{ [TKey in string | n
 
 | Type parameter |
 | :------ |
-| `T` extends [`Record`](../-internal--1.md#recordkt)\<`any`, `any`\> |
+| `T` extends `Record`\<`any`, `any`\> |
 
 #### Parameters
 
@@ -2274,11 +2324,11 @@ flatStoreOfSignals<T>(initialState): FlatStore<SetReadonly<{ [TKey in string | n
 
 #### Returns
 
-[`FlatStore`](README.md#flatstoret)\<[`SetReadonly`](../-internal--1.md#setreadonlybasetypekeys)\<`{ [TKey in string | number | symbol]: T[TKey] extends ReadonlySignal<TValue> ? TValue : T[TKey] }`, keyof `{ [TKey in string | number | symbol as IfNever<ReadonlyKeysOf<T[TKey]>, never, T[TKey] extends ReadonlySignal<unknown> ? TKey : never>]: T[TKey] }`\>\>
+[`FlatStore`](README.md#flatstoret)\<`SetReadonly`\<`{ [TKey in string | number | symbol]: T[TKey] extends ReadonlySignal<TValue> ? TValue : T[TKey] }`, keyof `{ [TKey in string | number | symbol as IfNever<ReadonlyKeysOf<T[TKey]>, never, T[TKey] extends ReadonlySignal<unknown> ? TKey : never>]: T[TKey] }`\>\>
 
 #### Source
 
-[flat-store/createFlatStore.ts:132](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/flat-store/createFlatStore.ts#L132)
+[flat-store/createFlatStore.ts:132](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/flat-store/createFlatStore.ts#L132)
 
 ***
 
@@ -2300,7 +2350,7 @@ isExplicitFalsy(value): value is ExplicitFalsy
 
 #### Source
 
-[utils/explicitFalsy.ts:3](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/explicitFalsy.ts#L3)
+[utils/explicitFalsy.ts:3](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/explicitFalsy.ts#L3)
 
 ***
 
@@ -2322,7 +2372,7 @@ isSignal(val): val is Signal<any>
 
 #### Source
 
-[store/utils.ts:119](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/store/utils.ts#L119)
+[store/utils.ts:119](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/store/utils.ts#L119)
 
 ***
 
@@ -2349,17 +2399,17 @@ Creates a reactive effect that runs the given function whenever any of the depen
 | :------ | :------ | :------ |
 | `deps` | () => `T` | A function that returns the dependencies for the effect. |
 | `fn` | (`dep`, `options`) => `void` | A function that runs after deps changes in next requestAnimationFrame. It receives the dependencies and an options object with a `isFirst` property that is `true` on the first run of the effect. |
-| `options`? | [`ReactionOptions`](../-internal--1.md#reactionoptions) | A options object that contains `memoize` prop that tells should deps function result be memoized |
+| `options`? | `ReactionOptions` | A options object that contains `memoize` prop that tells should deps function result be memoized |
 
 #### Returns
 
-[`Dispose`](../-internal--1.md#dispose)
+`Dispose`
 
 A function that can be called to dispose of the effect.
 
 #### Source
 
-[utils/reaction.ts:159](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/reaction.ts#L159)
+[utils/reaction.ts:159](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/reaction.ts#L159)
 
 ***
 
@@ -2393,18 +2443,18 @@ effect(() => {
 | Parameter | Type | Description |
 | :------ | :------ | :------ |
 | `deps` | () => `T` | A function that returns the dependencies for the effect. |
-| `fn` | (`dep`, `options`) => `void` \| [`ReactionDispose`](../-internal--1.md#reactiondispose) | A function that runs the effect. It receives the dependencies and an options object with a `isFirst` property that is `true` on the first run of the effect. |
-| `options`? | [`ReactionOptions`](../-internal--1.md#reactionoptions) | A options object that contains `memoize` prop that tells should deps function result be memoized |
+| `fn` | (`dep`, `options`) => `void` \| `ReactionDispose` | A function that runs the effect. It receives the dependencies and an options object with a `isFirst` property that is `true` on the first run of the effect. |
+| `options`? | `ReactionOptions` | A options object that contains `memoize` prop that tells should deps function result be memoized |
 
 #### Returns
 
-[`Dispose`](../-internal--1.md#dispose)
+`Dispose`
 
 A function that can be called to dispose of the effect.
 
 #### Source
 
-[utils/reaction.ts:115](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/reaction.ts#L115)
+[utils/reaction.ts:115](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/reaction.ts#L115)
 
 ***
 
@@ -2429,7 +2479,7 @@ More preact signals like resource api
 
 | Parameter | Type |
 | :------ | :------ |
-| `options` | `Object` & `Object` \| `Object` |
+| `options` | \{ `fetcher`: [`ResourceFetcher`](README.md#resourcefetchertsourcedatatresulttrefreshing)\<`TSourceData`, `TResult`, `TRefreshing`\>; `initialValue`: `TResult`; `source`: `TSource`; } & \{ `lazy`: `boolean`; } \| \{ `manualActivation`: `boolean`; } |
 
 #### Returns
 
@@ -2437,7 +2487,7 @@ More preact signals like resource api
 
 #### Source
 
-[resource/resource.ts:521](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/resource/resource.ts#L521)
+[resource/resource.ts:521](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/resource/resource.ts#L521)
 
 ***
 
@@ -2465,7 +2515,7 @@ setterOfSignal<T>(signal): Setter<T>
 
 #### Source
 
-[utils/setter.ts:15](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/setter.ts#L15)
+[utils/setter.ts:15](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/setter.ts#L15)
 
 ***
 
@@ -2489,11 +2539,11 @@ signalOf$<T>($value): ReadonlySignal<T>
 
 #### Returns
 
-[`ReadonlySignal`](../-internal--1.md#readonlysignalt)\<`T`\>
+`ReadonlySignal`\<`T`\>
 
 #### Source
 
-[$.ts:171](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/$.ts#L171)
+[$.ts:171](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/$.ts#L171)
 
 ***
 
@@ -2513,7 +2563,7 @@ stableAccessorOfSignal<T>(s): Accessor<T>
 
 | Parameter | Type |
 | :------ | :------ |
-| `s` | [`ReadonlySignal`](../-internal--1.md#readonlysignalt)\<`T`\> |
+| `s` | `ReadonlySignal`\<`T`\> |
 
 #### Returns
 
@@ -2521,7 +2571,7 @@ stableAccessorOfSignal<T>(s): Accessor<T>
 
 #### Source
 
-[utils/getter.ts:13](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/getter.ts#L13)
+[utils/getter.ts:13](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/getter.ts#L13)
 
 ***
 
@@ -2543,7 +2593,7 @@ toggleSignal(sig): void
 
 #### Source
 
-[utils/setter.ts:18](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/setter.ts#L18)
+[utils/setter.ts:18](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/setter.ts#L18)
 
 ***
 
@@ -2571,7 +2621,7 @@ untracked<T>(untrackedExecutor): T
 
 #### Source
 
-[../../../unified-signals/src/index.d.ts:2](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/unified-signals/src/index.d.ts#L2)
+[../../../unified-signals/src/index.d.ts:2](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/unified-signals/src/index.d.ts#L2)
 
 ***
 
@@ -2599,7 +2649,7 @@ unwrapReactive<T>(signalOrAccessor): GetValue<T>
 
 #### Source
 
-[utils/reactive.ts:10](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/reactive.ts#L10)
+[utils/reactive.ts:10](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/reactive.ts#L10)
 
 ***
 
@@ -2642,7 +2692,7 @@ console.log(arr.value) // [1, 4, 3]
 
 #### Source
 
-[utils/object.ts:52](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/object.ts#L52)
+[utils/object.ts:52](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/object.ts#L52)
 
 ***
 
@@ -2658,7 +2708,7 @@ Allows to create writableRef to object property of Signal. Using of `deepSignal`
 
 | Type parameter |
 | :------ |
-| `T` extends [`Record`](../-internal--1.md#recordkt)\<`any`, `any`\> |
+| `T` extends `Record`\<`any`, `any`\> |
 | `K` extends `string` \| `number` \| `symbol` |
 
 #### Parameters
@@ -2688,4 +2738,4 @@ console.log(obj.value.a) // 2
 
 #### Source
 
-[utils/object.ts:22](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/utils/object.ts#L22)
+[utils/object.ts:22](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/utils/object.ts#L22)

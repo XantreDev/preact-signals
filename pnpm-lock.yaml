@@ -546,9 +546,6 @@ importers:
       typedoc-plugin-markdown:
         specifier: 4.0.0-next.53
         version: 4.0.0-next.53(typedoc@0.25.8)
-      typedoc-plugin-missing-exports:
-        specifier: ^2.2.0
-        version: 2.2.0(typedoc@0.25.8)
       zx:
         specifier: ^7.2.3
         version: 7.2.3
@@ -10798,14 +10795,6 @@ packages:
     resolution: {integrity: sha512-vESy94SQV77EaDALA7WvLYPGtPKAuDtqhtShZA6sNs+OxkW8Uh+DoZ5Q6gpgu0MnIkLijHnv038kNP87Gl2vpw==}
     peerDependencies:
       typedoc: 0.25.x
-    dependencies:
-      typedoc: 0.25.8(typescript@5.3.3)
-    dev: true
-
-  /typedoc-plugin-missing-exports@2.2.0(typedoc@0.25.8):
-    resolution: {integrity: sha512-2+XR1IcyQ5UwXZVJe9NE6HrLmNufT9i5OwoIuuj79VxuA3eYq+Y6itS9rnNV1D7UeQnUSH8kISYD73gHE5zw+w==}
-    peerDependencies:
-      typedoc: 0.24.x || 0.25.x
     dependencies:
       typedoc: 0.25.8(typescript@5.3.3)
     dev: true
