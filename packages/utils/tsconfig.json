@@ -13,6 +13,7 @@
     "**/__test__/**",
     "**/node_modules/**",
     "./import-checker.mjs",
+    "./build-typedoc.mjs",
     "rollup.config.mjs",
     "vitest.config.ts",
     "setupVitest.ts",
