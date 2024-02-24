@@ -6,7 +6,7 @@ console.log(
 /**
  * This function is compile time shorthand for `$(() => value)`
  *
- * @example shorthand for `$(() => value)`
+ * @example 
  * ```tsx
  * import { $$ } from "@preact-signals/utils/macro";
  *

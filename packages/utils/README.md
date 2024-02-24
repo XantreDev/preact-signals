@@ -6,7 +6,7 @@
 
 ![Example](./example.png)
 
-## [Documentation](https://tsdocs.dev/docs/@preact-signals/utils)
+## [Documentation](./docs/README.md)
 
 ## Table of Contents
 
