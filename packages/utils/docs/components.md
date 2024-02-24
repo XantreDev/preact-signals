@@ -6,6 +6,10 @@
 
 # components
 
+## Modules
+
+- [\<internal\>](-internal-.md)
+
 ## Type Aliases
 
 ### ComputedProps
@@ -24,14 +28,14 @@ children: Accessor<RenderResult>;
 
 #### Source
 
-[components/components/Computed.tsx:5](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/Computed.tsx#L5)
+[components/components/Computed.tsx:5](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/components/components/Computed.tsx#L5)
 
 ***
 
 ### ForProps\<T\>
 
 ```ts
-type ForProps<T>: Object & GetArrItemValue<T> extends React.Key ? Object : Object;
+type ForProps<T>: Object & GetArrItemValue<T> extends Key ? Object : Object;
 ```
 
 #### Type declaration
@@ -46,7 +50,7 @@ children: (accessor, index) => RenderResult;
 
 | Parameter | Type |
 | :------ | :------ |
-| `accessor` | `GetArrItemValue`\<`T`\> |
+| `accessor` | [`GetArrItemValue`](-internal-.md#getarritemvaluet)\<`T`\> |
 | `index` | `number` |
 
 ###### Returns
@@ -73,7 +77,7 @@ optional fallback: RenderResult;
 
 #### Source
 
-[components/components/For.tsx:13](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/For.tsx#L13)
+[components/components/For.tsx:13](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/components/components/For.tsx#L13)
 
 ***
 
@@ -93,14 +97,14 @@ type If<T, A, B>: T extends true ? A : B;
 
 #### Source
 
-[components/type.ts:2](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/type.ts#L2)
+[components/type.ts:2](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/components/type.ts#L2)
 
 ***
 
 ### KeyExtractor\<T\>
 
 ```ts
-type KeyExtractor<T>: (item, index) => React.Key;
+type KeyExtractor<T>: (item, index) => Key;
 ```
 
 #### Type parameters
@@ -118,11 +122,11 @@ type KeyExtractor<T>: (item, index) => React.Key;
 
 #### Returns
 
-`React.Key`
+[`Key`](-internal-.md#key-1)
 
 #### Source
 
-[components/components/For.tsx:12](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/For.tsx#L12)
+[components/components/For.tsx:12](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/components/components/For.tsx#L12)
 
 ***
 
@@ -156,19 +160,19 @@ when: T;
 
 #### Source
 
-[components/components/Switch.tsx:14](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/Switch.tsx#L14)
+[components/components/Switch.tsx:14](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/components/components/Switch.tsx#L14)
 
 ***
 
 ### RenderResult
 
 ```ts
-type RenderResult: React.ReactNode;
+type RenderResult: ReactNode;
 ```
 
 #### Source
 
-[components/type.ts:1](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/type.ts#L1)
+[components/type.ts:1](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/components/type.ts#L1)
 
 ***
 
@@ -206,7 +210,7 @@ when: T;
 
 #### Source
 
-[components/components/Show.tsx:9](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/Show.tsx#L9)
+[components/components/Show.tsx:9](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/components/components/Show.tsx#L9)
 
 ***
 
@@ -221,7 +225,7 @@ type SwitchProps: Object;
 ##### children
 
 ```ts
-children: JSX.Element | JSX.Element[];
+children: Element | Element[];
 ```
 
 shouldn't change during the lifecycle of the component
@@ -236,7 +240,7 @@ shouldn't change during the lifecycle of the component
 
 #### Source
 
-[components/components/Switch.tsx:32](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/Switch.tsx#L32)
+[components/components/Switch.tsx:32](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/components/components/Switch.tsx#L32)
 
 ## Functions
 
@@ -254,13 +258,13 @@ Computed(__namedParameters): Element
 
 #### Returns
 
-`Element`
+[`Element`](-internal-.md#element)
 
 #### Use Signals
 
 #### Source
 
-[components/components/Computed.tsx:12](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/Computed.tsx#L12)
+[components/components/Computed.tsx:12](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/components/components/Computed.tsx#L12)
 
 ***
 
@@ -284,13 +288,13 @@ For<T>(__namedParameters): Element
 
 #### Returns
 
-`Element`
+[`Element`](-internal-.md#element)
 
 #### Use Signals
 
 #### Source
 
-[components/components/For.tsx:24](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/For.tsx#L24)
+[components/components/For.tsx:24](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/components/components/For.tsx#L24)
 
 ***
 
@@ -318,7 +322,7 @@ Match<T>(_props): null
 
 #### Source
 
-[components/components/Switch.tsx:26](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/Switch.tsx#L26)
+[components/components/Switch.tsx:26](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/components/components/Switch.tsx#L26)
 
 ***
 
@@ -342,13 +346,13 @@ Show<T>(props): Element
 
 #### Returns
 
-`Element`
+[`Element`](-internal-.md#element)
 
 #### Use Signals
 
 #### Source
 
-[components/components/Show.tsx:18](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/Show.tsx#L18)
+[components/components/Show.tsx:18](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/components/components/Show.tsx#L18)
 
 ***
 
@@ -366,7 +370,7 @@ Switch(props): Element
 
 #### Returns
 
-`Element`
+[`Element`](-internal-.md#element)
 
 #### Use Signals
 
@@ -391,4 +395,4 @@ Switch(props): Element
 
 #### Source
 
-[components/components/Switch.tsx:62](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/Switch.tsx#L62)
+[components/components/Switch.tsx:62](https://github.com/XantreGodlike/preact-signals/blob/4d16c2f/packages/utils/src/lib/components/components/Switch.tsx#L62)
