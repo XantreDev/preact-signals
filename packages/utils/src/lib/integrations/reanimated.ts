@@ -15,6 +15,26 @@ import {
   withTiming,
 } from "react-native-reanimated";
 
+/**
+ *
+ * @example
+ * ```tsx
+ * import { useSharedValue } from "react-native-reanimated";
+ * import { useSignalOfSharedValue } from "@preact-signals/utils/integrations/reanimated";
+ *
+ * function ExampleComponent() {
+ *   const sharedValue = useSharedValue(0);
+ *   const signal = useSignalOfSharedValue(sharedValue);
+ *
+ *   useSignalEffect(() => {
+ *     // running some code on JS thread
+ *   })
+ *
+ *
+ *  // ... rest of the component
+ * }
+ * ```
+ */
 export const useSignalOfSharedValue = <T>(shared: Readonly<SharedValue<T>>) => {
   const sig = useSignal(shared.value);
   const updateSignal = (newValue: T) => {
@@ -38,6 +58,24 @@ export const useComputedOfSharedValue = <T, TResult>(
   return useComputed(() => compute(sig.value));
 };
 
+/**
+ * @description creates a shared value from a signal.
+ *
+ * @example
+ * ```tsx
+ * function ExampleComponent() {
+ *   const signal = useSignal(0);
+ *   const sharedValue = useSharedValueOfSignal(signal);
+ *
+ *   // Now you can use the shared value in your component
+ *   // ...
+ *
+ *   return <Animated.View style={useAnimatedStyle(() => ({
+ *     opacity: sharedValue.value,
+ *    }))} />;
+ * }
+ * ```
+ */
 export const useSharedValueOfSignal = <T>(
   _sig: ReadonlySignal<T>
 ): Readonly<SharedValue<T>> => {
@@ -75,6 +113,36 @@ export const useSharedValueOfAccessor = <T>(
   return shared;
 };
 
+/**
+ * @description applies withSpring or withTiming to shared value of accessor
+ * @example
+ * ```tsx
+ * const maxLength = 10
+ * function ExampleComponent() {
+ *  const input = useSignal('')
+ *  const progress = useAnimatedSharedValueOfAccessor(
+ *   () => input.value.length / maxLength,
+ *   {
+ *     type: 'spring',
+ *     params: {
+ *       damping: 10,
+ *     }
+ *  })
+ *
+ *  return (
+ *    <View>
+ *      <CustomInput value={input} onChangeText={(v) => input.value = v} />
+ *      <Animated.View style={useAnimatedStyle(() => ({
+ *       alignSelf: 'stretch',
+ *       height: 10,
+ *       transform: [{ scaleX: progress.value }],
+ *     }))} />
+ *    </View>
+ *  );
+ * }
+ * ```
+ *
+ */
 export const useAnimatedSharedValueOfAccessor = <T extends AnimatableValue>(
   accessor: () => T,
   animateOptions:
