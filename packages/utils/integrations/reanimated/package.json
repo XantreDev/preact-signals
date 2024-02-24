@@ -1,0 +1,5 @@
+{
+  "main": "../../dist/cjs/lib/integrations/reanimated.cjs",
+  "react-native": "../../src/lib/integrations/reanimated.ts",
+  "types": "../../dist/types/lib/integrations/reanimated.d.ts"
+}

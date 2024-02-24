@@ -33,49 +33,64 @@
       "types": "./dist/types/lib/index.d.ts",
       "import": "./dist/esm/lib/index.mjs",
       "react-native": "./src/lib/index.ts",
-      "require": "./dist/cjs/lib/index.cjs"
+      "require": "./dist/cjs/lib/index.cjs",
+      "source": "./src/lib/index.ts"
     },
     "./hooks": {
       "types": "./dist/types/lib/hooks/index.d.ts",
       "import": "./dist/esm/lib/hooks/index.mjs",
       "react-native": "./src/lib/hooks/index.ts",
-      "require": "./dist/cjs/lib/hooks/index.cjs"
+      "require": "./dist/cjs/lib/hooks/index.cjs",
+      "source": "./src/lib/hooks/index.ts"
     },
     "./components": {
       "types": "./dist/types/lib/components/index.d.ts",
       "import": "./dist/esm/lib/components/index.mjs",
       "react-native": "./src/lib/components/index.ts",
-      "require": "./dist/cjs/lib/components/index.cjs"
+      "require": "./dist/cjs/lib/components/index.cjs",
+      "source": "./src/lib/components/index.ts"
     },
     "./hocs": {
       "types": "./dist/types/lib/hocs/index.d.ts",
       "import": "./dist/esm/lib/hocs/index.mjs",
       "react-native": "./src/lib/hocs/index.ts",
-      "require": "./dist/cjs/lib/hocs/index.cjs"
+      "require": "./dist/cjs/lib/hocs/index.cjs",
+      "source": "./src/lib/hocs/index.ts"
     },
     "./store": {
       "types": "./dist/types/lib/store/index.d.ts",
       "import": "./dist/esm/lib/store/index.mjs",
       "react-native": "./src/lib/store/index.ts",
-      "require": "./dist/cjs/lib/store/index.cjs"
+      "require": "./dist/cjs/lib/store/index.cjs",
+      "source": "./src/lib/store/index.ts"
     },
     "./store/hooks": {
       "types": "./dist/types/lib/hooks/store.d.ts",
       "import": "./dist/esm/lib/hooks/store.mjs",
       "react-native": "./src/lib/hooks/store.ts",
-      "require": "./dist/cjs/lib/hooks/store.cjs"
+      "require": "./dist/cjs/lib/hooks/store.cjs",
+      "source": "./src/lib/hooks/store.ts"
     },
     "./macro": {
       "types": "./dist/types/macro.d.ts",
       "import": "./dist/esm/macro.mjs",
       "react-native": "./src/macro.ts",
-      "require": "./dist/cjs/macro.cjs"
+      "require": "./dist/cjs/macro.cjs",
+      "source": "./src/macro.ts"
     },
     "./babel": {
       "types": "./dist/types/babel.d.ts",
       "import": "./dist/esm/babel.mjs",
       "react-native": "./src/babel.ts",
-      "require": "./dist/cjs/babel.cjs"
+      "require": "./dist/cjs/babel.cjs",
+      "source": "./src/babel.ts"
+    },
+    "./integrations/reanimated": {
+      "types": "./dist/types/lib/integrations/reanimated.d.ts",
+      "import": "./dist/esm/lib/integrations/reanimated.mjs",
+      "react-native": "./src/lib/integrations/reanimated.ts",
+      "require": "./dist/cjs/lib/integrations/reanimated.cjs",
+      "source": "./src/lib/integrations/reanimated.ts"
     },
     "./package.json": "./package.json"
   },
@@ -112,7 +127,8 @@
     "@preact/signals": ">=1.1.0",
     "@preact/signals-core": ">=1.1.0",
     "@preact/signals-react": ">=1.2.0",
-    "react": "17.*.* || 18.*.*"
+    "react": "17.*.* || 18.*.*",
+    "react-native-reanimated": ">=2.2.0"
   },
   "peerDependenciesMeta": {
     "react": {
@@ -129,6 +145,9 @@
     },
     "@preact-signals/safe-react": {
       "optional": true
+    },
+    "react-native-reanimated": {
+      "optional": true
     }
   },
   "dependencies": {
@@ -142,6 +161,8 @@
   "devDependencies": {
     "@preact-signals/unified-signals": "workspace:*",
     "@preact/signals-react": "^1.3.6",
+    "@rollup/plugin-replace": "^5.0.5",
+    "@rollup/plugin-typescript": "^11.1.5",
     "@types/babel__core": "^7.20.4",
     "@types/babel__helper-module-imports": "^7.18.3",
     "@types/babel__traverse": "^7.20.4",
@@ -155,11 +176,10 @@
     "radash": "^11.0.0",
     "react": "^18",
     "react-dom": "^18",
+    "react-native-reanimated": "^3.7.0",
     "rollup": "^3.29.4",
     "rollup-plugin-esbuild": "^5.0.0",
-    "rollup-plugin-node-externals": "^6.1.2",
-    "@rollup/plugin-replace": "^5.0.5",
-    "@rollup/plugin-typescript": "^11.1.5"
+    "rollup-plugin-node-externals": "^6.1.2"
   },
   "keywords": [
     "preact signals",
