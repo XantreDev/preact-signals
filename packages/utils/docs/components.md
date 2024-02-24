@@ -24,7 +24,7 @@ children: Accessor<RenderResult>;
 
 #### Source
 
-[components/components/Computed.tsx:5](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/components/components/Computed.tsx#L5)
+[components/components/Computed.tsx:5](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/Computed.tsx#L5)
 
 ***
 
@@ -73,7 +73,7 @@ optional fallback: RenderResult;
 
 #### Source
 
-[components/components/For.tsx:13](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/components/components/For.tsx#L13)
+[components/components/For.tsx:13](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/For.tsx#L13)
 
 ***
 
@@ -93,7 +93,7 @@ type If<T, A, B>: T extends true ? A : B;
 
 #### Source
 
-[components/type.ts:2](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/components/type.ts#L2)
+[components/type.ts:2](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/type.ts#L2)
 
 ***
 
@@ -122,7 +122,7 @@ type KeyExtractor<T>: (item, index) => React.Key;
 
 #### Source
 
-[components/components/For.tsx:12](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/components/components/For.tsx#L12)
+[components/components/For.tsx:12](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/For.tsx#L12)
 
 ***
 
@@ -156,7 +156,7 @@ when: T;
 
 #### Source
 
-[components/components/Switch.tsx:14](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/components/components/Switch.tsx#L14)
+[components/components/Switch.tsx:14](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/Switch.tsx#L14)
 
 ***
 
@@ -168,7 +168,7 @@ type RenderResult: React.ReactNode;
 
 #### Source
 
-[components/type.ts:1](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/components/type.ts#L1)
+[components/type.ts:1](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/type.ts#L1)
 
 ***
 
@@ -206,7 +206,7 @@ when: T;
 
 #### Source
 
-[components/components/Show.tsx:9](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/components/components/Show.tsx#L9)
+[components/components/Show.tsx:9](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/Show.tsx#L9)
 
 ***
 
@@ -236,7 +236,7 @@ shouldn't change during the lifecycle of the component
 
 #### Source
 
-[components/components/Switch.tsx:32](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/components/components/Switch.tsx#L32)
+[components/components/Switch.tsx:32](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/Switch.tsx#L32)
 
 ## Functions
 
@@ -260,7 +260,7 @@ Computed(__namedParameters): Element
 
 #### Source
 
-[components/components/Computed.tsx:12](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/components/components/Computed.tsx#L12)
+[components/components/Computed.tsx:12](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/Computed.tsx#L12)
 
 ***
 
@@ -290,7 +290,7 @@ For<T>(__namedParameters): Element
 
 #### Source
 
-[components/components/For.tsx:24](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/components/components/For.tsx#L24)
+[components/components/For.tsx:24](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/For.tsx#L24)
 
 ***
 
@@ -318,7 +318,7 @@ Match<T>(_props): null
 
 #### Source
 
-[components/components/Switch.tsx:26](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/components/components/Switch.tsx#L26)
+[components/components/Switch.tsx:26](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/Switch.tsx#L26)
 
 ***
 
@@ -348,7 +348,7 @@ Show<T>(props): Element
 
 #### Source
 
-[components/components/Show.tsx:18](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/components/components/Show.tsx#L18)
+[components/components/Show.tsx:18](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/Show.tsx#L18)
 
 ***
 
@@ -391,4 +391,4 @@ Switch(props): Element
 
 #### Source
 
-[components/components/Switch.tsx:62](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/components/components/Switch.tsx#L62)
+[components/components/Switch.tsx:62](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/components/components/Switch.tsx#L62)

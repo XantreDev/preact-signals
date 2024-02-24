@@ -1,10 +1,10 @@
-**Preact signals utils documentation** • [API](utils/README.md)
+**Preact signals utils documentation** • [API](README.md)
 
 ***
 
-[Preact signals utils documentation](utils/README.md) / ../macro
+[Preact signals utils documentation](README.md) / macro
 
-# ../macro
+# macro
 
 ## Functions
 
@@ -30,7 +30,7 @@ This function is compile time shorthand for `$(() => value)`
 
 #### Returns
 
-[`Uncached`](utils/index/README.md#uncachedt)\<`T`\>
+[`Uncached`](index/README.md#uncachedt)\<`T`\>
 
 #### Example
 
@@ -64,4 +64,4 @@ a.value = 2
 
 #### Source
 
-[../macro.ts:37](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/macro.ts#L37)
+macro.ts:37

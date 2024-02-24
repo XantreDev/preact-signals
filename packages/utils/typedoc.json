@@ -12,7 +12,7 @@
     "./src/lib/components/index.ts",
     "./src/lib/integrations/reanimated.ts",
     "./src/lib/hocs/index.ts",
-    "./src/macro.ts"
+    "./src/lib/macro.ts"
   ],
   "useCodeBlocks": true,
   "parametersFormat": "table",

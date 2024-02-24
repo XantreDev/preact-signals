@@ -112,7 +112,7 @@ return: never;
 
 ###### Source
 
-[hocs/reactifyLite.ts:21](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hocs/reactifyLite.ts#L21)
+[hocs/reactifyLite.ts:21](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hocs/reactifyLite.ts#L21)
 
 ***
 
@@ -220,7 +220,7 @@ return: never;
 
 ###### Source
 
-[hocs/withSignalProps.ts:7](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hocs/withSignalProps.ts#L7)
+[hocs/withSignalProps.ts:7](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hocs/withSignalProps.ts#L7)
 
 ## Type Aliases
 
@@ -238,7 +238,7 @@ type ReactiveProps<T>: Opaque<T, "reactify.reactive-props">;
 
 #### Source
 
-[hocs/reactifyLite.ts:26](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hocs/reactifyLite.ts#L26)
+[hocs/reactifyLite.ts:26](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hocs/reactifyLite.ts#L26)
 
 ## Functions
 
@@ -296,7 +296,7 @@ const App = () => {
 
 #### Source
 
-[hocs/reactifyLite.ts:122](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hocs/reactifyLite.ts#L122)
+[hocs/reactifyLite.ts:122](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hocs/reactifyLite.ts#L122)
 
 ***
 
@@ -326,4 +326,4 @@ Allows to pass props to third party components that are not aware of signals. Th
 
 #### Source
 
-[hocs/withSignalProps.ts:43](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hocs/withSignalProps.ts#L43)
+[hocs/withSignalProps.ts:43](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hocs/withSignalProps.ts#L43)

@@ -16,7 +16,7 @@ type AnyRecord: Record<any, any>;
 
 #### Source
 
-[hooks/flat-store.ts:6](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hooks/flat-store.ts#L6)
+[hooks/flat-store.ts:6](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hooks/flat-store.ts#L6)
 
 ***
 
@@ -34,7 +34,7 @@ type UnwrapSignalDeep<T>: T extends ReadonlySignal<infer V> ? UnwrapSignalDeep<V
 
 #### Source
 
-[hooks/useLinkedSignal.ts:8](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hooks/useLinkedSignal.ts#L8)
+[hooks/useLinkedSignal.ts:8](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hooks/useLinkedSignal.ts#L8)
 
 ## Functions
 
@@ -62,7 +62,7 @@ useComputedFlatStore<T>(storeUpdater): Readonly<FlatStore<T>>
 
 #### Source
 
-[hooks/flat-store.ts:33](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hooks/flat-store.ts#L33)
+[hooks/flat-store.ts:33](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hooks/flat-store.ts#L33)
 
 ***
 
@@ -92,7 +92,7 @@ static reference computed
 
 #### Source
 
-[hooks/useComputedOnce.ts:9](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hooks/useComputedOnce.ts#L9)
+[hooks/useComputedOnce.ts:9](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hooks/useComputedOnce.ts#L9)
 
 ***
 
@@ -120,7 +120,7 @@ useDeepReactive<T>(creator): UnwrapNestedSignals<T>
 
 #### Source
 
-[hooks/store.ts:9](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hooks/store.ts#L9)
+[hooks/store.ts:9](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hooks/store.ts#L9)
 
 ***
 
@@ -148,7 +148,7 @@ useDeepSignal<T>(creator): WrapDeepSignal<T>
 
 #### Source
 
-[hooks/store.ts:6](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hooks/store.ts#L6)
+[hooks/store.ts:6](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hooks/store.ts#L6)
 
 ***
 
@@ -178,7 +178,7 @@ readonly [[`FlatStore`](index/README.md#flatstoret)\<`T`\>, `FlatStoreSetter`\<`
 
 #### Source
 
-[hooks/flat-store.ts:11](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hooks/flat-store.ts#L11)
+[hooks/flat-store.ts:11](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hooks/flat-store.ts#L11)
 
 ***
 
@@ -206,7 +206,7 @@ readonly [[`FlatStore`](index/README.md#flatstoret)\<`SetReadonly`\<`{ [TKey in 
 
 #### Source
 
-[hooks/flat-store.ts:20](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hooks/flat-store.ts#L20)
+[hooks/flat-store.ts:20](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hooks/flat-store.ts#L20)
 
 ***
 
@@ -236,7 +236,7 @@ Allows to create signal function which is called only once, without dependencies
 
 #### Source
 
-[hooks/utility.ts:16](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hooks/utility.ts#L16)
+[hooks/utility.ts:16](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hooks/utility.ts#L16)
 
 ***
 
@@ -282,7 +282,7 @@ console.log(s3.peek())
 
 #### Source
 
-[hooks/useLinkedSignal.ts:36](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hooks/useLinkedSignal.ts#L36)
+[hooks/useLinkedSignal.ts:36](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hooks/useLinkedSignal.ts#L36)
 
 ***
 
@@ -317,7 +317,7 @@ creates reaction on mount and dispose on unmount
 
 #### Source
 
-[hooks/useReaction.ts:8](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hooks/useReaction.ts#L8)
+[hooks/useReaction.ts:8](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hooks/useReaction.ts#L8)
 
 ***
 
@@ -347,7 +347,7 @@ useResource<TResult, TSource, TRefreshing>(options): CreateResourceReturn<TResul
 
 #### Source
 
-[hooks/resource.ts:14](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hooks/resource.ts#L14)
+[hooks/resource.ts:14](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hooks/resource.ts#L14)
 
 ***
 
@@ -375,7 +375,7 @@ useShallowReactive<T>(creator): ShallowReactive<T>
 
 #### Source
 
-[hooks/store.ts:12](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hooks/store.ts#L12)
+[hooks/store.ts:12](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hooks/store.ts#L12)
 
 ***
 
@@ -405,7 +405,7 @@ signal of context value
 
 #### Source
 
-[hooks/utility.ts:51](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hooks/utility.ts#L51)
+[hooks/utility.ts:51](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hooks/utility.ts#L51)
 
 ***
 
@@ -429,7 +429,7 @@ Creates effect with with first provided function
 
 #### Source
 
-[hooks/utility.ts:59](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hooks/utility.ts#L59)
+[hooks/utility.ts:59](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hooks/utility.ts#L59)
 
 ***
 
@@ -459,7 +459,7 @@ Creates computed which will subscribe tp reactive value
 
 #### Source
 
-[hooks/utility.ts:28](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hooks/utility.ts#L28)
+[hooks/utility.ts:28](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hooks/utility.ts#L28)
 
 ***
 
@@ -489,4 +489,4 @@ Creates signal which state is always equal to state passed to hook
 
 #### Source
 
-[hooks/utility.ts:37](https://github.com/XantreGodlike/preact-signals/blob/a83109b/packages/utils/src/lib/hooks/utility.ts#L37)
+[hooks/utility.ts:37](https://github.com/XantreGodlike/preact-signals/blob/a11836b/packages/utils/src/lib/hooks/utility.ts#L37)
