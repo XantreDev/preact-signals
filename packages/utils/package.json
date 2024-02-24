@@ -33,55 +33,64 @@
       "types": "./dist/types/lib/index.d.ts",
       "import": "./dist/esm/lib/index.mjs",
       "react-native": "./src/lib/index.ts",
-      "require": "./dist/cjs/lib/index.cjs"
+      "require": "./dist/cjs/lib/index.cjs",
+      "source": "./src/lib/index.ts"
     },
     "./hooks": {
       "types": "./dist/types/lib/hooks/index.d.ts",
       "import": "./dist/esm/lib/hooks/index.mjs",
       "react-native": "./src/lib/hooks/index.ts",
-      "require": "./dist/cjs/lib/hooks/index.cjs"
+      "require": "./dist/cjs/lib/hooks/index.cjs",
+      "source": "./src/lib/hooks/index.ts"
     },
     "./components": {
       "types": "./dist/types/lib/components/index.d.ts",
       "import": "./dist/esm/lib/components/index.mjs",
       "react-native": "./src/lib/components/index.ts",
-      "require": "./dist/cjs/lib/components/index.cjs"
+      "require": "./dist/cjs/lib/components/index.cjs",
+      "source": "./src/lib/components/index.ts"
     },
     "./hocs": {
       "types": "./dist/types/lib/hocs/index.d.ts",
       "import": "./dist/esm/lib/hocs/index.mjs",
       "react-native": "./src/lib/hocs/index.ts",
-      "require": "./dist/cjs/lib/hocs/index.cjs"
+      "require": "./dist/cjs/lib/hocs/index.cjs",
+      "source": "./src/lib/hocs/index.ts"
     },
     "./store": {
       "types": "./dist/types/lib/store/index.d.ts",
       "import": "./dist/esm/lib/store/index.mjs",
       "react-native": "./src/lib/store/index.ts",
-      "require": "./dist/cjs/lib/store/index.cjs"
+      "require": "./dist/cjs/lib/store/index.cjs",
+      "source": "./src/lib/store/index.ts"
     },
     "./store/hooks": {
       "types": "./dist/types/lib/hooks/store.d.ts",
       "import": "./dist/esm/lib/hooks/store.mjs",
       "react-native": "./src/lib/hooks/store.ts",
-      "require": "./dist/cjs/lib/hooks/store.cjs"
+      "require": "./dist/cjs/lib/hooks/store.cjs",
+      "source": "./src/lib/hooks/store.ts"
     },
     "./macro": {
       "types": "./dist/types/macro.d.ts",
       "import": "./dist/esm/macro.mjs",
       "react-native": "./src/macro.ts",
-      "require": "./dist/cjs/macro.cjs"
+      "require": "./dist/cjs/macro.cjs",
+      "source": "./src/macro.ts"
     },
     "./babel": {
       "types": "./dist/types/babel.d.ts",
       "import": "./dist/esm/babel.mjs",
       "react-native": "./src/babel.ts",
-      "require": "./dist/cjs/babel.cjs"
+      "require": "./dist/cjs/babel.cjs",
+      "source": "./src/babel.ts"
     },
     "./integrations/reanimated": {
       "types": "./dist/types/lib/integrations/reanimated.d.ts",
       "import": "./dist/esm/lib/integrations/reanimated.mjs",
       "react-native": "./src/lib/integrations/reanimated.ts",
-      "require": "./dist/cjs/lib/integrations/reanimated.cjs"
+      "require": "./dist/cjs/lib/integrations/reanimated.cjs",
+      "source": "./src/lib/integrations/reanimated.ts"
     },
     "./package.json": "./package.json"
   },

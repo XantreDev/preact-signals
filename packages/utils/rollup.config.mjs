@@ -4,6 +4,7 @@ import replace from "@rollup/plugin-replace";
 import typescript from "@rollup/plugin-typescript";
 import esbuild from "rollup-plugin-esbuild";
 import externals from "rollup-plugin-node-externals";
+import fs from "node:fs";
 
 const usePreferConst = true; // Use "const" instead of "var"
 const usePreserveModules = true; // `true` -> keep modules structure, `false` -> combine everything into a single file
@@ -13,17 +14,28 @@ const useThrowOnError = true; // On error throw and exception
 const useSourceMap = true; // Generate source map files
 const useEsbuild = false; // `true` -> use esbuild, `false` use tsc
 
-const input = [
-  "src/lib/index.ts",
-  "src/lib/hooks/index.ts",
-  "src/lib/hooks/store.ts",
-  "src/lib/hocs/index.ts",
-  "src/lib/components/index.ts",
-  "src/lib/store/index.ts",
-  "src/lib/integrations/reanimated.ts",
-  "src/babel.ts",
-  "src/macro.ts",
-];
+/**
+ *
+ * @template T
+ * @param {() => T} a
+ * @returns
+ */
+const doF = (a) => a();
+
+const input = doF(() => {
+  const json = JSON.parse(fs.readFileSync("package.json", "utf-8"));
+  /**
+   * @type {string[]}
+   */
+  const res = [];
+  for (const key in json.exports) {
+    const it = json.exports[key];
+    if (typeof it === "object" && it.source) {
+      res.push(it.source);
+    }
+  }
+  return res;
+});
 
 const commonPlugins = [
   externals(),
