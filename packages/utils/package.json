@@ -95,10 +95,11 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "clean": "rimraf dist & rimraf docs",
+    "clean": "rimraf dist",
+    "clean:docs": "rimraf docs",
     "test": "vitest",
     "lint": "tsc --noEmit --emitDeclarationOnly false && check-export-map && node ./import-checker.mjs",
-    "build": "pnpm clean && pnpm build:docs && rollup -c && pnpm build:types",
+    "build": "pnpm clean && rollup -c && pnpm build:types",
     "build:types": "tsc",
     "build:docs": "node ./build-typedoc.mjs",
     "build:rollup": "rollup -c",
