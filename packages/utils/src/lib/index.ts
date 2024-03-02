@@ -1,6 +1,15 @@
 import "./store/sideEffects";
 
-export * from "./$";
+export {
+  $,
+  $w,
+  signalOf$,
+  ReactiveRef,
+  Uncached,
+  WritableReactiveRef,
+  WritableUncached,
+  type WritableRefOptions,
+} from "./$";
 export {
   createFlatStore,
   flatStore,
@@ -11,7 +20,24 @@ export {
   type FlatStore,
   type ReadonlyFlatStore,
 } from "./flat-store";
-export * from "./resource";
+export {
+  type CreateResourceReturn,
+  type Errored,
+  type InitializedResource,
+  type Pending,
+  type Ready,
+  type Refreshing,
+  type Resource,
+  type ResourceActions,
+  type ResourceFetcher,
+  type ResourceFetcherInfo,
+  type ResourceOptions,
+  type ResourceSource,
+  type ResourceState,
+  type Unresolved,
+  createResource,
+  resource,
+} from "./resource";
 export {
   accessorOfReactive,
   accessorOfSignal,
@@ -23,8 +49,9 @@ export {
   unwrapReactive,
   rafReaction,
   isExplicitFalsy,
-  writableRefOfArrayProp, 
+  writableRefOfArrayProp,
   writableRefOfObjectProp,
+  toSolidLikeSignal,
   type ExplicitFalsy,
   type GetTruthyValue,
   type GetValue,
@@ -34,6 +61,7 @@ export {
   type CreateFunction,
   type Reactive,
   type Setter,
+  type ReactionOptions,
 } from "./utils";
 
 export {

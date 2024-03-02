@@ -1,2 +1,4 @@
-export * from "./createResource";
-export * from "./resource";
+export { createResource } from "./createResource";
+export { resource } from "./resource";
+export type * from "./resource";
+export type * from "./createResource";
