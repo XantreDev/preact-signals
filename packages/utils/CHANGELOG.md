@@ -1,5 +1,11 @@
 # @preact-signals/utils
 
+## 0.16.1
+
+### Patch Changes
+
+- b595046: Improved treeshacking by avoiding `export *`
+
 ## 0.16.0
 
 ### Minor Changes
