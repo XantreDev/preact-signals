@@ -117,6 +117,27 @@ describe.concurrent("reaction()", () => {
     expect(fn).toHaveBeenCalledTimes(1);
     dispose();
   });
+  it("should not track fn in reaction with memoize", ({ expect }) => {
+    const sig = signal(0);
+    const sig2 = signal(0);
+
+    const deps = vi.fn(() => sig.value);
+    const fn = vi.fn(() => {
+      sig2.value;
+    });
+    const dispose = reaction(deps, fn, { memoize: true });
+
+    expect(fn).toHaveBeenCalledWith(0, { isFirst: true });
+    expect(fn).toHaveBeenCalledTimes(1);
+    expect(deps).toHaveBeenCalledTimes(1);
+
+    sig2.value = 1;
+
+    expect(fn).toHaveBeenCalledTimes(1);
+    expect(deps).toHaveBeenCalledTimes(1);
+
+    dispose();
+  });
 
   it("should execute dispose callback when deps is rotten", ({ expect }) => {
     const sig = signal(0);
