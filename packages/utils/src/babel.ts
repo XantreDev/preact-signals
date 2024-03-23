@@ -6,12 +6,29 @@ import {
   NodePath,
 } from "@babel/core";
 import { isModule, addNamed } from "@babel/helper-module-imports";
+import assert from "node:assert";
 
 const PLUGIN_NAME = "@preact-signals/utils/babel";
 const self = {
   get: (pass: PluginPass, name: any) => pass.get(`${PLUGIN_NAME}/${name}`),
   set: (pass: PluginPass, name: string, v: any) =>
     pass.set(`${PLUGIN_NAME}/${name}`, v),
+  getShouldBeReplacedSet: (
+    pass: PluginPass
+  ): Set<BabelTypes.Identifier> | undefined => {
+    return self.get(pass, hasMacrosReference);
+  },
+  setShouldBeReplaced: (pass: PluginPass, v: BabelTypes.Identifier) => {
+    let set = self.getShouldBeReplacedSet(pass);
+    if (!set) {
+      set = new Set();
+      self.set(pass, hasMacrosReference, set);
+    }
+    set.add(v);
+  },
+  getShouldBeReplaced: (pass: PluginPass, v: BabelTypes.Identifier) =>
+    (v.type === "Identifier" && self.getShouldBeReplacedSet(pass)?.has(v)) ??
+    false,
 };
 
 function createImportLazily(
@@ -80,11 +97,12 @@ interface PluginArgs {
 
 const reactiveRefIdent = "importIdentifier";
 const hasMacrosReference = "hasMacrosReference";
+const identifiersForReplace = "identifiersForReplace";
 
 const isImportMacrosName = (name: string) =>
   name === "@preact-signals/utils/macro";
 
-const isVariableDeclaratorMacros = (
+const isVariableDeclaratorRefMacros = (
   child: NodePath<BabelTypes.VariableDeclarator>
 ) =>
   child.node.init?.type === "CallExpression" &&
@@ -94,10 +112,62 @@ const isVariableDeclaratorMacros = (
   child.node.init.arguments[0]?.type === "StringLiteral" &&
   isImportMacrosName(child.node.init.arguments[0].value);
 
+type StateMacros = "$bindedState" | "$state";
+
+const getStateMacros = (
+  node: BabelTypes.VariableDeclarator
+): StateMacros | null => {
+  if (!node.init || node.init.type !== "CallExpression") return null;
+  if (node.init.callee.type !== "Identifier") return null;
+  const calleeName = node.init.callee.name;
+
+  if (calleeName === "$state") return "$state";
+  if (calleeName === "$bindedState") return "$bindedState";
+
+  return null;
+};
+
+const getStateMacrosBody = (
+  node: BabelTypes.VariableDeclarator
+): BabelTypes.Expression | null => {
+  if (!node.init || node.init.type !== "CallExpression") return null;
+  if (
+    node.init.callee.type !== "Identifier" ||
+    (node.init.callee.name !== "$state" &&
+      node.init.callee.name !== "$bindedState")
+  ) {
+    return null;
+  }
+
+  const args = node.init.arguments;
+  if (args.length === 0) {
+    throw new Error("Expected at least one argument");
+  }
+  if (args.length > 1) {
+    throw new Error("Expected only one argument");
+  }
+  const arg = args[0];
+  if (
+    !arg ||
+    arg.type === "JSXNamespacedName" ||
+    arg.type === "ArgumentPlaceholder" ||
+    arg.type === "SpreadElement"
+  ) {
+    throw new Error("Expected a valid argument");
+  }
+  return arg;
+};
+
+export type BabelMacroPluginOptions = {
+  enableStateMacros: boolean;
+};
+
 export default function preactSignalsUtilsBabel(
   { types: t }: PluginArgs,
-  options: Record<never, never>
+  options?: BabelMacroPluginOptions
 ): PluginObj {
+  const enableStateMacros = options?.enableStateMacros;
+
   return {
     name: PLUGIN_NAME,
     visitor: {
@@ -132,35 +202,63 @@ export default function preactSignalsUtilsBabel(
         );
       },
       ImportDeclaration(path, state) {
-        if (!isImportMacrosName( path.node.source.value)) return;
+        if (!isImportMacrosName(path.node.source.value)) return;
         self.set(state, hasMacrosReference, true);
         path.remove();
       },
       VariableDeclaration(path, state) {
         for (const child of path.get("declarations")) {
-          if (isVariableDeclaratorMacros(child)) {
+          if (isVariableDeclaratorRefMacros(child)) {
             self.set(state, hasMacrosReference, true);
             child.remove();
+            continue;
+          }
+          if (!enableStateMacros) {
+            continue;
+          }
+          // TODO: Add reference checking
+          const idType = child.node.id.type;
+          if (idType !== "Identifier") continue;
+          const macros = getStateMacros(child.node);
+          if (!macros) continue;
+
+          self.setShouldBeReplaced(state, child.node.id);
+          // const binding = path.scope.getBinding(child.node.id.name);
+          const binding = path.scope.getBinding(child.node.id.name);
+          // replacing bindings
+          for (const path of binding?.referencePaths ?? []) {
+            assert(path.node.type === "Identifier");
+            path.replaceWith(
+              t.memberExpression(t.cloneNode(path.node), t.identifier("value"))
+            );
           }
         }
       },
+      AssignmentExpression(path, state) {
+        if (!enableStateMacros) {
+          return;
+        }
+        if (path.node.left.type !== "Identifier") {
+          return;
+        }
+        const ident = path.scope.getBindingIdentifier(path.node.left.name);
+        if (!self.getShouldBeReplaced(state, ident)) {
+          return;
+        }
+
+        path.replaceWith(
+          t.assignmentExpression(
+            path.node.operator,
+            t.memberExpression(
+              t.cloneNode(path.node.left),
+              t.identifier("value")
+            ),
+            path.node.right
+          )
+        );
+      },
     },
   };
-}
-
-function looksLike(a: unknown, b: unknown): boolean {
-  return (
-    !!a &&
-    !!b &&
-    Object.keys(b).every((bKey) => {
-      const bVal = (b as any)[bKey];
-      const aVal = (a as any)[bKey];
-      if (typeof bVal === "function") {
-        return bVal(aVal);
-      }
-      return isPrimitive(bVal) ? bVal === aVal : looksLike(aVal, bVal);
-    })
-  );
 }
 
 function isPrimitive(val: unknown) {
