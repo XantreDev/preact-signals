@@ -1,5 +1,11 @@
 # @preact-signals/safe-react
 
+## 0.5.4
+
+### Patch Changes
+
+- 07796cb: Updated README
+
 ## 0.5.3
 
 ### Patch Changes

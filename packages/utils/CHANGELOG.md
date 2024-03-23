@@ -1,5 +1,12 @@
 # @preact-signals/utils
 
+## 0.16.2
+
+### Patch Changes
+
+- Updated dependencies [db33dd8]
+  - @preact-signals/unified-signals@0.2.6
+
 ## 0.16.1
 
 ### Patch Changes
