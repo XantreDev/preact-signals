@@ -172,7 +172,14 @@ Integrations:
 const nextConfig = {
   experimental: {
     swcPlugins: [
-      ["@preact-signals/safe-react/swc", {} /* plugin options here */],
+      [
+        "@preact-signals/safe-react/swc",
+        {
+          // you should use `auto` mode to track only components which uses `.value` access.
+          // Can be useful to avoid tracking of server side components
+          mode: "auto",
+        } /* plugin options here */,
+      ],
     ],
   },
 };
@@ -511,6 +518,29 @@ const Page = async () => (
     <title>Page title</title>
   </head>
 );
+```
+
+#### [Next.js double rendering](https://github.com/XantreGodlike/preact-signals/issues/87)
+
+```tsx
+/**
+ * @useSignals
+ */
+const PureComponent = () => {
+  // prints "render" twice on client side and once on server side
+  console.log("render");
+
+  return null;
+};
+```
+
+It's happens because signals tracking uses `useSyncExternalStore` and for some reason it causes double rendering with Next.js strict mode. We can just to turn off strict mode in `next.config.js`
+
+```js
+module.exports = {
+  // other config
+  reactStrictMode: false,
+};
 ```
 
 #### Automatic integration: `Rendered more hooks than during the previous render`
