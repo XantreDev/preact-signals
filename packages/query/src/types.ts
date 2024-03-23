@@ -17,7 +17,7 @@ export type SafeDataField<T> = { dataSafe: T | undefined };
 
 // For some reason in cannot use Accessor in generic types, because it inherits wrong
 
-interface SuspenseBehaviorProp {
+export interface SuspenseBehaviorProp {
   /**
    * @description If `suspend-eagerly` - executes and suspends the query on mount. Helpful to be access data in `useEffect`/`useLayoutEffect` without handling loading state.
    * If `suspend-on-access` - executes query eagerly, but suspends the query on first access. Helpful to suspend child components if passing accessor as prop.
