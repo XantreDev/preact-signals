@@ -1,5 +1,14 @@
 # @preact-signals/query
 
+## 1.4.3
+
+### Patch Changes
+
+- 3524db0: Exports [`SuspenseBehaviorProp`](https://github.com/XantreGodlike/preact-signals/issues/86) type
+- Updated dependencies [db33dd8]
+  - @preact-signals/unified-signals@0.2.6
+  - @preact-signals/utils@0.16.2
+
 ## 1.4.2
 
 ### Patch Changes

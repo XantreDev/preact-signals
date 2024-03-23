@@ -1,5 +1,12 @@
 # preact-test
 
+## 0.0.36
+
+### Patch Changes
+
+- @preact-signals/utils@0.16.2
+- components-for-test@5.0.3
+
 ## 0.0.35
 
 ### Patch Changes

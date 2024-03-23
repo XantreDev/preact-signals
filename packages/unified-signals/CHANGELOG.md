@@ -1,5 +1,11 @@
 # @preact-signals/unified-signals
 
+## 0.2.6
+
+### Patch Changes
+
+- db33dd8: Changed untrackedPolyfill implementation
+
 ## 0.2.5
 
 ### Patch Changes

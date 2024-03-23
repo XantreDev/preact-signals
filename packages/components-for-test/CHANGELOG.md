@@ -1,5 +1,13 @@
 # components-for-test
 
+## 5.0.3
+
+### Patch Changes
+
+- Updated dependencies [3524db0]
+  - @preact-signals/query@1.4.3
+  - @preact-signals/utils@0.16.2
+
 ## 5.0.2
 
 ### Patch Changes
