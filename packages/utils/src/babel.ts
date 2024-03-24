@@ -206,6 +206,10 @@ const processRefMacros = (
 
   const binding = path.scope.getBinding(bindingName);
   if (!binding) return;
+
+  // if (binding.path.node.type !== "ImportSpecifier") {
+  //   console.log(binding?.path);
+  // }
   let remove: () => void;
   if (
     binding.path.node.type === "VariableDeclarator" &&
@@ -214,7 +218,32 @@ const processRefMacros = (
       binding.path as NodePath<BabelTypes.VariableDeclarator>
     )
   ) {
+    const varDecl = binding.path as NodePath<BabelTypes.VariableDeclarator>;
     remove = () => {
+      if (varDecl.node.id.type === "ObjectPattern") {
+        if (varDecl.node.id.properties.length > 1) {
+          for (const prop of varDecl.node.id.properties) {
+            if (prop.type === "RestElement") {
+              throw SyntaxErrorWithLoc.makeFromPosition(
+                "Rest elements are not supported",
+                prop.loc?.start
+              );
+            }
+          }
+          const elIndex = varDecl.node.id.properties.findIndex((prop) => {
+            return (
+              prop.type === "ObjectProperty" &&
+              prop.key.type === "Identifier" &&
+              prop.key.name === bindingName
+            );
+          });
+          if (elIndex !== -1) {
+            varDecl.node.id.properties.splice(elIndex, 1);
+            return;
+          }
+        }
+      }
+      console.log(varDecl.node.id);
       binding.path.remove();
     };
   } else if (
@@ -222,8 +251,8 @@ const processRefMacros = (
     binding.path.parent.type === "ImportDeclaration" &&
     isImportMacrosName(binding.path.parent.source.value)
   ) {
+    const parentPath = binding.path.parentPath;
     remove = () => {
-      const parentPath = binding.path.parentPath;
       if (!parentPath) {
         throw new Error("invariant: importSpecifier should have a parentPath");
       }

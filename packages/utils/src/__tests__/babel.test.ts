@@ -131,6 +131,21 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       `,
       { isCJS: true }
     ),
+    TestCase.makeConfigurable(
+      "CJS import with multiple imports",
+      `
+      const { $$, $state } = require("@preact-signals/utils/macro");
+      $$(10)
+      `,
+      `
+      var _$ = require("@preact-signals/utils").$;
+      const { $state } = require("@preact-signals/utils/macro");
+      _$(() => 10)
+      `,
+      {
+        isCJS: true,
+      }
+    ),
     TestCase.makeSuccess(
       "nested macro",
       `
@@ -252,6 +267,19 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const a = $$(...[1]);
     `
     ),
+    TestCase.makeError(
+      "Throws error if `$state` used with var for variable declaration",
+      `
+      var a = $state(0)`
+    ),
+
+    TestCase.makeConfigurable(
+      "CJS cannot rest pattern in require",
+      `
+      const { $$, ...a } = require("@preact-signals/utils/macro");`,
+      ``,
+      { isCJS: true }
+    ),
   ];
 
   for (const { input, isCJS, name, options } of fail) {
@@ -263,7 +291,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
             sourceType: isCJS ? "script" : "module",
           });
         } catch (e) {
-          console.log(e);
+          // console.log(e);
           throw e;
         }
       }).toThrowError();
