@@ -144,6 +144,9 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       `,
       {
         isCJS: true,
+        options: {
+          enableStateMacros: false,
+        },
       }
     ),
     TestCase.makeSuccess(
@@ -206,6 +209,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
     TestCase.makeSuccess(
       "Replaces $state references",
       `
+      import { $state } from "@preact-signals/utils/macro";
       let a = $state(0)
       a += 10
       a.value += 10
@@ -213,7 +217,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       a.value
       `,
       `
-      let a = $state(0)
+      let a = 0
       a.value += 10
       a.value.value += 10
       a.value
@@ -270,6 +274,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
     TestCase.makeError(
       "Throws error if `$state` used with var for variable declaration",
       `
+      import { $state } from "@preact-signals/utils/macro";
       var a = $state(0)`
     ),
 

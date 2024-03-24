@@ -10,11 +10,11 @@ import { isModule, addNamed } from "@babel/helper-module-imports";
 import assert from "node:assert";
 
 const PLUGIN_NAME = "@preact-signals/utils/babel";
-type MakeOptional<T> = {
-  [K in keyof T]: T[K] | undefined;
-};
 type PluginStoreMap = {
+  // remove
   identifiersForReplace: Set<BabelTypes.Identifier>;
+  $stateIdentifier: Set<BabelTypes.Identifier>;
+  $bindedStateIdentifier: Set<BabelTypes.Identifier>;
 } & Record<`${"imports" | "requires"}/${string}`, BabelTypes.Identifier>;
 
 const self = {
@@ -27,18 +27,33 @@ const self = {
     name: T,
     v: PluginStoreMap[T]
   ) => pass.set(`${PLUGIN_NAME}/${name}`, v),
-  setShouldBeReplaced: (pass: PluginPass, v: BabelTypes.Identifier) => {
-    let set = self.get(pass, "identifiersForReplace");
+  addToSet: <T extends keyof PluginStoreMap>(
+    pass: PluginPass,
+    name: T,
+    v: PluginStoreMap[T] extends Set<infer U> ? U : never
+  ) => {
+    let set = self.get(pass, name) as undefined | Set<any>;
+
     if (!set) {
       set = new Set();
-      self.set(pass, "identifiersForReplace", set);
+      // @ts-expect-error complex types
+      self.set(pass, name, set);
     }
     set.add(v);
   },
-  getShouldBeReplaced: (pass: PluginPass, v: BabelTypes.Identifier) =>
-    (v.type === "Identifier" &&
-      self.get(pass, "identifiersForReplace")?.has(v)) ??
-    false,
+  hasInSet: <T extends keyof PluginStoreMap>(
+    pass: PluginPass,
+    name: T,
+    v: PluginStoreMap[T] extends Set<infer U> ? U : never
+  ) => {
+    const set = self.get(pass, name);
+    if (!set) return false;
+    // @ts-expect-error complex types
+    return set.has(v);
+  },
+  setShouldBeReplaced: (pass: PluginPass, v: BabelTypes.Identifier) => {
+    self.addToSet(pass, "identifiersForReplace", v);
+  },
 };
 
 function createImportLazily(
@@ -145,7 +160,7 @@ const getStateMacros = (
 
 const getStateMacrosBody = (
   node: BabelTypes.VariableDeclarator
-): BabelTypes.Expression | null => {
+): [BabelTypes.Identifier, BabelTypes.Expression] | null => {
   if (!node.init || node.init.type !== "CallExpression") return null;
   if (
     node.init.callee.type !== "Identifier" ||
@@ -156,11 +171,18 @@ const getStateMacrosBody = (
   }
 
   const args = node.init.arguments;
-  if (args.length === 0) {
-    throw new Error("Expected at least one argument");
+  if (node.id.type !== "Identifier") {
+    throw SyntaxErrorWithLoc.makeFromPosition(
+      "Expected $state to be used with identifier for VariableDeclarator",
+      node.id.loc?.start
+    );
   }
-  if (args.length > 1) {
-    throw new Error("Expected only one argument");
+  const nodeName = node.id.name;
+  if (args.length === 0 || args.length > 1) {
+    throw SyntaxErrorWithLoc.makeFromPosition(
+      `Expected at exact one argument for ${nodeName}`,
+      node.init.loc?.start
+    );
   }
   const arg = args[0];
   if (
@@ -169,9 +191,12 @@ const getStateMacrosBody = (
     arg.type === "ArgumentPlaceholder" ||
     arg.type === "SpreadElement"
   ) {
-    throw new Error("Expected a valid argument");
+    throw SyntaxErrorWithLoc.makeFromPosition(
+      `Argument for ${nodeName} expected to be a valid expression`,
+      arg?.loc?.start
+    );
   }
-  return arg;
+  return [node.id, arg];
 };
 
 export type BabelMacroPluginOptions = {
@@ -319,19 +344,95 @@ const processRefMacros = (
 
 const processStateMacros = (
   path: NodePath<BabelTypes.Program>,
-  t: typeof BabelTypes
+  t: typeof BabelTypes,
+  state: PluginPass
   // importLazily: ReturnType<typeof createImportLazily>
 ) => {
-  const stateMacros = ["$state", "$bindedState"];
+  const stateMacros = ["$state", "$bindedState"] as const;
 
   for (const macro of stateMacros) {
     if (!path.scope.references[macro]) {
       continue;
     }
-    const ident = path.scope.getBindingIdentifier(macro);
-    if (!ident) {
+    const binding = path.scope.getBinding(macro);
+    if (!binding) {
       continue;
     }
+    const remove = createRemoveImport(path.scope, binding, macro);
+    if (!remove) {
+      continue;
+    }
+
+    if (!binding.referencePaths || binding.referencePaths.length === 0) {
+      remove();
+      continue;
+    }
+
+    for (const path of binding.referencePaths) {
+      const callParent = path.parentPath;
+      if (!callParent || !callParent.isCallExpression()) {
+        throw SyntaxErrorWithLoc.makeFromPosition(
+          "Expected $state to be used only as call expressions",
+          (callParent ?? path).node.loc?.start
+        );
+      }
+      const parent = callParent.parentPath;
+      if (!parent || !parent.isVariableDeclarator()) {
+        throw SyntaxErrorWithLoc.makeFromPosition(
+          "Expected $state to be used only in variable declarations",
+          path.node.loc?.start
+        );
+      }
+      if (!parent.parentPath.isVariableDeclaration()) {
+        throw new Error(
+          "invariant: parentPath should be a VariableDeclaration"
+        );
+      }
+      if (
+        parent.parentPath.node.kind !== "const" &&
+        macro === "$state" &&
+        parent.parentPath.node.kind !== "let"
+      ) {
+        throw SyntaxErrorWithLoc.makeFromPosition(
+          macro === "$state"
+            ? `${macro} should be used with const`
+            : `${macro} should be used with let`,
+          path.node.loc?.start
+        );
+      }
+      const res = getStateMacrosBody(parent.node);
+      if (!res) {
+        throw SyntaxErrorWithLoc.makeFromPosition(
+          "Expected $state to have a valid body",
+          path.node.loc?.start
+        );
+      }
+      const [id, body] = res;
+
+      callParent.replaceWith(t.cloneNode(body));
+      self.addToSet(
+        state,
+        macro === "$state" ? "$stateIdentifier" : "$bindedStateIdentifier",
+        id
+      );
+
+      const varBinding = path.scope.getBinding(id.name);
+      if (!varBinding) {
+        throw new Error("invariant: Expected a binding");
+      }
+
+      for (const refPath of varBinding.referencePaths) {
+        refPath.replaceWith(
+          t.memberExpression(t.cloneNode(id), t.identifier("value"))
+        );
+      }
+
+      binding.dereference();
+    }
+    if (binding.references !== 0) {
+      throw new Error("invariant: Expected no references");
+    }
+    remove();
   }
 };
 
@@ -353,36 +454,9 @@ export default function preactSignalsUtilsBabel(
           );
 
           if (enableStateMacros) {
-            processStateMacros(path, t);
+            processStateMacros(path, t, state);
           }
         },
-      },
-      VariableDeclaration(path, state) {
-        if (!enableStateMacros) {
-          return;
-        }
-        for (const child of path.get("declarations")) {
-          const idType = child.node.id.type;
-          if (idType !== "Identifier") continue;
-          const macros = getStateMacros(child.node);
-          if (!macros) continue;
-          if (path.node.kind !== "let" && path.node.kind !== "const") {
-            throw SyntaxErrorWithLoc.makeFromPosition(
-              "Expected let or const",
-              path.node.loc?.start
-            );
-          }
-
-          self.setShouldBeReplaced(state, child.node.id);
-          const binding = path.scope.getBinding(child.node.id.name);
-          // replacing bindings
-          for (const path of binding?.referencePaths ?? []) {
-            assert(path.node.type === "Identifier");
-            path.replaceWith(
-              t.memberExpression(t.cloneNode(path.node), t.identifier("value"))
-            );
-          }
-        }
       },
       AssignmentExpression(path, state) {
         if (!enableStateMacros) {
@@ -396,20 +470,25 @@ export default function preactSignalsUtilsBabel(
         if (!ident) {
           return;
         }
-        if (!self.getShouldBeReplaced(state, ident)) {
+        if (self.hasInSet(state, "$stateIdentifier", ident)) {
+          path.replaceWith(
+            t.assignmentExpression(
+              path.node.operator,
+              t.memberExpression(
+                t.cloneNode(path.node.left),
+                t.identifier("value")
+              ),
+              path.node.right
+            )
+          );
           return;
         }
-
-        path.replaceWith(
-          t.assignmentExpression(
-            path.node.operator,
-            t.memberExpression(
-              t.cloneNode(path.node.left),
-              t.identifier("value")
-            ),
-            path.node.right
-          )
-        );
+        if (self.hasInSet(state, "$bindedStateIdentifier", ident)) {
+          throw SyntaxErrorWithLoc.makeFromPosition(
+            "Cannot assign to a binded state",
+            path.node.loc?.start
+          );
+        }
       },
     },
   };
