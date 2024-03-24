@@ -44,7 +44,40 @@ describe.concurrent("@preact-signals/utils/macro", () => {
     `
     ),
     TestCase.make(
-      ...["Transforms only resolved as macro: unresolved", `$$(10)`, `$$(10)`]
+      "Working inside of scopes",
+      `
+      import { $$ } from "@preact-signals/utils/macro";
+
+      $$(10)
+      {
+        const a = $$(1)
+        
+        const $$ = 0
+        
+        console.log($$)
+      }
+      `,
+      `
+      import { $ as _$ } from "@preact-signals/utils";
+      _$(() => 10)
+      {
+        const a = $$(1)
+        const $$ = 0;
+        console.log($$);
+      }
+      `
+    ),
+    TestCase.make(
+      "Transforms only resolved as macro: unresolved",
+      `$$(10)`,
+      `$$(10)`
+    ),
+    TestCase.make(
+      "Must remove import event if not used",
+      `
+      import { $$ } from "@preact-signals/utils/macro";
+      `,
+      ``
     ),
     TestCase.make(
       "Transforms only resolved as macro: declared",

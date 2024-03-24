@@ -15,14 +15,14 @@ const self = {
     pass.set(`${PLUGIN_NAME}/${name}`, v),
   getShouldBeReplacedSet: (
     pass: PluginPass
-  ): Set<BabelTypes.Identifier> | undefined => {
-    return self.get(pass, hasMacrosReference);
+  ): Set<BabelTypes.Identifier> | null => {
+    return self.get(pass, identifiersForReplace) ?? null;
   },
   setShouldBeReplaced: (pass: PluginPass, v: BabelTypes.Identifier) => {
     let set = self.getShouldBeReplacedSet(pass);
     if (!set) {
       set = new Set();
-      self.set(pass, hasMacrosReference, set);
+      self.set(pass, identifiersForReplace, set);
     }
     set.add(v);
   },
@@ -37,7 +37,7 @@ function createImportLazily(
   path: NodePath<BabelTypes.Program>,
   importName: string,
   source: string
-): () => BabelTypes.Identifier | BabelTypes.MemberExpression {
+): () => BabelTypes.Identifier {
   return () => {
     if (isModule(path)) {
       let reference: BabelTypes.Identifier = self.get(
@@ -74,19 +74,35 @@ function createImportLazily(
         }
       }
       return reference;
-    } else {
-      let reference = self.get(pass, `requires/${importName}`);
-      if (reference) {
-        reference = t.cloneNode(reference);
-      } else {
-        reference = addNamed(path, importName, source, {
-          importedInterop: "uncompiled",
-        });
-        self.set(pass, `requires/${importName}`, reference);
-      }
-
-      return reference;
     }
+
+    let reference: BabelTypes.Identifier = self.get(
+      pass,
+      `requires/${importName}`
+    );
+    if (reference) {
+      return t.cloneNode(reference);
+    }
+    reference = addNamed(path, importName, source, {
+      importedInterop: "uncompiled",
+    });
+    // TODO: use this code in safe-react babel plugin
+    path.traverse({
+      VariableDeclaration(path) {
+        for (const declarator of path.get("declarations")) {
+          if (
+            declarator.node.id.type === "Identifier" &&
+            declarator.node.id.name === importName
+          ) {
+            path.scope.registerDeclaration(declarator);
+            break;
+          }
+        }
+      },
+    });
+    self.set(pass, `requires/${importName}`, reference);
+
+    return reference;
   };
 }
 
@@ -96,7 +112,6 @@ interface PluginArgs {
 }
 
 const reactiveRefIdent = "importIdentifier";
-const hasMacrosReference = "hasMacrosReference";
 const identifiersForReplace = "identifiersForReplace";
 
 const isImportMacrosName = (name: string) =>
@@ -162,6 +177,67 @@ export type BabelMacroPluginOptions = {
   enableStateMacros: boolean;
 };
 
+const processRefMacros = (
+  path: NodePath<BabelTypes.Program>,
+  t: typeof BabelTypes,
+  importLazily: ReturnType<typeof createImportLazily>
+) => {
+  if (path.scope.references["$$"]) {
+    const binding = path.scope.getBinding("$$");
+    if (!binding) return;
+    let remove: () => void;
+    if (
+      binding.path.node.type === "VariableDeclarator" &&
+      isVariableDeclaratorRefMacros(
+        // ts cannot lower the type
+        binding.path as NodePath<BabelTypes.VariableDeclarator>
+      )
+    ) {
+      remove = () => {
+        if (binding.references !== 0) {
+          throw new Error("Expected no references");
+        }
+        binding.path.remove();
+      };
+    } else if (
+      binding.path.node.type === "ImportSpecifier" &&
+      binding.path.parent.type === "ImportDeclaration" &&
+      isImportMacrosName(binding.path.parent.source.value)
+    ) {
+      remove = () => {
+        if (binding.references !== 0) {
+          throw new Error("Expected no references");
+        }
+        const partentPath = binding.path.parentPath;
+        if (!partentPath) {
+          throw new Error("Expected a parent path");
+        }
+        partentPath.remove();
+      };
+    } else {
+      return;
+    }
+
+    const paths = binding?.referencePaths;
+    if (!paths) return;
+
+    for (const path of paths) {
+      const parent = path.parentPath;
+      if (!parent) continue;
+      if (parent.node.type !== "CallExpression") {
+        throw new Error("Expected a CallExpression");
+      }
+      const arg = parent.node.arguments[0];
+      if (!arg || !t.isExpression(arg)) continue;
+      parent.node.callee = importLazily();
+      parent.node.arguments = [t.arrowFunctionExpression([], arg)];
+
+      binding.dereference();
+    }
+    remove();
+  }
+};
+
 export default function preactSignalsUtilsBabel(
   { types: t }: PluginArgs,
   options?: BabelMacroPluginOptions
@@ -173,57 +249,29 @@ export default function preactSignalsUtilsBabel(
     visitor: {
       Program: {
         enter(path, state) {
-          self.set(
+          const importLazily = createImportLazily(
+            t,
             state,
-            reactiveRefIdent,
-            createImportLazily(t, state, path, "$", "@preact-signals/utils")
+            path,
+            "$",
+            "@preact-signals/utils"
           );
+          self.set(state, reactiveRefIdent, importLazily);
+
+          processRefMacros(path, t, importLazily);
         },
       },
-      CallExpression(path, state) {
-        const callee = path.node.callee;
-        if (callee.type !== "Identifier" || callee.name !== "$$") {
+      VariableDeclaration(path, state) {
+        if (!enableStateMacros) {
           return;
         }
-        const paths = path.scope.bindings;
-        if (paths[callee.name] || !self.get(state, hasMacrosReference)) return;
-
-        const arg = path.node.arguments[0];
-
-        if (!arg || !t.isExpression(arg)) return;
-
-        path.replaceWith(
-          t.callExpression(self.get(state, reactiveRefIdent)(), [
-            t.arrowFunctionExpression(
-              [],
-              arg ?? t.expressionStatement(t.identifier("undefined"))
-            ),
-          ])
-        );
-      },
-      ImportDeclaration(path, state) {
-        if (!isImportMacrosName(path.node.source.value)) return;
-        self.set(state, hasMacrosReference, true);
-        path.remove();
-      },
-      VariableDeclaration(path, state) {
         for (const child of path.get("declarations")) {
-          if (isVariableDeclaratorRefMacros(child)) {
-            self.set(state, hasMacrosReference, true);
-            child.remove();
-            continue;
-          }
-          if (!enableStateMacros) {
-            continue;
-          }
-          // TODO: Add reference checking
           const idType = child.node.id.type;
           if (idType !== "Identifier") continue;
           const macros = getStateMacros(child.node);
           if (!macros) continue;
 
           self.setShouldBeReplaced(state, child.node.id);
-          // const binding = path.scope.getBinding(child.node.id.name);
           const binding = path.scope.getBinding(child.node.id.name);
           // replacing bindings
           for (const path of binding?.referencePaths ?? []) {
@@ -259,8 +307,4 @@ export default function preactSignalsUtilsBabel(
       },
     },
   };
-}
-
-function isPrimitive(val: unknown) {
-  return val == null || /^[sbn]/.test(typeof val);
 }
