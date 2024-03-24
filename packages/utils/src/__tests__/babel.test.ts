@@ -6,6 +6,7 @@ import preactSignalsUtilsBabel, { BabelMacroPluginOptions } from "../babel";
 const format = (code: string) => _format(code, { parser: "acorn" });
 
 type TestCase = {
+  type: "success" | "error";
   name: string;
   input: string;
   output: string;
@@ -13,25 +14,30 @@ type TestCase = {
   options: BabelMacroPluginOptions | undefined;
 };
 const TestCase = {
-  make: (name: string, input: string, output: string): TestCase =>
+  makeSuccess: (name: string, input: string, output: string): TestCase =>
     TestCase.makeConfigurable(name, input, output, {}),
   makeConfigurable: (
     name: string,
     input: string,
     output: string,
-    params: Partial<Omit<TestCase, "input" | "output">>
+    params: Partial<Omit<TestCase, "input" | "output" | "name">>
   ): TestCase => ({
+    type: params.type ?? "success",
     name,
     input,
     output,
     isCJS: params.isCJS ?? false,
-    options: params.options,
+    options: params.options ?? {
+      enableStateMacros: true,
+    },
   }),
+  makeError: (name: string, input: string): TestCase =>
+    TestCase.makeConfigurable(name, input, "", { type: "error" }),
 };
 
 describe.concurrent("@preact-signals/utils/macro", () => {
   const success = [
-    TestCase.make(
+    TestCase.makeSuccess(
       "ESM import",
       `
       import { $$ } from "@preact-signals/utils/macro";
@@ -43,7 +49,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const a = _$(() => 1);
     `
     ),
-    TestCase.make(
+    TestCase.makeSuccess(
       "Working inside of scopes",
       `
       import { $$ } from "@preact-signals/utils/macro";
@@ -67,19 +73,19 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       }
       `
     ),
-    TestCase.make(
+    TestCase.makeSuccess(
       "Transforms only resolved as macro: unresolved",
       `$$(10)`,
       `$$(10)`
     ),
-    TestCase.make(
+    TestCase.makeSuccess(
       "Must remove import event if not used",
       `
       import { $$ } from "@preact-signals/utils/macro";
       `,
       ``
     ),
-    TestCase.make(
+    TestCase.makeSuccess(
       "Transforms only resolved as macro: declared",
       `
       import {$$} from "@preact-signals/utils/macro";
@@ -98,7 +104,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       }
       `
     ),
-    TestCase.make(
+    TestCase.makeSuccess(
       "Correctly handles braces in arrow function if using object",
       `
       import { $$ } from "@preact-signals/utils/macro";
@@ -125,7 +131,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       `,
       { isCJS: true }
     ),
-    TestCase.make(
+    TestCase.makeSuccess(
       "nested macro",
       `
       const {$$} = require("@preact-signals/utils/macro");
@@ -137,7 +143,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       _$(() => _$(() => 1));
       `
     ),
-    TestCase.make(
+    TestCase.makeSuccess(
       "is not breaking directives",
       `
         'use client';
@@ -155,7 +161,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
         const a = _$(() => 1)
         `
     ),
-    TestCase.make(
+    TestCase.makeSuccess(
       "is not break other imports",
       `
         import React from 'react';
@@ -182,7 +188,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       `,
       { isCJS: true }
     ),
-    TestCase.makeConfigurable(
+    TestCase.makeSuccess(
       "Replaces $state references",
       `
       let a = $state(0)
@@ -197,12 +203,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       a.value.value += 10
       a.value
       a.value.value
-      `,
-      {
-        options: {
-          enableStateMacros: true,
-        },
-      }
+      `
     ),
   ];
 
@@ -216,6 +217,56 @@ describe.concurrent("@preact-signals/utils/macro", () => {
           })?.code!
         )
       ).toEqual(await format(output));
+    });
+  }
+  const fail = [
+    TestCase.makeError(
+      "Throws error if not a CallExpression",
+      `
+      import { $$ } from "@preact-signals/utils/macro";
+
+      const a = $$;
+    `
+    ),
+    TestCase.makeError(
+      "Throws error if callExpression called with multiple arguments",
+      `
+      import { $$ } from "@preact-signals/utils/macro";
+
+      const a = $$(1, 2);
+    `
+    ),
+    TestCase.makeError(
+      "Throws error if callExpression called with no arguments",
+      `
+      import { $$ } from "@preact-signals/utils/macro";
+
+      const a = $$();
+    `
+    ),
+    TestCase.makeError(
+      "Throws error if used with spread argument",
+      `
+      import { $$ } from "@preact-signals/utils/macro";
+
+      const a = $$(...[1]);
+    `
+    ),
+  ];
+
+  for (const { input, isCJS, name, options } of fail) {
+    it(name, async ({ expect }) => {
+      expect(() => {
+        try {
+          transform(input, {
+            plugins: [[preactSignalsUtilsBabel, options]],
+            sourceType: isCJS ? "script" : "module",
+          });
+        } catch (e) {
+          console.log(e);
+          throw e;
+        }
+      }).toThrowError();
     });
   }
 });

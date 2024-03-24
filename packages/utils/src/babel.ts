@@ -177,65 +177,101 @@ export type BabelMacroPluginOptions = {
   enableStateMacros: boolean;
 };
 
+class SyntaxErrorWithLoc extends SyntaxError {
+  loc: { line: number; column: number };
+  private constructor(message: string, line: number, column: number) {
+    super(message);
+    this.loc = { line, column };
+  }
+  public static make(message: string, line: number, column: number) {
+    return new SyntaxErrorWithLoc(message, line, column);
+  }
+  public static makeFromPosition(
+    message: string,
+    position: { line: number; column: number } | undefined
+  ) {
+    return position
+      ? new SyntaxErrorWithLoc(message, position.line, position.column)
+      : new SyntaxError(message);
+  }
+}
+
 const processRefMacros = (
   path: NodePath<BabelTypes.Program>,
   t: typeof BabelTypes,
   importLazily: ReturnType<typeof createImportLazily>
 ) => {
-  if (path.scope.references["$$"]) {
-    const binding = path.scope.getBinding("$$");
-    if (!binding) return;
-    let remove: () => void;
-    if (
-      binding.path.node.type === "VariableDeclarator" &&
-      isVariableDeclaratorRefMacros(
-        // ts cannot lower the type
-        binding.path as NodePath<BabelTypes.VariableDeclarator>
-      )
-    ) {
-      remove = () => {
-        if (binding.references !== 0) {
-          throw new Error("Expected no references");
-        }
-        binding.path.remove();
-      };
-    } else if (
-      binding.path.node.type === "ImportSpecifier" &&
-      binding.path.parent.type === "ImportDeclaration" &&
-      isImportMacrosName(binding.path.parent.source.value)
-    ) {
-      remove = () => {
-        if (binding.references !== 0) {
-          throw new Error("Expected no references");
-        }
-        const partentPath = binding.path.parentPath;
-        if (!partentPath) {
-          throw new Error("Expected a parent path");
-        }
-        partentPath.remove();
-      };
-    } else {
-      return;
-    }
+  const bindingName = "$$";
+  if (!path.scope.references[bindingName]) return;
 
-    const paths = binding?.referencePaths;
-    if (!paths) return;
-
-    for (const path of paths) {
-      const parent = path.parentPath;
-      if (!parent) continue;
-      if (parent.node.type !== "CallExpression") {
-        throw new Error("Expected a CallExpression");
+  const binding = path.scope.getBinding(bindingName);
+  if (!binding) return;
+  let remove: () => void;
+  if (
+    binding.path.node.type === "VariableDeclarator" &&
+    isVariableDeclaratorRefMacros(
+      // ts cannot lower the type
+      binding.path as NodePath<BabelTypes.VariableDeclarator>
+    )
+  ) {
+    remove = () => {
+      binding.path.remove();
+    };
+  } else if (
+    binding.path.node.type === "ImportSpecifier" &&
+    binding.path.parent.type === "ImportDeclaration" &&
+    isImportMacrosName(binding.path.parent.source.value)
+  ) {
+    remove = () => {
+      const parentPath = binding.path.parentPath;
+      if (!parentPath) {
+        throw new Error("invariant: importSpecifier should have a parentPath");
       }
-      const arg = parent.node.arguments[0];
-      if (!arg || !t.isExpression(arg)) continue;
-      parent.node.callee = importLazily();
-      parent.node.arguments = [t.arrowFunctionExpression([], arg)];
-
-      binding.dereference();
-    }
-    remove();
+      parentPath.remove();
+    };
+  } else {
+    return;
   }
+
+  const paths = binding?.referencePaths;
+  if (!paths) return;
+
+  for (const path of paths) {
+    const parent = path.parentPath;
+    if (!parent) continue;
+    if (parent.node.type !== "CallExpression") {
+      throw SyntaxErrorWithLoc.makeFromPosition(
+        "$$ expected to be used only inside of CallExpressions",
+        parent.node.loc?.start
+      );
+    }
+    if (parent.node.arguments.length !== 1) {
+      throw SyntaxErrorWithLoc.makeFromPosition(
+        "$$ expected to be called with exactly one argument",
+        parent.node.loc?.start
+      );
+    }
+    const arg = parent.node.arguments[0];
+    if (!arg) {
+      throw Error("invariant: Arg cannot be null");
+    }
+    if (!t.isExpression(arg)) {
+      throw SyntaxErrorWithLoc.makeFromPosition(
+        "$$ expected to be called with an expression",
+        arg.loc?.start
+      );
+    }
+
+    parent.node.callee = importLazily();
+    parent.node.arguments = [t.arrowFunctionExpression([], arg)];
+
+    binding.dereference();
+  }
+  if (binding.references !== 0) {
+    throw new Error("invariant: Expected no references");
+  }
+  remove();
+  path.scope.removeBinding(bindingName);
 };
 
 export default function preactSignalsUtilsBabel(
@@ -290,6 +326,9 @@ export default function preactSignalsUtilsBabel(
           return;
         }
         const ident = path.scope.getBindingIdentifier(path.node.left.name);
+        if (!ident) {
+          return;
+        }
         if (!self.getShouldBeReplaced(state, ident)) {
           return;
         }
