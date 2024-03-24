@@ -199,7 +199,7 @@ class SyntaxErrorWithLoc extends SyntaxError {
 const processRefMacros = (
   path: NodePath<BabelTypes.Program>,
   t: typeof BabelTypes,
-  importLazily: ReturnType<typeof createImportLazily>
+  importRefLazily: ReturnType<typeof createImportLazily>
 ) => {
   const bindingName = "$$";
   if (!path.scope.references[bindingName]) return;
@@ -238,11 +238,10 @@ const processRefMacros = (
 
   for (const path of paths) {
     const parent = path.parentPath;
-    if (!parent) continue;
-    if (parent.node.type !== "CallExpression") {
+    if (!parent || parent.node.type !== "CallExpression") {
       throw SyntaxErrorWithLoc.makeFromPosition(
         "$$ expected to be used only inside of CallExpressions",
-        parent.node.loc?.start
+        (parent ?? path).node.loc?.start
       );
     }
     if (parent.node.arguments.length !== 1) {
@@ -262,7 +261,7 @@ const processRefMacros = (
       );
     }
 
-    parent.node.callee = importLazily();
+    parent.node.callee = importRefLazily();
     parent.node.arguments = [t.arrowFunctionExpression([], arg)];
 
     binding.dereference();
@@ -272,6 +271,24 @@ const processRefMacros = (
   }
   remove();
   path.scope.removeBinding(bindingName);
+};
+
+const processStateMacros = (
+  path: NodePath<BabelTypes.Program>,
+  t: typeof BabelTypes
+  // importLazily: ReturnType<typeof createImportLazily>
+) => {
+  const stateMacros = ["$state", "$bindedState"];
+
+  for (const macro of stateMacros) {
+    if (!path.scope.references[macro]) {
+      continue;
+    }
+    const ident = path.scope.getBindingIdentifier(macro);
+    if (!ident) {
+      continue;
+    }
+  }
 };
 
 export default function preactSignalsUtilsBabel(
@@ -306,6 +323,12 @@ export default function preactSignalsUtilsBabel(
           if (idType !== "Identifier") continue;
           const macros = getStateMacros(child.node);
           if (!macros) continue;
+          if (path.node.kind !== "let" && path.node.kind !== "const") {
+            throw SyntaxErrorWithLoc.makeFromPosition(
+              "Expected let or const",
+              path.node.loc?.start
+            );
+          }
 
           self.setShouldBeReplaced(state, child.node.id);
           const binding = path.scope.getBinding(child.node.id.name);
