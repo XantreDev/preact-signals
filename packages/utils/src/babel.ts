@@ -5,29 +5,39 @@ import {
   PluginPass,
   NodePath,
 } from "@babel/core";
+import type { Binding } from "@babel/traverse";
 import { isModule, addNamed } from "@babel/helper-module-imports";
 import assert from "node:assert";
 
 const PLUGIN_NAME = "@preact-signals/utils/babel";
+type MakeOptional<T> = {
+  [K in keyof T]: T[K] | undefined;
+};
+type PluginStoreMap = {
+  identifiersForReplace: Set<BabelTypes.Identifier>;
+} & Record<`${"imports" | "requires"}/${string}`, BabelTypes.Identifier>;
+
 const self = {
-  get: (pass: PluginPass, name: any) => pass.get(`${PLUGIN_NAME}/${name}`),
-  set: (pass: PluginPass, name: string, v: any) =>
-    pass.set(`${PLUGIN_NAME}/${name}`, v),
-  getShouldBeReplacedSet: (
-    pass: PluginPass
-  ): Set<BabelTypes.Identifier> | null => {
-    return self.get(pass, identifiersForReplace) ?? null;
-  },
+  get: <T extends keyof PluginStoreMap>(
+    pass: PluginPass,
+    name: T
+  ): PluginStoreMap[T] | undefined => pass.get(`${PLUGIN_NAME}/${name}`),
+  set: <T extends keyof PluginStoreMap>(
+    pass: PluginPass,
+    name: T,
+    v: PluginStoreMap[T]
+  ) => pass.set(`${PLUGIN_NAME}/${name}`, v),
   setShouldBeReplaced: (pass: PluginPass, v: BabelTypes.Identifier) => {
-    let set = self.getShouldBeReplacedSet(pass);
+    let set = self.get(pass, "identifiersForReplace");
     if (!set) {
       set = new Set();
-      self.set(pass, identifiersForReplace, set);
+      self.set(pass, "identifiersForReplace", set);
     }
     set.add(v);
   },
   getShouldBeReplaced: (pass: PluginPass, v: BabelTypes.Identifier) =>
-    (v.type === "Identifier" && self.getShouldBeReplacedSet(pass)?.has(v)) ??
+    (v.type === "Identifier" &&
+      self.get(pass, "identifiersForReplace")?.has(v)) ??
     false,
 };
 
@@ -40,10 +50,7 @@ function createImportLazily(
 ): () => BabelTypes.Identifier {
   return () => {
     if (isModule(path)) {
-      let reference: BabelTypes.Identifier = self.get(
-        pass,
-        `imports/${importName}`
-      );
+      let reference = self.get(pass, `imports/${importName}`);
       if (reference) return t.cloneNode(reference);
       reference = addNamed(path, importName, source, {
         importedInterop: "uncompiled",
@@ -76,10 +83,7 @@ function createImportLazily(
       return reference;
     }
 
-    let reference: BabelTypes.Identifier = self.get(
-      pass,
-      `requires/${importName}`
-    );
+    let reference = self.get(pass, `requires/${importName}`);
     if (reference) {
       return t.cloneNode(reference);
     }
@@ -110,9 +114,6 @@ interface PluginArgs {
   types: typeof BabelTypes;
   template: typeof BabelTemplate;
 }
-
-const reactiveRefIdent = "importIdentifier";
-const identifiersForReplace = "identifiersForReplace";
 
 const isImportMacrosName = (name: string) =>
   name === "@preact-signals/utils/macro";
@@ -196,30 +197,25 @@ class SyntaxErrorWithLoc extends SyntaxError {
   }
 }
 
-const processRefMacros = (
-  path: NodePath<BabelTypes.Program>,
-  t: typeof BabelTypes,
-  importRefLazily: ReturnType<typeof createImportLazily>
-) => {
-  const bindingName = "$$";
-  if (!path.scope.references[bindingName]) return;
+type MacroIdentifier = "$$" | "$state" | "$bindedState";
 
-  const binding = path.scope.getBinding(bindingName);
-  if (!binding) return;
-
-  // if (binding.path.node.type !== "ImportSpecifier") {
-  //   console.log(binding?.path);
-  // }
-  let remove: () => void;
+/**
+ *
+ * @param binding
+ * @param importSpecifier
+ * @returns null if there is no import to remove, otherwise a function to remove the import
+ */
+const createRemoveImport = (
+  scope: { removeBinding: (name: string) => void },
+  binding: Binding,
+  importSpecifier: MacroIdentifier
+): null | (() => void) => {
   if (
-    binding.path.node.type === "VariableDeclarator" &&
-    isVariableDeclaratorRefMacros(
-      // ts cannot lower the type
-      binding.path as NodePath<BabelTypes.VariableDeclarator>
-    )
+    binding.path.isVariableDeclarator() &&
+    isVariableDeclaratorRefMacros(binding.path)
   ) {
-    const varDecl = binding.path as NodePath<BabelTypes.VariableDeclarator>;
-    remove = () => {
+    const varDecl = binding.path;
+    return () => {
       if (varDecl.node.id.type === "ObjectPattern") {
         if (varDecl.node.id.properties.length > 1) {
           for (const prop of varDecl.node.id.properties) {
@@ -234,36 +230,55 @@ const processRefMacros = (
             return (
               prop.type === "ObjectProperty" &&
               prop.key.type === "Identifier" &&
-              prop.key.name === bindingName
+              prop.key.name === importSpecifier
             );
           });
           if (elIndex !== -1) {
             varDecl.node.id.properties.splice(elIndex, 1);
+            scope.removeBinding(importSpecifier);
             return;
           }
         }
       }
-      console.log(varDecl.node.id);
       binding.path.remove();
+      scope.removeBinding(importSpecifier);
     };
-  } else if (
+  }
+  if (
     binding.path.node.type === "ImportSpecifier" &&
     binding.path.parent.type === "ImportDeclaration" &&
     isImportMacrosName(binding.path.parent.source.value)
   ) {
     const parentPath = binding.path.parentPath;
-    remove = () => {
+    return () => {
       if (!parentPath) {
         throw new Error("invariant: importSpecifier should have a parentPath");
       }
       parentPath.remove();
+      scope.removeBinding(importSpecifier);
     };
-  } else {
-    return;
   }
+
+  return null;
+};
+
+const processRefMacros = (
+  path: NodePath<BabelTypes.Program>,
+  t: typeof BabelTypes,
+  importRefLazily: ReturnType<typeof createImportLazily>
+) => {
+  const bindingName = "$$";
+  if (!path.scope.references[bindingName]) return;
+
+  const binding = path.scope.getBinding(bindingName);
+  if (!binding) return;
 
   const paths = binding?.referencePaths;
   if (!paths) return;
+  const remove = createRemoveImport(path.scope, binding, bindingName);
+  if (!remove) {
+    return;
+  }
 
   for (const path of paths) {
     const parent = path.parentPath;
@@ -331,16 +346,15 @@ export default function preactSignalsUtilsBabel(
     visitor: {
       Program: {
         enter(path, state) {
-          const importLazily = createImportLazily(
-            t,
-            state,
+          processRefMacros(
             path,
-            "$",
-            "@preact-signals/utils"
+            t,
+            createImportLazily(t, state, path, "$", "@preact-signals/utils")
           );
-          self.set(state, reactiveRefIdent, importLazily);
 
-          processRefMacros(path, t, importLazily);
+          if (enableStateMacros) {
+            processStateMacros(path, t);
+          }
         },
       },
       VariableDeclaration(path, state) {
@@ -374,6 +388,7 @@ export default function preactSignalsUtilsBabel(
         if (!enableStateMacros) {
           return;
         }
+        // replacing state macro assignments
         if (path.node.left.type !== "Identifier") {
           return;
         }
