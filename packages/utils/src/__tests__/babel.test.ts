@@ -285,6 +285,28 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       ``,
       { isCJS: true }
     ),
+    TestCase.makeError(
+      "Throws error if $bindedState assigned to a variable",
+      `
+      import { $bindedState } from "@preact-signals/utils/macro";
+      let a = $bindedState(0)
+      a += 10
+      `
+    ),
+    // TODO: throw even has no import of known macro
+    TestCase.makeError(
+      "Throws if imports unknown macro",
+      `
+      import { $unknown, $$ } from "@preact-signals/utils/macro";
+      `
+    ),
+    // TODO: throw even has no import of known macro
+    TestCase.makeError(
+      "Throws if imports unknown macro (CJS)",
+      `
+      const { $unknown, $$ } = require("@preact-signals/utils/macro")
+      `
+    ),
   ];
 
   for (const { input, isCJS, name, options } of fail) {

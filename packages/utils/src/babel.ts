@@ -11,8 +11,6 @@ import assert from "node:assert";
 
 const PLUGIN_NAME = "@preact-signals/utils/babel";
 type PluginStoreMap = {
-  // remove
-  identifiersForReplace: Set<BabelTypes.Identifier>;
   $stateIdentifier: Set<BabelTypes.Identifier>;
   $bindedStateIdentifier: Set<BabelTypes.Identifier>;
 } & Record<`${"imports" | "requires"}/${string}`, BabelTypes.Identifier>;
@@ -51,10 +49,9 @@ const self = {
     // @ts-expect-error complex types
     return set.has(v);
   },
-  setShouldBeReplaced: (pass: PluginPass, v: BabelTypes.Identifier) => {
-    self.addToSet(pass, "identifiersForReplace", v);
-  },
 };
+
+const knownImportSpecifiers = new Set(["$$", "$state", "$bindedState"]);
 
 function createImportLazily(
   t: typeof BabelTypes,
@@ -143,7 +140,14 @@ const isVariableDeclaratorRefMacros = (
   child.node.init.arguments[0]?.type === "StringLiteral" &&
   isImportMacrosName(child.node.init.arguments[0].value);
 
-type StateMacros = "$bindedState" | "$state";
+const stateMacros = ["$state", "$bindedState"] as const;
+const refMacro = "$$" as const;
+
+const importSpecifiers = [...stateMacros, refMacro];
+
+type RefMacro = typeof refMacro;
+type StateMacros = (typeof stateMacros)[number];
+type MacroIdentifier = RefMacro | StateMacros;
 
 const getStateMacros = (
   node: BabelTypes.VariableDeclarator
@@ -164,8 +168,7 @@ const getStateMacrosBody = (
   if (!node.init || node.init.type !== "CallExpression") return null;
   if (
     node.init.callee.type !== "Identifier" ||
-    (node.init.callee.name !== "$state" &&
-      node.init.callee.name !== "$bindedState")
+    (stateMacros as readonly string[]).indexOf(node.init.callee.name) === -1
   ) {
     return null;
   }
@@ -222,8 +225,6 @@ class SyntaxErrorWithLoc extends SyntaxError {
   }
 }
 
-type MacroIdentifier = "$$" | "$state" | "$bindedState";
-
 /**
  *
  * @param binding
@@ -250,6 +251,35 @@ const createRemoveImport = (
                 prop.loc?.start
               );
             }
+            if (prop.value.type !== "Identifier") {
+              throw SyntaxErrorWithLoc.makeFromPosition(
+                "Expected import from macros to be an identifier",
+                prop.value.loc?.start
+              );
+            }
+            if (prop.shorthand) {
+              assert(
+                prop.key.type === "Identifier" &&
+                  importSpecifiers.includes(prop.key.name as MacroIdentifier),
+                SyntaxErrorWithLoc.makeFromPosition(
+                  `Expected to be Identifier and key to be one of ${importSpecifiers.join(
+                    ", "
+                  )}`,
+                  prop.key.loc?.start
+                )
+              );
+            }
+
+            assert(
+              prop.key.type === "Identifier" &&
+                prop.value.type === "Identifier" &&
+                prop.key.name === prop.value.name &&
+                importSpecifiers.includes(prop.key.name as MacroIdentifier),
+              SyntaxErrorWithLoc.makeFromPosition(
+                `Expected key to be one of ${importSpecifiers.join(", ")}`,
+                prop.key.loc?.start
+              )
+            );
           }
           const elIndex = varDecl.node.id.properties.findIndex((prop) => {
             return (
@@ -274,6 +304,20 @@ const createRemoveImport = (
     binding.path.parent.type === "ImportDeclaration" &&
     isImportMacrosName(binding.path.parent.source.value)
   ) {
+    for (const specifier of binding.path.parent.specifiers) {
+      assert(specifier.type === "ImportSpecifier");
+
+      const value =
+        specifier.imported.type === "Identifier"
+          ? specifier.imported.name
+          : specifier.imported.value;
+      if (!importSpecifiers.includes(value as MacroIdentifier)) {
+        throw SyntaxErrorWithLoc.makeFromPosition(
+          `Expected ${value} to be one of ${importSpecifiers.join(", ")}`,
+          specifier.imported.loc?.start
+        );
+      }
+    }
     const parentPath = binding.path.parentPath;
     return () => {
       if (!parentPath) {
@@ -292,15 +336,14 @@ const processRefMacros = (
   t: typeof BabelTypes,
   importRefLazily: ReturnType<typeof createImportLazily>
 ) => {
-  const bindingName = "$$";
-  if (!path.scope.references[bindingName]) return;
+  if (!path.scope.references[refMacro]) return;
 
-  const binding = path.scope.getBinding(bindingName);
+  const binding = path.scope.getBinding(refMacro);
   if (!binding) return;
 
   const paths = binding?.referencePaths;
   if (!paths) return;
-  const remove = createRemoveImport(path.scope, binding, bindingName);
+  const remove = createRemoveImport(path.scope, binding, refMacro);
   if (!remove) {
     return;
   }
@@ -339,7 +382,7 @@ const processRefMacros = (
     throw new Error("invariant: Expected no references");
   }
   remove();
-  path.scope.removeBinding(bindingName);
+  path.scope.removeBinding(refMacro);
 };
 
 const processStateMacros = (
