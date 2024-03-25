@@ -210,18 +210,22 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       "Replaces $state references",
       `
       import { $state } from "@preact-signals/utils/macro";
-      let a = $state(0)
-      a += 10
-      a.value += 10
-      a
-      a.value
+      const _ = () => {
+        let a = $state(0)
+        a += 10
+        a.value += 10
+        a
+        a.value
+      }
       `,
       `
-      let a = 0
-      a.value += 10
-      a.value.value += 10
-      a.value
-      a.value.value
+      const _ = () => {
+        let a = 0
+        a.value += 10
+        a.value.value += 10
+        a.value
+        a.value.value
+      }
       `
     ),
   ];
@@ -275,9 +279,18 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       "Throws error if `$state` used with var for variable declaration",
       `
       import { $state } from "@preact-signals/utils/macro";
-      var a = $state(0)`
+      const _ = () => {
+        var a = $state(0)
+      }
+      `
     ),
-
+    TestCase.makeError(
+      "Throws error if using $state outside of function",
+      `
+      import { $state } from "@preact-signals/utils/macro";
+      let a = $state(0)
+      `
+    ),
     TestCase.makeConfigurable(
       "CJS cannot rest pattern in require",
       `
@@ -289,8 +302,10 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       "Throws error if $bindedState assigned to a variable",
       `
       import { $bindedState } from "@preact-signals/utils/macro";
-      let a = $bindedState(0)
-      a += 10
+      const _ = () => {
+        let a = $bindedState(0)
+        a += 10
+      }
       `
     ),
     // TODO: throw even has no import of known macro

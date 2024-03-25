@@ -388,8 +388,8 @@ const processRefMacros = (
 const processStateMacros = (
   path: NodePath<BabelTypes.Program>,
   t: typeof BabelTypes,
-  state: PluginPass
-  // importLazily: ReturnType<typeof createImportLazily>
+  state: PluginPass,
+  importLazily: ReturnType<typeof createImportLazily>
 ) => {
   const stateMacros = ["$state", "$bindedState"] as const;
 
@@ -451,6 +451,13 @@ const processStateMacros = (
         );
       }
       const [id, body] = res;
+      const functionParent = parent.getFunctionParent();
+      if (!functionParent) {
+        throw SyntaxErrorWithLoc.makeFromPosition(
+          `Expected "${macro}" to be used inside of a function`,
+          parent.node.loc?.start
+        );
+      }
 
       callParent.replaceWith(t.cloneNode(body));
       self.addToSet(
@@ -497,7 +504,18 @@ export default function preactSignalsUtilsBabel(
           );
 
           if (enableStateMacros) {
-            processStateMacros(path, t, state);
+            processStateMacros(
+              path,
+              t,
+              state,
+              createImportLazily(
+                t,
+                state,
+                path,
+                "useStore",
+                "@preact-signals/utils"
+              )
+            );
           }
         },
       },
