@@ -227,9 +227,9 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       import { useStore as _useStore } from "@preact-signals/utils";
       const _ = () => {
         const _store = _useStore();
-        let a = _store.createReactive(0, 0);
-        let b = _store.createReactive(0, 1);
-        const c = _store.createReactive(0, 2);
+        let a = _store.get(0) ?? _store.reactive(0, 0);
+        let b = _store.get(1) ?? _store.reactive(0, 1);
+        const c = _store.lReactive(0, 2);
         a.value += 10;
         a.value.value += 10;
         a.value;

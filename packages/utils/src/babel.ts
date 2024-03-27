@@ -402,6 +402,32 @@ const processRefMacros = (
   path.scope.removeBinding(refMacro);
 };
 
+const createStoreProperty = (
+  storeIdent: BabelTypes.Identifier,
+  t: typeof BabelTypes,
+  init: BabelTypes.Expression,
+  type: "state" | "linkedState",
+  counter: number
+) => {
+  if (type === "linkedState") {
+    return t.callExpression(
+      t.memberExpression(t.cloneNode(storeIdent), t.identifier("lReactive")),
+      [t.cloneNode(init), t.numericLiteral(counter)]
+    );
+  }
+  const getExpression = t.callExpression(
+    t.memberExpression(t.cloneNode(storeIdent), t.identifier("get")),
+    [t.numericLiteral(counter)]
+  );
+
+  const createFallback = t.callExpression(
+    t.memberExpression(t.cloneNode(storeIdent), t.identifier("reactive")),
+    [t.cloneNode(init), t.numericLiteral(counter)]
+  );
+
+  return t.logicalExpression("??", getExpression, createFallback);
+};
+
 const processStateMacros = (
   path: NodePath<BabelTypes.Program>,
   t: typeof BabelTypes,
@@ -526,16 +552,16 @@ const processStateMacros = (
         return { original: ident, clone: t.cloneNode(ident) };
       })();
 
-      callParent.replaceWith(
-        t.callExpression(
-          t.memberExpression(storeIdent.clone, t.identifier("createReactive")),
-          [
-            t.cloneNode(body),
-            t.numericLiteral(getNextCounter(storeIdent.original)),
-          ]
+      const [referencePath] = callParent.replaceWith(
+        createStoreProperty(
+          storeIdent.clone,
+          t,
+          body,
+          macro === "$linkedState" ? "linkedState" : "state",
+          getNextCounter(storeIdent.original)
         )
       );
-      // path.scope.getBinding(storeIdent.name)?.reference(path);
+      path.scope.getBinding(storeIdent.original.name)?.reference(referencePath);
       self.addToSet(
         state,
         macro === "$state" ? "$stateIdentifier" : "$linkedStateIdentifier",
