@@ -209,11 +209,11 @@ describe.concurrent("@preact-signals/utils/macro", () => {
     TestCase.makeSuccess(
       "Replaces $state references",
       `
-      import { $state, $bindedState } from "@preact-signals/utils/macro";
+      import { $state, $linkedState } from "@preact-signals/utils/macro";
       const _ = () => {
         let a = $state(0)
         let b = $state(0)
-        const c = $bindedState(0)
+        const c = $linkedState(0)
         a += 10
         a.value += 10
         a
@@ -310,11 +310,11 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       { isCJS: true }
     ),
     TestCase.makeError(
-      "Throws error if $bindedState assigned to a variable",
+      "Throws error if $linkedState assigned to a variable",
       `
-      import { $bindedState } from "@preact-signals/utils/macro";
+      import { $linkedState } from "@preact-signals/utils/macro";
       const _ = () => {
-        let a = $bindedState(0)
+        let a = $linkedState(0)
         a += 10
       }
       `
@@ -342,12 +342,12 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       }`
     ),
     TestCase.makeError(
-      "Throws if state macros is used outside of variable declaration ($bindedState)",
+      "Throws if state macros is used outside of variable declaration ($linkedState)",
       `
-      import { $bindedState, $state } from "@preact-signals/utils/macro";
+      import { $linkedState, $state } from "@preact-signals/utils/macro";
       const _ = () => {
         let a = $state(0)
-        $bindedState(0)
+        $linkedState(0)
       }`
     ),
   ];

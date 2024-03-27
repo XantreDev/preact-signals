@@ -12,7 +12,7 @@ import assert from "node:assert";
 const PLUGIN_NAME = "@preact-signals/utils/babel";
 type PluginStoreMap = {
   $stateIdentifier: Set<BabelTypes.Identifier>;
-  $bindedStateIdentifier: Set<BabelTypes.Identifier>;
+  $linkedStateIdentifier: Set<BabelTypes.Identifier>;
 } & Record<`${"imports" | "requires"}/${string}`, BabelTypes.Identifier>;
 
 const self = {
@@ -51,7 +51,7 @@ const self = {
   },
 };
 
-const knownImportSpecifiers = new Set(["$$", "$state", "$bindedState"]);
+const knownImportSpecifiers = new Set(["$$", "$state", "$linkedState"]);
 
 function createImportLazily(
   t: typeof BabelTypes,
@@ -140,7 +140,7 @@ const isVariableDeclaratorRefMacros = (
   child.node.init.arguments[0]?.type === "StringLiteral" &&
   isImportMacrosName(child.node.init.arguments[0].value);
 
-const stateMacros = ["$state", "$bindedState"] as const;
+const stateMacros = ["$state", "$linkedState"] as const;
 const refMacro = "$$" as const;
 
 const importSpecifiers = [...stateMacros, refMacro];
@@ -157,7 +157,7 @@ const getStateMacros = (
   const calleeName = node.init.callee.name;
 
   if (calleeName === "$state") return "$state";
-  if (calleeName === "$bindedState") return "$bindedState";
+  if (calleeName === "$linkedState") return "$linkedState";
 
   return null;
 };
@@ -408,7 +408,7 @@ const processStateMacros = (
   state: PluginPass,
   importLazily: ReturnType<typeof createImportLazily>
 ) => {
-  const stateMacros = ["$state", "$bindedState"] as const;
+  const stateMacros = ["$state", "$linkedState"] as const;
 
   const functionToIdentifier = new Map<
     BabelTypes.Function,
@@ -538,7 +538,7 @@ const processStateMacros = (
       // path.scope.getBinding(storeIdent.name)?.reference(path);
       self.addToSet(
         state,
-        macro === "$state" ? "$stateIdentifier" : "$bindedStateIdentifier",
+        macro === "$state" ? "$stateIdentifier" : "$linkedStateIdentifier",
         id
       );
 
@@ -620,7 +620,7 @@ export default function preactSignalsUtilsBabel(
           );
           return;
         }
-        if (self.hasInSet(state, "$bindedStateIdentifier", ident)) {
+        if (self.hasInSet(state, "$linkedStateIdentifier", ident)) {
           throw SyntaxErrorWithLoc.makeFromPosition(
             "Cannot assign to a binded state",
             path.node.loc?.start
