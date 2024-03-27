@@ -319,11 +319,28 @@ const createRemoveImport = (
       }
     }
     const parentPath = binding.path.parentPath;
+
+    if (!parentPath) {
+      throw new Error("invariant: importSpecifier should have a parentPath");
+    }
+    assert(parentPath.isImportDeclaration());
     return () => {
-      if (!parentPath) {
-        throw new Error("invariant: importSpecifier should have a parentPath");
+      if (parentPath.node.specifiers.length === 1) {
+        parentPath.remove();
+      } else {
+        const specifier = parentPath
+          .get("specifiers")
+          .find(({ node: spec }) => {
+            return (
+              spec.type === "ImportSpecifier" &&
+              spec.imported.type === "Identifier" &&
+              spec.imported.name === importSpecifier
+            );
+          });
+        assert(specifier?.type === "ImportSpecifier");
+        specifier.remove();
       }
-      parentPath.remove();
+
       scope.removeBinding(importSpecifier);
     };
   }
@@ -393,6 +410,18 @@ const processStateMacros = (
 ) => {
   const stateMacros = ["$state", "$bindedState"] as const;
 
+  const functionToIdentifier = new Map<
+    BabelTypes.Function,
+    BabelTypes.Identifier
+  >();
+  const storeIdentCounter = new Map<BabelTypes.Identifier, number>();
+
+  const getNextCounter = (ident: BabelTypes.Identifier) => {
+    const counter = storeIdentCounter.get(ident) ?? 0;
+    storeIdentCounter.set(ident, counter + 1);
+    return counter;
+  };
+
   for (const macro of stateMacros) {
     if (!path.scope.references[macro]) {
       continue;
@@ -422,7 +451,7 @@ const processStateMacros = (
       const parent = callParent.parentPath;
       if (!parent || !parent.isVariableDeclarator()) {
         throw SyntaxErrorWithLoc.makeFromPosition(
-          "Expected $state to be used only in variable declarations",
+          `Expected ${macro} to be used only in variable declarations`,
           path.node.loc?.start
         );
       }
@@ -459,7 +488,54 @@ const processStateMacros = (
         );
       }
 
-      callParent.replaceWith(t.cloneNode(body));
+      const storeIdent = (() => {
+        {
+          const _ = functionToIdentifier.get(functionParent.node);
+          if (_) {
+            return {
+              original: _,
+              clone: t.cloneNode(_),
+            };
+          }
+        }
+
+        const functionBody =
+          functionParent.node.body.type === "BlockStatement"
+            ? functionParent.node.body
+            : t.blockStatement([t.returnStatement(functionParent.node.body)]);
+
+        t.callExpression(importLazily(), []);
+        const ident = path.scope.generateUidIdentifier("store");
+        const decl = t.variableDeclaration("const", [
+          t.variableDeclarator(ident, t.callExpression(importLazily(), [])),
+        ]);
+
+        functionBody.body.unshift(decl);
+        functionParent.node.body = functionBody;
+        const body = functionParent.get("body");
+        assert(body.isBlockStatement());
+
+        for (const it of body.get("body")) {
+          if (it.node === decl) {
+            body.scope.registerDeclaration(it);
+            break;
+          }
+        }
+
+        functionToIdentifier.set(functionParent.node, ident);
+        return { original: ident, clone: t.cloneNode(ident) };
+      })();
+
+      callParent.replaceWith(
+        t.callExpression(
+          t.memberExpression(storeIdent.clone, t.identifier("createReactive")),
+          [
+            t.cloneNode(body),
+            t.numericLiteral(getNextCounter(storeIdent.original)),
+          ]
+        )
+      );
+      // path.scope.getBinding(storeIdent.name)?.reference(path);
       self.addToSet(
         state,
         macro === "$state" ? "$stateIdentifier" : "$bindedStateIdentifier",

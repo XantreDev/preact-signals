@@ -209,23 +209,34 @@ describe.concurrent("@preact-signals/utils/macro", () => {
     TestCase.makeSuccess(
       "Replaces $state references",
       `
-      import { $state } from "@preact-signals/utils/macro";
+      import { $state, $bindedState } from "@preact-signals/utils/macro";
       const _ = () => {
         let a = $state(0)
+        let b = $state(0)
+        const c = $bindedState(0)
         a += 10
         a.value += 10
         a
         a.value
+        
+        b += 10
+        c.value += 10
       }
       `,
       `
+      import { useStore as _useStore } from "@preact-signals/utils";
       const _ = () => {
-        let a = 0
-        a.value += 10
-        a.value.value += 10
-        a.value
-        a.value.value
-      }
+        const _store = _useStore();
+        let a = _store.createReactive(0, 0);
+        let b = _store.createReactive(0, 1);
+        const c = _store.createReactive(0, 2);
+        a.value += 10;
+        a.value.value += 10;
+        a.value;
+        a.value.value;
+        b.value += 10;
+        c.value.value += 10;
+      };
       `
     ),
   ];
@@ -321,6 +332,23 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       `
       const { $unknown, $$ } = require("@preact-signals/utils/macro")
       `
+    ),
+    TestCase.makeError(
+      "Throws if state macros is used outside of variable declaration ($state)",
+      `
+      import { $state } from "@preact-signals/utils/macro";
+      const _ = () => {
+        $state(0)
+      }`
+    ),
+    TestCase.makeError(
+      "Throws if state macros is used outside of variable declaration ($bindedState)",
+      `
+      import { $bindedState, $state } from "@preact-signals/utils/macro";
+      const _ = () => {
+        let a = $state(0)
+        $bindedState(0)
+      }`
     ),
   ];
 
