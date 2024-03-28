@@ -224,7 +224,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       }
       `,
       `
-      import { useStore as _useStore } from "@preact-signals/utils";
+      import { useStore as _useStore } from "@preact-signals/utils/macro-helper";
       const _ = () => {
         const _store = _useStore();
         let a = _store.get(0) ?? _store.reactive(0, 0);
