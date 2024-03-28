@@ -7,7 +7,7 @@ import {
 } from "@babel/core";
 import type { Binding } from "@babel/traverse";
 import { isModule, addNamed } from "@babel/helper-module-imports";
-import assert from "node:assert";
+import assert from "assert";
 
 const PLUGIN_NAME = "@preact-signals/utils/babel";
 type PluginStoreMap = {
@@ -615,7 +615,7 @@ export default function preactSignalsUtilsBabel(
                 state,
                 path,
                 "useStore",
-                "@preact-signals/utils"
+                "@preact-signals/utils/macro-helper"
               )
             );
           }
