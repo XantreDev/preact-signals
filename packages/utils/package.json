@@ -93,10 +93,10 @@
       "source": "./src/lib/integrations/reanimated.ts"
     },
     "./macro-helper": {
-      "types": "./dist/types/macro-helper.d.ts",
-      "import": "./dist/esm/macro-helper.mjs",
+      "types": "./dist/types/lib/macro-helper.d.ts",
+      "import": "./dist/esm/lib/macro-helper.mjs",
       "react-native": "./src/lib/macro-helper.ts",
-      "require": "./dist/cjs/macro-helper.cjs",
+      "require": "./dist/cjs/lib/macro-helper.cjs",
       "source": "./src/lib/macro-helper.ts"
     },
     "./package.json": "./package.json"
