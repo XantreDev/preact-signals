@@ -11,7 +11,7 @@ import assert from "assert";
 
 const PLUGIN_NAME = "@preact-signals/utils/babel";
 type PluginStoreMap = {
-  $stateIdentifier: Set<BabelTypes.Identifier>;
+  $useStateIdentifier: Set<BabelTypes.Identifier>;
   $linkedStateIdentifier: Set<BabelTypes.Identifier>;
 } & Record<`${"imports" | "requires"}/${string}`, BabelTypes.Identifier>;
 
@@ -50,8 +50,6 @@ const self = {
     return set.has(v);
   },
 };
-
-const knownImportSpecifiers = new Set(["$$", "$state", "$linkedState"]);
 
 function createImportLazily(
   t: typeof BabelTypes,
@@ -140,7 +138,7 @@ const isVariableDeclaratorRefMacros = (
   child.node.init.arguments[0]?.type === "StringLiteral" &&
   isImportMacrosName(child.node.init.arguments[0].value);
 
-const stateMacros = ["$state", "$linkedState"] as const;
+const stateMacros = ["$useState", "$useLinkedState"] as const;
 const refMacro = "$$" as const;
 
 const importSpecifiers = [...stateMacros, refMacro];
@@ -149,6 +147,9 @@ type RefMacro = typeof refMacro;
 type StateMacros = (typeof stateMacros)[number];
 type MacroIdentifier = RefMacro | StateMacros;
 
+const isStateMacros = (name: string): name is StateMacros =>
+  (stateMacros as readonly string[]).includes(name);
+
 const getStateMacros = (
   node: BabelTypes.VariableDeclarator
 ): StateMacros | null => {
@@ -156,8 +157,7 @@ const getStateMacros = (
   if (node.init.callee.type !== "Identifier") return null;
   const calleeName = node.init.callee.name;
 
-  if (calleeName === "$state") return "$state";
-  if (calleeName === "$linkedState") return "$linkedState";
+  if (isStateMacros(calleeName)) return calleeName;
 
   return null;
 };
@@ -176,7 +176,7 @@ const getStateMacrosBody = (
   const args = node.init.arguments;
   if (node.id.type !== "Identifier") {
     throw SyntaxErrorWithLoc.makeFromPosition(
-      "Expected $state to be used with identifier for VariableDeclarator",
+      "Expected $useState to be used with identifier for VariableDeclarator",
       node.id.loc?.start
     );
   }
@@ -434,8 +434,6 @@ const processStateMacros = (
   state: PluginPass,
   importLazily: ReturnType<typeof createImportLazily>
 ) => {
-  const stateMacros = ["$state", "$linkedState"] as const;
-
   const functionToIdentifier = new Map<
     BabelTypes.Function,
     BabelTypes.Identifier
@@ -470,7 +468,7 @@ const processStateMacros = (
       const callParent = path.parentPath;
       if (!callParent || !callParent.isCallExpression()) {
         throw SyntaxErrorWithLoc.makeFromPosition(
-          "Expected $state to be used only as call expressions",
+          "Expected $useState to be used only as call expressions",
           (callParent ?? path).node.loc?.start
         );
       }
@@ -488,11 +486,11 @@ const processStateMacros = (
       }
       if (
         parent.parentPath.node.kind !== "const" &&
-        macro === "$state" &&
+        macro === "$useState" &&
         parent.parentPath.node.kind !== "let"
       ) {
         throw SyntaxErrorWithLoc.makeFromPosition(
-          macro === "$state"
+          macro === "$useState"
             ? `${macro} should be used with const`
             : `${macro} should be used with let`,
           path.node.loc?.start
@@ -501,7 +499,7 @@ const processStateMacros = (
       const res = getStateMacrosBody(parent.node);
       if (!res) {
         throw SyntaxErrorWithLoc.makeFromPosition(
-          "Expected $state to have a valid body",
+          "Expected $useState to have a valid body",
           path.node.loc?.start
         );
       }
@@ -557,14 +555,14 @@ const processStateMacros = (
           storeIdent.clone,
           t,
           body,
-          macro === "$linkedState" ? "linkedState" : "state",
+          macro === "$useState" ? "linkedState" : "state",
           getNextCounter(storeIdent.original)
         )
       );
       path.scope.getBinding(storeIdent.original.name)?.reference(referencePath);
       self.addToSet(
         state,
-        macro === "$state" ? "$stateIdentifier" : "$linkedStateIdentifier",
+        macro === "$useState" ? "$useStateIdentifier" : "$linkedStateIdentifier",
         id
       );
 
@@ -633,7 +631,7 @@ export default function preactSignalsUtilsBabel(
         if (!ident) {
           return;
         }
-        if (self.hasInSet(state, "$stateIdentifier", ident)) {
+        if (self.hasInSet(state, "$useStateIdentifier", ident)) {
           path.replaceWith(
             t.assignmentExpression(
               path.node.operator,
