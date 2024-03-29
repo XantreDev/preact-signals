@@ -41,6 +41,6 @@ export const $$: <T>(value: T) => ReactiveRef<T> = () => {
 export const $useState = <T>(value: T): T => {
   throw new Error("This function is only available at compile time");
 };
-export const $linkedState = <T>(value: T): T => {
+export const $useLinkedState = <T>(value: T): T => {
   throw new Error("This function is only available at compile time");
 };

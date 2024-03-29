@@ -428,11 +428,17 @@ const createStoreProperty = (
   return t.logicalExpression("??", getExpression, createFallback);
 };
 
+type LazyIdent = () => BabelTypes.Identifier;
+
 const processStateMacros = (
   path: NodePath<BabelTypes.Program>,
   t: typeof BabelTypes,
   state: PluginPass,
-  importLazily: ReturnType<typeof createImportLazily>
+  importLazily: {
+    deepSignal: LazyIdent;
+    useLinkedSignal: LazyIdent;
+    useDeepSignal: LazyIdent;
+  }
 ) => {
   const functionToIdentifier = new Map<
     BabelTypes.Function,
@@ -512,57 +518,21 @@ const processStateMacros = (
         );
       }
 
-      const storeIdent = (() => {
-        {
-          const _ = functionToIdentifier.get(functionParent.node);
-          if (_) {
-            return {
-              original: _,
-              clone: t.cloneNode(_),
-            };
-          }
-        }
-
-        const functionBody =
-          functionParent.node.body.type === "BlockStatement"
-            ? functionParent.node.body
-            : t.blockStatement([t.returnStatement(functionParent.node.body)]);
-
-        t.callExpression(importLazily(), []);
-        const ident = path.scope.generateUidIdentifier("store");
-        const decl = t.variableDeclaration("const", [
-          t.variableDeclarator(ident, t.callExpression(importLazily(), [])),
-        ]);
-
-        functionBody.body.unshift(decl);
-        functionParent.node.body = functionBody;
-        const body = functionParent.get("body");
-        assert(body.isBlockStatement());
-
-        for (const it of body.get("body")) {
-          if (it.node === decl) {
-            body.scope.registerDeclaration(it);
-            break;
-          }
-        }
-
-        functionToIdentifier.set(functionParent.node, ident);
-        return { original: ident, clone: t.cloneNode(ident) };
-      })();
-
+      const hookIdent =
+        macro === "$useState"
+          ? importLazily.useDeepSignal()
+          : importLazily.useLinkedSignal();
       const [referencePath] = callParent.replaceWith(
-        createStoreProperty(
-          storeIdent.clone,
-          t,
-          body,
-          macro === "$useState" ? "linkedState" : "state",
-          getNextCounter(storeIdent.original)
-        )
+        t.callExpression(hookIdent, [
+          macro === "$useState" ? t.arrowFunctionExpression([], body) : body,
+        ])
       );
-      path.scope.getBinding(storeIdent.original.name)?.reference(referencePath);
+      path.scope.getBinding(hookIdent.name)?.reference(referencePath);
       self.addToSet(
         state,
-        macro === "$useState" ? "$useStateIdentifier" : "$linkedStateIdentifier",
+        macro === "$useState"
+          ? "$useStateIdentifier"
+          : "$linkedStateIdentifier",
         id
       );
 
@@ -604,18 +574,29 @@ export default function preactSignalsUtilsBabel(
           );
 
           if (enableStateMacros) {
-            processStateMacros(
-              path,
-              t,
-              state,
-              createImportLazily(
+            processStateMacros(path, t, state, {
+              deepSignal: createImportLazily(
                 t,
                 state,
                 path,
-                "useStore",
-                "@preact-signals/utils/macro-helper"
-              )
-            );
+                "deepSignal",
+                "@preact-signals/utils"
+              ),
+              useDeepSignal: createImportLazily(
+                t,
+                state,
+                path,
+                "useDeepSignal",
+                "@preact-signals/utils/hooks"
+              ),
+              useLinkedSignal: createImportLazily(
+                t,
+                state,
+                path,
+                "useLinkedSignal",
+                "@preact-signals/utils/hooks"
+              ),
+            });
           }
         },
       },
