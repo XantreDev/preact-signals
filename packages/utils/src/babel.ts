@@ -206,7 +206,7 @@ export type BabelMacroPluginOptions = {
   experimental_stateMacros: boolean;
 };
 
-class SyntaxErrorWithLoc extends SyntaxError {
+export class SyntaxErrorWithLoc extends SyntaxError {
   loc: { line: number; column: number };
   private constructor(message: string, line: number, column: number) {
     super(message);

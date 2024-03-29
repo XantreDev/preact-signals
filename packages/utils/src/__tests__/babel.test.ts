@@ -1,7 +1,10 @@
 import { it, describe } from "vitest";
 import { format as _format } from "prettier";
 import { transform } from "@babel/core";
-import preactSignalsUtilsBabel, { BabelMacroPluginOptions } from "../babel";
+import preactSignalsUtilsBabel, {
+  BabelMacroPluginOptions,
+  SyntaxErrorWithLoc,
+} from "../babel";
 
 const format = (code: string) => _format(code, { parser: "acorn" });
 
@@ -286,7 +289,8 @@ describe.concurrent("@preact-signals/utils/macro", () => {
           // console.log(e);
           throw e;
         }
-      }).toThrowError();
+        // @ts-expect-error private constructor is a shit show
+      }).toThrowError(SyntaxErrorWithLoc);
     });
   }
 });
