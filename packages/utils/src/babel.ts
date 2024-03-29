@@ -203,7 +203,7 @@ const getStateMacrosBody = (
 };
 
 export type BabelMacroPluginOptions = {
-  enableStateMacros: boolean;
+  experimental_stateMacros: boolean;
 };
 
 class SyntaxErrorWithLoc extends SyntaxError {
@@ -592,7 +592,7 @@ export default function preactSignalsUtilsBabel(
   { types: t }: PluginArgs,
   options?: BabelMacroPluginOptions
 ): PluginObj {
-  const enableStateMacros = options?.enableStateMacros;
+  const enableStateMacros = options?.experimental_stateMacros;
 
   return {
     name: PLUGIN_NAME,

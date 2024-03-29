@@ -28,7 +28,7 @@ const TestCase = {
     output,
     isCJS: params.isCJS ?? false,
     options: params.options ?? {
-      enableStateMacros: true,
+      experimental_stateMacros: true,
     },
   }),
   makeError: (name: string, input: string): TestCase =>
@@ -145,7 +145,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       {
         isCJS: true,
         options: {
-          enableStateMacros: false,
+          experimental_stateMacros: false,
         },
       }
     ),
