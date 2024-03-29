@@ -1,0 +1,102 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`@preact-signals/utils/macro > CJS import 1`] = `
+"var _$ = require("@preact-signals/utils").$;
+const a = _$(() => 1);
+"
+`;
+
+exports[`@preact-signals/utils/macro > CJS import with multiple imports 1`] = `
+"var _$ = require("@preact-signals/utils").$;
+const { $state } = require("@preact-signals/utils/macro");
+_$(() => 10);
+"
+`;
+
+exports[`@preact-signals/utils/macro > Correctly handles braces in arrow function if using object 1`] = `
+"import { $ as _$ } from "@preact-signals/utils";
+const a = _$(() => ({
+  a: 1,
+}));
+"
+`;
+
+exports[`@preact-signals/utils/macro > ESM import 1`] = `
+"import { $ as _$ } from "@preact-signals/utils";
+const a = _$(() => 1);
+"
+`;
+
+exports[`@preact-signals/utils/macro > Must remove import event if not used 1`] = `""`;
+
+exports[`@preact-signals/utils/macro > Replaces $state references 1`] = `
+"import { useStore as _useStore } from "@preact-signals/utils/macro-helper";
+const _ = () => {
+  const _store = _useStore();
+  let a = _store.get(0) ?? _store.reactive(0, 0);
+  let b = _store.get(1) ?? _store.reactive(0, 1);
+  const c = _store.lReactive(0, 2);
+  a.value += 10;
+  a.value.value += 10;
+  a.value;
+  a.value.value;
+  b.value += 10;
+  c.value.value += 10;
+};
+"
+`;
+
+exports[`@preact-signals/utils/macro > Transforms only resolved as macro: declared 1`] = `
+"import { $ as _$ } from "@preact-signals/utils";
+_$(() => 10);
+{
+  const $$ = () => 10;
+  $$(10);
+}
+"
+`;
+
+exports[`@preact-signals/utils/macro > Transforms only resolved as macro: unresolved 1`] = `
+"$$(10);
+"
+`;
+
+exports[`@preact-signals/utils/macro > Working inside of scopes 1`] = `
+"import { $ as _$ } from "@preact-signals/utils";
+_$(() => 10);
+{
+  const a = $$(1);
+  const $$ = 0;
+  console.log($$);
+}
+"
+`;
+
+exports[`@preact-signals/utils/macro > is not break other imports (CJS) 1`] = `
+"const React = require("react");
+const { readFileSync } = require("fs");
+const path = require("path");
+"
+`;
+
+exports[`@preact-signals/utils/macro > is not break other imports 1`] = `
+"import React from "react";
+import { readFileSync } from "fs";
+import * as path from "path";
+"
+`;
+
+exports[`@preact-signals/utils/macro > is not breaking directives 1`] = `
+""use client";
+"use strict";
+
+import { $ as _$ } from "@preact-signals/utils";
+const a = _$(() => 1);
+"
+`;
+
+exports[`@preact-signals/utils/macro > nested macro 1`] = `
+"import { $ as _$ } from "@preact-signals/utils";
+_$(() => _$(() => 1));
+"
+`;

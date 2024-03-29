@@ -9,30 +9,27 @@ type TestCase = {
   type: "success" | "error";
   name: string;
   input: string;
-  output: string;
   isCJS: boolean;
   options: BabelMacroPluginOptions | undefined;
 };
 const TestCase = {
-  makeSuccess: (name: string, input: string, output: string): TestCase =>
-    TestCase.makeConfigurable(name, input, output, {}),
+  makeSuccess: (name: string, input: string): TestCase =>
+    TestCase.makeConfigurable(name, input, {}),
   makeConfigurable: (
     name: string,
     input: string,
-    output: string,
     params: Partial<Omit<TestCase, "input" | "output" | "name">>
   ): TestCase => ({
     type: params.type ?? "success",
     name,
     input,
-    output,
     isCJS: params.isCJS ?? false,
     options: params.options ?? {
       experimental_stateMacros: true,
     },
   }),
   makeError: (name: string, input: string): TestCase =>
-    TestCase.makeConfigurable(name, input, "", { type: "error" }),
+    TestCase.makeConfigurable(name, input, { type: "error" }),
 };
 
 describe.concurrent("@preact-signals/utils/macro", () => {
@@ -43,10 +40,6 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       import { $$ } from "@preact-signals/utils/macro";
 
       const a = $$(1)
-    `,
-      `
-      import { $ as _$ } from "@preact-signals/utils";
-      const a = _$(() => 1);
     `
     ),
     TestCase.makeSuccess(
@@ -62,28 +55,17 @@ describe.concurrent("@preact-signals/utils/macro", () => {
         
         console.log($$)
       }
-      `,
-      `
-      import { $ as _$ } from "@preact-signals/utils";
-      _$(() => 10)
-      {
-        const a = $$(1)
-        const $$ = 0;
-        console.log($$);
-      }
       `
     ),
     TestCase.makeSuccess(
       "Transforms only resolved as macro: unresolved",
-      `$$(10)`,
       `$$(10)`
     ),
     TestCase.makeSuccess(
       "Must remove import event if not used",
       `
       import { $$ } from "@preact-signals/utils/macro";
-      `,
-      ``
+      `
     ),
     TestCase.makeSuccess(
       "Transforms only resolved as macro: declared",
@@ -94,14 +76,6 @@ describe.concurrent("@preact-signals/utils/macro", () => {
         const $$ = () => 10;
         $$(10)
       }
-      `,
-      `
-      import { $ as _$ } from "@preact-signals/utils";
-      _$(() => 10);
-      {
-        const $$ = () => 10;
-        $$(10);
-      }
       `
     ),
     TestCase.makeSuccess(
@@ -110,12 +84,6 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       import { $$ } from "@preact-signals/utils/macro";
 
       const a = $$({ a: 1 })
-    `,
-      `
-      import { $ as _$ } from "@preact-signals/utils";
-      const a = _$(() => ({
-        a: 1,
-      }));
     `
     ),
     TestCase.makeConfigurable(
@@ -125,10 +93,6 @@ describe.concurrent("@preact-signals/utils/macro", () => {
 
       const a = $$(1)
       `,
-      `
-      var _$ = require("@preact-signals/utils").$;
-      const a = _$(() => 1);
-      `,
       { isCJS: true }
     ),
     TestCase.makeConfigurable(
@@ -136,11 +100,6 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       `
       const { $$, $state } = require("@preact-signals/utils/macro");
       $$(10)
-      `,
-      `
-      var _$ = require("@preact-signals/utils").$;
-      const { $state } = require("@preact-signals/utils/macro");
-      _$(() => 10)
       `,
       {
         isCJS: true,
@@ -155,10 +114,6 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const {$$} = require("@preact-signals/utils/macro");
 
       $$($$(1))
-      `,
-      `
-      import { $ as _$ } from "@preact-signals/utils";
-      _$(() => _$(() => 1));
       `
     ),
     TestCase.makeSuccess(
@@ -170,22 +125,10 @@ describe.concurrent("@preact-signals/utils/macro", () => {
         import { $$ } from "@preact-signals/utils/macro";
 
         const a = $$(1)
-      `,
       `
-        'use client';
-        'use strict';
-        
-        import { $ as _$ } from "@preact-signals/utils";
-        const a = _$(() => 1)
-        `
     ),
     TestCase.makeSuccess(
       "is not break other imports",
-      `
-        import React from 'react';
-        import {readFileSync} from 'fs';
-        import * as path from 'path';
-      `,
       `
         import React from 'react';
         import {readFileSync} from 'fs';
@@ -194,11 +137,6 @@ describe.concurrent("@preact-signals/utils/macro", () => {
     ),
     TestCase.makeConfigurable(
       "is not break other imports (CJS)",
-      `
-        const React = require('react');
-        const {readFileSync} = require('fs');
-        const path = require('path');
-      `,
       `
         const React = require('react');
         const {readFileSync} = require('fs');
@@ -222,26 +160,11 @@ describe.concurrent("@preact-signals/utils/macro", () => {
         b += 10
         c.value += 10
       }
-      `,
-      `
-      import { useStore as _useStore } from "@preact-signals/utils/macro-helper";
-      const _ = () => {
-        const _store = _useStore();
-        let a = _store.get(0) ?? _store.reactive(0, 0);
-        let b = _store.get(1) ?? _store.reactive(0, 1);
-        const c = _store.lReactive(0, 2);
-        a.value += 10;
-        a.value.value += 10;
-        a.value;
-        a.value.value;
-        b.value += 10;
-        c.value.value += 10;
-      };
       `
     ),
   ];
 
-  for (const { input, isCJS, name, options, output } of success) {
+  for (const { input, isCJS, name, options } of success) {
     it(name, async ({ expect }) => {
       expect(
         await format(
@@ -250,7 +173,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
             sourceType: isCJS ? "script" : "module",
           })?.code!
         )
-      ).toEqual(await format(output));
+      ).toMatchSnapshot();
     });
   }
   const fail = [
@@ -306,7 +229,6 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       "CJS cannot rest pattern in require",
       `
       const { $$, ...a } = require("@preact-signals/utils/macro");`,
-      ``,
       { isCJS: true }
     ),
     TestCase.makeError(
