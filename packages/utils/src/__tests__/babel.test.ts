@@ -165,6 +165,19 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       }
       `
     ),
+    TestCase.makeSuccess(
+      "Correctly work with references in object shorthand",
+      `
+      import { $useState } from "@preact-signals/utils/macro";
+
+      const _ = () => {
+        let a = $useState(0)
+        let b = $useState(0)
+        const c = $useState(0)
+        return { a, b, c }
+      }
+      `
+    ),
   ];
 
   for (const { input, isCJS, name, options } of success) {
