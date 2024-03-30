@@ -178,6 +178,19 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       }
       `
     ),
+    TestCase.makeSuccess(
+      "Top level macro works",
+      `
+      import { $state } from "@preact-signals/utils/macro";
+
+      let a = $state(0)
+
+      effect(() => {
+        console.log(a)
+      })
+      a += 10
+      `
+    ),
   ];
 
   for (const { input, isCJS, name, options } of success) {

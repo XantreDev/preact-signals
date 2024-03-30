@@ -138,7 +138,9 @@ const isVariableDeclaratorRefMacros = (
   child.node.init.arguments[0]?.type === "StringLiteral" &&
   isImportMacrosName(child.node.init.arguments[0].value);
 
-const stateMacros = ["$useState", "$useLinkedState"] as const;
+const hookStateMacros = ["$useState", "$useLinkedState"] as const;
+const topLevelStateMacros = ["$state"] as const;
+const stateMacros = [...hookStateMacros, ...topLevelStateMacros] as const;
 const refMacro = "$$" as const;
 
 const importSpecifiers = [...stateMacros, refMacro];
@@ -150,17 +152,10 @@ type MacroIdentifier = RefMacro | StateMacros;
 const isStateMacros = (name: string): name is StateMacros =>
   (stateMacros as readonly string[]).includes(name);
 
-const getStateMacros = (
-  node: BabelTypes.VariableDeclarator
-): StateMacros | null => {
-  if (!node.init || node.init.type !== "CallExpression") return null;
-  if (node.init.callee.type !== "Identifier") return null;
-  const calleeName = node.init.callee.name;
-
-  if (isStateMacros(calleeName)) return calleeName;
-
-  return null;
-};
+const isTopLevelStateMacros = (
+  name: string
+): name is (typeof topLevelStateMacros)[number] =>
+  topLevelStateMacros.includes(name as (typeof topLevelStateMacros)[number]);
 
 const getStateMacrosBody = (
   node: BabelTypes.VariableDeclarator
@@ -472,29 +467,33 @@ const processStateMacros = (
         );
       }
       const [id, body] = res;
-      const functionParent = parent.getFunctionParent();
-      if (!functionParent) {
-        throw SyntaxErrorWithLoc.makeFromPosition(
-          `Expected "${macro}" to be used inside of a function`,
-          parent.node.loc?.start
-        );
+      {
+        const functionParent = parent.getFunctionParent();
+        if (!functionParent && !isTopLevelStateMacros(macro)) {
+          throw SyntaxErrorWithLoc.makeFromPosition(
+            `Expected "${macro}" to be used inside of a function, because it's a hook`,
+            parent.node.loc?.start
+          );
+        }
       }
 
-      const hookIdent =
+      const constructorIdent =
         macro === "$useState"
           ? importLazily.useDeepSignal()
-          : importLazily.useSignalOfState();
+          : macro === "$state"
+            ? importLazily.deepSignal()
+            : importLazily.useSignalOfState();
       const [referencePath] = callParent.replaceWith(
-        t.callExpression(hookIdent, [
+        t.callExpression(constructorIdent, [
           macro === "$useState" ? t.arrowFunctionExpression([], body) : body,
         ])
       );
-      path.scope.getBinding(hookIdent.name)?.reference(referencePath);
+      path.scope.getBinding(constructorIdent.name)?.reference(referencePath);
       self.addToSet(
         state,
-        macro === "$useState"
-          ? "$useStateIdentifier"
-          : "$linkedStateIdentifier",
+        macro === "$useLinkedState"
+          ? "$linkedStateIdentifier"
+          : "$useStateIdentifier",
         id
       );
 
