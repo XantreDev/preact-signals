@@ -436,7 +436,7 @@ const processStateMacros = (
   state: PluginPass,
   importLazily: {
     deepSignal: LazyIdent;
-    useLinkedSignal: LazyIdent;
+    useSignalOfState: LazyIdent;
     useDeepSignal: LazyIdent;
   }
 ) => {
@@ -521,7 +521,7 @@ const processStateMacros = (
       const hookIdent =
         macro === "$useState"
           ? importLazily.useDeepSignal()
-          : importLazily.useLinkedSignal();
+          : importLazily.useSignalOfState();
       const [referencePath] = callParent.replaceWith(
         t.callExpression(hookIdent, [
           macro === "$useState" ? t.arrowFunctionExpression([], body) : body,
@@ -589,11 +589,11 @@ export default function preactSignalsUtilsBabel(
                 "useDeepSignal",
                 "@preact-signals/utils/hooks"
               ),
-              useLinkedSignal: createImportLazily(
+              useSignalOfState: createImportLazily(
                 t,
                 state,
                 path,
-                "useLinkedSignal",
+                "useSignalOfState",
                 "@preact-signals/utils/hooks"
               ),
             });
