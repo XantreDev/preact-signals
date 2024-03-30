@@ -402,32 +402,6 @@ const processRefMacros = (
   path.scope.removeBinding(refMacro);
 };
 
-const createStoreProperty = (
-  storeIdent: BabelTypes.Identifier,
-  t: typeof BabelTypes,
-  init: BabelTypes.Expression,
-  type: "state" | "linkedState",
-  counter: number
-) => {
-  if (type === "linkedState") {
-    return t.callExpression(
-      t.memberExpression(t.cloneNode(storeIdent), t.identifier("lReactive")),
-      [t.cloneNode(init), t.numericLiteral(counter)]
-    );
-  }
-  const getExpression = t.callExpression(
-    t.memberExpression(t.cloneNode(storeIdent), t.identifier("get")),
-    [t.numericLiteral(counter)]
-  );
-
-  const createFallback = t.callExpression(
-    t.memberExpression(t.cloneNode(storeIdent), t.identifier("reactive")),
-    [t.cloneNode(init), t.numericLiteral(counter)]
-  );
-
-  return t.logicalExpression("??", getExpression, createFallback);
-};
-
 type LazyIdent = () => BabelTypes.Identifier;
 
 const processStateMacros = (
@@ -440,18 +414,6 @@ const processStateMacros = (
     useDeepSignal: LazyIdent;
   }
 ) => {
-  const functionToIdentifier = new Map<
-    BabelTypes.Function,
-    BabelTypes.Identifier
-  >();
-  const storeIdentCounter = new Map<BabelTypes.Identifier, number>();
-
-  const getNextCounter = (ident: BabelTypes.Identifier) => {
-    const counter = storeIdentCounter.get(ident) ?? 0;
-    storeIdentCounter.set(ident, counter + 1);
-    return counter;
-  };
-
   for (const macro of stateMacros) {
     if (!path.scope.references[macro]) {
       continue;
