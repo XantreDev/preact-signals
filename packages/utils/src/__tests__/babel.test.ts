@@ -101,7 +101,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
     TestCase.makeConfigurable(
       "CJS import with multiple imports",
       `
-      const { $$, $state } = require("@preact-signals/utils/macro");
+      const { $$, $useState } = require("@preact-signals/utils/macro");
       $$(10)
       `,
       {
@@ -148,13 +148,13 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       { isCJS: true }
     ),
     TestCase.makeSuccess(
-      "Replaces $state references",
+      "Replaces $useState references",
       `
-      import { $state, $linkedState } from "@preact-signals/utils/macro";
+      import { $useState, $useLinkedState } from "@preact-signals/utils/macro";
       const _ = () => {
-        let a = $state(0)
-        let b = $state(0)
-        const c = $linkedState(0)
+        let a = $useState(0)
+        let b = $useState(0)
+        const c = $useLinkedState(0)
         a += 10
         a.value += 10
         a
@@ -213,19 +213,19 @@ describe.concurrent("@preact-signals/utils/macro", () => {
     `
     ),
     TestCase.makeError(
-      "Throws error if `$state` used with var for variable declaration",
+      "Throws error if `$useState` used with var for variable declaration",
       `
-      import { $state } from "@preact-signals/utils/macro";
+      import { $useState } from "@preact-signals/utils/macro";
       const _ = () => {
-        var a = $state(0)
+        var a = $useState(0)
       }
       `
     ),
     TestCase.makeError(
-      "Throws error if using $state outside of function",
+      "Throws error if using $useState outside of function",
       `
-      import { $state } from "@preact-signals/utils/macro";
-      let a = $state(0)
+      import { $useState } from "@preact-signals/utils/macro";
+      let a = $useState(0)
       `
     ),
     TestCase.makeConfigurable(
@@ -237,9 +237,9 @@ describe.concurrent("@preact-signals/utils/macro", () => {
     TestCase.makeError(
       "Throws error if $linkedState assigned to a variable",
       `
-      import { $linkedState } from "@preact-signals/utils/macro";
+      import { $useLinkedState } from "@preact-signals/utils/macro";
       const _ = () => {
-        let a = $linkedState(0)
+        let a = $useLinkedState(0)
         a += 10
       }
       `
@@ -259,20 +259,20 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       `
     ),
     TestCase.makeError(
-      "Throws if state macros is used outside of variable declaration ($state)",
+      "Throws if state macros is used outside of variable declaration ($useState)",
       `
-      import { $state } from "@preact-signals/utils/macro";
+      import { $useState } from "@preact-signals/utils/macro";
       const _ = () => {
-        $state(0)
+        $useState(0)
       }`
     ),
     TestCase.makeError(
-      "Throws if state macros is used outside of variable declaration ($linkedState)",
+      "Throws if state macros is used outside of variable declaration ($useLinkedState)",
       `
-      import { $linkedState, $state } from "@preact-signals/utils/macro";
+      import { $useLinkedState, $useState } from "@preact-signals/utils/macro";
       const _ = () => {
-        let a = $state(0)
-        $linkedState(0)
+        let a = $useState(0)
+        $useLinkedState(0)
       }`
     ),
   ];
