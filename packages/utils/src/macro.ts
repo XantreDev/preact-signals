@@ -92,7 +92,8 @@ export const $useState: <T>(value: T) => T = () => {
  * import { $useLinkedState } from "@preact-signals/utils/macro";
  *
  * const Counter = (props: {count: number; onIncrement(): void}) => {
- *  let count = $useLinkedState(props.count)
+ *  // only allowed with const
+ *  const count = $useLinkedState(props.count)
  *  // allows to use value in effect
  *  useSignalEffect(() => {
  *   console.log(count)
