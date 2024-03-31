@@ -301,6 +301,33 @@ describe.concurrent("@preact-signals/utils/macro", () => {
         $useLinkedState(0)
       }`
     ),
+    TestCase.makeError(
+      "Throws if state macros uses let for linked state",
+      `
+      import { $useLinkedState } from "@preact-signals/utils/macro";
+      const _ = () => {
+        let a = $useLinkedState(0)
+      }`
+    ),
+    TestCase.makeError(
+      "Throws if top level macro exported from module (inline export)",
+      `
+      import { $state } from "@preact-signals/utils/macro";
+
+      export let a = $state(0)
+      `
+    ),
+    TestCase.makeError(
+      "Throws if top level macro exported from module (statement export)",
+      `
+      const { $state } = require("@preact-signals/utils/macro");
+
+      let a = $state(0)
+
+      export { a }
+      `,
+    ),
+
   ];
 
   for (const { input, isCJS, name, options } of fail) {

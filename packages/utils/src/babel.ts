@@ -447,6 +447,12 @@ const processStateMacros = (
           "invariant: parentPath should be a VariableDeclaration"
         );
       }
+      if (parent.parentPath.parentPath.isExportNamedDeclaration()) {
+        throw SyntaxErrorWithLoc.makeFromPosition(
+          `Expected ${macro} cannot be used in export statements`,
+          parent.parentPath.parentPath.node.loc?.start
+        );
+      }
       {
         const loc = parent.node.loc?.start;
         if (
@@ -514,6 +520,13 @@ const processStateMacros = (
       }
 
       for (const refPath of varBinding.referencePaths) {
+        if (refPath.parentPath?.isExportSpecifier()) {
+          throw SyntaxErrorWithLoc.makeFromPosition(
+            `Cannot export ${macro} variable`,
+            refPath.node.loc?.start
+          );
+        }
+
         refPath.replaceWith(
           t.memberExpression(t.cloneNode(id), t.identifier("value"))
         );
