@@ -447,17 +447,28 @@ const processStateMacros = (
           "invariant: parentPath should be a VariableDeclaration"
         );
       }
-      if (
-        parent.parentPath.node.kind !== "const" &&
-        macro === "$useState" &&
-        parent.parentPath.node.kind !== "let"
-      ) {
-        throw SyntaxErrorWithLoc.makeFromPosition(
-          macro === "$useState"
-            ? `${macro} should be used with const`
-            : `${macro} should be used with let`,
-          path.node.loc?.start
-        );
+      {
+        const loc = parent.node.loc?.start;
+        if (
+          parent.parentPath.node.kind !== "const" &&
+          macro === "$useLinkedState"
+        ) {
+          throw SyntaxErrorWithLoc.makeFromPosition(
+            `${macro} should be used with const`,
+            loc
+          );
+        }
+
+        if (
+          (macro === "$useState" || macro === "$state") &&
+          parent.parentPath.node.kind !== "let" &&
+          parent.parentPath.node.kind !== "const"
+        ) {
+          throw SyntaxErrorWithLoc.makeFromPosition(
+            `${macro} should be used with let or const`,
+            loc
+          );
+        }
       }
       const res = getStateMacrosBody(parent.node);
       if (!res) {
