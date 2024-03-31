@@ -138,7 +138,9 @@ const isVariableDeclaratorRefMacros = (
   child.node.init.arguments[0]?.type === "StringLiteral" &&
   isImportMacrosName(child.node.init.arguments[0].value);
 
-const stateMacros = ["$useState", "$useLinkedState"] as const;
+const hookStateMacros = ["$useState", "$useLinkedState"] as const;
+const topLevelStateMacros = ["$state"] as const;
+const stateMacros = [...hookStateMacros, ...topLevelStateMacros] as const;
 const refMacro = "$$" as const;
 
 const importSpecifiers = [...stateMacros, refMacro];
@@ -150,17 +152,10 @@ type MacroIdentifier = RefMacro | StateMacros;
 const isStateMacros = (name: string): name is StateMacros =>
   (stateMacros as readonly string[]).includes(name);
 
-const getStateMacros = (
-  node: BabelTypes.VariableDeclarator
-): StateMacros | null => {
-  if (!node.init || node.init.type !== "CallExpression") return null;
-  if (node.init.callee.type !== "Identifier") return null;
-  const calleeName = node.init.callee.name;
-
-  if (isStateMacros(calleeName)) return calleeName;
-
-  return null;
-};
+const isTopLevelStateMacros = (
+  name: string
+): name is (typeof topLevelStateMacros)[number] =>
+  topLevelStateMacros.includes(name as (typeof topLevelStateMacros)[number]);
 
 const getStateMacrosBody = (
   node: BabelTypes.VariableDeclarator
@@ -402,32 +397,6 @@ const processRefMacros = (
   path.scope.removeBinding(refMacro);
 };
 
-const createStoreProperty = (
-  storeIdent: BabelTypes.Identifier,
-  t: typeof BabelTypes,
-  init: BabelTypes.Expression,
-  type: "state" | "linkedState",
-  counter: number
-) => {
-  if (type === "linkedState") {
-    return t.callExpression(
-      t.memberExpression(t.cloneNode(storeIdent), t.identifier("lReactive")),
-      [t.cloneNode(init), t.numericLiteral(counter)]
-    );
-  }
-  const getExpression = t.callExpression(
-    t.memberExpression(t.cloneNode(storeIdent), t.identifier("get")),
-    [t.numericLiteral(counter)]
-  );
-
-  const createFallback = t.callExpression(
-    t.memberExpression(t.cloneNode(storeIdent), t.identifier("reactive")),
-    [t.cloneNode(init), t.numericLiteral(counter)]
-  );
-
-  return t.logicalExpression("??", getExpression, createFallback);
-};
-
 type LazyIdent = () => BabelTypes.Identifier;
 
 const processStateMacros = (
@@ -440,18 +409,6 @@ const processStateMacros = (
     useDeepSignal: LazyIdent;
   }
 ) => {
-  const functionToIdentifier = new Map<
-    BabelTypes.Function,
-    BabelTypes.Identifier
-  >();
-  const storeIdentCounter = new Map<BabelTypes.Identifier, number>();
-
-  const getNextCounter = (ident: BabelTypes.Identifier) => {
-    const counter = storeIdentCounter.get(ident) ?? 0;
-    storeIdentCounter.set(ident, counter + 1);
-    return counter;
-  };
-
   for (const macro of stateMacros) {
     if (!path.scope.references[macro]) {
       continue;
@@ -490,17 +447,34 @@ const processStateMacros = (
           "invariant: parentPath should be a VariableDeclaration"
         );
       }
-      if (
-        parent.parentPath.node.kind !== "const" &&
-        macro === "$useState" &&
-        parent.parentPath.node.kind !== "let"
-      ) {
+      if (parent.parentPath.parentPath.isExportNamedDeclaration()) {
         throw SyntaxErrorWithLoc.makeFromPosition(
-          macro === "$useState"
-            ? `${macro} should be used with const`
-            : `${macro} should be used with let`,
-          path.node.loc?.start
+          `Expected ${macro} cannot be used in export statements`,
+          parent.parentPath.parentPath.node.loc?.start
         );
+      }
+      {
+        const loc = parent.node.loc?.start;
+        if (
+          parent.parentPath.node.kind !== "const" &&
+          macro === "$useLinkedState"
+        ) {
+          throw SyntaxErrorWithLoc.makeFromPosition(
+            `${macro} should be used with const`,
+            loc
+          );
+        }
+
+        if (
+          (macro === "$useState" || macro === "$state") &&
+          parent.parentPath.node.kind !== "let" &&
+          parent.parentPath.node.kind !== "const"
+        ) {
+          throw SyntaxErrorWithLoc.makeFromPosition(
+            `${macro} should be used with let or const`,
+            loc
+          );
+        }
       }
       const res = getStateMacrosBody(parent.node);
       if (!res) {
@@ -510,29 +484,33 @@ const processStateMacros = (
         );
       }
       const [id, body] = res;
-      const functionParent = parent.getFunctionParent();
-      if (!functionParent) {
-        throw SyntaxErrorWithLoc.makeFromPosition(
-          `Expected "${macro}" to be used inside of a function`,
-          parent.node.loc?.start
-        );
+      {
+        const functionParent = parent.getFunctionParent();
+        if (!functionParent && !isTopLevelStateMacros(macro)) {
+          throw SyntaxErrorWithLoc.makeFromPosition(
+            `Expected "${macro}" to be used inside of a function, because it's a hook`,
+            parent.node.loc?.start
+          );
+        }
       }
 
-      const hookIdent =
+      const constructorIdent =
         macro === "$useState"
           ? importLazily.useDeepSignal()
-          : importLazily.useSignalOfState();
+          : macro === "$state"
+            ? importLazily.deepSignal()
+            : importLazily.useSignalOfState();
       const [referencePath] = callParent.replaceWith(
-        t.callExpression(hookIdent, [
+        t.callExpression(constructorIdent, [
           macro === "$useState" ? t.arrowFunctionExpression([], body) : body,
         ])
       );
-      path.scope.getBinding(hookIdent.name)?.reference(referencePath);
+      path.scope.getBinding(constructorIdent.name)?.reference(referencePath);
       self.addToSet(
         state,
-        macro === "$useState"
-          ? "$useStateIdentifier"
-          : "$linkedStateIdentifier",
+        macro === "$useLinkedState"
+          ? "$linkedStateIdentifier"
+          : "$useStateIdentifier",
         id
       );
 
@@ -542,6 +520,13 @@ const processStateMacros = (
       }
 
       for (const refPath of varBinding.referencePaths) {
+        if (refPath.parentPath?.isExportSpecifier()) {
+          throw SyntaxErrorWithLoc.makeFromPosition(
+            `Cannot export ${macro} variable`,
+            refPath.node.loc?.start
+          );
+        }
+
         refPath.replaceWith(
           t.memberExpression(t.cloneNode(id), t.identifier("value"))
         );

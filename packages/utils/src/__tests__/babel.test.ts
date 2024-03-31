@@ -165,6 +165,32 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       }
       `
     ),
+    TestCase.makeSuccess(
+      "Correctly work with references in object shorthand",
+      `
+      import { $useState } from "@preact-signals/utils/macro";
+
+      const _ = () => {
+        let a = $useState(0)
+        let b = $useState(0)
+        const c = $useState(0)
+        return { a, b, c }
+      }
+      `
+    ),
+    TestCase.makeSuccess(
+      "Top level macro works",
+      `
+      import { $state } from "@preact-signals/utils/macro";
+
+      let a = $state(0)
+
+      effect(() => {
+        console.log(a)
+      })
+      a += 10
+      `
+    ),
   ];
 
   for (const { input, isCJS, name, options } of success) {
@@ -275,6 +301,33 @@ describe.concurrent("@preact-signals/utils/macro", () => {
         $useLinkedState(0)
       }`
     ),
+    TestCase.makeError(
+      "Throws if state macros uses let for linked state",
+      `
+      import { $useLinkedState } from "@preact-signals/utils/macro";
+      const _ = () => {
+        let a = $useLinkedState(0)
+      }`
+    ),
+    TestCase.makeError(
+      "Throws if top level macro exported from module (inline export)",
+      `
+      import { $state } from "@preact-signals/utils/macro";
+
+      export let a = $state(0)
+      `
+    ),
+    TestCase.makeError(
+      "Throws if top level macro exported from module (statement export)",
+      `
+      const { $state } = require("@preact-signals/utils/macro");
+
+      let a = $state(0)
+
+      export { a }
+      `,
+    ),
+
   ];
 
   for (const { input, isCJS, name, options } of fail) {
