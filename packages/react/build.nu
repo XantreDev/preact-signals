@@ -10,7 +10,7 @@ def main [
 
   cd ./swc
   
-  let $use_debug = --cargo-debug == "true" or ($env.CARGO_DEBUG? | default false)
+  let $use_debug = --cargo-debug == "true" or $env.CARGO_DEBUG? == "true"
   if $use_debug {
     cargo build-wasi
     cp ./target/wasm32-wasi/debug/swc_plugin_preact_signals.wasm ../dist/swc.wasm
