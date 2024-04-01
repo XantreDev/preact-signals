@@ -13,20 +13,28 @@
     "@babel/plugin-syntax-jsx": "^7.23.3",
     "@babel/preset-env": "^7.24.3",
     "@babel/standalone": "^7.24.3",
-    "react": "^18.2.0",
+    "@monaco-editor/react": "^4.6.0",
     "@preact-signals/safe-react": "workspace:*",
     "@preact-signals/utils": "workspace:*",
-    "react-dom": "^18.2.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "shiki": "^1.2.3"
   },
   "devDependencies": {
+    "@shikijs/monaco": "^1.2.3",
+    "@types/babel__standalone": "^7.1.7",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
     "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.19",
+    "daisyui": "^4.9.0",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
   }

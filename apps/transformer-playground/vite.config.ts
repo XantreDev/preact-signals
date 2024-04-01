@@ -8,7 +8,12 @@ export default defineConfig({
       babel: {
         plugins: [
           "module:@preact-signals/safe-react/babel",
-          "module:@preact-signals/utils/babel",
+          [
+            "module:@preact-signals/utils/babel",
+            {
+              experimental_stateMacros: true,
+            },
+          ],
         ],
       },
     }),
