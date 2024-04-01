@@ -8,14 +8,15 @@ import {
 } from "@preact-signals/utils/macro";
 import {
   computed,
+  effect,
+  ReadonlySignal,
   untracked,
   useSignalEffect,
 } from "@preact-signals/safe-react";
 import signalsTransformPlugin from "@preact-signals/safe-react/babel";
 import macroTransformPlugin from "@preact-signals/utils/babel";
 import { shikiToMonaco } from "@shikijs/monaco";
-import { useEffect, useRef } from "react";
-import { getHighlighter, codeToHtml } from "shiki";
+import { getHighlighter } from "shiki";
 import { resource } from "@preact-signals/utils";
 
 const signalsTransformName = "signals-transform";
@@ -23,7 +24,12 @@ Babel.registerPlugin(signalsTransformName, signalsTransformPlugin);
 const macroTransformName = "macro-transform";
 Babel.registerPlugin(macroTransformName, macroTransformPlugin);
 
-const defaultContent = `
+const getFromLocalStorage = (): string | null => localStorage.getItem("input");
+const setToLocalStorage = (code: string) => localStorage.setItem("input", code);
+
+const defaultContent =
+  getFromLocalStorage() ??
+  `\
 import { $state } from '@preact-signals/utils/macro'
 
 let text = $state('')
@@ -44,24 +50,29 @@ const transformerConfig = $state({
 });
 let text = $state(defaultContent);
 
+effect(() => {
+  setToLocalStorage(text);
+});
+
 const babelOutput = computed(() => {
   const plugins = [
-    Babel.availablePlugins[signalsTransformName],
-    [
+    transformerConfig["Transform components"] &&
+      Babel.availablePlugins[signalsTransformName],
+    transformerConfig["Transform macros"] && [
       Babel.availablePlugins[macroTransformName],
       {
         experimental_stateMacros: true,
       },
     ],
-  ];
+  ].filter(Boolean);
   try {
     return {
       isError: false,
       value:
         Babel.transform(text, {
-          presets: [Babel.availablePresets.env],
+          // presets: [Babel.availablePresets.env],
+          // @ts-expect-error filter(Boolean)
           plugins,
-          filename: "out.mjs",
           parserOpts: {
             plugins: ["typescript", "jsx"],
           },
@@ -81,7 +92,6 @@ const highlighter = resource({
       themes: ["github-dark", "github-light"],
       langs: ["tsx"],
     });
-    console.log("h", h);
     await h.loadTheme("github-light");
 
     return h;
@@ -110,9 +120,36 @@ const formattedHtml = resource({
   },
 });
 
+const ErrorDialog = ({
+  className,
+  error,
+}: {
+  error: ReadonlySignal<string | null>;
+  className?: string;
+}) => {
+  return (
+    <div
+      className={[className ?? "", !error.value && "pointer-events-none"].join(
+        " "
+      )}
+    >
+      <input
+        type="checkbox"
+        readOnly
+        checked={!!error.value}
+        className="modal-toggle"
+      />
+      <div className="modal absolute">
+        <div className="modal-box">
+          <p className="py-4">{error}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const TransformedCode = () => {
   let divRef: HTMLDivElement | null = $useState(null);
-  let dialogRef: HTMLDialogElement | null = $useState(null);
 
   useSignalEffect(() => {
     if (!divRef) {
@@ -120,29 +157,28 @@ const TransformedCode = () => {
     }
     divRef.innerHTML = formattedHtml() ?? "";
   });
+  useSignalEffect(() => {
+    const error = babelOutput.value.isError && babelOutput.value.value;
+
+    if (error) {
+      console.error(error);
+    }
+  });
   return (
-    <>
+    <div className="overflow-auto relative w-full h-full">
       <div
-        className="overflow-auto"
+        className="overflow-auto min-h-full"
         ref={(ref) => {
           divRef = ref;
         }}
       />
-      <div className="modal">
-        <div className="modal-box">
-          <h3 className="font-bold text-lg">Hello!</h3>
-          <p className="py-4">
-            Press ESC key or click the button below to close
-          </p>
-          <div className="modal-action">
-            <form method="dialog">
-              {/* if there is a button in form, it will close the modal */}
-              <button className="btn">Close</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </>
+      <ErrorDialog
+        error={$$(
+          babelOutput.value.isError ? String(babelOutput.value.value) : null
+        )}
+        className="absolute inset-0"
+      />
+    </div>
   );
 };
 
@@ -160,12 +196,12 @@ function App() {
     shikiToMonaco(h, monaco);
   });
   return (
-    <div className="max-h-screen flex flex-col">
-      <div>
+    <div className="max-h-screen h-screen flex flex-col flex-1">
+      <div className="flex gap-4 items-center px-4">
+        Settings:
         {$$(
           Object.entries(transformerConfig).map(([key, value]) => (
-            <label className="label cursor-pointer" key={key}>
-              <span className="label-text">{key}</span>
+            <label className="label gap-2 cursor-pointer" key={key}>
               <input
                 onChange={() => {
                   // @ts-expect-error Object.entries
@@ -175,12 +211,13 @@ function App() {
                 checked={value}
                 className="checkbox"
               />
+              <span className="label-text">{key}</span>
             </label>
           ))
         )}
       </div>
       <Editor
-        height={500}
+        height={'60%'}
         options={{
           minimap: {
             enabled: false,
