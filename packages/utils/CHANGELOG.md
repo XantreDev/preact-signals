@@ -1,5 +1,12 @@
 # @preact-signals/utils
 
+## 0.17.0
+
+### Minor Changes
+
+- bd7e4f5: Improved implementation of $ macro. Added correcteness checks, custom Errors. Added experimental_stateMacros flag (draft - will be changed)
+- 19d63c9: - made macroses also a hooks
+
 ## 0.16.2
 
 ### Patch Changes

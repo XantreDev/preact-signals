@@ -1,5 +1,11 @@
 # @preact-signals/safe-react
 
+## 0.5.5
+
+### Patch Changes
+
+- 896d8d2: Bumped signals-core package
+
 ## 0.5.4
 
 ### Patch Changes
