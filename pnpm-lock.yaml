@@ -37,8 +37,8 @@ importers:
         specifier: ^0.3.4
         version: 0.3.4
       turbo:
-        specifier: 1.11.3
-        version: 1.11.3
+        specifier: 1.13.1
+        version: 1.13.1
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -212,8 +212,8 @@ importers:
         specifier: workspace:*
         version: link:../query
       '@preact/signals-react':
-        specifier: ^1.3.6
-        version: 1.3.6(react@18.2.0)
+        specifier: ^2.0.1
+        version: 2.0.1(react@18.2.0)
       '@types/react':
         specifier: ^18.2.37
         version: 18.2.37
@@ -3211,6 +3211,16 @@ packages:
       '@preact/signals-core': 1.5.0
       react: 18.2.0
       use-sync-external-store: 1.2.0(react@18.2.0)
+
+  /@preact/signals-react@2.0.1(react@18.2.0):
+    resolution: {integrity: sha512-QQoxAPiliH6oeZPF5OZHmyala5zyFya0ZCp/A0lR4y6R9wO4lT7GdtYg5UFlmKNWMcFN6PiAjNPMTiNFMmnCpw==}
+    peerDependencies:
+      react: ^16.14.0 || 17.x || 18.x
+    dependencies:
+      '@preact/signals-core': 1.6.0
+      react: 18.2.0
+      use-sync-external-store: 1.2.0(react@18.2.0)
+    dev: true
 
   /@preact/signals@1.1.4(preact@10.19.3):
     resolution: {integrity: sha512-4s0U8yHfy6OzBjTx8lgG0JZGFq1y+ye7xLmaaI8SXyJ5p+jAtMKW40Mg3GDLISM5WyKnqbfrQ4SOmbq1VTBtTw==}
@@ -10742,64 +10752,64 @@ packages:
       yargs: 17.7.2
     dev: true
 
-  /turbo-darwin-64@1.11.3:
-    resolution: {integrity: sha512-IsOOg2bVbIt3o/X8Ew9fbQp5t1hTHN3fGNQYrPQwMR2W1kIAC6RfbVD4A9OeibPGyEPUpwOH79hZ9ydFH5kifw==}
+  /turbo-darwin-64@1.13.1:
+    resolution: {integrity: sha512-CvbS+57ddn4eGAFW6Ha0O+W9E1S3W1rJ4xh4+LWtzAWuyCa8sOs9pLvGQYVtR9RVpb07bFlLhPUSrlyYXiphXQ==}
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-darwin-arm64@1.11.3:
-    resolution: {integrity: sha512-FsJL7k0SaPbJzI/KCnrf/fi3PgCDCjTliMc/kEFkuWVA6Httc3Q4lxyLIIinz69q6JTx8wzh6yznUMzJRI3+dg==}
+  /turbo-darwin-arm64@1.13.1:
+    resolution: {integrity: sha512-PLuKpmT6cK7W6lucapEsqlNGGyfLIlTWrX6fArQmC2posoqg0R70wvi1kXFe0YNsZxjjHSqn7KQCBOgIjh+ddw==}
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-linux-64@1.11.3:
-    resolution: {integrity: sha512-SvW7pvTVRGsqtSkII5w+wriZXvxqkluw5FO/MNAdFw0qmoov+PZ237+37/NgArqE3zVn1GX9P6nUx9VO+xcQAg==}
+  /turbo-linux-64@1.13.1:
+    resolution: {integrity: sha512-pHFwm7tfGo6O2gwUPl/xtem1xy0ypDM9Gba8dKrvKkJRoJsOeztIw5of+SPqbXD7kfxGDmEg7mDQGFA0xw7pog==}
     cpu: [x64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-linux-arm64@1.11.3:
-    resolution: {integrity: sha512-YhUfBi1deB3m+3M55X458J6B7RsIS7UtM3P1z13cUIhF+pOt65BgnaSnkHLwETidmhRh8Dl3GelaQGrB3RdCDw==}
+  /turbo-linux-arm64@1.13.1:
+    resolution: {integrity: sha512-FnbameYxpeuR0jHvD0issd0kGvJdVvsRWwTBYo0wJ4OsNrMQFP95+TZLv2WAQGiHebv5bi09WBe0C5yMiHAiFg==}
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-windows-64@1.11.3:
-    resolution: {integrity: sha512-s+vEnuM2TiZuAUUUpmBHDr6vnNbJgj+5JYfnYmVklYs16kXh+EppafYQOAkcRIMAh7GjV3pLq5/uGqc7seZeHA==}
+  /turbo-windows-64@1.13.1:
+    resolution: {integrity: sha512-fTZh1p3EV3y9kKQ/iy1OzNa4WSZu4FQn/GmnGw1SOv3fvd/wbpcm0ck0j3mo6grf/dwCxFdmRKVDL4yaZjHByA==}
     cpu: [x64]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-windows-arm64@1.11.3:
-    resolution: {integrity: sha512-ZR5z5Zpc7cASwfdRAV5yNScCZBsgGSbcwiA/u3farCacbPiXsfoWUkz28iyrx21/TRW0bi6dbsB2v17swa8bjw==}
+  /turbo-windows-arm64@1.13.1:
+    resolution: {integrity: sha512-MXnhMHWb6HqI0mm3bQNv5i3OxhkVSATpUfisBvKHf4DXHvvejCfxXA0Pg/4sYqOej5gn4PXjcNH+45f7flUQ0A==}
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo@1.11.3:
-    resolution: {integrity: sha512-RCJOUFcFMQNIGKSjC9YmA5yVP1qtDiBA0Lv9VIgrXraI5Da1liVvl3VJPsoDNIR9eFMyA/aagx1iyj6UWem5hA==}
+  /turbo@1.13.1:
+    resolution: {integrity: sha512-eaPSwcmWa70Mjxph+T65U76RFgLQc5GpGV5u4Xy+GrpAReImlTwN1uYDpQ7hsdG338l9EW6cDGIdsHVV3Fo5wg==}
     hasBin: true
     optionalDependencies:
-      turbo-darwin-64: 1.11.3
-      turbo-darwin-arm64: 1.11.3
-      turbo-linux-64: 1.11.3
-      turbo-linux-arm64: 1.11.3
-      turbo-windows-64: 1.11.3
-      turbo-windows-arm64: 1.11.3
+      turbo-darwin-64: 1.13.1
+      turbo-darwin-arm64: 1.13.1
+      turbo-linux-64: 1.13.1
+      turbo-linux-arm64: 1.13.1
+      turbo-windows-64: 1.13.1
+      turbo-windows-arm64: 1.13.1
     dev: true
 
   /type-check@0.4.0:
