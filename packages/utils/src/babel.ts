@@ -7,7 +7,21 @@ import {
 } from "@babel/core";
 import type { Binding } from "@babel/traverse";
 import { isModule, addNamed } from "@babel/helper-module-imports";
-import assert from "assert";
+
+class AssertionError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "AssertionError";
+  }
+}
+function assert(
+  condition: unknown,
+  message: string | Error
+): asserts condition {
+  if (!condition) {
+    throw typeof message === "object" ? message : new AssertionError(message);
+  }
+}
 
 const PLUGIN_NAME = "@preact-signals/utils/babel";
 type PluginStoreMap = {
@@ -300,7 +314,7 @@ const createRemoveImport = (
     isImportMacrosName(binding.path.parent.source.value)
   ) {
     for (const specifier of binding.path.parent.specifiers) {
-      assert(specifier.type === "ImportSpecifier");
+      assert(specifier.type === "ImportSpecifier", "Expected ImportSpecifier");
 
       const value =
         specifier.imported.type === "Identifier"
@@ -318,7 +332,7 @@ const createRemoveImport = (
     if (!parentPath) {
       throw new Error("invariant: importSpecifier should have a parentPath");
     }
-    assert(parentPath.isImportDeclaration());
+    assert(parentPath.isImportDeclaration(), "Expected ImportDeclaration");
     return () => {
       if (parentPath.node.specifiers.length === 1) {
         parentPath.remove();
@@ -332,7 +346,13 @@ const createRemoveImport = (
               spec.imported.name === importSpecifier
             );
           });
-        assert(specifier?.type === "ImportSpecifier");
+        assert(
+          specifier?.type === "ImportSpecifier",
+          SyntaxErrorWithLoc.makeFromPosition(
+            `Expected ${importSpecifier} to be an ImportSpecifier`,
+            specifier?.node.loc?.start
+          )
+        );
         specifier.remove();
       }
 

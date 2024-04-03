@@ -4,6 +4,11 @@ on:
     branches:
       - main
   pull_request:
+    types: [opened, synchronize]
+    paths-ignore:
+      - '**/*.md'
+      - "!.github/workflows/lint.yml"
+
     branches:
       - main
 
@@ -31,7 +36,7 @@ jobs:
           workspaces: "packages/react/swc"
       - run: pnpm build
         env:
-          CARGO_DEBUG: "true"
+          SKIP_RUST: "true"
       - run: pnpm test
   lint:
     name: Lint
@@ -54,7 +59,7 @@ jobs:
           workspaces: "packages/react/swc"
       - run: pnpm build
         env:
-          CARGO_DEBUG: "true"
+          SKIP_RUST: "true"
       - run: pnpm lint
       - run: pnpm eslint
   build:
