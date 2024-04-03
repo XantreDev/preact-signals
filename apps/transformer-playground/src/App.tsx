@@ -165,9 +165,10 @@ const TransformedCode = () => {
     }
   });
   return (
-    <div className="overflow-auto relative w-full h-full">
+    <div className="overflow-auto relative flex flex-col w-full h-full">
+      Output:
       <div
-        className="overflow-auto min-h-full"
+        className="overflow-auto flex-1"
         ref={(ref) => {
           divRef = ref;
         }}
@@ -217,7 +218,7 @@ function App() {
         )}
       </div>
       <Editor
-        height={'60%'}
+        height={"60%"}
         options={{
           minimap: {
             enabled: false,
@@ -228,7 +229,6 @@ function App() {
         defaultValue={untracked(() => text)}
         onChange={(value) => (text = value ?? "")}
       />
-      <br />
 
       <TransformedCode />
     </div>

@@ -210,6 +210,9 @@ importers:
       '@preact-signals/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      assert:
+        specifier: ^2.1.0
+        version: 2.1.0
       react:
         specifier: ^18.2.0
         version: 18.2.0
