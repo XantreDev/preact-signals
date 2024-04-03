@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["CARGO_DEBUG"],
+  "globalEnv": ["CARGO_DEBUG", "SKIP_RUST"],
   "pipeline": {
     "build": {
       "outputs": ["dist/**"],

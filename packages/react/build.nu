@@ -2,6 +2,7 @@
   
 def main [
   --cargo-debug
+  --skip-rust
 ] {
   rm -rf ./dist
 
@@ -10,6 +11,10 @@ def main [
 
   cd ./swc
   
+  let $use_skip_rust = --skip-rust == "true" or $env.SKIP_RUST? == "true"
+  if $use_skip_rust == "true" {
+    return
+  }
   let $use_debug = --cargo-debug == "true" or $env.CARGO_DEBUG? == "true"
   if $use_debug {
     cargo build-wasi
