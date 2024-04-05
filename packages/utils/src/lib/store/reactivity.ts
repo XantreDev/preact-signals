@@ -1,4 +1,4 @@
-import { ReadonlySignal, Signal } from "@preact-signals/unified-signals";
+import type { ReadonlySignal, Signal } from "@preact-signals/unified-signals";
 import {
   mutableHandlers,
   readonlyHandlers,
@@ -12,7 +12,7 @@ import {
   shallowReadonlyCollectionHandlers,
 } from "./collectionHandlers";
 import { ReactiveFlags } from "./constants";
-import { UnwrapSignalSimple } from "./deepSignal";
+import type { UnwrapSignalSimple } from "./deepSignal";
 import { def, isObject, toRawType } from "./utils";
 
 // maps rawVersions <-> wrapped versions
@@ -170,24 +170,24 @@ type Builtin = Primitive | Function | Date | Error | RegExp;
 export type DeepReadonly<T> = T extends Builtin
   ? T
   : T extends Map<infer K, infer V>
-  ? ReadonlyMap<DeepReadonly<K>, DeepReadonly<V>>
-  : T extends ReadonlyMap<infer K, infer V>
-  ? ReadonlyMap<DeepReadonly<K>, DeepReadonly<V>>
-  : T extends WeakMap<infer K, infer V>
-  ? WeakMap<DeepReadonly<K>, DeepReadonly<V>>
-  : T extends Set<infer U>
-  ? ReadonlySet<DeepReadonly<U>>
-  : T extends ReadonlySet<infer U>
-  ? ReadonlySet<DeepReadonly<U>>
-  : T extends WeakSet<infer U>
-  ? WeakSet<DeepReadonly<U>>
-  : T extends Promise<infer U>
-  ? Promise<DeepReadonly<U>>
-  : T extends Signal<infer U>
-  ? Readonly<ReadonlySignal<DeepReadonly<U>>>
-  : T extends {}
-  ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
-  : Readonly<T>;
+    ? ReadonlyMap<DeepReadonly<K>, DeepReadonly<V>>
+    : T extends ReadonlyMap<infer K, infer V>
+      ? ReadonlyMap<DeepReadonly<K>, DeepReadonly<V>>
+      : T extends WeakMap<infer K, infer V>
+        ? WeakMap<DeepReadonly<K>, DeepReadonly<V>>
+        : T extends Set<infer U>
+          ? ReadonlySet<DeepReadonly<U>>
+          : T extends ReadonlySet<infer U>
+            ? ReadonlySet<DeepReadonly<U>>
+            : T extends WeakSet<infer U>
+              ? WeakSet<DeepReadonly<U>>
+              : T extends Promise<infer U>
+                ? Promise<DeepReadonly<U>>
+                : T extends Signal<infer U>
+                  ? Readonly<ReadonlySignal<DeepReadonly<U>>>
+                  : T extends {}
+                    ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
+                    : Readonly<T>;
 
 /**
  * takes an object (reactive or plain) or a ref and returns a readonly proxy to
@@ -406,5 +406,7 @@ export const toDeepReactive = <T extends unknown>(value: T): T =>
  *
  * @param value - The value for which a readonly proxy shall be created.
  */
-export const toDeepReadonly = <T extends unknown>(value: T): T =>
-  isObject(value) ? deepReadonly(value) : value;
+export const toDeepReadonly = <T extends unknown>(value: T) =>
+  (isObject(value) ? deepReadonly(value) : value) as T extends object
+    ? DeepReadonly<UnwrapNestedSignals<T>>
+    : T;
