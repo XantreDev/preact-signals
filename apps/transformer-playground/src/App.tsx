@@ -9,27 +9,102 @@ import {
 import {
   computed,
   effect,
-  ReadonlySignal,
+  type ReadonlySignal,
   untracked,
   useSignalEffect,
 } from "@preact-signals/safe-react";
+import { debounce } from "radash";
 import signalsTransformPlugin from "@preact-signals/safe-react/babel";
 import macroTransformPlugin from "@preact-signals/utils/babel";
 import { shikiToMonaco } from "@shikijs/monaco";
 import { getHighlighter } from "shiki";
 import { resource } from "@preact-signals/utils";
+import {
+  decompressFromEncodedURIComponent,
+  compressToEncodedURIComponent,
+} from "lz-string";
 
 const signalsTransformName = "signals-transform";
 Babel.registerPlugin(signalsTransformName, signalsTransformPlugin);
 const macroTransformName = "macro-transform";
 Babel.registerPlugin(macroTransformName, macroTransformPlugin);
 
-const getFromLocalStorage = (): string | null => localStorage.getItem("input");
-const setToLocalStorage = (code: string) => localStorage.setItem("input", code);
+const errorToNull = <T,>(fn: () => T): T | null => {
+  try {
+    return fn();
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+};
 
-const defaultContent =
-  getFromLocalStorage() ??
-  `\
+type TransformerConfig = {
+  macro: boolean;
+  components: boolean;
+};
+const getStateFromParams = () => {
+  const params = new URLSearchParams(location.search);
+
+  const lzCode = params.get("code");
+  const transformerConfig = errorToNull(() =>
+    JSON.parse(
+      decompressFromEncodedURIComponent(params.get("transformerConfig") ?? "")
+    )
+  ) as TransformerConfig | null;
+
+  return {
+    lzCode,
+    transformerConfig,
+  };
+};
+
+const defaults = (() => {
+  const params = getStateFromParams();
+
+  const lzCode = params.lzCode;
+  return {
+    code:
+      lzCode && errorToNull(() => decompressFromEncodedURIComponent(lzCode)),
+    transformerConfig: params.transformerConfig,
+  };
+})();
+
+const syncTransformerConfigToUrl = debounce(
+  { delay: 300 },
+  (config: TransformerConfig) => {
+    const url = new URL(location.href);
+    const params = url.searchParams;
+    params.set(
+      "transformerConfig",
+      compressToEncodedURIComponent(JSON.stringify(config))
+    );
+    window.history.replaceState(null, "", url.href);
+  }
+);
+
+const transformerConfig = $state({
+  "Transform components": defaults.transformerConfig?.components ?? false,
+  "Transform macros": defaults.transformerConfig?.macro ?? true,
+});
+
+effect(() => {
+  syncTransformerConfigToUrl({
+    components: transformerConfig["Transform components"],
+    macro: transformerConfig["Transform macros"],
+  });
+});
+
+const syncCodeToUrl = debounce({ delay: 300 }, (code: string) => {
+  const url = new URL(location.href);
+  const params = url.searchParams;
+  params.set("code", compressToEncodedURIComponent(code));
+
+  window.history.replaceState(null, "", url.href);
+});
+
+let text = $state(
+  defaults.code ??
+    `\
 import { $state } from '@preact-signals/utils/macro'
 
 let text = $state('')
@@ -42,16 +117,14 @@ function App() {
     </div>
   )
 }
-`;
-
-const transformerConfig = $state({
-  "Transform components": false,
-  "Transform macros": true,
-});
-let text = $state(defaultContent);
-
+`
+);
 effect(() => {
-  setToLocalStorage(text);
+  syncCodeToUrl(text);
+});
+
+const setDebouncedText = debounce({ delay: 100 }, (value: string) => {
+  text = value;
 });
 
 const babelOutput = computed(() => {
@@ -218,7 +291,7 @@ function App() {
         )}
       </div>
       <Editor
-        height={"60%"}
+        height={"100%"}
         options={{
           minimap: {
             enabled: false,
@@ -227,7 +300,7 @@ function App() {
         theme="github-dark"
         defaultLanguage="tsx"
         defaultValue={untracked(() => text)}
-        onChange={(value) => (text = value ?? "")}
+        onChange={setDebouncedText}
       />
 
       <TransformedCode />
