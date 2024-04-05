@@ -300,7 +300,7 @@ function App() {
         theme="github-dark"
         defaultLanguage="tsx"
         defaultValue={untracked(() => text)}
-        onChange={setDebouncedText}
+        onChange={(v) => setDebouncedText(v ?? "")}
       />
 
       <TransformedCode />
