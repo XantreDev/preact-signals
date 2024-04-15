@@ -1,5 +1,16 @@
 # @preact-signals/utils
 
+## 0.18.0
+
+### Minor Changes
+
+- 02878e1: Removed caching from Switch component. Added `Switch.Match` as alias for separete Match component
+- f40d84f: `Show` stopped to be computed. Now reexcute on every parent render
+
+### Patch Changes
+
+- b7f18de: Removed unecessary signal creation in Computed
+
 ## 0.17.0
 
 ### Minor Changes
