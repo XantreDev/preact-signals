@@ -1,6 +1,6 @@
 import { signal } from "@preact-signals/unified-signals";
-import React from "react";
-import { describe, vi } from "vitest";
+import React, { useMemo } from "react";
+import { describe, Mock, vi } from "vitest";
 import { itRenderer } from "../../../__tests__/utils";
 import { Match, Switch } from "../components";
 
@@ -169,6 +169,43 @@ describe.concurrent("Switch()", () => {
         console.log("failed with: ", sig.peek());
         throw e;
       }
+    }
+  );
+  itRenderer(
+    "must reexecute child even if nothing changed",
+    async ({ act, expect, reactRoot, root }) => {
+      const sig = signal(0);
+      const matchWhen = vi.fn(() => 10);
+      const renderWhen = vi.fn(() => 220);
+
+      const Component = vi.fn(() => {
+        console.log("render");
+        sig.value;
+
+        return (
+          <Switch fallback={"fallback"}>
+            <Switch.Match when={matchWhen}>{renderWhen}</Switch.Match>
+          </Switch>
+        );
+      });
+
+      await reactRoot().render(<Component />);
+
+      const firstChild = root.firstChild;
+      expect(firstChild).is.instanceOf(Text);
+      expect(firstChild).has.property("data", "220");
+
+      expect(Component).toHaveBeenCalledTimes(1);
+      expect(matchWhen).toHaveBeenCalledTimes(1);
+      expect(renderWhen).toHaveBeenCalledTimes(1);
+
+      await act(() => {
+        sig.value++;
+      });
+
+      expect(Component).toHaveBeenCalledTimes(2);
+      expect(matchWhen).toHaveBeenCalledTimes(2);
+      expect(renderWhen).toHaveBeenCalledTimes(2);
     }
   );
 });

@@ -111,6 +111,9 @@ describe("reactifyLite()", () => {
     async ({ expect, act, root, reactRoot }) => {
       const sig = signal(10);
 
+      /**
+       * @useSignals
+       */
       const aRender = vi.fn((props: ReactiveProps<{ value: number }>) => (
         <div>{props.value}</div>
       ));
@@ -155,6 +158,9 @@ describe("reactifyLite()", () => {
     async ({ act, reactRoot, expect }) => {
       const sig = signal(10);
 
+      /**
+       * @useSignals
+       */
       const aRender = vi.fn(
         (props: ReactiveProps<{ value: number }>) => props.value
       );

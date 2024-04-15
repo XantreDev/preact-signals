@@ -66,7 +66,15 @@ export const withRenderer =
       });
     });
 
-export const itRenderer = (
-  name: string,
-  callback: (props: WithRendererProps) => unknown
-) => it(name, withRenderer(callback));
+export const itRenderer = Object.assign(
+  function isRenderer(
+    name: string,
+    callback: (props: WithRendererProps) => unknown
+  ) {
+    return it(name, withRenderer(callback));
+  },
+  {
+    only: (name: string, callback: (props: WithRendererProps) => unknown) =>
+      it.only(name, withRenderer(callback)),
+  }
+);

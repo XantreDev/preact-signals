@@ -1,5 +1,4 @@
-import { Children, isValidElement } from "react";
-import { useComputedOnce, useSignalOfState } from "../../hooks";
+import React, { Children, isValidElement } from "react";
 import {
   Accessor,
   AnyReactive,
@@ -22,12 +21,14 @@ export type MatchProps<T extends AnyReactive> = {
 };
 
 const matchSymbol = Symbol("match");
-export const Match = Object.assign(
+const Match = Object.assign(
   <const T extends AnyReactive>(_props: MatchProps<T>) => null,
   {
     [matchSymbol]: true,
   }
 );
+
+export { Match };
 
 export type SwitchProps = {
   /**
@@ -43,23 +44,8 @@ export type SwitchProps = {
 /**
  *
  * @useSignals
- * @example
- * // when prop can be callback or signal
- * <Switch>
- *  <Match when={() => isLoading.value}>
- *    <Loader />
- *  </Match>
- *  <Match when={() => isError.value}>
- *    There are an error
- *  </Match>
- *  <Match when={() => data.value}>
- *    {(contentAccessor) => (
- *      contentAccessor().id === 10 ? 1 : 2
- *    )}
- *  </Match>
- * </Switch>
  */
-export const Switch = (props: SwitchProps): JSX.Element => {
+const Switch_ = (props: SwitchProps): JSX.Element => {
   if (
     __DEV__ &&
     !Children.toArray(props.children).every(
@@ -76,25 +62,65 @@ export const Switch = (props: SwitchProps): JSX.Element => {
       "every child of switch should be Match and have when and children props"
     );
   }
-  const matches = useSignalOfState(
-    Children.toArray(props.children) as {
-      props: MatchProps<Reactive<unknown>>;
-    }[]
-  );
-  const fallback = useSignalOfState<RenderResult>(props.fallback ?? null);
+  const childrenArray = Children.toArray(props.children) as {
+    props: MatchProps<Reactive<unknown>>;
+  }[];
 
-  return useComputedOnce(() => {
-    if (matches.value.length === 0) {
-      return fallback.value ?? null;
-    }
-    const item = matches.value.find(
-      (item) => !isExplicitFalsy(unwrapReactive(item.props.when))
-    );
-    if (!item) {
-      return fallback.value ?? null;
-    }
-    return typeof item.props.children === "function"
-      ? item.props.children(accessorOfReactive(item.props.when))
-      : item.props.children;
-  }).value as JSX.Element;
+  const fallback = props.fallback ?? null;
+
+  if (__DEV__ && childrenArray.length === 0) {
+    console.warn("Switch component has no children");
+  }
+
+  const itemIndex = childrenArray.findIndex(
+    ({ props: item }) => !isExplicitFalsy(unwrapReactive(item.when))
+  );
+
+  if (itemIndex === -1) {
+    return fallback as JSX.Element;
+  }
+  const item = childrenArray[itemIndex]?.props;
+  if (!item) {
+    throw new Error("item is not found");
+  }
+  const children = item.children;
+
+  return (
+    typeof children === "function"
+      ? children(accessorOfReactive(item.when))
+      : children
+  ) as JSX.Element;
 };
+
+/**
+ *
+ * @example
+ * // when prop can be callback or signal
+ * <Switch>
+ *  <Switch.Match when={() => isLoading.value}>
+ *    <Loader />
+ *  </Switch.Match>
+ *  <Switch.Match when={() => isError.value}>
+ *    There are an error
+ *  </Switch.Match>
+ *  <Switch.Match when={() => data.value}>
+ *    {(contentAccessor) => (
+ *      contentAccessor().id === 10 ? 1 : 2
+ *    )}
+ *  </Switch.Match>
+ * </Switch>
+ *
+ * @description only static `Match` components are allowed. Here how you **cannot** use it:
+ * @example
+ * <Switch>
+ *  {a > 10 ? <Switch.Match when={() => isLoading.value}>
+ *    <Loader />
+ *  </Switch.Match>
+ *  : <Switch.Match when={() => isError.value}>
+ *    There are an error
+ *  </Switch.Match>}
+ * </Switch>
+ */
+export const Switch = Object.assign(Switch_, {
+  Match,
+});
