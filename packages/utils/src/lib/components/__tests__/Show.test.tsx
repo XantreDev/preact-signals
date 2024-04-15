@@ -90,4 +90,25 @@ describe.concurrent("Show()", () => {
       expect(renderFn).not.toHaveBeenCalledWith(false);
     }
   );
+  itRenderer(
+    "should rerender Show even if deps didn't changed",
+    async ({ act, expect, reactRoot, root }) => {
+      const sig = signal(0);
+      let a = 220;
+
+      const Component = () => (
+        sig.value, (<Show when={() => true}>{() => a}</Show>)
+      );
+
+      await reactRoot().render(<Component />);
+
+      expect(root.firstChild).has.property("textContent", "220");
+
+      await act(() => {
+        a++;
+        sig.value++;
+      });
+      expect(root.firstChild).has.property("textContent", "221");
+    }
+  );
 });

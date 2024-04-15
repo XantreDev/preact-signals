@@ -1,9 +1,10 @@
+import { ReactNode } from "react";
 import {
-  useComputedOnce,
-  useSignalOfReactive,
-  useSignalOfState,
-} from "../../hooks";
-import { GetTruthyValue, Reactive, isExplicitFalsy } from "../../utils";
+  GetTruthyValue,
+  Reactive,
+  isExplicitFalsy,
+  unwrapReactive,
+} from "../../utils";
 import { RenderResult } from "../type";
 
 export type ShowProps<T extends Reactive<any>> = {
@@ -17,17 +18,15 @@ export type ShowProps<T extends Reactive<any>> = {
  */
 export const Show = <const T extends Reactive<any>>(
   props: ShowProps<T>
-): JSX.Element => {
-  const when = useSignalOfReactive(props.when);
-  const fallback = useSignalOfState(props.fallback ?? null);
-  const children = useSignalOfState(props.children);
+): ReactNode => {
+  const when = unwrapReactive(props.when);
+  const fallback = props.fallback ?? null;
+  const children = props.children;
 
-  return useComputedOnce(() =>
-    isExplicitFalsy(when.value)
-      ? fallback.value
-      : typeof children.value === "function"
+  return isExplicitFalsy(when)
+    ? fallback
+    : typeof children === "function"
       ? // @ts-expect-error reading value
-        children.value(when.value)
-      : children.value
-  ).value as JSX.Element;
+        children(when)
+      : children;
 };

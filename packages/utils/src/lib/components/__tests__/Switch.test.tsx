@@ -179,7 +179,6 @@ describe.concurrent("Switch()", () => {
       const renderWhen = vi.fn(() => 220);
 
       const Component = vi.fn(() => {
-        console.log("render");
         sig.value;
 
         return (
