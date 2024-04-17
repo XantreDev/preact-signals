@@ -20,6 +20,12 @@ import { wrapFunctionsInUntracked } from "./utils";
 import { untracked } from "@preact-signals/unified-signals";
 import { $ } from "@preact-signals/utils";
 
+const enum ReturnStatus {
+  Error,
+  Success,
+  Suspense,
+}
+
 export const createBaseQuery =
   (Observer: typeof QueryObserver) =>
   <
@@ -82,7 +88,7 @@ export const createBaseQuery =
       shouldSuspend($defaultedOptions.value, state, $isRestoring.value)
     );
 
-    const dataComputed = useComputedOnce(() => {
+    const getData = () => {
       if (
         getHasError({
           result: state,
@@ -91,26 +97,43 @@ export const createBaseQuery =
           useErrorBoundary: $defaultedOptions.value.useErrorBoundary,
         })
       ) {
-        throw state.error;
+        return {
+          type: ReturnStatus.Error,
+          data: state.error,
+        } as const;
       }
       if ($shouldSuspend.value) {
         // will not refetch if already fetching
         // should suspend is not using data, so all will work fine
-        throw $observer.value.fetchOptimistic($defaultedOptions.value);
+        return {
+          type: ReturnStatus.Suspense,
+          data: $observer.value.fetchOptimistic($defaultedOptions.value),
+        } as const;
       }
-      return state.data;
+      return {
+        type: ReturnStatus.Success,
+        data: state.data,
+      } as const;
+    };
+
+    const dataComputed = useComputedOnce(() => {
+      const res = getData();
+      if (res.type === ReturnStatus.Success) {
+        return res.data;
+      }
+      throw res.data;
     });
     untracked(() => {
       if (
         $shouldSuspend.value &&
         $suspenseBehavior.value !== "load-on-access"
       ) {
-        try {
-          dataComputed.value;
-        } catch (e) {
-          if ($suspenseBehavior.value === "suspend-eagerly") {
-            throw e;
-          }
+        const data = getData();
+        if (
+          data.type === ReturnStatus.Suspense &&
+          $suspenseBehavior.value === "suspend-eagerly"
+        ) {
+          throw data.data;
         }
       }
     });
@@ -123,12 +146,7 @@ export const createBaseQuery =
         return false;
       }
 
-      try {
-        dataComputed.value;
-        return false;
-      } catch {
-        return true;
-      }
+      return getData().type !== ReturnStatus.Success;
     });
     willSuspendOrThrow.value;
 

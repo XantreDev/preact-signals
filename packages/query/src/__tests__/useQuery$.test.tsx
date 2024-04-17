@@ -370,6 +370,28 @@ describe("useQuery$()", () => {
       expect(queue.queue).toEqual([undefined, "data"]);
       queue.dispose();
     });
+    it("must start fetching if fetching is lazy", async () => {
+      const key = queryKey();
+      const queue = queueSignal();
+      const C = () => {
+        const query = useQuery$(() => ({
+          queryKey: key,
+          queryFn: () => sleep(5).then(() => "data"),
+          suspense: true,
+        }));
+        queue.emit(query.dataSafe);
+
+        return null;
+      };
+      renderWithClient(createQueryClient(), <C />);
+
+      expect(queue.queue).toEqual([undefined]);
+
+      await sleepRaf(10);
+
+      expect(queue.queue).toEqual([undefined, "data"]);
+      queue.dispose();
+    });
     it("should not suspend or throw if used", async () => {
       const key1 = queryKey();
       const key2 = queryKey();
