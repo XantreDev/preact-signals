@@ -112,6 +112,14 @@ export type UseInfiniteQuery$ = <
   >
 ) => InfiniteQueryResult$<TData, TError>;
 
+export interface UseOnlyReactiveUpdatesProp {
+  /**
+   * @description disables options callback evaluation on every render. Useful when callback has complex calculations
+   * @default false
+   */
+  useOnlyReactiveUpdates?: boolean;
+}
+
 export interface StaticMutationOptions<
   TData = unknown,
   TError = unknown,
@@ -121,7 +129,8 @@ export interface StaticMutationOptions<
     Omit<
       MutationObserverOptions<TData, TError, TVariables, TContext>,
       "_defaulted" | "variables"
-    > {}
+    >,
+    UseOnlyReactiveUpdatesProp {}
 
 export type MutationResultMutateFunction$<
   TData = unknown,

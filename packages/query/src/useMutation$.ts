@@ -4,7 +4,7 @@ import {
   useSignalOfReactive,
 } from "@preact-signals/utils/hooks";
 import { MutationObserver, MutationObserverResult } from "@tanstack/query-core";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useQueryClient$ } from "./react-query/QueryClientProvider";
 import {
   MutationResultMutateFunction$,
@@ -14,6 +14,7 @@ import {
 } from "./types";
 import { useObserverStore } from "./useObserver";
 import { EMPTY_ARRAY, wrapFunctionsInUntracked } from "./utils";
+import { untracked } from "@preact-signals/unified-signals";
 
 function noop() {}
 
@@ -21,7 +22,7 @@ export const useMutation$ = <
   TData = unknown,
   TError = unknown,
   TVariables = void,
-  TContext = unknown
+  TContext = unknown,
 >(
   options: () => StaticMutationOptions<TData, TError, TVariables, TContext>
 ): UseMutationResult$<TData, TError, TVariables, TContext> => {
@@ -49,9 +50,33 @@ export const useMutation$ = <
     EMPTY_ARRAY
   );
 
+  const unwrapParamsInRender = useRef(!$options.peek().useOnlyReactiveUpdates);
+  const executionCounter = useRef(0);
+  const optionsOrNull = useMemo(() => {
+    if (!unwrapParamsInRender.current) {
+      return null;
+    }
+    if (executionCounter.current++ === 0) {
+      return $options.peek();
+    }
+    return untracked(options);
+  }, [options]);
+  if (optionsOrNull) {
+    unwrapParamsInRender.current = !optionsOrNull.useOnlyReactiveUpdates;
+  }
+
   useSignalEffectOnce(() => {
+    unwrapParamsInRender.current = !$options.value.useOnlyReactiveUpdates;
+    if (unwrapParamsInRender.current) {
+      return;
+    }
     observer.value.setOptions(wrapFunctionsInUntracked($options.value));
   });
+  useEffect(() => {
+    if (!unwrapParamsInRender.current && optionsOrNull) {
+      observer.value.setOptions(wrapFunctionsInUntracked(optionsOrNull));
+    }
+  }, [optionsOrNull]);
 
   const observerResultToStore = (
     result: MutationObserverResult<TData, TError, TVariables, TContext>
@@ -60,7 +85,7 @@ export const useMutation$ = <
       ...result,
       mutate,
       mutateAsync: result.mutate,
-    } as StaticMutationResult<TData, TError, TVariables, TContext>);
+    }) as StaticMutationResult<TData, TError, TVariables, TContext>;
 
   const store = useObserverStore(() => ({
     getCurrent: () => observerResultToStore(observer.value.getCurrentResult()),

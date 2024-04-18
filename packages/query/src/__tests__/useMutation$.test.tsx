@@ -1,6 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useReducer } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { useMutation$ } from "../useMutation$";
+import { act } from "@testing-library/react";
 import {
   createHooksComponentElement,
   createQueryClient,
@@ -8,6 +9,8 @@ import {
   renderWithClient,
   sleep,
 } from "./utils";
+import { StaticMutationOptions } from "../types";
+import { signal } from "@preact-signals/unified-signals";
 
 describe("useMutation$()", () => {
   it("should mutate", async () => {
@@ -65,5 +68,68 @@ describe("useMutation$()", () => {
     expect(mutationFn).toHaveBeenCalledTimes(1);
     expect(onSuccess).toHaveBeenCalledTimes(1);
     dispose();
+  });
+
+  const useRerender = () => useReducer((acc) => acc + 1, 1)[1];
+
+  it("paramFn be should reexecuted after each render (useOnlyReactiveUpdates:false)", () => {
+    const paramsFn = vi.fn(() => ({
+      mutationFn: () => Promise.resolve(10),
+      useOnlyReactiveUpdates: false,
+    }));
+
+    let rerender: () => void;
+    renderWithClient(
+      createQueryClient(),
+      <>
+        {createHooksComponentElement(() => {
+          rerender = useRerender();
+          useMutation$(() => paramsFn());
+        })}
+      </>
+    );
+
+    expect(paramsFn).toBeCalledTimes(1);
+
+    act(() => {
+      rerender();
+    });
+
+    expect(paramsFn).toBeCalledTimes(2);
+  });
+
+  it("paramFn be should reexecuted only after param is deps changed(useOnlyReactiveUpdates:true)", () => {
+    const dep = signal(0);
+    const paramsFn = vi.fn(
+      () =>
+        ({
+          mutationFn: () => Promise.resolve(10),
+          useOnlyReactiveUpdates: true,
+          mutationKey: [dep.value],
+        }) satisfies StaticMutationOptions<any, any, any, any>
+    );
+
+    let rerender: () => void;
+    renderWithClient(
+      createQueryClient(),
+      <>
+        {createHooksComponentElement(() => {
+          rerender = useRerender();
+          useMutation$(() => paramsFn());
+        })}
+      </>
+    );
+
+    expect(paramsFn).toBeCalledTimes(1);
+
+    act(() => {
+      rerender();
+    });
+
+    expect(paramsFn).toBeCalledTimes(1);
+    act(() => {
+      dep.value++;
+    });
+    expect(paramsFn).toBeCalledTimes(2);
   });
 });
