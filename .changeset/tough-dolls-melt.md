@@ -2,4 +2,4 @@
 "@preact-signals/query": patch
 ---
 
-Fixed static mutation options
+Mutations options used to be never updated after mutation creation
