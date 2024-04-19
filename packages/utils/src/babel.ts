@@ -156,23 +156,27 @@ const isVariableDeclaratorRefMacros = (
   child.node.init.arguments[0]?.type === "StringLiteral" &&
   isImportMacrosName(child.node.init.arguments[0].value);
 
+type ConstructorType = "raw" | "callback";
 const stateMacrosMeta = {
   $state: {
     declarationType: ["const", "let"],
     canBeReassigned: true,
 
+    constructorType: "raw",
     importIdent: "deepSignal",
     importSource: "@preact-signals/utils",
   },
   $useLinkedState: {
     declarationType: ["const"],
     canBeReassigned: false,
+    constructorType: "raw",
     importIdent: "useSignalOfState",
     importSource: "@preact-signals/utils/hooks",
   },
   $useState: {
     declarationType: ["let", "const"],
     canBeReassigned: true,
+    constructorType: "callback",
     importIdent: "useDeepSignal",
     importSource: "@preact-signals/utils/hooks",
   },
@@ -180,11 +184,22 @@ const stateMacrosMeta = {
   (typeof stateMacros)[number],
   {
     declarationType: ("let" | "const")[];
+    constructorType: ConstructorType;
     canBeReassigned: boolean;
     importIdent: string;
     importSource: string;
   }
 >;
+
+const createState = (
+  t: typeof BabelTypes,
+  ident: BabelTypes.Identifier,
+  expr: BabelTypes.Expression,
+  constructorType: ConstructorType
+) =>
+  t.callExpression(ident, [
+    constructorType === "callback" ? t.arrowFunctionExpression([], expr) : expr,
+  ]);
 
 const hookStateMacros = ["$useState", "$useLinkedState"] as const;
 const topLevelStateMacros = ["$state"] as const;
@@ -546,9 +561,12 @@ const processStateMacros = (
 
       const constructorIdent = importLazily[macro]();
       const [referencePath] = callParent.replaceWith(
-        t.callExpression(constructorIdent, [
-          macro === "$useState" ? t.arrowFunctionExpression([], body) : body,
-        ])
+        createState(
+          t,
+          constructorIdent,
+          body,
+          stateMacrosMeta[macro].constructorType
+        )
       );
       path.scope.getBinding(constructorIdent.name)?.reference(referencePath);
       self.addToSet(state, getIdentKey(macro), id);
