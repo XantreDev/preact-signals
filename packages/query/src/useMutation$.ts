@@ -18,6 +18,7 @@ import {
   useRefBasedOptions,
   wrapFunctionsInUntracked,
 } from "./utils";
+import { untracked } from "@preact-signals/unified-signals";
 
 function noop() {}
 
@@ -60,7 +61,7 @@ export const useMutation$ = <
       ...result,
       mutate,
       mutateAsync: result.mutate,
-    }) as StaticMutationResult<TData, TError, TVariables, TContext>;
+    }) as unknown as StaticMutationResult<TData, TError, TVariables, TContext>;
 
   const store = useObserverStore(() => ({
     getCurrent: () => observerResultToStore(observer.value.getCurrentResult()),

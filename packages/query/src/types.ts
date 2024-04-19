@@ -9,8 +9,12 @@ import type {
   QueryObserverOptions,
   QueryObserverResult,
 } from "@tanstack/query-core";
-import { OverrideProperties, SetOptional } from "type-fest";
-import type { ContextOptions } from "./react-query";
+import { SetOptional } from "type-fest";
+import type {
+  ContextOptions,
+  UseMutateAsyncFunction,
+  UseMutateFunction,
+} from "./react-query";
 
 export type NotSupportedInQuery$ = "onError" | "onSettled" | "onSuccess";
 export type SafeDataField<T> = { dataSafe: T | undefined };
@@ -133,6 +137,9 @@ export interface StaticMutationOptions<
     >,
     ExecuteOptionsOnReferenceChangeProp {}
 
+/**
+ * @deprecated use `UseMutateFunction`
+ */
 export type MutationResultMutateFunction$<
   TData = unknown,
   TError = unknown,
@@ -142,6 +149,9 @@ export type MutationResultMutateFunction$<
   ...args: Parameters<MutateFunction<TData, TError, TVariables, TContext>>
 ) => void;
 
+/**
+ * @deprecated use `UseMutateAsyncFunction`
+ */
 export type MutationResultMutateAsyncFunction$<
   TData = unknown,
   TError = unknown,
@@ -154,19 +164,16 @@ export type StaticMutationResult<
   TError = unknown,
   TVariables = void,
   TContext = unknown,
-> = OverrideProperties<
+> = Override<
   MutationObserverResult<TData, TError, TVariables, TContext>,
   {
-    mutate: MutationResultMutateFunction$<TData, TError, TVariables, TContext>;
+    mutate: UseMutateFunction<TData, TError, TVariables, TContext>;
+  } & {
+    mutateAsync: UseMutateAsyncFunction<TData, TError, TVariables, TContext>;
   }
-> & {
-  mutateAsync: MutationResultMutateAsyncFunction$<
-    TData,
-    TError,
-    TVariables,
-    TContext
-  >;
-};
+>;
+
+type Override<A, B> = { [K in keyof A]: K extends keyof B ? B[K] : A[K] };
 
 export type UseMutationResult$<
   TData = unknown,
