@@ -1,5 +1,3 @@
-use std::ops::Deref;
-
 use regex::Regex;
 use swc_core::{
     common::{sync::Lazy, Span, DUMMY_SP},
@@ -133,20 +131,18 @@ impl MaybeComponentName for PropName {
     }
 }
 
-impl MaybeComponentName for PatOrExpr {
+impl MaybeComponentName for AssignTarget {
     fn is_component_name(&self) -> bool {
-        if let PatOrExpr::Pat(pat) = self
-            && let Pat::Expr(expr) = pat.deref()
-        {
-            expr.is_component_name()
-        } else if let PatOrExpr::Pat(pat) = self
-            && let Pat::Ident(ident) = pat.deref()
-        {
-            ident.is_component_name()
-        } else if let PatOrExpr::Expr(expr) = self {
-            expr.is_component_name()
+        let pat = if let AssignTarget::Simple(pat) = self {
+            pat
         } else {
-            false
+            return false;
+        };
+        match pat {
+            SimpleAssignTarget::Ident(ident) => ident.is_component_name(),
+            SimpleAssignTarget::Member(member) => member.prop.is_component_name(),
+            SimpleAssignTarget::Paren(paren) => paren.expr.is_component_name(),
+            _ => false,
         }
     }
 }
@@ -403,6 +399,7 @@ impl Detectable for Function {
 pub fn add_import(ident: Ident, source: Str, source_member_ident: Option<Ident>) -> ImportDecl {
     ImportDecl {
         span: DUMMY_SP,
+        phase: ImportPhase::Evaluation,
         specifiers: vec![if let Some(source_member_ident) = source_member_ident {
             ImportSpecifier::Named(ImportNamedSpecifier {
                 span: DUMMY_SP,

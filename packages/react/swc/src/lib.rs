@@ -1,9 +1,8 @@
 #![feature(box_patterns, let_chains, if_let_guard, slice_take)]
 
 mod utils;
+use swc_core::ecma::transforms::testing::test_inline;
 use utils::*;
-mod test;
-use test::test;
 
 use std::{
     borrow::BorrowMut,
@@ -21,6 +20,7 @@ use swc_core::{
     ecma::{
         ast::*,
         atoms::Atom,
+        parser::Syntax,
         utils::{prepend_stmt, private_ident},
         visit::{as_folder, noop_visit_mut_type, FoldWith, VisitMut, VisitMutWith},
     },
@@ -516,12 +516,14 @@ pub fn process_transform(program: Program, _metadata: TransformPluginProgramMeta
 
 #[cfg(test)]
 fn get_syntax() -> Syntax {
+    use swc_core::ecma::parser::EsConfig;
+
     let mut a = EsConfig::default();
     a.jsx = true;
     Syntax::Es(a)
 }
 
-test!(
+test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
@@ -557,7 +559,7 @@ const Cecek = ()=>{
 "#
 );
 
-test!(
+test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
@@ -585,7 +587,7 @@ function A() {
 "#
 );
 
-test!(
+test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
@@ -623,7 +625,7 @@ var C2 = function C3() {
 "#
 );
 
-test!(
+test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
@@ -725,7 +727,7 @@ export const boba2 = ()=>{
 "#
 );
 
-test!(
+test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
@@ -783,7 +785,7 @@ function Asdjsadf() {
 "#
 );
 
-test!(
+test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
@@ -822,7 +824,7 @@ const Cyc = React.lazy(React.memo(()=>{
 "#
 );
 
-test!(
+test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
@@ -855,7 +857,7 @@ function MyComponent() {
 // Recommended strategy to test plugin's transform is verify
 // the Visitor's behavior, instead of trying to run `process_transform` with mocks
 // unless explicitly required to do so.
-test!(
+test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
@@ -950,7 +952,7 @@ const _ = {
 "#
 );
 
-test!(
+test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
@@ -989,7 +991,7 @@ export default (()=>{
 "#
 );
 
-test!(
+test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_default(
         tester.comments.clone(),

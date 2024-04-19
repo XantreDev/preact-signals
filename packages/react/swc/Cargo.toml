@@ -24,7 +24,7 @@ strip = "symbols"
 regex = "1.10.2"
 serde = "1.0.193"
 serde_json = "1.0.108"
-swc_core = { version = "0.86.*", features = [
+swc_core = { version = "0.90.*", features = [
     "ecma_plugin_transform",
     "__parser",
     "__utils",
