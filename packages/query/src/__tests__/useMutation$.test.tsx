@@ -126,10 +126,16 @@ describe("useMutation$()", () => {
       rerender();
     });
 
-    expect(paramsFn).toBeCalledTimes(1);
+    expect(paramsFn).toBeCalledTimes(2);
+
+    act(() => {
+      rerender();
+    });
+
+    expect(paramsFn).toBeCalledTimes(2);
     act(() => {
       dep.value++;
     });
-    expect(paramsFn).toBeCalledTimes(2);
+    expect(paramsFn).toBeCalledTimes(3);
   });
 });

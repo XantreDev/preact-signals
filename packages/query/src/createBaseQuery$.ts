@@ -16,7 +16,7 @@ import { useIsRestoring$ } from "./react-query/isRestoring";
 import { ensureStaleTime, shouldSuspend } from "./react-query/suspense";
 import { StaticBaseQueryOptions, UseBaseQueryResult$ } from "./types";
 import { useObserverStore } from "./useObserver";
-import { wrapFunctionsInUntracked } from "./utils";
+import { useRefBasedOptions, wrapFunctionsInUntracked } from "./utils";
 import { untracked } from "@preact-signals/unified-signals";
 import { $ } from "@preact-signals/utils";
 
@@ -43,7 +43,7 @@ export const createBaseQuery =
       TQueryKey
     >
   ): UseBaseQueryResult$<TData, TError> => {
-    const $options = useSignalOfReactive(options);
+    const $options = useRefBasedOptions(options);
     const $queryClient = useQueryClient$({
       context: useComputedOnce(() => $options.value.context).value,
     });
@@ -74,8 +74,7 @@ export const createBaseQuery =
 
     const state = useObserverStore(() => ({
       getCurrent: () =>
-        $observer.value.getOptimisticResult(
-          $defaultedOptions.value
+        $observer.value.getOptimisticResult( $defaultedOptions.value
         ) as UseBaseQueryResult$<TData, TError>,
       subscribe: (emit) =>
         $observer.value.subscribe((newValue) => {

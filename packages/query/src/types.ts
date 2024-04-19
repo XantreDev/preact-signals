@@ -38,6 +38,7 @@ export interface StaticBaseQueryOptions<
       QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>,
       NotSupportedInQuery$
     >,
+    UseOnlyReactiveUpdatesProp,
     SuspenseBehaviorProp {}
 
 export interface StaticQueryOptions<
