@@ -24,10 +24,11 @@ function assert(
 }
 
 const PLUGIN_NAME = "@preact-signals/utils/babel";
-type PluginStoreMap = {
-  $useStateIdentifier: Set<BabelTypes.Identifier>;
-  $linkedStateIdentifier: Set<BabelTypes.Identifier>;
-} & Record<`${"imports" | "requires"}/${string}`, BabelTypes.Identifier>;
+type PluginStoreMap = Record<
+  `ident/${StateMacros}`,
+  Set<BabelTypes.Identifier>
+> &
+  Record<`${"imports" | "requires"}/${string}`, BabelTypes.Identifier>;
 
 const self = {
   get: <T extends keyof PluginStoreMap>(
@@ -64,6 +65,9 @@ const self = {
     return set.has(v);
   },
 };
+
+const getIdentKey = <T extends StateMacros>(macro: T) =>
+  `ident/${macro}` as const;
 
 function createImportLazily(
   t: typeof BabelTypes,
@@ -151,6 +155,27 @@ const isVariableDeclaratorRefMacros = (
   child.node.init.arguments.length === 1 &&
   child.node.init.arguments[0]?.type === "StringLiteral" &&
   isImportMacrosName(child.node.init.arguments[0].value);
+
+const stateMacrosMeta = {
+  $state: {
+    declarationType: ["const", "let"],
+    canBeReassigned: true,
+  },
+  $useLinkedState: {
+    declarationType: ["const"],
+    canBeReassigned: false,
+  },
+  $useState: {
+    declarationType: ["let", "const"],
+    canBeReassigned: true,
+  },
+} satisfies Record<
+  (typeof stateMacros)[number],
+  {
+    declarationType: ("let" | "const")[];
+    canBeReassigned: boolean;
+  }
+>;
 
 const hookStateMacros = ["$useState", "$useLinkedState"] as const;
 const topLevelStateMacros = ["$state"] as const;
@@ -526,13 +551,7 @@ const processStateMacros = (
         ])
       );
       path.scope.getBinding(constructorIdent.name)?.reference(referencePath);
-      self.addToSet(
-        state,
-        macro === "$useLinkedState"
-          ? "$linkedStateIdentifier"
-          : "$useStateIdentifier",
-        id
-      );
+      self.addToSet(state, getIdentKey(macro), id);
 
       const varBinding = path.scope.getBinding(id.name);
       if (!varBinding) {
@@ -617,7 +636,10 @@ export default function preactSignalsUtilsBabel(
         if (!ident) {
           return;
         }
-        if (self.hasInSet(state, "$useStateIdentifier", ident)) {
+        if (
+          self.hasInSet(state, "ident/$state", ident) ||
+          self.hasInSet(state, "ident/$useState", ident)
+        ) {
           path.replaceWith(
             t.assignmentExpression(
               path.node.operator,
@@ -630,7 +652,7 @@ export default function preactSignalsUtilsBabel(
           );
           return;
         }
-        if (self.hasInSet(state, "$linkedStateIdentifier", ident)) {
+        if (self.hasInSet(state, "ident/$useLinkedState", ident)) {
           throw SyntaxErrorWithLoc.makeFromPosition(
             "Cannot assign to a binded state",
             path.node.loc?.start
