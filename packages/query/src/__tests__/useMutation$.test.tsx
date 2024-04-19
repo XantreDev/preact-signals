@@ -44,7 +44,8 @@ describe("useMutation$()", () => {
   it("should rerender if subscribed", async () => {
     const mutationFn = vi.fn(() => Promise.resolve("data"));
     const onSuccess = vi.fn<[]>();
-    const { queue, emit, dispose } = queueSignal();
+    const statusQueue = queueSignal();
+    const dataQueue = queueSignal();
     renderWithClient(
       createQueryClient(),
       <>
@@ -54,7 +55,8 @@ describe("useMutation$()", () => {
             onSuccess,
           }));
           // subscribing to mutation
-          emit(mutation.status);
+          statusQueue.emit(mutation.status);
+          dataQueue.emit(mutation.data);
 
           useEffect(() => {
             mutation.mutate();
@@ -64,10 +66,12 @@ describe("useMutation$()", () => {
     );
 
     await sleep(2);
-    expect(queue).toEqual(["idle", "loading", "success"]);
+    expect(statusQueue.queue).toEqual(["idle", "loading", "success"]);
     expect(mutationFn).toHaveBeenCalledTimes(1);
     expect(onSuccess).toHaveBeenCalledTimes(1);
-    dispose();
+    expect(dataQueue.queue).toEqual([undefined, "data"]);
+    statusQueue.dispose();
+    dataQueue.dispose();
   });
 
   const useRerender = () => useReducer((acc) => acc + 1, 1)[1];
