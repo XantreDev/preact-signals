@@ -9,8 +9,12 @@ import type {
   QueryObserverOptions,
   QueryObserverResult,
 } from "@tanstack/query-core";
-import { OverrideProperties, SetOptional } from "type-fest";
-import type { ContextOptions } from "./react-query";
+import { SetOptional } from "type-fest";
+import type {
+  ContextOptions,
+  UseMutateAsyncFunction,
+  UseMutateFunction,
+} from "./react-query";
 
 export type NotSupportedInQuery$ = "onError" | "onSettled" | "onSuccess";
 export type SafeDataField<T> = { dataSafe: T | undefined };
@@ -38,6 +42,7 @@ export interface StaticBaseQueryOptions<
       QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>,
       NotSupportedInQuery$
     >,
+    ExecuteOptionsOnReferenceChangeProp,
     SuspenseBehaviorProp {}
 
 export interface StaticQueryOptions<
@@ -112,12 +117,12 @@ export type UseInfiniteQuery$ = <
   >
 ) => InfiniteQueryResult$<TData, TError>;
 
-export interface UseOnlyReactiveUpdatesProp {
+export interface ExecuteOptionsOnReferenceChangeProp {
   /**
-   * @description disables options callback evaluation on every render. Useful when callback has complex calculations
-   * @default false
+   * @description Controls how options callback will be reexecuted. If `true` - it will be reexecuted callback on every reference change. If `false` - it will not be reexecuted until reactive dependencies changed.
+   * @default true
    */
-  useOnlyReactiveUpdates?: boolean;
+  executeOptionsOnReferenceChange?: boolean;
 }
 
 export interface StaticMutationOptions<
@@ -130,42 +135,35 @@ export interface StaticMutationOptions<
       MutationObserverOptions<TData, TError, TVariables, TContext>,
       "_defaulted" | "variables"
     >,
-    UseOnlyReactiveUpdatesProp {}
+    ExecuteOptionsOnReferenceChangeProp {}
 
-export type MutationResultMutateFunction$<
-  TData = unknown,
-  TError = unknown,
-  TVariables = void,
-  TContext = unknown,
-> = (
-  ...args: Parameters<MutateFunction<TData, TError, TVariables, TContext>>
-) => void;
+export type {
+  /**
+   * @deprecated use `UseMutateFunction`
+   */
+  UseMutateFunction as MutationResultMutateFunction$,
 
-export type MutationResultMutateAsyncFunction$<
-  TData = unknown,
-  TError = unknown,
-  TVariables = void,
-  TContext = unknown,
-> = MutateFunction<TData, TError, TVariables, TContext>;
+  /**
+   * @deprecated use `UseMutateAsyncFunction`
+   */
+  UseMutateAsyncFunction as MutationResultMutateAsyncFunction$,
+} from "./react-query";
 
 export type StaticMutationResult<
   TData = unknown,
   TError = unknown,
   TVariables = void,
   TContext = unknown,
-> = OverrideProperties<
+> = Override<
   MutationObserverResult<TData, TError, TVariables, TContext>,
   {
-    mutate: MutationResultMutateFunction$<TData, TError, TVariables, TContext>;
+    mutate: UseMutateFunction<TData, TError, TVariables, TContext>;
+  } & {
+    mutateAsync: UseMutateAsyncFunction<TData, TError, TVariables, TContext>;
   }
-> & {
-  mutateAsync: MutationResultMutateAsyncFunction$<
-    TData,
-    TError,
-    TVariables,
-    TContext
-  >;
-};
+>;
+
+type Override<A, B> = { [K in keyof A]: K extends keyof B ? B[K] : A[K] };
 
 export type UseMutationResult$<
   TData = unknown,

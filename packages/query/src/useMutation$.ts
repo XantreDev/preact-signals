@@ -1,20 +1,21 @@
-import {
-  useComputedOnce,
-  useSignalEffectOnce,
-  useSignalOfReactive,
-} from "@preact-signals/utils/hooks";
+import { useComputedOnce } from "@preact-signals/utils/hooks";
 import { MutationObserver, MutationObserverResult } from "@tanstack/query-core";
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo, useState } from "react";
 import { useQueryClient$ } from "./react-query/QueryClientProvider";
 import {
-  MutationResultMutateFunction$,
   StaticMutationOptions,
   StaticMutationResult,
   UseMutationResult$,
 } from "./types";
 import { useObserverStore } from "./useObserver";
-import { EMPTY_ARRAY, wrapFunctionsInUntracked } from "./utils";
-import { untracked } from "@preact-signals/unified-signals";
+import {
+  EMPTY_ARRAY,
+  useRefBasedOptions,
+  wrapFunctionsInUntracked,
+} from "./utils";
+import { untracked, useSignalEffect } from "@preact-signals/unified-signals";
+import { UseMutateFunction } from "./react-query";
+import { shouldThrowError } from "./react-query/utils";
 
 function noop() {}
 
@@ -26,7 +27,7 @@ export const useMutation$ = <
 >(
   options: () => StaticMutationOptions<TData, TError, TVariables, TContext>
 ): UseMutationResult$<TData, TError, TVariables, TContext> => {
-  const $options = useSignalOfReactive(options);
+  const $options = useRefBasedOptions(options);
   const $client = useQueryClient$({
     context: useComputedOnce(() => $options.value.context).value,
   });
@@ -39,44 +40,15 @@ export const useMutation$ = <
         wrapFunctionsInUntracked($options.peek())
       )
   );
-  const mutate: MutationResultMutateFunction$<
-    TData,
-    TError,
-    TVariables,
-    TContext
-  > = useMemo(
-    () => (variables, mutateOptions) =>
-      void observer.peek().mutate(variables, mutateOptions).catch(noop),
-    EMPTY_ARRAY
-  );
-
-  const unwrapParamsInRender = useRef(!$options.peek().useOnlyReactiveUpdates);
-  const executionCounter = useRef(0);
-  const optionsOrNull = useMemo(() => {
-    if (!unwrapParamsInRender.current) {
-      return null;
-    }
-    if (executionCounter.current++ === 0) {
-      return $options.peek();
-    }
-    return untracked(options);
-  }, [options]);
-  if (optionsOrNull) {
-    unwrapParamsInRender.current = !optionsOrNull.useOnlyReactiveUpdates;
-  }
-
-  useSignalEffectOnce(() => {
-    unwrapParamsInRender.current = !$options.value.useOnlyReactiveUpdates;
-    if (unwrapParamsInRender.current) {
-      return;
-    }
+  useSignalEffect(() => {
     observer.value.setOptions(wrapFunctionsInUntracked($options.value));
   });
-  useEffect(() => {
-    if (!unwrapParamsInRender.current && optionsOrNull) {
-      observer.value.setOptions(wrapFunctionsInUntracked(optionsOrNull));
-    }
-  }, [optionsOrNull]);
+  const mutate: UseMutateFunction<TData, TError, TVariables, TContext> =
+    useMemo(
+      () => (variables, mutateOptions) =>
+        void observer.peek().mutate(variables, mutateOptions).catch(noop),
+      EMPTY_ARRAY
+    );
 
   const observerResultToStore = (
     result: MutationObserverResult<TData, TError, TVariables, TContext>
@@ -85,7 +57,7 @@ export const useMutation$ = <
       ...result,
       mutate,
       mutateAsync: result.mutate,
-    }) as StaticMutationResult<TData, TError, TVariables, TContext>;
+    }) as unknown as StaticMutationResult<TData, TError, TVariables, TContext>;
 
   const store = useObserverStore(() => ({
     getCurrent: () => observerResultToStore(observer.value.getCurrentResult()),
@@ -94,6 +66,18 @@ export const useMutation$ = <
         emit(observerResultToStore(newValue));
       }),
   }));
+
+  const shouldThrow = useComputedOnce(
+    () =>
+      store.error &&
+      shouldThrowError(observer.value.options.useErrorBoundary, [store.error])
+  );
+
+  if (shouldThrow.value) {
+    untracked(() => {
+      throw store.error;
+    });
+  }
 
   return store;
 };

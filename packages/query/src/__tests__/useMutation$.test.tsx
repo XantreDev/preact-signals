@@ -11,6 +11,8 @@ import {
 } from "./utils";
 import { StaticMutationOptions } from "../types";
 import { signal } from "@preact-signals/unified-signals";
+import { QueryErrorResetBoundary } from "../react-query";
+import { ErrorBoundary } from "react-error-boundary";
 
 describe("useMutation$()", () => {
   it("should mutate", async () => {
@@ -44,7 +46,8 @@ describe("useMutation$()", () => {
   it("should rerender if subscribed", async () => {
     const mutationFn = vi.fn(() => Promise.resolve("data"));
     const onSuccess = vi.fn<[]>();
-    const { queue, emit, dispose } = queueSignal();
+    const statusQueue = queueSignal();
+    const dataQueue = queueSignal();
     renderWithClient(
       createQueryClient(),
       <>
@@ -54,7 +57,8 @@ describe("useMutation$()", () => {
             onSuccess,
           }));
           // subscribing to mutation
-          emit(mutation.status);
+          statusQueue.emit(mutation.status);
+          dataQueue.emit(mutation.data);
 
           useEffect(() => {
             mutation.mutate();
@@ -64,18 +68,43 @@ describe("useMutation$()", () => {
     );
 
     await sleep(2);
-    expect(queue).toEqual(["idle", "loading", "success"]);
+    expect(statusQueue.queue).toEqual(["idle", "loading", "success"]);
     expect(mutationFn).toHaveBeenCalledTimes(1);
     expect(onSuccess).toHaveBeenCalledTimes(1);
-    dispose();
+    expect(dataQueue.queue).toEqual([undefined, "data"]);
+    statusQueue.dispose();
+    dataQueue.dispose();
+  });
+
+  it("test errorBoundary", async () => {
+    const onErrorBoundary = vi.fn();
+    renderWithClient(
+      createQueryClient(),
+      <ErrorBoundary fallbackRender={onErrorBoundary}>
+        {createHooksComponentElement(() => {
+          const mutation = useMutation$(() => ({
+            mutationFn: () => sleep(10).then(() => Promise.reject(10)),
+            useErrorBoundary: true,
+          }));
+          useEffect(() => {
+            mutation.mutate();
+          });
+        })}
+      </ErrorBoundary>
+    );
+
+    expect(onErrorBoundary).not.toHaveBeenCalled();
+    await act(() => sleep(30));
+
+    expect(onErrorBoundary).toHaveBeenCalled();
   });
 
   const useRerender = () => useReducer((acc) => acc + 1, 1)[1];
 
-  it("paramFn be should reexecuted after each render (useOnlyReactiveUpdates:false)", () => {
+  it("paramFn be should reexecuted after each render (executeOptionsOnReferenceChange:true)", () => {
     const paramsFn = vi.fn(() => ({
       mutationFn: () => Promise.resolve(10),
-      useOnlyReactiveUpdates: false,
+      useOnlyReactiveUpdates: true,
     }));
 
     let rerender: () => void;
@@ -98,13 +127,13 @@ describe("useMutation$()", () => {
     expect(paramsFn).toBeCalledTimes(2);
   });
 
-  it("paramFn be should reexecuted only after param is deps changed(useOnlyReactiveUpdates:true)", () => {
+  it("paramFn be should reexecuted only after param is deps changed(executeOptionsOnReferenceChange:false)", () => {
     const dep = signal(0);
     const paramsFn = vi.fn(
       () =>
         ({
           mutationFn: () => Promise.resolve(10),
-          useOnlyReactiveUpdates: true,
+          executeOptionsOnReferenceChange: false,
           mutationKey: [dep.value],
         }) satisfies StaticMutationOptions<any, any, any, any>
     );
@@ -119,6 +148,12 @@ describe("useMutation$()", () => {
         })}
       </>
     );
+
+    expect(paramsFn).toBeCalledTimes(1);
+
+    act(() => {
+      rerender();
+    });
 
     expect(paramsFn).toBeCalledTimes(1);
 
