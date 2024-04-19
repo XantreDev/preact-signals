@@ -15,6 +15,7 @@ import {
 } from "./utils";
 import { untracked, useSignalEffect } from "@preact-signals/unified-signals";
 import { UseMutateFunction } from "./react-query";
+import { shouldThrowError } from "./react-query/utils";
 
 function noop() {}
 
@@ -65,6 +66,18 @@ export const useMutation$ = <
         emit(observerResultToStore(newValue));
       }),
   }));
+
+  const shouldThrow = useComputedOnce(
+    () =>
+      store.error &&
+      shouldThrowError(observer.value.options.useErrorBoundary, [store.error])
+  );
+
+  if (shouldThrow.value) {
+    untracked(() => {
+      throw store.error;
+    });
+  }
 
   return store;
 };

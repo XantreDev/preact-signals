@@ -11,6 +11,8 @@ import {
 } from "./utils";
 import { StaticMutationOptions } from "../types";
 import { signal } from "@preact-signals/unified-signals";
+import { QueryErrorResetBoundary } from "../react-query";
+import { ErrorBoundary } from "react-error-boundary";
 
 describe("useMutation$()", () => {
   it("should mutate", async () => {
@@ -72,6 +74,29 @@ describe("useMutation$()", () => {
     expect(dataQueue.queue).toEqual([undefined, "data"]);
     statusQueue.dispose();
     dataQueue.dispose();
+  });
+
+  it("test errorBoundary", async () => {
+    const onErrorBoundary = vi.fn();
+    renderWithClient(
+      createQueryClient(),
+      <ErrorBoundary fallbackRender={onErrorBoundary}>
+        {createHooksComponentElement(() => {
+          const mutation = useMutation$(() => ({
+            mutationFn: () => sleep(10).then(() => Promise.reject(10)),
+            useErrorBoundary: true,
+          }));
+          useEffect(() => {
+            mutation.mutate();
+          });
+        })}
+      </ErrorBoundary>
+    );
+
+    expect(onErrorBoundary).not.toHaveBeenCalled();
+    await act(() => sleep(30));
+
+    expect(onErrorBoundary).toHaveBeenCalled();
   });
 
   const useRerender = () => useReducer((acc) => acc + 1, 1)[1];
