@@ -72,10 +72,10 @@ describe("useMutation$()", () => {
 
   const useRerender = () => useReducer((acc) => acc + 1, 1)[1];
 
-  it("paramFn be should reexecuted after each render (useOnlyReactiveUpdates:false)", () => {
+  it("paramFn be should reexecuted after each render (executeOptionsOnReferenceChange:true)", () => {
     const paramsFn = vi.fn(() => ({
       mutationFn: () => Promise.resolve(10),
-      useOnlyReactiveUpdates: false,
+      useOnlyReactiveUpdates: true,
     }));
 
     let rerender: () => void;
@@ -98,13 +98,13 @@ describe("useMutation$()", () => {
     expect(paramsFn).toBeCalledTimes(2);
   });
 
-  it("paramFn be should reexecuted only after param is deps changed(useOnlyReactiveUpdates:true)", () => {
+  it("paramFn be should reexecuted only after param is deps changed(executeOptionsOnReferenceChange:false)", () => {
     const dep = signal(0);
     const paramsFn = vi.fn(
       () =>
         ({
           mutationFn: () => Promise.resolve(10),
-          useOnlyReactiveUpdates: true,
+          executeOptionsOnReferenceChange: false,
           mutationKey: [dep.value],
         }) satisfies StaticMutationOptions<any, any, any, any>
     );
@@ -126,16 +126,16 @@ describe("useMutation$()", () => {
       rerender();
     });
 
-    expect(paramsFn).toBeCalledTimes(2);
+    expect(paramsFn).toBeCalledTimes(1);
 
     act(() => {
       rerender();
     });
 
-    expect(paramsFn).toBeCalledTimes(2);
+    expect(paramsFn).toBeCalledTimes(1);
     act(() => {
       dep.value++;
     });
-    expect(paramsFn).toBeCalledTimes(3);
+    expect(paramsFn).toBeCalledTimes(2);
   });
 });

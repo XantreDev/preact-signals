@@ -38,7 +38,7 @@ export interface StaticBaseQueryOptions<
       QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>,
       NotSupportedInQuery$
     >,
-    UseOnlyReactiveUpdatesProp,
+    ExecuteOptionsOnReferenceChangeProp,
     SuspenseBehaviorProp {}
 
 export interface StaticQueryOptions<
@@ -113,12 +113,12 @@ export type UseInfiniteQuery$ = <
   >
 ) => InfiniteQueryResult$<TData, TError>;
 
-export interface UseOnlyReactiveUpdatesProp {
+export interface ExecuteOptionsOnReferenceChangeProp {
   /**
-   * @description disables options callback evaluation on every render. Useful when callback has complex calculations
-   * @default false
+   * @description Controls how options callback will be reexecuted. If `true` - it will be reexecuted callback on every reference change. If `false` - it will not be reexecuted until reactive dependencies changed.
+   * @default true
    */
-  useOnlyReactiveUpdates?: boolean;
+  executeOptionsOnReferenceChange?: boolean;
 }
 
 export interface StaticMutationOptions<
@@ -131,7 +131,7 @@ export interface StaticMutationOptions<
       MutationObserverOptions<TData, TError, TVariables, TContext>,
       "_defaulted" | "variables"
     >,
-    UseOnlyReactiveUpdatesProp {}
+    ExecuteOptionsOnReferenceChangeProp {}
 
 export type MutationResultMutateFunction$<
   TData = unknown,

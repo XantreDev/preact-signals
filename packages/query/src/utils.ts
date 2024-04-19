@@ -1,5 +1,5 @@
 import { untracked } from "@preact-signals/utils";
-import { UseOnlyReactiveUpdatesProp } from "./types";
+import { ExecuteOptionsOnReferenceChangeProp } from "./types";
 import {
   useComputed,
   useSignal,
@@ -33,25 +33,29 @@ export const wrapFunctionsInUntracked = /** __PURE__ */ <
   return obj;
 };
 
-export const useRefBasedOptions = <T extends UseOnlyReactiveUpdatesProp>(
+const defaultExecuteOptions = true;
+export const useRefBasedOptions = <
+  T extends ExecuteOptionsOnReferenceChangeProp,
+>(
   options: () => T
 ) => {
   const optionsRef = useRef(options);
   optionsRef.current = options;
-  const stableCallback = useCallback(() => optionsRef.current(), EMPTY_ARRAY);
+  const unstableCallbackButReferencesLatest = useCallback(
+    () => optionsRef.current(),
+    [options]
+  );
 
-  const useOnlyReactiveUpdatesRef = useRef(false);
-  const sig = useSignal(stableCallback);
-  if (useOnlyReactiveUpdatesRef.current) {
-    sig.value = stableCallback;
-  } else {
-    sig.value = options;
+  const needToChangeOptionOnNextRerender = useRef(true);
+  const sig = useSignal(unstableCallbackButReferencesLatest);
+  if (needToChangeOptionOnNextRerender.current) {
+    sig.value = unstableCallbackButReferencesLatest;
   }
 
   const computed = useComputed(() => sig.value());
   useSignalEffect(() => {
-    useOnlyReactiveUpdatesRef.current =
-      computed.value.useOnlyReactiveUpdates ?? false;
+    needToChangeOptionOnNextRerender.current =
+      computed.value.executeOptionsOnReferenceChange ?? defaultExecuteOptions;
   });
 
   return computed;
