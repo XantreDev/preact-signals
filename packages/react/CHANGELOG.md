@@ -1,5 +1,11 @@
 # @preact-signals/safe-react
 
+## 0.6.0
+
+### Minor Changes
+
+- f02e006: Updated swc_core crate to 0.90.x version, because [incompatibility with Next 14.2.0](https://github.com/XantreDev/preact-signals/issues/97)
+
 ## 0.5.5
 
 ### Patch Changes

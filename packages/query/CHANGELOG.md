@@ -1,5 +1,46 @@
 # @preact-signals/query
 
+## 2.0.0
+
+### Major Changes
+
+- 983dd69: # Breaking change:
+
+  Added `executeOptionsOnReferenceChange` (default: true) to reexectue mutation or query options callback on each reference change (for proper update depending on closuje)
+  This change is addresses issue that everything is needed to be signal to work properly with `useMutation# @preact-signals/query
+
+  ```ts
+  const [state, setState] = useState(0);
+  useMutation$(() => ({
+    mutationFn,
+    onSuccess: () => {
+      // previous behavior - state will be recaptured only if reactive dependency changed (in case without deps it will always be 0)
+      // new behavior will be synced with current state value
+      console.log(state);
+    },
+  }));
+  ```
+
+  Old behavior is can be used with `executeOptionsOnReferenceChange`: false. Options callback will be reexecuted only when deps tracked by reactivity changes
+
+  ```ts
+  const [state, setState] = useState(0);
+  useMutation$(() => ({
+    mutationFn,
+    executeOptionsOnReferenceChange: false,
+    onSuccess: () => {
+      // state will be recaptured only if reactive dependency changed (in case without deps it will always be 0)
+      console.log(state);
+    },
+  }));
+  ```
+
+### Patch Changes
+
+- e1ab313: Fixed work of `useErrorBoundary` prop for `useMutation# @preact-signals/query. Now it throws an error while mutation is failed
+- e1ab313: Fixed incorrect `useMutation# @preact-signals/query return type
+- e1ab313: Mutations options used to be never updated after mutation creation
+
 ## 1.4.5
 
 ### Patch Changes

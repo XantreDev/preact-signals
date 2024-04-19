@@ -1,5 +1,13 @@
 # next-react-test
 
+## 0.1.20
+
+### Patch Changes
+
+- Updated dependencies [f02e006]
+  - @preact-signals/safe-react@0.6.0
+  - components-for-test@6.0.0
+
 ## 0.1.19
 
 ### Patch Changes
