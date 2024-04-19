@@ -327,6 +327,16 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       export { a }
       `,
     ),
+    TestCase.makeError("Throws if linked state assigned", `
+      import {$useLinkedState} from '@preact-signals/utils/macro'
+      
+      const _ = () => {
+        const a = $useLinkedState(10)
+        
+        a += 20
+        a = 20
+      }
+    `)
 
   ];
 

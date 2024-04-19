@@ -591,6 +591,18 @@ const mapValues = <T extends Record<string, any>, U>(
   return res;
 };
 
+type ShouldStop = boolean;
+const forEach = <T extends Record<string, any>>(
+  obj: T,
+  fn: (value: T[keyof T], key: keyof T) => ShouldStop
+) => {
+  for (const key in obj) {
+    if (fn(obj[key], key)) {
+      return;
+    }
+  }
+};
+
 export default function preactSignalsUtilsBabel(
   { types: t }: PluginArgs,
   options?: BabelMacroPluginOptions
@@ -634,32 +646,32 @@ export default function preactSignalsUtilsBabel(
         if (path.node.left.type !== "Identifier") {
           return;
         }
+        const left = path.node.left;
         const ident = path.scope.getBindingIdentifier(path.node.left.name);
         if (!ident) {
           return;
         }
-        if (
-          self.hasInSet(state, "ident/$state", ident) ||
-          self.hasInSet(state, "ident/$useState", ident)
-        ) {
+        forEach(stateMacrosMeta, ({ canBeReassigned }, key) => {
+          if (!self.hasInSet(state, getIdentKey(key), ident)) {
+            return false;
+          }
+
+          if (!canBeReassigned) {
+            throw SyntaxErrorWithLoc.makeFromPosition(
+              `Cannot assign to a binded state`,
+              path.node.loc?.start
+            );
+          }
           path.replaceWith(
             t.assignmentExpression(
               path.node.operator,
-              t.memberExpression(
-                t.cloneNode(path.node.left),
-                t.identifier("value")
-              ),
+              t.memberExpression(t.cloneNode(left), t.identifier("value")),
               path.node.right
             )
           );
-          return;
-        }
-        if (self.hasInSet(state, "ident/$useLinkedState", ident)) {
-          throw SyntaxErrorWithLoc.makeFromPosition(
-            "Cannot assign to a binded state",
-            path.node.loc?.start
-          );
-        }
+
+          return true;
+        });
       },
     },
   };
