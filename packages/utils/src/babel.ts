@@ -160,20 +160,29 @@ const stateMacrosMeta = {
   $state: {
     declarationType: ["const", "let"],
     canBeReassigned: true,
+
+    importIdent: "deepSignal",
+    importSource: "@preact-signals/utils",
   },
   $useLinkedState: {
     declarationType: ["const"],
     canBeReassigned: false,
+    importIdent: "useSignalOfState",
+    importSource: "@preact-signals/utils/hooks",
   },
   $useState: {
     declarationType: ["let", "const"],
     canBeReassigned: true,
+    importIdent: "useDeepSignal",
+    importSource: "@preact-signals/utils/hooks",
   },
-} satisfies Record<
+} as const satisfies Record<
   (typeof stateMacros)[number],
   {
     declarationType: ("let" | "const")[];
     canBeReassigned: boolean;
+    importIdent: string;
+    importSource: string;
   }
 >;
 
@@ -448,11 +457,7 @@ const processStateMacros = (
   path: NodePath<BabelTypes.Program>,
   t: typeof BabelTypes,
   state: PluginPass,
-  importLazily: {
-    deepSignal: LazyIdent;
-    useSignalOfState: LazyIdent;
-    useDeepSignal: LazyIdent;
-  }
+  importLazily: Record<StateMacros, LazyIdent>
 ) => {
   for (const macro of stateMacros) {
     if (!path.scope.references[macro]) {
@@ -539,12 +544,7 @@ const processStateMacros = (
         }
       }
 
-      const constructorIdent =
-        macro === "$useState"
-          ? importLazily.useDeepSignal()
-          : macro === "$state"
-            ? importLazily.deepSignal()
-            : importLazily.useSignalOfState();
+      const constructorIdent = importLazily[macro]();
       const [referencePath] = callParent.replaceWith(
         t.callExpression(constructorIdent, [
           macro === "$useState" ? t.arrowFunctionExpression([], body) : body,
@@ -580,6 +580,17 @@ const processStateMacros = (
   }
 };
 
+const mapValues = <T extends Record<string, any>, U>(
+  obj: T,
+  fn: (value: T[keyof T], key: keyof T) => U
+): Record<keyof T, U> => {
+  const res: Record<keyof T, U> = {} as Record<keyof T, U>;
+  for (const key in obj) {
+    res[key] = fn(obj[key], key);
+  }
+  return res;
+};
+
 export default function preactSignalsUtilsBabel(
   { types: t }: PluginArgs,
   options?: BabelMacroPluginOptions
@@ -598,29 +609,20 @@ export default function preactSignalsUtilsBabel(
           );
 
           if (enableStateMacros) {
-            processStateMacros(path, t, state, {
-              deepSignal: createImportLazily(
-                t,
-                state,
-                path,
-                "deepSignal",
-                "@preact-signals/utils"
-              ),
-              useDeepSignal: createImportLazily(
-                t,
-                state,
-                path,
-                "useDeepSignal",
-                "@preact-signals/utils/hooks"
-              ),
-              useSignalOfState: createImportLazily(
-                t,
-                state,
-                path,
-                "useSignalOfState",
-                "@preact-signals/utils/hooks"
-              ),
-            });
+            processStateMacros(
+              path,
+              t,
+              state,
+              mapValues(stateMacrosMeta, (data) =>
+                createImportLazily(
+                  t,
+                  state,
+                  path,
+                  data.importIdent,
+                  data.importSource
+                )
+              )
+            );
           }
         },
       },
