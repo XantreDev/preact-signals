@@ -137,27 +137,17 @@ export interface StaticMutationOptions<
     >,
     ExecuteOptionsOnReferenceChangeProp {}
 
-/**
- * @deprecated use `UseMutateFunction`
- */
-export type MutationResultMutateFunction$<
-  TData = unknown,
-  TError = unknown,
-  TVariables = void,
-  TContext = unknown,
-> = (
-  ...args: Parameters<MutateFunction<TData, TError, TVariables, TContext>>
-) => void;
+export type {
+  /**
+   * @deprecated use `UseMutateFunction`
+   */
+  UseMutateFunction as MutationResultMutateFunction$,
 
-/**
- * @deprecated use `UseMutateAsyncFunction`
- */
-export type MutationResultMutateAsyncFunction$<
-  TData = unknown,
-  TError = unknown,
-  TVariables = void,
-  TContext = unknown,
-> = MutateFunction<TData, TError, TVariables, TContext>;
+  /**
+   * @deprecated use `UseMutateAsyncFunction`
+   */
+  UseMutateAsyncFunction as MutationResultMutateAsyncFunction$,
+} from "./react-query";
 
 export type StaticMutationResult<
   TData = unknown,
