@@ -1,13 +1,8 @@
-import {
-  useComputedOnce,
-  useSignalEffectOnce,
-  useSignalOfReactive,
-} from "@preact-signals/utils/hooks";
+import { useComputedOnce } from "@preact-signals/utils/hooks";
 import { MutationObserver, MutationObserverResult } from "@tanstack/query-core";
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo, useState } from "react";
 import { useQueryClient$ } from "./react-query/QueryClientProvider";
 import {
-  MutationResultMutateFunction$,
   StaticMutationOptions,
   StaticMutationResult,
   UseMutationResult$,
@@ -18,7 +13,8 @@ import {
   useRefBasedOptions,
   wrapFunctionsInUntracked,
 } from "./utils";
-import { untracked } from "@preact-signals/unified-signals";
+import { untracked, useSignalEffect } from "@preact-signals/unified-signals";
+import { UseMutateFunction } from "./react-query";
 
 function noop() {}
 
@@ -43,16 +39,15 @@ export const useMutation$ = <
         wrapFunctionsInUntracked($options.peek())
       )
   );
-  const mutate: MutationResultMutateFunction$<
-    TData,
-    TError,
-    TVariables,
-    TContext
-  > = useMemo(
-    () => (variables, mutateOptions) =>
-      void observer.peek().mutate(variables, mutateOptions).catch(noop),
-    EMPTY_ARRAY
-  );
+  useSignalEffect(() => {
+    observer.value.setOptions(wrapFunctionsInUntracked($options.value));
+  });
+  const mutate: UseMutateFunction<TData, TError, TVariables, TContext> =
+    useMemo(
+      () => (variables, mutateOptions) =>
+        void observer.peek().mutate(variables, mutateOptions).catch(noop),
+      EMPTY_ARRAY
+    );
 
   const observerResultToStore = (
     result: MutationObserverResult<TData, TError, TVariables, TContext>
