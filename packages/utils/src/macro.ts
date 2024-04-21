@@ -1,10 +1,21 @@
-import { ReactiveRef } from "./lib";
+import { type ReactiveRef } from "./lib";
 
 console.log(
   "To use macro, you need to use babel plugin. Check out the README for more info."
 );
+
+export type $$Type = <T>(value: T) => ReactiveRef<T>;
+
+const createMacroError =
+  (macroName: string): ((...args: any[]) => never) =>
+  () => {
+    throw new Error(
+      `'${macroName}' function is only available at compile time`
+    );
+  };
+
 /**
- * This macro function is compile time shorthand for `$(() => value)`
+ * Macro function that is compile time shorthand for `$(() => value)`
  *
  * @example
  * ```tsx
@@ -34,12 +45,12 @@ console.log(
  * a.value = 2
  * ```
  */
-export const $$: <T>(value: T) => ReactiveRef<T> = () => {
-  throw new Error("'$$' function is only available at compile time");
-};
+export const $$: $$Type = createMacroError("$$");
+
+export type $StateMacroType = <T>(value: T) => T;
 
 /**
- * This macro function is marks a value in VariableDeclarator  as deep reactive state.
+ * Macro hook-function that allows you to create global reactive binding. Compile time wrapper around `deepSignal`
  *
  * @example
  * ```tsx
@@ -56,12 +67,10 @@ export const $$: <T>(value: T) => ReactiveRef<T> = () => {
  * ```
  *
  */
-export const $state: <T>(value: T) => T = () => {
-  throw new Error("'$state' function is only available at compile time");
-};
+export const $state: $StateMacroType = createMacroError("$state");
 
 /**
- * This macro hook-function is marks a value in VariableDeclarator as deep reactive state.
+ * Macro hook-function that allows you to create deep reactive binding inside of component. Compile time wrapper around `useDeepSignal`
  *
  * @example
  * ```tsx
@@ -80,12 +89,10 @@ export const $state: <T>(value: T) => T = () => {
  * ```
  *
  */
-export const $useState: <T>(value: T) => T = () => {
-  throw new Error("'$useState' function is only available at compile time");
-};
+export const $useState: $StateMacroType = createMacroError("$useState");
 
 /**
- * This macro hook-function is marks a value in VariableDeclarator as reactive value that is linked to a state from component render state.
+ * Macro hook-function that creates reactive binding that is linked to a state that passed as argument. Compile time wrapper around `useSignalOfState`
  *
  * @example
  * ```tsx
@@ -106,9 +113,52 @@ export const $useState: <T>(value: T) => T = () => {
  *   </div>
  *  )
  * }
+ * ```
  */
-export const $useLinkedState: <T>(value: T) => T = () => {
-  throw new Error(
-    "'$useLinkedState' function is only available at compile time"
-  );
-};
+export const $useLinkedState: $StateMacroType =
+  createMacroError("$useLinkedState");
+
+/**
+ * Macro function that creates a derived reactive binding. Compile time wrapper around `computed`
+ * @example
+ * ```ts
+ * import { $derived, $state } from "@preact-signals/utils/macro";
+ *
+ * let a = $state(1)
+ * let b = $state(2)
+ *
+ * const c = $derived(a + b)
+ * const doubleC = $derived(c * 2)
+ *
+ * console.log(c) // 3
+ * console.log(doubleC) // 6
+ * a = 3
+ * console.log(c) // 5
+ * console.log(doubleC) // 10
+ * ```
+ */
+export const $derived: $StateMacroType = createMacroError("$derived");
+
+/**
+ * Macro function that creates a derived reactive binding. Compile time wrapper around `computed`
+ *
+ * @example
+ * ```ts
+ * import { $useDerived, $useState } from "@preact-signals/utils/macro";
+ *
+ * const Component = () => {
+ *  let counter = $useState(0)
+ *  const doubledCounter = $useDerived(counter * 2)
+ *  const increment = () => counter++
+ *
+ *  return (
+ *   <div>
+ *    <button onClick={onIncrement}>Increment</button>
+ *    <p>Counter {count}</p>
+ *    <p>Doubled Counter {doubledCounter}</p>
+ *   </div>
+ *  );
+ * }
+ * ```
+ */
+export const $useDerived: $StateMacroType = createMacroError("$useDerived");

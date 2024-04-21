@@ -12,9 +12,13 @@
 
 - [Prerequisites](#prerequisites)
   - [`@preact/signals-core` additional step:](#preactsignals-core-additional-step)
-  - [`@preact-signals/safe-react` additional step:](#preact-signals-safe-react-additional-step)
-  - [`@preact-signals/utils` additional step:](#preact-signals-utils-additional-step)
+  - [`@preact-signals/safe-react` additional step:](#preact-signalssafe-react-additional-step)
+  - [`@preact-signals` additional step:](#preact-signals-additional-step)
 - [Installation](#installation)
+- [`@preact-signals/utils/macro`: Macros. Improving ergonomics](#preact-signalsutilsmacro-macros-improving-ergonomics)
+  - [State macros](#state-macros)
+  - [Ref macro shorthand](#ref-macro-shorthand)
+  - [Macro setup](#macro-setup)
 - [Main Entry: `@preact-signals/utils`](#main-entry-preact-signalsutils)
   - [`ReactiveRef`/`$`](#reactiveref)
   - [`WritableReactiveRef`/`$w`](#writablereactiveref)
@@ -35,7 +39,6 @@
   - [`reactifyLite`](#reactifylite)
   - [Troubleshooting](#troubleshooting)
     - [Third party libraries is not working with HOCs](#third-party-libraries-is-not-working-with-hocs-while-using-preact-signalssafe-react-or-preactsignals-react-with-babel)
-- [`@preact-signals/utils/macro`: Macros](#preact-signalsutilsmacro-macros)
   - [Setup](#macro-setup)
 - [Inspired by:](#heavily-inspired-by)
 
@@ -160,7 +163,7 @@ export default defineConfig({
 });
 ```
 
-### Installation
+## Installation
 
 Fetch `@preact-signals/utils` via your preferred package manager:
 
@@ -177,12 +180,56 @@ pnpm add @preact-signals/utils
 
 Library consist from many entries:
 
-- `@preact-signals/utils` for library agnostic utils
+- `@preact-signals/utils` library agnostic utils and deep reactivity implementation
 - `@preact-signals/utils/components` for reactive components
 - `@preact-signals/utils/hooks` for reactive hooks
 - `@preact-signals/utils/hocs` provides hocs wrappers that bring reactivity to your components
-- `@preact-signals/utils/store` provides deep reactivity implementation
-- `@preact-signals/utils/store/hooks` provides deep reactivity implementation
+- `@preact-signals/utils/macro` provides babel macros
+
+## `@preact-signals/utils/macro`: Macros. Improving ergonomics
+
+This entry provides macros distributed as babel plugin. It's allows you to write more concise code. There are two types of macros: `state macros`, and ref macro shorthand.
+You can play with it in the interactive playground
+
+### State macros
+
+Shorthands that allows you to do omit `.value` access and work with signals like with regular values.
+Allowed state macros:
+
+- `$state`
+- `$useState`
+- `$useLinkedState`
+- `$derived`
+- `$useDerived`
+
+Here is example of how it works. You can play with it [here](https://preact-signals.netlify.app/?transformerConfig=N4Igxg9gtgDhB2BTeAXAziAXAMwIYBs1EAaEKXMAJwixUoFdEBfIA&code=JYWwDg9gTgLgBAbzgEgM4wIYwKYBoUAm2UwAbtgXAL5wBmUEIcA5AAJhTYYDGMAtKmABzAHYYANqgD0AVxjBJUkDwbMAUKEixEcbLVrZe1OgyZsOXXlMGiJqPpx4x1a8dnjos2OAF4UnnAAKBDU4OAwALjgARgAGXFC4ACMogCZYtSoASjU1bggRdDgiEnJKP2QSsgpAgOwAOgw4AGo4OvqknLU9A15AwKzfAD5ERPzCiDd68QghQIAiKrL5-CWKHOzc9oxm5qA)
+
+![Playground](playground.png)
+
+### Ref macro shorthand
+
+```tsx
+import { $$ } from "@preact-signals/utils/macro";
+
+const a = signal(1);
+const b = signal(2);
+
+// $$ is macro, which will be replaced with $(() => ...)
+// $$(a.value + b.value) -> $(() => a.value + b.value)
+// C component will not be reexecuted if a or b changed
+const C = () => <div>{$$(a.value + b.value)}</div>;
+```
+
+### Macro setup
+
+To use macros you need to add babel plugin to your babel config:
+
+```json
+// babel.config.json
+{
+  "plugins": ["module:@preact-signals/utils/babel"]
+}
+```
 
 ## Main Entry: `@preact-signals/utils`
 
@@ -564,33 +611,6 @@ const View$ = withSignalProps(_View);
 ```
 
 If you wrapped some component with
-
-## `@preact-signals/utils/macro`: Macros
-
-This entry provides macros distributed as babel plugin. It's allows you to write code like this:
-
-```tsx
-import { $$ } from "@preact-signals/utils/macro";
-
-const a = signal(1);
-const b = signal(2);
-
-// $$ is macro, which will be replaced with $(() => ...)
-// $$(a.value + b.value) -> $(() => a.value + b.value)
-// C component will not be reexecuted if a or b changed
-const C = () => <div>{$$(a.value + b.value)}</div>;
-```
-
-### Macro setup
-
-To use macros you need to add babel plugin to your babel config:
-
-```json
-// babel.config.json
-{
-  "plugins": ["module:@preact-signals/utils/babel"]
-}
-```
 
 ### Heavily inspired by:
 

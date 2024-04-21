@@ -128,9 +128,6 @@
       ],
       "store/hooks": [
         "./dist/types/lib/hooks/store.d.ts"
-      ],
-      "macro": [
-        "./dist/types/macro.d.ts"
       ]
     }
   },

@@ -24,7 +24,8 @@
     "rootDir": "./",
     "sourceMap": true,
     "paths": {
-      "@preact-signals/utils/*": ["./packages/utils/src/*"],
+      "@preact-signals/utils/macro": ["./packages/utils/src/macro.ts"],
+      "@preact-signals/utils/*": ["./packages/utils/src/lib/*"],
       "@preact-signals/safe-react": ["./packages/react/src/lib/index.ts"],
       "@preact-signals/unified-signals": [
         "./packages/unified-signals/src/index.d.ts"

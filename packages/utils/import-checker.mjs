@@ -7,6 +7,10 @@ import { resolve } from "node:path";
 const { glob } = fastGlob;
 
 const CHECK_FIELDS = ["main", "react-native", "types"];
+/**
+ * @type {string[]}
+ */
+const allowNoTypes = [];
 
 const packageJson = await glob("**/package.json", {
   ignore: ["**/node_modules/**", "**/dist/**"],
@@ -22,6 +26,10 @@ await Promise.allSettled(
     const directoryPath = resolve(path, "..");
 
     for (const field of CHECK_FIELDS) {
+      if (field === "types" && allowNoTypes.some((it) => path.includes(it))) {
+        console.log("skipped types for :", path);
+        continue;
+      }
       const fieldValue = pkg[field];
       if (!fieldValue) {
         errors.push(`Missing ${field} in ${path}`);
