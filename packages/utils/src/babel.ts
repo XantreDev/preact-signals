@@ -24,10 +24,11 @@ function assert(
 }
 
 const PLUGIN_NAME = "@preact-signals/utils/babel";
-type PluginStoreMap = {
-  $useStateIdentifier: Set<BabelTypes.Identifier>;
-  $linkedStateIdentifier: Set<BabelTypes.Identifier>;
-} & Record<`${"imports" | "requires"}/${string}`, BabelTypes.Identifier>;
+type PluginStoreMap = Record<
+  `ident/${StateMacros}`,
+  Set<BabelTypes.Identifier>
+> &
+  Record<`${"imports" | "requires"}/${string}`, BabelTypes.Identifier>;
 
 const self = {
   get: <T extends keyof PluginStoreMap>(
@@ -64,6 +65,9 @@ const self = {
     return set.has(v);
   },
 };
+
+const getIdentKey = <T extends StateMacros>(macro: T) =>
+  `ident/${macro}` as const;
 
 function createImportLazily(
   t: typeof BabelTypes,
@@ -152,9 +156,76 @@ const isVariableDeclaratorRefMacros = (
   child.node.init.arguments[0]?.type === "StringLiteral" &&
   isImportMacrosName(child.node.init.arguments[0].value);
 
-const hookStateMacros = ["$useState", "$useLinkedState"] as const;
-const topLevelStateMacros = ["$state"] as const;
-const stateMacros = [...hookStateMacros, ...topLevelStateMacros] as const;
+type ConstructorType = "raw" | "callback";
+const stateMacrosMeta = {
+  $state: {
+    declarationType: ["const", "let"],
+    canBeReassigned: true,
+
+    isHook: false,
+    constructorType: "raw",
+    importIdent: "deepSignal",
+    importSource: "@preact-signals/utils",
+  },
+  $useState: {
+    declarationType: ["let", "const"],
+    canBeReassigned: true,
+    isHook: true,
+    constructorType: "callback",
+    importIdent: "useDeepSignal",
+    importSource: "@preact-signals/utils/hooks",
+  },
+  $useLinkedState: {
+    declarationType: ["const"],
+    canBeReassigned: false,
+    isHook: true,
+    constructorType: "raw",
+    importIdent: "useSignalOfState",
+    importSource: "@preact-signals/utils/hooks",
+  },
+
+  $derived: {
+    declarationType: ["const"],
+    canBeReassigned: false,
+    isHook: false,
+    constructorType: "callback",
+    importIdent: "computed",
+    importSource: "@preact-signals/utils/macro-helper",
+  },
+  $useDerived: {
+    declarationType: ["const"],
+    canBeReassigned: false,
+    isHook: true,
+    constructorType: "callback",
+    importIdent: "useComputed",
+    importSource: "@preact-signals/utils/macro-helper",
+  },
+} as const satisfies Record<
+  string,
+  {
+    declarationType: ("let" | "const")[];
+    constructorType: ConstructorType;
+    canBeReassigned: boolean;
+    isHook: boolean;
+    importIdent: string;
+    importSource: string;
+  }
+>;
+
+const createState = (
+  t: typeof BabelTypes,
+  ident: BabelTypes.Identifier,
+  expr: BabelTypes.Expression,
+  constructorType: ConstructorType
+) =>
+  t.callExpression(ident, [
+    constructorType === "callback" ? t.arrowFunctionExpression([], expr) : expr,
+  ]);
+
+const keys = <T extends string>(obj: Readonly<Record<T, any>>) =>
+  Object.keys(obj) as T[];
+
+const stateMacros = keys(stateMacrosMeta);
 const refMacro = "$$" as const;
 
 const importSpecifiers = [...stateMacros, refMacro];
@@ -162,14 +233,6 @@ const importSpecifiers = [...stateMacros, refMacro];
 type RefMacro = typeof refMacro;
 type StateMacros = (typeof stateMacros)[number];
 type MacroIdentifier = RefMacro | StateMacros;
-
-const isStateMacros = (name: string): name is StateMacros =>
-  (stateMacros as readonly string[]).includes(name);
-
-const isTopLevelStateMacros = (
-  name: string
-): name is (typeof topLevelStateMacros)[number] =>
-  topLevelStateMacros.includes(name as (typeof topLevelStateMacros)[number]);
 
 const getStateMacrosBody = (
   node: BabelTypes.VariableDeclarator
@@ -419,15 +482,13 @@ const processRefMacros = (
 
 type LazyIdent = () => BabelTypes.Identifier;
 
+const includes = (arr: readonly string[], name: string) => arr.includes(name);
+
 const processStateMacros = (
   path: NodePath<BabelTypes.Program>,
   t: typeof BabelTypes,
   state: PluginPass,
-  importLazily: {
-    deepSignal: LazyIdent;
-    useSignalOfState: LazyIdent;
-    useDeepSignal: LazyIdent;
-  }
+  importLazily: Record<StateMacros, LazyIdent>
 ) => {
   for (const macro of stateMacros) {
     if (!path.scope.references[macro]) {
@@ -446,12 +507,13 @@ const processStateMacros = (
       remove();
       continue;
     }
+    const macroMeta = stateMacrosMeta[macro];
 
     for (const path of binding.referencePaths) {
       const callParent = path.parentPath;
       if (!callParent || !callParent.isCallExpression()) {
         throw SyntaxErrorWithLoc.makeFromPosition(
-          "Expected $useState to be used only as call expressions",
+          `Expected ${macro} to be used only as call expressions`,
           (callParent ?? path).node.loc?.start
         );
       }
@@ -475,23 +537,9 @@ const processStateMacros = (
       }
       {
         const loc = parent.node.loc?.start;
-        if (
-          parent.parentPath.node.kind !== "const" &&
-          macro === "$useLinkedState"
-        ) {
+        if (!includes(macroMeta.declarationType, parent.parentPath.node.kind)) {
           throw SyntaxErrorWithLoc.makeFromPosition(
-            `${macro} should be used with const`,
-            loc
-          );
-        }
-
-        if (
-          (macro === "$useState" || macro === "$state") &&
-          parent.parentPath.node.kind !== "let" &&
-          parent.parentPath.node.kind !== "const"
-        ) {
-          throw SyntaxErrorWithLoc.makeFromPosition(
-            `${macro} should be used with let or const`,
+            `${macro} should be used with ${macroMeta.declarationType.join(" or ")}`,
             loc
           );
         }
@@ -499,14 +547,14 @@ const processStateMacros = (
       const res = getStateMacrosBody(parent.node);
       if (!res) {
         throw SyntaxErrorWithLoc.makeFromPosition(
-          "Expected $useState to have a valid body",
+          `Expected "${macro}" to have a valid body`,
           path.node.loc?.start
         );
       }
       const [id, body] = res;
       {
         const functionParent = parent.getFunctionParent();
-        if (!functionParent && !isTopLevelStateMacros(macro)) {
+        if (!functionParent && macroMeta.isHook) {
           throw SyntaxErrorWithLoc.makeFromPosition(
             `Expected "${macro}" to be used inside of a function, because it's a hook`,
             parent.node.loc?.start
@@ -514,25 +562,17 @@ const processStateMacros = (
         }
       }
 
-      const constructorIdent =
-        macro === "$useState"
-          ? importLazily.useDeepSignal()
-          : macro === "$state"
-            ? importLazily.deepSignal()
-            : importLazily.useSignalOfState();
+      const constructorIdent = importLazily[macro]();
       const [referencePath] = callParent.replaceWith(
-        t.callExpression(constructorIdent, [
-          macro === "$useState" ? t.arrowFunctionExpression([], body) : body,
-        ])
+        createState(
+          t,
+          constructorIdent,
+          body,
+          stateMacrosMeta[macro].constructorType
+        )
       );
       path.scope.getBinding(constructorIdent.name)?.reference(referencePath);
-      self.addToSet(
-        state,
-        macro === "$useLinkedState"
-          ? "$linkedStateIdentifier"
-          : "$useStateIdentifier",
-        id
-      );
+      self.addToSet(state, getIdentKey(macro), id);
 
       const varBinding = path.scope.getBinding(id.name);
       if (!varBinding) {
@@ -561,6 +601,17 @@ const processStateMacros = (
   }
 };
 
+const mapValues = <T extends Record<string, any>, U>(
+  obj: T,
+  fn: (value: T[keyof T], key: keyof T) => U
+): Record<keyof T, U> => {
+  const res: Record<keyof T, U> = {} as Record<keyof T, U>;
+  for (const key in obj) {
+    res[key] = fn(obj[key], key);
+  }
+  return res;
+};
+
 export default function preactSignalsUtilsBabel(
   { types: t }: PluginArgs,
   options?: BabelMacroPluginOptions
@@ -579,29 +630,20 @@ export default function preactSignalsUtilsBabel(
           );
 
           if (enableStateMacros) {
-            processStateMacros(path, t, state, {
-              deepSignal: createImportLazily(
-                t,
-                state,
-                path,
-                "deepSignal",
-                "@preact-signals/utils"
-              ),
-              useDeepSignal: createImportLazily(
-                t,
-                state,
-                path,
-                "useDeepSignal",
-                "@preact-signals/utils/hooks"
-              ),
-              useSignalOfState: createImportLazily(
-                t,
-                state,
-                path,
-                "useSignalOfState",
-                "@preact-signals/utils/hooks"
-              ),
-            });
+            processStateMacros(
+              path,
+              t,
+              state,
+              mapValues(stateMacrosMeta, (data) =>
+                createImportLazily(
+                  t,
+                  state,
+                  path,
+                  data.importIdent,
+                  data.importSource
+                )
+              )
+            );
           }
         },
       },
@@ -613,28 +655,42 @@ export default function preactSignalsUtilsBabel(
         if (path.node.left.type !== "Identifier") {
           return;
         }
-        const ident = path.scope.getBindingIdentifier(path.node.left.name);
-        if (!ident) {
+        const left = path.node.left;
+        const binding = path.scope.getBinding(path.node.left.name);
+        if (!binding) {
           return;
         }
-        if (self.hasInSet(state, "$useStateIdentifier", ident)) {
+        const ident = binding.identifier;
+        for (const key of stateMacros) {
+          const { canBeReassigned } = stateMacrosMeta[key];
+          if (!self.hasInSet(state, getIdentKey(key), ident)) {
+            continue;
+          }
+
+          assert(
+            canBeReassigned,
+            SyntaxErrorWithLoc.makeFromPosition(
+              `Cannot assign to a binded state`,
+              path.node.loc?.start
+            )
+          );
+          assert(
+            binding.kind !== 'const',
+            SyntaxErrorWithLoc.makeFromPosition(
+              `Cannot reassign a constant binding`,
+              path.node.loc?.start
+            )
+          );
+
           path.replaceWith(
             t.assignmentExpression(
               path.node.operator,
-              t.memberExpression(
-                t.cloneNode(path.node.left),
-                t.identifier("value")
-              ),
+              t.memberExpression(t.cloneNode(left), t.identifier("value")),
               path.node.right
             )
           );
-          return;
-        }
-        if (self.hasInSet(state, "$linkedStateIdentifier", ident)) {
-          throw SyntaxErrorWithLoc.makeFromPosition(
-            "Cannot assign to a binded state",
-            path.node.loc?.start
-          );
+
+          break;
         }
       },
     },

@@ -13,14 +13,14 @@
   ],
   "repository": {
     "directory": "packages/utils",
-    "url": "https://github.com/XantreGodlike/preact-signals",
+    "url": "https://github.com/XantreDev/preact-signals",
     "type": "git"
   },
-  "homepage": "https://github.com/XantreGodlike/preact-signals/blob/main/packages/utils/README.md",
+  "homepage": "https://github.com/XantreDev/preact-signals/blob/main/packages/utils/README.md",
   "author": {
     "email": "valerik007.vs@gmail.com",
     "name": "Valerii Smirnov",
-    "url": "https://github.com/XantreGodlike"
+    "url": "https://github.com/XantreDev"
   },
   "type": "module",
   "module": "./dist/esm/lib/index.mjs",
@@ -72,11 +72,11 @@
       "source": "./src/lib/hooks/store.ts"
     },
     "./macro": {
-      "types": "./dist/types/macro.d.ts",
-      "import": "./dist/esm/macro.mjs",
-      "react-native": "./src/macro.ts",
-      "require": "./dist/cjs/macro.cjs",
-      "source": "./src/macro.ts"
+      "types": "./dist/types/lib/macro.d.ts",
+      "import": "./dist/esm/lib/macro.mjs",
+      "react-native": "./src/lib/macro.ts",
+      "require": "./dist/cjs/lib/macro.cjs",
+      "source": "./src/lib/macro.ts"
     },
     "./babel": {
       "types": "./dist/types/babel.d.ts",
@@ -128,9 +128,6 @@
       ],
       "store/hooks": [
         "./dist/types/lib/hooks/store.d.ts"
-      ],
-      "macro": [
-        "./dist/types/macro.d.ts"
       ]
     }
   },

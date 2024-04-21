@@ -17,7 +17,7 @@ Goal of the project to provide comprehensive tooling for using [`preact/signals`
 
 Contributions are welcome!
 
-1. Clone the repository: `git clone https://github.com/XantreGodlike/preact-signals.git`
+1. Clone the repository: `git clone https://github.com/XantreDev/preact-signals.git`
 2. Install dependencies: `pnpm install`
 3. Transpile packages and start vite devservers: `pnpm watch`
 4. Make changes

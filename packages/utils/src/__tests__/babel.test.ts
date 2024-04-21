@@ -191,6 +191,24 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       a += 10
       `
     ),
+    TestCase.makeSuccess(
+      "$derived transforms correctly",
+      `
+      import { $derived } from '@preact-signals/utils/macro'
+      
+      const state = $derived(10)
+      `
+    ),
+    TestCase.makeSuccess(
+      "$useDerived transforms correctly",
+      `
+      import { $useDerived } from '@preact-signals/utils/macro'
+
+      const _ = () => {
+        const state = $useDerived(10)
+      }
+      `
+    ),
   ];
 
   for (const { input, isCJS, name, options } of success) {
@@ -325,9 +343,45 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       let a = $state(0)
 
       export { a }
-      `,
+      `
     ),
+    TestCase.makeError(
+      "Throws if linked state assigned",
+      `
+      import {$useLinkedState} from '@preact-signals/utils/macro'
+      
+      const _ = () => {
+        const a = $useLinkedState(10)
+        
+        a += 20
+        a = 20
+      }
+    `
+    ),
+    ...["$derived", "$useDerived"].map((it) =>
+      TestCase.makeError(
+        `Throws if ${it} state is ressigned`,
+        `
+      import {${it}} from '@preact-signals/utils/macro'
+      
+      const _ = () => {
+        const a = ${it}(10)
+        
+        a += 20
+        a = 20
+      }
+      `
+      )
+    ),
+    TestCase.makeError(
+      "Throws if state is reassigned",
+      `
+      import { $state } from "@preact-signals/utils/macro";
 
+      const a = $state(0)
+      a = 10
+      `
+    ),
   ];
 
   for (const { input, isCJS, name, options } of fail) {

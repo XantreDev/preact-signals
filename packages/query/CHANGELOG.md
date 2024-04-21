@@ -62,7 +62,7 @@
 
 ### Patch Changes
 
-- 3524db0: Exports [`SuspenseBehaviorProp`](https://github.com/XantreGodlike/preact-signals/issues/86) type
+- 3524db0: Exports [`SuspenseBehaviorProp`](https://github.com/XantreDev/preact-signals/issues/86) type
 - Updated dependencies [db33dd8]
   - @preact-signals/unified-signals@0.2.6
   - @preact-signals/utils@0.16.2
@@ -87,7 +87,7 @@
 
 ### Minor Changes
 
-- e0d55b4: Added `suspenseBehavior` prop to more control on suspense queries [#60](https://github.com/XantreGodlike/preact-signals/issues/60)
+- e0d55b4: Added `suspenseBehavior` prop to more control on suspense queries [#60](https://github.com/XantreDev/preact-signals/issues/60)
 
 ## 1.3.18
 
@@ -118,7 +118,7 @@
 
 ### Patch Changes
 
-- ffabfd1: Marked `type-fest` as forward dependency. Fixes [#67](https://github.com/XantreGodlike/preact-signals/issues/67)
+- ffabfd1: Marked `type-fest` as forward dependency. Fixes [#67](https://github.com/XantreDev/preact-signals/issues/67)
 - Updated dependencies [ffabfd1]
   - @preact-signals/utils@0.15.3
 

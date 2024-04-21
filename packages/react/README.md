@@ -165,7 +165,7 @@ Integrations:
 
 ### Next.js integration
 
-[Integration playground](https://codesandbox.io/p/github/XantreGodlike/preact-signals-nextjs/main)
+[Integration playground](https://codesandbox.io/p/github/XantreDev/preact-signals-nextjs/main)
 
 ```js
 /** @type {import('next').NextConfig} */
@@ -189,7 +189,7 @@ module.exports = nextConfig;
 
 ### Vite integration (swc)
 
-[Integration playground](https://codesandbox.io/p/github/XantreGodlike/preact-signals-vite-swc/main)
+[Integration playground](https://codesandbox.io/p/github/XantreDev/preact-signals-vite-swc/main)
 
 ```ts
 // vite.config.ts
@@ -256,7 +256,7 @@ export default defineConfig({
 
 Allows to transpile components that uses `@useSignals` in node_modules (For example: `@preact-signals/utils`)
 
-[Integration playground](https://codesandbox.io/p/github/XantreGodlike/preact-signals-vite-swc/main)
+[Integration playground](https://codesandbox.io/p/github/XantreDev/preact-signals-vite-swc/main)
 
 ```ts
 // vite.config.ts
@@ -520,7 +520,7 @@ const Page = async () => (
 );
 ```
 
-#### [Next.js double rendering](https://github.com/XantreGodlike/preact-signals/issues/87)
+#### [Next.js double rendering](https://github.com/XantreDev/preact-signals/issues/87)
 
 ```tsx
 /**

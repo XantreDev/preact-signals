@@ -1,5 +1,19 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`@preact-signals/utils/macro > $derived transforms correctly 1`] = `
+"import { computed as _computed } from "@preact-signals/utils/macro-helper";
+const state = _computed(() => 10);
+"
+`;
+
+exports[`@preact-signals/utils/macro > $useDerived transforms correctly 1`] = `
+"import { useComputed as _useComputed } from "@preact-signals/utils/macro-helper";
+const _ = () => {
+  const state = _useComputed(() => 10);
+};
+"
+`;
+
 exports[`@preact-signals/utils/macro > CJS import 1`] = `
 "var _$ = require("@preact-signals/utils").$;
 const a = _$(() => 1);

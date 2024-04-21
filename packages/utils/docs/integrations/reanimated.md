@@ -22,7 +22,7 @@ type SharedValueSetter<T>: SignalInteropSetter<SharedValue<T>, T>;
 
 #### Source
 
-[integrations/reanimated.ts:100](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L100)
+[integrations/reanimated.ts:100](https://github.com/XantreDev/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L100)
 
 ***
 
@@ -52,7 +52,7 @@ type SignalInteropSetter<TTarget, TSource>: (target, source) => unknown;
 
 #### Source
 
-[integrations/reanimated.ts:96](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L96)
+[integrations/reanimated.ts:96](https://github.com/XantreDev/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L96)
 
 ## Functions
 
@@ -113,7 +113,7 @@ function ExampleComponent() {
 
 #### Source
 
-[integrations/reanimated.ts:146](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L146)
+[integrations/reanimated.ts:146](https://github.com/XantreDev/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L146)
 
 ***
 
@@ -143,7 +143,7 @@ useComputedOfSharedValue<T, TResult>(shared, compute): ReadonlySignal<TResult>
 
 #### Source
 
-[integrations/reanimated.ts:52](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L52)
+[integrations/reanimated.ts:52](https://github.com/XantreDev/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L52)
 
 ***
 
@@ -172,7 +172,7 @@ useSharedValueOfAccessor<T>(accessor, setter): Readonly<SharedValue<T>>
 
 #### Source
 
-[integrations/reanimated.ts:101](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L101)
+[integrations/reanimated.ts:101](https://github.com/XantreDev/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L101)
 
 ***
 
@@ -220,7 +220,7 @@ function ExampleComponent() {
 
 #### Source
 
-[integrations/reanimated.ts:79](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L79)
+[integrations/reanimated.ts:79](https://github.com/XantreDev/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L79)
 
 ***
 
@@ -266,7 +266,7 @@ function ExampleComponent() {
 
 #### Source
 
-[integrations/reanimated.ts:38](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L38)
+[integrations/reanimated.ts:38](https://github.com/XantreDev/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L38)
 
 ***
 
@@ -295,7 +295,7 @@ useSpringSharedValueOfAccessor<T>(accessor, params?): Readonly<SharedValue<T>>
 
 #### Source
 
-[integrations/reanimated.ts:168](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L168)
+[integrations/reanimated.ts:168](https://github.com/XantreDev/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L168)
 
 ***
 
@@ -324,4 +324,4 @@ useTimingSharedValueOfAccessor<T>(accessor, params?): Readonly<SharedValue<T>>
 
 #### Source
 
-[integrations/reanimated.ts:177](https://github.com/XantreGodlike/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L177)
+[integrations/reanimated.ts:177](https://github.com/XantreDev/preact-signals/blob/b56c517/packages/utils/src/lib/integrations/reanimated.ts#L177)
