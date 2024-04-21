@@ -183,20 +183,22 @@ const stateMacrosMeta = {
     importIdent: "useDeepSignal",
     importSource: "@preact-signals/utils/hooks",
   },
-  /* $derrived: {
+  $derived: {
     declarationType: ["const"],
     canBeReassigned: false,
+    isHook: false,
     constructorType: "callback",
     importIdent: "computed",
     importSource: "@preact-signals/utils/macro-helper",
   },
-  $useDerrived: {
+  $useDerived: {
     declarationType: ["const"],
     canBeReassigned: false,
+    isHook: true,
     constructorType: "callback",
     importIdent: "useComputed",
     importSource: "@preact-signals/utils/macro-helper",
-  }, */
+  },
 } as const satisfies Record<
   (typeof stateMacros)[number],
   {
@@ -222,9 +224,9 @@ const createState = (
 const hookStateMacros = [
   "$useState",
   "$useLinkedState",
-  // "$useDerrived",
+  "$useDerived",
 ] as const;
-const topLevelStateMacros = ["$state" /* "$derrived" */] as const;
+const topLevelStateMacros = ["$state", "$derived"] as const;
 const stateMacros = [...hookStateMacros, ...topLevelStateMacros] as const;
 const refMacro = "$$" as const;
 
