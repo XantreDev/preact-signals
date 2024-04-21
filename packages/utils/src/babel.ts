@@ -218,7 +218,7 @@ const isStateMacros = (name: string): name is StateMacros =>
 const isTopLevelStateMacros = (
   name: string
 ): name is (typeof topLevelStateMacros)[number] =>
-  topLevelStateMacros.includes(name as (typeof topLevelStateMacros)[number]);
+  includes(topLevelStateMacros, name);
 
 const getStateMacrosBody = (
   node: BabelTypes.VariableDeclarator
@@ -468,6 +468,8 @@ const processRefMacros = (
 
 type LazyIdent = () => BabelTypes.Identifier;
 
+const includes = (arr: readonly string[], name: string) => arr.includes(name);
+
 const processStateMacros = (
   path: NodePath<BabelTypes.Program>,
   t: typeof BabelTypes,
@@ -491,6 +493,7 @@ const processStateMacros = (
       remove();
       continue;
     }
+    const macroMeta = stateMacrosMeta[macro];
 
     for (const path of binding.referencePaths) {
       const callParent = path.parentPath;
@@ -520,23 +523,9 @@ const processStateMacros = (
       }
       {
         const loc = parent.node.loc?.start;
-        if (
-          parent.parentPath.node.kind !== "const" &&
-          macro === "$useLinkedState"
-        ) {
+        if (!includes(macroMeta.declarationType, parent.parentPath.node.kind)) {
           throw SyntaxErrorWithLoc.makeFromPosition(
-            `${macro} should be used with const`,
-            loc
-          );
-        }
-
-        if (
-          (macro === "$useState" || macro === "$state") &&
-          parent.parentPath.node.kind !== "let" &&
-          parent.parentPath.node.kind !== "const"
-        ) {
-          throw SyntaxErrorWithLoc.makeFromPosition(
-            `${macro} should be used with let or const`,
+            `${macro} should be used with ${macroMeta.declarationType.join(" or ")}`,
             loc
           );
         }
