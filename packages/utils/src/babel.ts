@@ -162,6 +162,7 @@ const stateMacrosMeta = {
     declarationType: ["const", "let"],
     canBeReassigned: true,
 
+    isHook: false,
     constructorType: "raw",
     importIdent: "deepSignal",
     importSource: "@preact-signals/utils",
@@ -169,6 +170,7 @@ const stateMacrosMeta = {
   $useLinkedState: {
     declarationType: ["const"],
     canBeReassigned: false,
+    isHook: true,
     constructorType: "raw",
     importIdent: "useSignalOfState",
     importSource: "@preact-signals/utils/hooks",
@@ -176,16 +178,32 @@ const stateMacrosMeta = {
   $useState: {
     declarationType: ["let", "const"],
     canBeReassigned: true,
+    isHook: true,
     constructorType: "callback",
     importIdent: "useDeepSignal",
     importSource: "@preact-signals/utils/hooks",
   },
+  /* $derrived: {
+    declarationType: ["const"],
+    canBeReassigned: false,
+    constructorType: "callback",
+    importIdent: "computed",
+    importSource: "@preact-signals/utils/macro-helper",
+  },
+  $useDerrived: {
+    declarationType: ["const"],
+    canBeReassigned: false,
+    constructorType: "callback",
+    importIdent: "useComputed",
+    importSource: "@preact-signals/utils/macro-helper",
+  }, */
 } as const satisfies Record<
   (typeof stateMacros)[number],
   {
     declarationType: ("let" | "const")[];
     constructorType: ConstructorType;
     canBeReassigned: boolean;
+    isHook: boolean;
     importIdent: string;
     importSource: string;
   }
@@ -201,8 +219,12 @@ const createState = (
     constructorType === "callback" ? t.arrowFunctionExpression([], expr) : expr,
   ]);
 
-const hookStateMacros = ["$useState", "$useLinkedState"] as const;
-const topLevelStateMacros = ["$state"] as const;
+const hookStateMacros = [
+  "$useState",
+  "$useLinkedState",
+  // "$useDerrived",
+] as const;
+const topLevelStateMacros = ["$state" /* "$derrived" */] as const;
 const stateMacros = [...hookStateMacros, ...topLevelStateMacros] as const;
 const refMacro = "$$" as const;
 
@@ -211,14 +233,6 @@ const importSpecifiers = [...stateMacros, refMacro];
 type RefMacro = typeof refMacro;
 type StateMacros = (typeof stateMacros)[number];
 type MacroIdentifier = RefMacro | StateMacros;
-
-const isStateMacros = (name: string): name is StateMacros =>
-  (stateMacros as readonly string[]).includes(name);
-
-const isTopLevelStateMacros = (
-  name: string
-): name is (typeof topLevelStateMacros)[number] =>
-  includes(topLevelStateMacros, name);
 
 const getStateMacrosBody = (
   node: BabelTypes.VariableDeclarator
@@ -499,7 +513,7 @@ const processStateMacros = (
       const callParent = path.parentPath;
       if (!callParent || !callParent.isCallExpression()) {
         throw SyntaxErrorWithLoc.makeFromPosition(
-          "Expected $useState to be used only as call expressions",
+          `Expected ${macro} to be used only as call expressions`,
           (callParent ?? path).node.loc?.start
         );
       }
@@ -533,14 +547,14 @@ const processStateMacros = (
       const res = getStateMacrosBody(parent.node);
       if (!res) {
         throw SyntaxErrorWithLoc.makeFromPosition(
-          "Expected $useState to have a valid body",
+          `Expected "${macro}" to have a valid body`,
           path.node.loc?.start
         );
       }
       const [id, body] = res;
       {
         const functionParent = parent.getFunctionParent();
-        if (!functionParent && !isTopLevelStateMacros(macro)) {
+        if (!functionParent && macroMeta.isHook) {
           throw SyntaxErrorWithLoc.makeFromPosition(
             `Expected "${macro}" to be used inside of a function, because it's a hook`,
             parent.node.loc?.start
