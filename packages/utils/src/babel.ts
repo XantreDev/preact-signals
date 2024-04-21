@@ -167,14 +167,6 @@ const stateMacrosMeta = {
     importIdent: "deepSignal",
     importSource: "@preact-signals/utils",
   },
-  $useLinkedState: {
-    declarationType: ["const"],
-    canBeReassigned: false,
-    isHook: true,
-    constructorType: "raw",
-    importIdent: "useSignalOfState",
-    importSource: "@preact-signals/utils/hooks",
-  },
   $useState: {
     declarationType: ["let", "const"],
     canBeReassigned: true,
@@ -183,6 +175,15 @@ const stateMacrosMeta = {
     importIdent: "useDeepSignal",
     importSource: "@preact-signals/utils/hooks",
   },
+  $useLinkedState: {
+    declarationType: ["const"],
+    canBeReassigned: false,
+    isHook: true,
+    constructorType: "raw",
+    importIdent: "useSignalOfState",
+    importSource: "@preact-signals/utils/hooks",
+  },
+
   $derived: {
     declarationType: ["const"],
     canBeReassigned: false,
@@ -200,7 +201,7 @@ const stateMacrosMeta = {
     importSource: "@preact-signals/utils/macro-helper",
   },
 } as const satisfies Record<
-  (typeof stateMacros)[number],
+  string,
   {
     declarationType: ("let" | "const")[];
     constructorType: ConstructorType;
@@ -221,13 +222,10 @@ const createState = (
     constructorType === "callback" ? t.arrowFunctionExpression([], expr) : expr,
   ]);
 
-const hookStateMacros = [
-  "$useState",
-  "$useLinkedState",
-  "$useDerived",
-] as const;
-const topLevelStateMacros = ["$state", "$derived"] as const;
-const stateMacros = [...hookStateMacros, ...topLevelStateMacros] as const;
+const keys = <T extends string>(obj: Readonly<Record<T, any>>) =>
+  Object.keys(obj) as T[];
+
+const stateMacros = keys(stateMacrosMeta);
 const refMacro = "$$" as const;
 
 const importSpecifiers = [...stateMacros, refMacro];
@@ -614,18 +612,6 @@ const mapValues = <T extends Record<string, any>, U>(
   return res;
 };
 
-type ShouldStop = boolean;
-const forEach = <T extends Record<string, any>>(
-  obj: T,
-  fn: (value: T[keyof T], key: keyof T) => ShouldStop
-) => {
-  for (const key in obj) {
-    if (fn(obj[key], key)) {
-      return;
-    }
-  }
-};
-
 export default function preactSignalsUtilsBabel(
   { types: t }: PluginArgs,
   options?: BabelMacroPluginOptions
@@ -674,9 +660,10 @@ export default function preactSignalsUtilsBabel(
         if (!ident) {
           return;
         }
-        forEach(stateMacrosMeta, ({ canBeReassigned }, key) => {
+        for (const key of stateMacros) {
+          const { canBeReassigned } = stateMacrosMeta[key];
           if (!self.hasInSet(state, getIdentKey(key), ident)) {
-            return false;
+            continue;
           }
 
           if (!canBeReassigned) {
@@ -693,8 +680,8 @@ export default function preactSignalsUtilsBabel(
             )
           );
 
-          return true;
-        });
+          break;
+        }
       },
     },
   };
