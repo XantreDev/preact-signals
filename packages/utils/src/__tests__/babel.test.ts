@@ -373,6 +373,15 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       `
       )
     ),
+    TestCase.makeError(
+      "Throws if state is reassigned",
+      `
+      import { $state } from "@preact-signals/utils/macro";
+
+      const a = $state(0)
+      a = 10
+      `
+    ),
   ];
 
   for (const { input, isCJS, name, options } of fail) {

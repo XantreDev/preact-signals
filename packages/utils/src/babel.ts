@@ -656,22 +656,32 @@ export default function preactSignalsUtilsBabel(
           return;
         }
         const left = path.node.left;
-        const ident = path.scope.getBindingIdentifier(path.node.left.name);
-        if (!ident) {
+        const binding = path.scope.getBinding(path.node.left.name);
+        if (!binding) {
           return;
         }
+        const ident = binding.identifier;
         for (const key of stateMacros) {
           const { canBeReassigned } = stateMacrosMeta[key];
           if (!self.hasInSet(state, getIdentKey(key), ident)) {
             continue;
           }
 
-          if (!canBeReassigned) {
-            throw SyntaxErrorWithLoc.makeFromPosition(
+          assert(
+            canBeReassigned,
+            SyntaxErrorWithLoc.makeFromPosition(
               `Cannot assign to a binded state`,
               path.node.loc?.start
-            );
-          }
+            )
+          );
+          assert(
+            binding.kind !== 'const',
+            SyntaxErrorWithLoc.makeFromPosition(
+              `Cannot reassign a constant binding`,
+              path.node.loc?.start
+            )
+          );
+
           path.replaceWith(
             t.assignmentExpression(
               path.node.operator,
