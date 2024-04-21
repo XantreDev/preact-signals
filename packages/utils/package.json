@@ -13,14 +13,14 @@
   ],
   "repository": {
     "directory": "packages/utils",
-    "url": "https://github.com/XantreGodlike/preact-signals",
+    "url": "https://github.com/XantreDev/preact-signals",
     "type": "git"
   },
-  "homepage": "https://github.com/XantreGodlike/preact-signals/blob/main/packages/utils/README.md",
+  "homepage": "https://github.com/XantreDev/preact-signals/blob/main/packages/utils/README.md",
   "author": {
     "email": "valerik007.vs@gmail.com",
     "name": "Valerii Smirnov",
-    "url": "https://github.com/XantreGodlike"
+    "url": "https://github.com/XantreDev"
   },
   "type": "module",
   "module": "./dist/esm/lib/index.mjs",

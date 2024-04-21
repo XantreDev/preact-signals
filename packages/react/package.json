@@ -13,15 +13,15 @@
     "signals"
   ],
   "authors": [
-    "preact-signals (https://github.com/XantreGodlike/preact-signals/contributors)",
+    "preact-signals (https://github.com/XantreDev/preact-signals/contributors)",
     "The Preact Authors (https://github.com/preactjs/signals/contributors)"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/XantreGodlike/preact-signals",
+    "url": "https://github.com/XantreDev/preact-signals",
     "directory": "packages/react"
   },
-  "bugs": "https://github.com/XantreGodlike/preact-signals/issues",
+  "bugs": "https://github.com/XantreDev/preact-signals/issues",
   "amdName": "reactSignals",
   "main": "./dist/cjs/lib/index.cjs",
   "module": "./dist/esm/lib/index.mjs",

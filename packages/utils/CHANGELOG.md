@@ -103,7 +103,7 @@
 
 ### Patch Changes
 
-- ffabfd1: Marked `type-fest` as forward dependency. Fixes [#67](https://github.com/XantreGodlike/preact-signals/issues/67)
+- ffabfd1: Marked `type-fest` as forward dependency. Fixes [#67](https://github.com/XantreDev/preact-signals/issues/67)
 
 ## 0.15.2
 
@@ -139,7 +139,7 @@
   const a = $(1);
   ```
 
-  More information about macros setup can be found in [README](https://github.com/XantreGodlike/preact-signals/tree/main/packages/utils#macro-setup)
+  More information about macros setup can be found in [README](https://github.com/XantreDev/preact-signals/tree/main/packages/utils#macro-setup)
 
 ## 0.14.1
 
@@ -332,7 +332,7 @@ From now `@preact-signals/utils` `$`has`Signal` in prototype chain.
 
 ### Minor Changes
 
-- 0579c7d: Implemented deep signals tracking system, for more details check: https://github.com/XantreGodlike/preact-signals/blob/main/posts/deep-tracking.md
+- 0579c7d: Implemented deep signals tracking system, for more details check: https://github.com/XantreDev/preact-signals/blob/main/posts/deep-tracking.md
 - 979002c: Added transitive dependecies and homepages
 
 ### Patch Changes
