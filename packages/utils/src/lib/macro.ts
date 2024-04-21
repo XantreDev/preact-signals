@@ -1,4 +1,4 @@
-import { type ReactiveRef } from "./lib";
+import { type ReactiveRef } from "./$";
 
 console.log(
   "To use macro, you need to use babel plugin. Check out the README for more info."

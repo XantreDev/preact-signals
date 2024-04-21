@@ -1,6 +1,6 @@
 {
-  "main": "../dist/cjs/macro.cjs",
-  "types": "../dist/types/macro.d.ts",
-  "react-native": "../src/macro.ts",
-  "source": "../src/macro.ts"
+  "main": "../dist/cjs/lib/macro-helper.cjs",
+  "react-native": "../src/lib/macro-helper.ts",
+  "types": "../dist/types/lib/macro-helper.d.ts",
+  "source": "../src/lib/macro-helper.ts"
 }
