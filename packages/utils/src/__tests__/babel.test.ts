@@ -272,6 +272,14 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       let a = $useState(0)
       `
     ),
+    TestCase.makeError(
+      "Cannot use * as declaration",
+      `
+      import * as macro from "@preact-signals/utils/macro";
+
+      const a = macro.$$(1)
+      `
+    ),
     TestCase.makeConfigurable(
       "CJS cannot rest pattern in require",
       `

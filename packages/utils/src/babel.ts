@@ -647,6 +647,51 @@ export default function preactSignalsUtilsBabel(
           }
         },
       },
+
+      ImportDeclaration(path) {
+        if (
+          !isImportMacrosName(path.node.source.value) ||
+          path.node.importKind === "type"
+        ) {
+          return;
+        }
+        for (const specifier of path.get("specifiers")) {
+          assert(
+            specifier.isImportSpecifier(),
+            SyntaxErrorWithLoc.makeFromPosition(
+              `Only import named imports is allowed from macro entry, got ${specifier.type}`,
+              specifier.node.loc?.start
+            )
+          );
+          if (specifier.node.importKind !== null) {
+            return;
+          }
+          const { local, imported } = specifier.node;
+          assert(
+            includes(importSpecifiers, local.name),
+            SyntaxErrorWithLoc.makeFromPosition(
+              `Expected ${specifier.node.local.name} to be one of ${importSpecifiers.join(", ")}`,
+              specifier.node.loc?.start
+            )
+          );
+          assert(
+            imported.type === "Identifier",
+            SyntaxErrorWithLoc.makeFromPosition(
+              `Expected ${specifier.node.imported} to be an Identifier, not a ${imported.type}`,
+              imported.loc?.start
+            )
+          );
+
+          assert(
+            imported.name === local.name,
+            SyntaxErrorWithLoc.makeFromPosition(
+              `Expected ${imported.name} to be equal to ${local.name}`,
+              imported.loc?.start
+            )
+          );
+        }
+      },
+
       AssignmentExpression(path, state) {
         if (!enableStateMacros) {
           return;
@@ -675,7 +720,7 @@ export default function preactSignalsUtilsBabel(
             )
           );
           assert(
-            binding.kind !== 'const',
+            binding.kind !== "const",
             SyntaxErrorWithLoc.makeFromPosition(
               `Cannot reassign a constant binding`,
               path.node.loc?.start
