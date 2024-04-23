@@ -1,5 +1,17 @@
 # @preact-signals/query
 
+## 2.0.1
+
+### Patch Changes
+
+- 6b09439: Export `useQueryClient# @preact-signals/query
+- 84b296d: Updated repository links
+- Updated dependencies [84b296d]
+- Updated dependencies [253049c]
+- Updated dependencies [84b296d]
+  - @preact-signals/utils@0.19.0
+  - @preact-signals/unified-signals@0.2.7
+
 ## 2.0.0
 
 ### Major Changes
