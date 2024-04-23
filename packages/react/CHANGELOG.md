@@ -1,5 +1,11 @@
 # @preact-signals/safe-react
 
+## 0.6.1
+
+### Patch Changes
+
+- 84b296d: Updated repository links
+
 ## 0.6.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @preact-signals/unified-signals
 
+## 0.2.7
+
+### Patch Changes
+
+- 84b296d: Updated repository links
+
 ## 0.2.6
 
 ### Patch Changes

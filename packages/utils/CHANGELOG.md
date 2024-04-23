@@ -1,5 +1,19 @@
 # @preact-signals/utils
 
+## 0.19.0
+
+### Minor Changes
+
+- 84b296d: - implemented `$derived` and `$useDerived` macros
+  - documented state macros
+- 253049c: Added validation of esm imports from `@preact-signals/utils/macro`
+
+### Patch Changes
+
+- 84b296d: Updated repository links
+- Updated dependencies [84b296d]
+  - @preact-signals/unified-signals@0.2.7
+
 ## 0.18.0
 
 ### Minor Changes
