@@ -29,7 +29,7 @@
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
     "@vitejs/plugin-react": "^4.1.1",
-    "@vitejs/plugin-react-swc": "^3.4.1",
+    "@vitejs/plugin-react-swc": "^3.6.0",
     "autoprefixer": "^10.4.16",
     "cross-env": "^7.0.3",
     "daisyui": "^3.9.4",
