@@ -169,8 +169,8 @@ importers:
         specifier: ^4.1.1
         version: 4.1.1(vite@4.5.0)
       '@vitejs/plugin-react-swc':
-        specifier: ^3.4.1
-        version: 3.4.1(vite@4.5.0)
+        specifier: ^3.6.0
+        version: 3.6.0(vite@4.5.0)
       autoprefixer:
         specifier: ^10.4.16
         version: 10.4.16(postcss@8.4.31)
@@ -1962,19 +1962,6 @@ packages:
     dependencies:
       '@babel/core': 7.23.9
       '@babel/helper-plugin-utils': 7.24.0
-
-  /@babel/plugin-transform-typescript@7.21.3(@babel/core@7.23.9):
-    resolution: {integrity: sha512-RQxPz6Iqt8T0uw/WsJNReuBpWpBqs/n7mNo18sKLoTbMp+UrEekhH+pKSVC7gWz+DNjo9gryfV8YzCiT45RgMw==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-    dependencies:
-      '@babel/core': 7.23.9
-      '@babel/helper-annotate-as-pure': 7.22.5
-      '@babel/helper-create-class-features-plugin': 7.24.1(@babel/core@7.23.9)
-      '@babel/helper-plugin-utils': 7.24.0
-      '@babel/plugin-syntax-typescript': 7.23.3(@babel/core@7.23.9)
-    dev: true
 
   /@babel/plugin-transform-typescript@7.23.6(@babel/core@7.23.9):
     resolution: {integrity: sha512-6cBG5mBvUu4VUD04OHKnYzbuHNP8huDsD3EDqqpIpsswTDoqHCjLoHb6+QgsV1WsT2nipRqCPgxD3LXnEO7XfA==}
@@ -3825,7 +3812,7 @@ packages:
     resolution: {integrity: sha512-WlFttNnySKQMeujN09fRmrdWqh46QyJluM5jdtDNrkl/2Hx6N4XeDUGhABvConeK95OidVO7sFFf7sNebVXogA==}
     engines: {node: '>=18'}
     peerDependencies:
-      '@babel/core': 7.21.5
+      '@babel/core': '*'
     dependencies:
       '@babel/core': 7.23.9
       '@babel/plugin-proposal-async-generator-functions': 7.20.7(@babel/core@7.23.9)
@@ -3863,7 +3850,7 @@ packages:
       '@babel/plugin-transform-shorthand-properties': 7.24.1(@babel/core@7.23.9)
       '@babel/plugin-transform-spread': 7.24.1(@babel/core@7.23.9)
       '@babel/plugin-transform-sticky-regex': 7.24.1(@babel/core@7.23.9)
-      '@babel/plugin-transform-typescript': 7.21.3(@babel/core@7.23.9)
+      '@babel/plugin-transform-typescript': 7.23.6(@babel/core@7.23.9)
       '@babel/plugin-transform-unicode-regex': 7.24.1(@babel/core@7.23.9)
       '@babel/template': 7.24.0
       '@react-native/babel-plugin-codegen': 0.73.4(@babel/preset-env@7.24.3)
@@ -4328,31 +4315,12 @@ packages:
       '@sinonjs/commons': 3.0.1
     dev: true
 
-  /@swc/core-darwin-arm64@1.3.96:
-    resolution: {integrity: sha512-8hzgXYVd85hfPh6mJ9yrG26rhgzCmcLO0h1TIl8U31hwmTbfZLzRitFQ/kqMJNbIBCwmNH1RU2QcJnL3d7f69A==}
-    engines: {node: '>=10'}
-    cpu: [arm64]
-    os: [darwin]
-    requiresBuild: true
-    dev: true
-    optional: true
-
   /@swc/core-darwin-arm64@1.4.16:
     resolution: {integrity: sha512-UOCcH1GvjRnnM/LWT6VCGpIk0OhHRq6v1U6QXuPt5wVsgXnXQwnf5k3sG5Cm56hQHDvhRPY6HCsHi/p0oek8oQ==}
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
-    dev: false
-    optional: true
-
-  /@swc/core-darwin-x64@1.3.96:
-    resolution: {integrity: sha512-mFp9GFfuPg+43vlAdQZl0WZpZSE8sEzqL7sr/7Reul5McUHP0BaLsEzwjvD035ESfkY8GBZdLpMinblIbFNljQ==}
-    engines: {node: '>=10'}
-    cpu: [x64]
-    os: [darwin]
-    requiresBuild: true
-    dev: true
     optional: true
 
   /@swc/core-darwin-x64@1.4.16:
@@ -4361,16 +4329,6 @@ packages:
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
-    dev: false
-    optional: true
-
-  /@swc/core-linux-arm-gnueabihf@1.3.96:
-    resolution: {integrity: sha512-8UEKkYJP4c8YzYIY/LlbSo8z5Obj4hqcv/fUTHiEePiGsOddgGf7AWjh56u7IoN/0uEmEro59nc1ChFXqXSGyg==}
-    engines: {node: '>=10'}
-    cpu: [arm]
-    os: [linux]
-    requiresBuild: true
-    dev: true
     optional: true
 
   /@swc/core-linux-arm-gnueabihf@1.4.16:
@@ -4379,16 +4337,6 @@ packages:
     cpu: [arm]
     os: [linux]
     requiresBuild: true
-    dev: false
-    optional: true
-
-  /@swc/core-linux-arm64-gnu@1.3.96:
-    resolution: {integrity: sha512-c/IiJ0s1y3Ymm2BTpyC/xr6gOvoqAVETrivVXHq68xgNms95luSpbYQ28rqaZC8bQC8M5zdXpSc0T8DJu8RJGw==}
-    engines: {node: '>=10'}
-    cpu: [arm64]
-    os: [linux]
-    requiresBuild: true
-    dev: true
     optional: true
 
   /@swc/core-linux-arm64-gnu@1.4.16:
@@ -4397,16 +4345,6 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    dev: false
-    optional: true
-
-  /@swc/core-linux-arm64-musl@1.3.96:
-    resolution: {integrity: sha512-i5/UTUwmJLri7zhtF6SAo/4QDQJDH2fhYJaBIUhrICmIkRO/ltURmpejqxsM/ye9Jqv5zG7VszMC0v/GYn/7BQ==}
-    engines: {node: '>=10'}
-    cpu: [arm64]
-    os: [linux]
-    requiresBuild: true
-    dev: true
     optional: true
 
   /@swc/core-linux-arm64-musl@1.4.16:
@@ -4415,16 +4353,6 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    dev: false
-    optional: true
-
-  /@swc/core-linux-x64-gnu@1.3.96:
-    resolution: {integrity: sha512-USdaZu8lTIkm4Yf9cogct/j5eqtdZqTgcTib4I+NloUW0E/hySou3eSyp3V2UAA1qyuC72ld1otXuyKBna0YKQ==}
-    engines: {node: '>=10'}
-    cpu: [x64]
-    os: [linux]
-    requiresBuild: true
-    dev: true
     optional: true
 
   /@swc/core-linux-x64-gnu@1.4.16:
@@ -4433,16 +4361,6 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    dev: false
-    optional: true
-
-  /@swc/core-linux-x64-musl@1.3.96:
-    resolution: {integrity: sha512-QYErutd+G2SNaCinUVobfL7jWWjGTI0QEoQ6hqTp7PxCJS/dmKmj3C5ZkvxRYcq7XcZt7ovrYCTwPTHzt6lZBg==}
-    engines: {node: '>=10'}
-    cpu: [x64]
-    os: [linux]
-    requiresBuild: true
-    dev: true
     optional: true
 
   /@swc/core-linux-x64-musl@1.4.16:
@@ -4451,16 +4369,6 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    dev: false
-    optional: true
-
-  /@swc/core-win32-arm64-msvc@1.3.96:
-    resolution: {integrity: sha512-hjGvvAduA3Un2cZ9iNP4xvTXOO4jL3G9iakhFsgVhpkU73SGmK7+LN8ZVBEu4oq2SUcHO6caWvnZ881cxGuSpg==}
-    engines: {node: '>=10'}
-    cpu: [arm64]
-    os: [win32]
-    requiresBuild: true
-    dev: true
     optional: true
 
   /@swc/core-win32-arm64-msvc@1.4.16:
@@ -4469,16 +4377,6 @@ packages:
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
-    dev: false
-    optional: true
-
-  /@swc/core-win32-ia32-msvc@1.3.96:
-    resolution: {integrity: sha512-Far2hVFiwr+7VPCM2GxSmbh3ikTpM3pDombE+d69hkedvYHYZxtTF+2LTKl/sXtpbUnsoq7yV/32c9R/xaaWfw==}
-    engines: {node: '>=10'}
-    cpu: [ia32]
-    os: [win32]
-    requiresBuild: true
-    dev: true
     optional: true
 
   /@swc/core-win32-ia32-msvc@1.4.16:
@@ -4487,16 +4385,6 @@ packages:
     cpu: [ia32]
     os: [win32]
     requiresBuild: true
-    dev: false
-    optional: true
-
-  /@swc/core-win32-x64-msvc@1.3.96:
-    resolution: {integrity: sha512-4VbSAniIu0ikLf5mBX81FsljnfqjoVGleEkCQv4+zRlyZtO3FHoDPkeLVoy6WRlj7tyrRcfUJ4mDdPkbfTO14g==}
-    engines: {node: '>=10'}
-    cpu: [x64]
-    os: [win32]
-    requiresBuild: true
-    dev: true
     optional: true
 
   /@swc/core-win32-x64-msvc@1.4.16:
@@ -4505,33 +4393,7 @@ packages:
     cpu: [x64]
     os: [win32]
     requiresBuild: true
-    dev: false
     optional: true
-
-  /@swc/core@1.3.96:
-    resolution: {integrity: sha512-zwE3TLgoZwJfQygdv2SdCK9mRLYluwDOM53I+dT6Z5ZvrgVENmY3txvWDvduzkV+/8IuvrRbVezMpxcojadRdQ==}
-    engines: {node: '>=10'}
-    requiresBuild: true
-    peerDependencies:
-      '@swc/helpers': ^0.5.0
-    peerDependenciesMeta:
-      '@swc/helpers':
-        optional: true
-    dependencies:
-      '@swc/counter': 0.1.2
-      '@swc/types': 0.1.5
-    optionalDependencies:
-      '@swc/core-darwin-arm64': 1.3.96
-      '@swc/core-darwin-x64': 1.3.96
-      '@swc/core-linux-arm-gnueabihf': 1.3.96
-      '@swc/core-linux-arm64-gnu': 1.3.96
-      '@swc/core-linux-arm64-musl': 1.3.96
-      '@swc/core-linux-x64-gnu': 1.3.96
-      '@swc/core-linux-x64-musl': 1.3.96
-      '@swc/core-win32-arm64-msvc': 1.3.96
-      '@swc/core-win32-ia32-msvc': 1.3.96
-      '@swc/core-win32-x64-msvc': 1.3.96
-    dev: true
 
   /@swc/core@1.4.16:
     resolution: {integrity: sha512-Xaf+UBvW6JNuV131uvSNyMXHn+bh6LyKN4tbv7tOUFQpXyz/t9YWRE04emtlUW9Y0qrm/GKFCbY8n3z6BpZbTA==}
@@ -4556,16 +4418,9 @@ packages:
       '@swc/core-win32-arm64-msvc': 1.4.16
       '@swc/core-win32-ia32-msvc': 1.4.16
       '@swc/core-win32-x64-msvc': 1.4.16
-    dev: false
-    optional: true
-
-  /@swc/counter@0.1.2:
-    resolution: {integrity: sha512-9F4ys4C74eSTEUNndnER3VJ15oru2NumfQxS8geE+f3eB5xvfxpWyqE5XlVnxb/R14uoXi6SLbBwwiDSkv+XEw==}
-    dev: true
 
   /@swc/counter@0.1.3:
     resolution: {integrity: sha512-e2BR4lsJkkRlKZ/qCHPw9ZaSxc0MVUd7gtbtaB7aMvHeJVYe8sOB8DBZkP2DtISHGSku9sCK6T6cnY0CtXrOCQ==}
-    dev: false
 
   /@swc/helpers@0.5.5:
     resolution: {integrity: sha512-KGYxvIOXcceOAbEk4bi/dVLEK9z8sZ0uBB3Il5b1rhfClSpcX0yfRO0KmTkqR2cnQDymwLB+25ZyMzICg/cm/A==}
@@ -5244,12 +5099,12 @@ packages:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
     dev: true
 
-  /@vitejs/plugin-react-swc@3.4.1(vite@4.5.0):
-    resolution: {integrity: sha512-7YQOQcVV5x1luD8nkbCDdyYygFvn1hjqJk68UvNAzY2QG4o4N5EwAhLLFNOcd1HrdMwDl0VElP8VutoWf9IvJg==}
+  /@vitejs/plugin-react-swc@3.6.0(vite@4.5.0):
+    resolution: {integrity: sha512-XFRbsGgpGxGzEV5i5+vRiro1bwcIaZDIdBRP16qwm+jP68ue/S8FJTBEgOeojtVDYrbSua3XFp71kC8VJE6v+g==}
     peerDependencies:
-      vite: ^4
+      vite: ^4 || ^5
     dependencies:
-      '@swc/core': 1.3.96
+      '@swc/core': 1.4.16
       vite: 4.5.0
     transitivePeerDependencies:
       - '@swc/helpers'
