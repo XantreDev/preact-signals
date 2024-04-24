@@ -24,7 +24,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@babel/plugin-syntax-jsx": "^7.23.3",
+    "@babel/plugin-syntax-jsx": "^7.24.1",
     "@t3-oss/env-core": "^0.7.1",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
