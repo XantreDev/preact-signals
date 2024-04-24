@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@babel/plugin-syntax-jsx": "^7.23.3",
+    "@babel/plugin-syntax-jsx": "^7.24.1",
     "@babel/preset-env": "^7.24.3",
     "@babel/standalone": "^7.24.3",
     "@monaco-editor/react": "^4.6.0",
