@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@preact-signals/utils": "workspace:*",
-    "@tanstack/react-router": "0.0.1-beta.209",
+    "@tanstack/react-router": "1.29.2",
     "@tanstack/router": "0.0.1-beta.140"
   },
   "peerDependencies": {
