@@ -4,6 +4,7 @@ export type * from "./explicitFalsy";
 export { accessorOfSignal, stableAccessorOfSignal } from "./getter";
 export { accessorOfReactive, unwrapReactive } from "./reactive";
 export { setterOfSignal, toggleSignal } from "./setter";
+export { reducerSignal, type Reducer, ReducerSignal } from "./reducer";
 export { toSolidLikeSignal } from "./toSolidApi";
 export type * from "./toSolidApi";
 export type * from "./type";
