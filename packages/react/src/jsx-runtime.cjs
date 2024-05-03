@@ -3,7 +3,9 @@ const {
   jsxs: _jsxs,
   jsx: _jsx,
   Fragment,
-} = /** @type {import('./types').ReactJSX} */ (require("react/jsx-runtime"));
+} = /** @type {import('./types').ReactJSX} */ (
+  /** @type {unknown} */ (require("react/jsx-runtime"))
+);
 
 const wrapJSX = require("./wrap-jsx.cjs");
 

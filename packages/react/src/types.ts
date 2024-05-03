@@ -1,5 +1,5 @@
 export type JSXFunction = (
-  type: React.ComponentType,
+  type: React.ElementType,
   props: Record<string, unknown>,
   key: React.Key,
   isStaticChildren: boolean,
