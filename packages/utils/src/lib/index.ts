@@ -75,7 +75,7 @@ export * as Store from "./store/publicReactivity";
 export { isSignal } from "./store/utils";
 
 declare const signalSymbol: unique symbol;
-// @ts-expect-error
+// @ts-ignore
 declare module "@preact/signals-core" {
   interface Signal<T> {
     /** flag for easier identification */

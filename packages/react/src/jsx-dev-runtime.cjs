@@ -1,7 +1,7 @@
 // @ts-check
 const { jsxDEV: _jsxDEV, Fragment } =
   /** @type {import('./types').ReactJSXDev} */ (
-    require("react/jsx-dev-runtime")
+    /** @type {unknown} */ (require("react/jsx-dev-runtime"))
   );
 const wrapJSX = require("./wrap-jsx.cjs");
 
