@@ -22,6 +22,7 @@
 - [Main Entry: `@preact-signals/utils`](#main-entry-preact-signalsutils)
   - [`ReactiveRef`/`$`](#reactiveref)
   - [`WritableReactiveRef`/`$w`](#writablereactiveref)
+  - [ReducerSignal](#reducersignal)
   - [Deep Reactivity (Port of Vue 3 deep tracking API)](#deep-reactivity-port-of-vue-3-deep-tracking-api)
     - [`deepSignal`](#deepsignal)
     - [Store API](#store-api)
@@ -271,6 +272,33 @@ console.log(aField.value); // 2
 console.log(a.value); // { a: 2 }
 ```
 
+### ReducerSignal
+
+Reducer pattern for signals
+
+```ts
+const reducer = (it: number, action: { type: "increment" | "decrement" }) => {
+  switch (action.type) {
+    case "increment":
+      return it + 1;
+    case "decrement":
+      return it - 1;
+  }
+};
+const counter = reducerSignal(0, reducer);
+effect(() => {
+  console.log("counter value", counter.value);
+});
+// prints 1
+counter.dispatch({ type: "increment" });
+// dispatch can be destructured, other parameters not
+const { dispatch } = reducerSignal;
+// prints 2
+dispatch({ type: "increment" });
+```
+
+[_Implementation_](./src/lib/utils/reducer.ts)
+
 ### Deep Reactivity (Port of Vue 3 deep tracking API)
 
 #### `deepSignal`
@@ -463,6 +491,25 @@ setStore({
 ## `@preact-signals/utils/hooks`: Hooks for Signals
 
 This entry provides hooks designed to work with signals, enhancing reactivity and composability in your components.
+
+It provides hooks like
+
+- [`useSignalEffectOnce`](./src/lib/hooks/utility.ts)
+- [`useComputedOnce`](./src/lib/hooks/useComputedOnce.ts)
+- [`useInitSignal`](./src/lib/hooks/utility.ts)
+- [`useReducerSignal`](./src/lib/hooks/utility.ts)
+- [`useReaction`](./src/lib/hooks/utility.ts)
+- [`useLinkedSignal`](./src/lib/hooks/useLinkedSignal.ts)
+
+- [`useResource`](./src/lib/hooks/resource.ts)
+
+- [`useFlatStore`](./src/lib/hooks/flat-store.ts)
+- [`useFlatStoreOfSignals`](./src/lib/hooks/flat-store.ts)
+- [`useComputedFlatStore`](./src/lib/hooks/flat-store.ts)
+
+- [`useDeepSignal`](./src/lib/hooks/store.ts)
+- [`useDeepReactive`](./src/lib/hooks/store.ts)
+- [`useShallowReactive`](./src/lib/hooks/store.ts)
 
 ```typescript
 // execute function run only once, and you can access other signals inside without tracking

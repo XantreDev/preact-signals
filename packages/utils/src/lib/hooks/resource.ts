@@ -8,6 +8,7 @@ import { Accessor, AnyReactive } from "../utils";
 import { EMPTY_ARRAY } from "../constants";
 
 /**
+ * See {@link createResource}
  * @param options resource are created once, so only first options matter
  * @returns
  */
