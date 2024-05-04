@@ -7,7 +7,14 @@ import {
   useSignal,
 } from "@preact-signals/unified-signals";
 import { Context, useContext, useEffect, useRef } from "react";
-import { AnyReactive, GetValue, untracked, unwrapReactive } from "../utils";
+import {
+  AnyReactive,
+  GetValue,
+  ReducerSignal,
+  reducerSignal,
+  untracked,
+  unwrapReactive,
+} from "../utils";
 import { EMPTY_ARRAY } from "../constants";
 
 /**
@@ -15,7 +22,7 @@ import { EMPTY_ARRAY } from "../constants";
  */
 export const useInitSignal = <T>(init: () => T) => {
   const signalRef = useRef<null | Signal<T>>(null);
-  if (!signalRef.current) {
+  if (signalRef.current === null) {
     signalRef.current = signal(untracked(init));
   }
 
@@ -58,4 +65,21 @@ export type Dispose = () => void;
  */
 export const useSignalEffectOnce = (_effect: () => void | Dispose) => {
   useEffect(() => effect(_effect), EMPTY_ARRAY);
+};
+
+/**
+ *
+ * Hook wrapper for {@link reducerSignal}
+ */
+export const useReducerSignal: typeof reducerSignal = (
+  initialValue,
+  reducer
+) => {
+  const ref = useRef<null | ReducerSignal<any, any>>(null);
+
+  if (ref.current === null) {
+    ref.current = reducerSignal(initialValue, reducer);
+  }
+
+  return ref.current;
 };
