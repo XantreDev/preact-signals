@@ -1,5 +1,15 @@
 # @preact-signals/utils
 
+## 0.20.0
+
+### Minor Changes
+
+- b9d6034: Implemented `reducerSignal` api (reducer pattern for signals)
+
+### Patch Changes
+
+- b9d6034: Improved hooks documentation
+
 ## 0.19.0
 
 ### Minor Changes
