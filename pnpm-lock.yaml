@@ -459,8 +459,8 @@ importers:
         specifier: ^4.1.1
         version: 4.2.1(vite@4.5.0)
       check-export-map:
-        specifier: ^1.3.0
-        version: 1.3.0
+        specifier: ^1.3.1
+        version: 1.3.1
       concurrently:
         specifier: ^8.2.2
         version: 8.2.2
@@ -520,8 +520,8 @@ importers:
         specifier: ^11.1.6
         version: 11.1.6(rollup@4.17.1)(typescript@5.4.4)
       check-export-map:
-        specifier: ^1.3.0
-        version: 1.3.0
+        specifier: ^1.3.1
+        version: 1.3.1
       concurrently:
         specifier: ^8.2.2
         version: 8.2.2
@@ -596,8 +596,8 @@ importers:
         specifier: ^18.2.15
         version: 18.2.23
       check-export-map:
-        specifier: ^1.3.0
-        version: 1.3.0
+        specifier: ^1.3.1
+        version: 1.3.1
       concurrently:
         specifier: ^8.2.2
         version: 8.2.2
@@ -1795,19 +1795,6 @@ packages:
     dependencies:
       '@babel/core': 7.23.9
       '@babel/helper-plugin-utils': 7.24.0
-
-  /@babel/plugin-transform-typescript@7.21.3(@babel/core@7.23.9):
-    resolution: {integrity: sha512-RQxPz6Iqt8T0uw/WsJNReuBpWpBqs/n7mNo18sKLoTbMp+UrEekhH+pKSVC7gWz+DNjo9gryfV8YzCiT45RgMw==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-    dependencies:
-      '@babel/core': 7.23.9
-      '@babel/helper-annotate-as-pure': 7.22.5
-      '@babel/helper-create-class-features-plugin': 7.24.1(@babel/core@7.23.9)
-      '@babel/helper-plugin-utils': 7.24.0
-      '@babel/plugin-syntax-typescript': 7.23.3(@babel/core@7.23.9)
-    dev: true
 
   /@babel/plugin-transform-typescript@7.23.6(@babel/core@7.23.9):
     resolution: {integrity: sha512-6cBG5mBvUu4VUD04OHKnYzbuHNP8huDsD3EDqqpIpsswTDoqHCjLoHb6+QgsV1WsT2nipRqCPgxD3LXnEO7XfA==}
@@ -3344,7 +3331,7 @@ packages:
     resolution: {integrity: sha512-WlFttNnySKQMeujN09fRmrdWqh46QyJluM5jdtDNrkl/2Hx6N4XeDUGhABvConeK95OidVO7sFFf7sNebVXogA==}
     engines: {node: '>=18'}
     peerDependencies:
-      '@babel/core': 7.21.5
+      '@babel/core': '*'
     dependencies:
       '@babel/core': 7.23.9
       '@babel/plugin-proposal-async-generator-functions': 7.20.7(@babel/core@7.23.9)
@@ -3382,7 +3369,7 @@ packages:
       '@babel/plugin-transform-shorthand-properties': 7.24.1(@babel/core@7.23.9)
       '@babel/plugin-transform-spread': 7.24.1(@babel/core@7.23.9)
       '@babel/plugin-transform-sticky-regex': 7.24.1(@babel/core@7.23.9)
-      '@babel/plugin-transform-typescript': 7.21.3(@babel/core@7.23.9)
+      '@babel/plugin-transform-typescript': 7.23.6(@babel/core@7.23.9)
       '@babel/plugin-transform-unicode-regex': 7.24.1(@babel/core@7.23.9)
       '@babel/template': 7.24.0
       '@react-native/babel-plugin-codegen': 0.73.4(@babel/preset-env@7.24.3)
@@ -3473,7 +3460,7 @@ packages:
     resolution: {integrity: sha512-LlkSGaXCz+xdxc9819plmpsl4P4gZndoFtpjN3GMBIu6f7TBV0GVbyJAU4GE8fuAWPVSVL5ArOcdkWKSbI1klw==}
     engines: {node: '>=18'}
     peerDependencies:
-      '@babel/core': 7.21.5
+      '@babel/core': '*'
     dependencies:
       '@babel/core': 7.23.9
       '@react-native/babel-preset': 0.73.21(@babel/core@7.23.9)(@babel/preset-env@7.24.3)
@@ -5296,8 +5283,8 @@ packages:
       get-func-name: 2.0.2
     dev: true
 
-  /check-export-map@1.3.0:
-    resolution: {integrity: sha512-5UCK+1T+hi08B5RZ4mjMk4ddlI0WMVjd04PPDnPO0/CMQDi+3p7gxYdBmLmM67JRtp1+GJxZbStnooyB6xakiQ==}
+  /check-export-map@1.3.1:
+    resolution: {integrity: sha512-HX3ZRYk8/CLBJ6kjf7B3U4RGbhcbboswAq9CVsbuEIDQ0OoRI15ms2h3z3RL7sOo6KEVgVb/BiVGw/XMdCLAJg==}
     hasBin: true
     dependencies:
       kolorist: 1.8.0
