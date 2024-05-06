@@ -459,8 +459,8 @@ importers:
         specifier: ^4.1.1
         version: 4.2.1(vite@4.5.0)
       check-export-map:
-        specifier: ^1.3.0
-        version: 1.3.0
+        specifier: ^1.3.1
+        version: 1.3.1
       concurrently:
         specifier: ^8.2.2
         version: 8.2.2
@@ -520,8 +520,8 @@ importers:
         specifier: ^11.1.6
         version: 11.1.6(rollup@4.17.1)(typescript@5.4.4)
       check-export-map:
-        specifier: ^1.3.0
-        version: 1.3.0
+        specifier: ^1.3.1
+        version: 1.3.1
       concurrently:
         specifier: ^8.2.2
         version: 8.2.2
@@ -596,8 +596,8 @@ importers:
         specifier: ^18.2.15
         version: 18.2.23
       check-export-map:
-        specifier: ^1.3.0
-        version: 1.3.0
+        specifier: ^1.3.1
+        version: 1.3.1
       concurrently:
         specifier: ^8.2.2
         version: 8.2.2
@@ -5283,8 +5283,8 @@ packages:
       get-func-name: 2.0.2
     dev: true
 
-  /check-export-map@1.3.0:
-    resolution: {integrity: sha512-5UCK+1T+hi08B5RZ4mjMk4ddlI0WMVjd04PPDnPO0/CMQDi+3p7gxYdBmLmM67JRtp1+GJxZbStnooyB6xakiQ==}
+  /check-export-map@1.3.1:
+    resolution: {integrity: sha512-HX3ZRYk8/CLBJ6kjf7B3U4RGbhcbboswAq9CVsbuEIDQ0OoRI15ms2h3z3RL7sOo6KEVgVb/BiVGw/XMdCLAJg==}
     hasBin: true
     dependencies:
       kolorist: 1.8.0
