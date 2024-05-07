@@ -13,6 +13,7 @@ type TestCase = {
   name: string;
   input: string;
   isCJS: boolean;
+  usePresetEnv: boolean;
   options: BabelMacroPluginOptions | undefined;
 };
 const TestCase = {
@@ -30,10 +31,20 @@ const TestCase = {
     options: params.options ?? {
       experimental_stateMacros: true,
     },
+    usePresetEnv: params.usePresetEnv ?? false,
   }),
   makeError: (name: string, input: string): TestCase =>
     TestCase.makeConfigurable(name, input, { type: "error" }),
 };
+
+const presetEnvConfig = [
+  [
+    "@babel/preset-env",
+    {
+      targets: "node 20.0",
+    },
+  ],
+];
 
 describe.concurrent("@preact-signals/utils/macro", () => {
   const success = [
@@ -209,13 +220,26 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       }
       `
     ),
+    TestCase.makeConfigurable(
+      "Should transform by preset-env correctly",
+      `
+      import { $derived, $$ } from '@preact-signals/utils/macro'
+      
+      const state = $derived(10)
+      $$(10)
+    `,
+      {
+        usePresetEnv: true,
+      }
+    ),
   ];
 
-  for (const { input, isCJS, name, options } of success) {
+  for (const { input, isCJS, name, options, usePresetEnv } of success) {
     it(name, async ({ expect }) => {
       expect(
         await format(
           transform(input, {
+            presets: usePresetEnv ? presetEnvConfig : undefined,
             plugins: [[preactSignalsUtilsBabel, options]],
             sourceType: isCJS ? "script" : "module",
           })?.code!
@@ -392,11 +416,24 @@ describe.concurrent("@preact-signals/utils/macro", () => {
     ),
   ];
 
-  for (const { input, isCJS, name, options } of fail) {
+  console.log(
+    transform('import {a} from "b"', {
+      presets: [
+        [
+          "@babel/preset-env",
+          {
+            targets: "node 4.0",
+          },
+        ],
+      ],
+    })?.code
+  );
+  for (const { input, isCJS, name, options, usePresetEnv } of fail) {
     it(name, async ({ expect }) => {
       expect(() => {
         try {
           transform(input, {
+            presets: usePresetEnv ? presetEnvConfig : undefined,
             plugins: [[preactSignalsUtilsBabel, options]],
             sourceType: isCJS ? "script" : "module",
           });

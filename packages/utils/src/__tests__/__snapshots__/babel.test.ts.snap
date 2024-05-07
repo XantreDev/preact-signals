@@ -75,6 +75,16 @@ const _ = () => {
 "
 `;
 
+exports[`@preact-signals/utils/macro > Should transform by preset-env correctly 1`] = `
+""use strict";
+
+var _utils = require("@preact-signals/utils");
+var _macroHelper = require("@preact-signals/utils/macro-helper");
+const state = (0, _macroHelper.computed)(() => 10);
+(0, _utils.$)(() => 10);
+"
+`;
+
 exports[`@preact-signals/utils/macro > Top level macro works 1`] = `
 "import { deepSignal as _deepSignal } from "@preact-signals/utils";
 let a = _deepSignal(0);

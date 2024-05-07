@@ -443,8 +443,8 @@ const processRefMacros = (
     return;
   }
 
-  for (const path of paths) {
-    const parent = path.parentPath;
+  for (let i = paths.length - 1; i >= 0; --i) {
+    const parent = paths[i]!.parentPath;
     if (!parent || parent.node.type !== "CallExpression") {
       throw SyntaxErrorWithLoc.makeFromPosition(
         "$$ expected to be used only inside of CallExpressions",
@@ -467,9 +467,15 @@ const processRefMacros = (
         arg.loc?.start
       );
     }
-
-    parent.node.callee = importRefLazily();
-    parent.node.arguments = [t.arrowFunctionExpression([], arg)];
+    const callee = importRefLazily();
+    const [res] = parent.replaceWith(
+      t.callExpression(callee, [t.arrowFunctionExpression([], arg)])
+    );
+    if (path.scope.hasBinding(callee.name)) {
+      path.scope.getBinding(callee.name)?.reference(res);
+    } else {
+      console.warn("expected binding to exist", path.node.loc);
+    }
 
     binding.dereference();
   }
@@ -645,6 +651,9 @@ export default function preactSignalsUtilsBabel(
               )
             );
           }
+        },
+        exit(path) {
+          path.scope.crawl();
         },
       },
 
