@@ -416,18 +416,6 @@ describe.concurrent("@preact-signals/utils/macro", () => {
     ),
   ];
 
-  console.log(
-    transform('import {a} from "b"', {
-      presets: [
-        [
-          "@babel/preset-env",
-          {
-            targets: "node 4.0",
-          },
-        ],
-      ],
-    })?.code
-  );
   for (const { input, isCJS, name, options, usePresetEnv } of fail) {
     it(name, async ({ expect }) => {
       expect(() => {

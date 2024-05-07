@@ -59,8 +59,10 @@ const a = _$(() => 1);
 exports[`@preact-signals/utils/macro > Must remove import event if not used 1`] = `""`;
 
 exports[`@preact-signals/utils/macro > Replaces $useState references 1`] = `
-"import { useDeepSignal as _useDeepSignal } from "@preact-signals/utils/hooks";
-import { useSignalOfState as _useSignalOfState } from "@preact-signals/utils/hooks";
+"import {
+  useDeepSignal as _useDeepSignal,
+  useSignalOfState as _useSignalOfState,
+} from "@preact-signals/utils/hooks";
 const _ = () => {
   let a = _useDeepSignal(() => 0);
   let b = _useDeepSignal(() => 0);
