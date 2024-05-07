@@ -1,5 +1,14 @@
 # components-for-test
 
+## 6.0.3
+
+### Patch Changes
+
+- Updated dependencies [79d2ace]
+- Updated dependencies [3801b85]
+  - @preact-signals/utils@0.20.1
+  - @preact-signals/query@2.0.3
+
 ## 6.0.2
 
 ### Patch Changes
