@@ -1,5 +1,12 @@
 # @preact-signals/utils
 
+## 0.20.1
+
+### Patch Changes
+
+- 79d2ace: Updated @babel/helper-module-imports
+- 3801b85: [babel]: started to refernce variables
+
 ## 0.20.0
 
 ### Minor Changes
