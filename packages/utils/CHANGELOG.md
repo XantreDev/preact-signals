@@ -1,5 +1,11 @@
 # @preact-signals/utils
 
+## 0.20.2
+
+### Patch Changes
+
+- 1b339b4: Fixed incorrect babel transform of state macro identifier inside of `$`
+
 ## 0.20.1
 
 ### Patch Changes
