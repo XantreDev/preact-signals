@@ -471,12 +471,8 @@ const processRefMacros = (
     const [res] = parent.replaceWith(
       t.callExpression(callee, [t.arrowFunctionExpression([], arg)])
     );
-    if (path.scope.hasBinding(callee.name)) {
-      path.scope.getBinding(callee.name)?.reference(res);
-    } else {
-      console.warn("expected binding to exist", path.node.loc);
-    }
-
+    // crawling newly created scope
+    res.scope.crawl()
     binding.dereference();
   }
   if (binding.references !== 0) {

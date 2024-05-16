@@ -58,6 +58,13 @@ const a = _$(() => 1);
 
 exports[`@preact-signals/utils/macro > Must remove import event if not used 1`] = `""`;
 
+exports[`@preact-signals/utils/macro > Ref macro inside of state macro 1`] = `
+"import { $ as _$, deepSignal as _deepSignal } from "@preact-signals/utils";
+let a = _deepSignal(10);
+let b = _deepSignal(_$(() => a.value));
+"
+`;
+
 exports[`@preact-signals/utils/macro > Replaces $useState references 1`] = `
 "import {
   useDeepSignal as _useDeepSignal,
@@ -84,6 +91,13 @@ var _utils = require("@preact-signals/utils");
 var _macroHelper = require("@preact-signals/utils/macro-helper");
 const state = (0, _macroHelper.computed)(() => 10);
 (0, _utils.$)(() => 10);
+"
+`;
+
+exports[`@preact-signals/utils/macro > State macro inside of ref macro 1`] = `
+"import { $ as _$, deepSignal as _deepSignal } from "@preact-signals/utils";
+let a = _deepSignal(10);
+_$(() => a.value);
 "
 `;
 

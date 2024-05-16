@@ -220,6 +220,24 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       }
       `
     ),
+    TestCase.makeSuccess(
+      "State macro inside of ref macro", 
+      `
+      import { $$, $state } from '@preact-signals/utils/macro'
+
+      let a = $state(10)
+      
+      $$(a)
+      `
+    ),
+    TestCase.makeSuccess("Ref macro inside of state macro", 
+      `
+      import { $$, $state } from '@preact-signals/utils/macro'
+
+      let a = $state(10)
+      let b = $state($$(a))
+      `
+    ),
     TestCase.makeConfigurable(
       "Should transform by preset-env correctly",
       `
