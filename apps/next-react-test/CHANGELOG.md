@@ -1,5 +1,13 @@
 # next-react-test
 
+## 0.1.24
+
+### Patch Changes
+
+- Updated dependencies [1b339b4]
+  - @preact-signals/utils@0.20.2
+  - components-for-test@6.0.4
+
 ## 0.1.23
 
 ### Patch Changes
