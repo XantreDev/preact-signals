@@ -24,7 +24,7 @@
     "shiki": "^1.2.3"
   },
   "devDependencies": {
-    "@shikijs/monaco": "^1.2.3",
+    "@shikijs/monaco": "^1.6.0",
     "@types/babel__standalone": "^7.1.7",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",

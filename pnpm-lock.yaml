@@ -230,8 +230,8 @@ importers:
         version: 1.2.3
     devDependencies:
       '@shikijs/monaco':
-        specifier: ^1.2.3
-        version: 1.2.3
+        specifier: ^1.6.0
+        version: 1.6.0
       '@types/babel__standalone':
         specifier: ^7.1.7
         version: 7.1.7
@@ -1809,19 +1809,6 @@ packages:
     dependencies:
       '@babel/core': 7.23.9
       '@babel/helper-plugin-utils': 7.24.0
-
-  /@babel/plugin-transform-typescript@7.21.3(@babel/core@7.23.9):
-    resolution: {integrity: sha512-RQxPz6Iqt8T0uw/WsJNReuBpWpBqs/n7mNo18sKLoTbMp+UrEekhH+pKSVC7gWz+DNjo9gryfV8YzCiT45RgMw==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-    dependencies:
-      '@babel/core': 7.23.9
-      '@babel/helper-annotate-as-pure': 7.22.5
-      '@babel/helper-create-class-features-plugin': 7.24.1(@babel/core@7.23.9)
-      '@babel/helper-plugin-utils': 7.24.0
-      '@babel/plugin-syntax-typescript': 7.23.3(@babel/core@7.23.9)
-    dev: true
 
   /@babel/plugin-transform-typescript@7.23.6(@babel/core@7.23.9):
     resolution: {integrity: sha512-6cBG5mBvUu4VUD04OHKnYzbuHNP8huDsD3EDqqpIpsswTDoqHCjLoHb6+QgsV1WsT2nipRqCPgxD3LXnEO7XfA==}
@@ -3579,7 +3566,7 @@ packages:
     resolution: {integrity: sha512-WlFttNnySKQMeujN09fRmrdWqh46QyJluM5jdtDNrkl/2Hx6N4XeDUGhABvConeK95OidVO7sFFf7sNebVXogA==}
     engines: {node: '>=18'}
     peerDependencies:
-      '@babel/core': 7.21.5
+      '@babel/core': '*'
     dependencies:
       '@babel/core': 7.23.9
       '@babel/plugin-proposal-async-generator-functions': 7.20.7(@babel/core@7.23.9)
@@ -3617,7 +3604,7 @@ packages:
       '@babel/plugin-transform-shorthand-properties': 7.24.1(@babel/core@7.23.9)
       '@babel/plugin-transform-spread': 7.24.1(@babel/core@7.23.9)
       '@babel/plugin-transform-sticky-regex': 7.24.1(@babel/core@7.23.9)
-      '@babel/plugin-transform-typescript': 7.21.3(@babel/core@7.23.9)
+      '@babel/plugin-transform-typescript': 7.23.6(@babel/core@7.23.9)
       '@babel/plugin-transform-unicode-regex': 7.24.1(@babel/core@7.23.9)
       '@babel/template': 7.24.0
       '@react-native/babel-plugin-codegen': 0.73.4(@babel/preset-env@7.24.3)
@@ -3708,7 +3695,7 @@ packages:
     resolution: {integrity: sha512-LlkSGaXCz+xdxc9819plmpsl4P4gZndoFtpjN3GMBIu6f7TBV0GVbyJAU4GE8fuAWPVSVL5ArOcdkWKSbI1klw==}
     engines: {node: '>=18'}
     peerDependencies:
-      '@babel/core': 7.21.5
+      '@babel/core': '*'
     dependencies:
       '@babel/core': 7.23.9
       '@react-native/babel-preset': 0.73.21(@babel/core@7.23.9)(@babel/preset-env@7.24.3)
@@ -3928,11 +3915,16 @@ packages:
 
   /@shikijs/core@1.2.3:
     resolution: {integrity: sha512-SM+aiQVaEK2P53dEcsvhq9+LJPr0rzwezHbMQhHaSrPN4OlOB4vp1qTdhVEKfMg6atdq8s9ZotWW/CSCzWftwg==}
+    dev: false
 
-  /@shikijs/monaco@1.2.3:
-    resolution: {integrity: sha512-a9LY7g4Gx8ZssOhn476MHCx0QMUMg+EHjBYHjv0rqCgU9MLlBYr8+xqgd3JTjiDWDQdKrxVgy4X9o8YdFQTM2g==}
+  /@shikijs/core@1.6.0:
+    resolution: {integrity: sha512-NIEAi5U5R7BLkbW1pG/ZKu3eb1lzc3/+jD0lFsuxMT7zjaf9bbNwdNyMr7zh/Zl8EXQtQ+MYBAt5G+JLu+5DlA==}
+    dev: true
+
+  /@shikijs/monaco@1.6.0:
+    resolution: {integrity: sha512-vM66K07fUENbdeNpUURYFDigBep0Io3RAgZZfiYmrIbKq+JscU/bcpl1+gFZUcR0Nb8R+/fM5iJSaJ1H9M9MIA==}
     dependencies:
-      '@shikijs/core': 1.2.3
+      '@shikijs/core': 1.6.0
     dev: true
 
   /@sideway/address@4.1.5:
