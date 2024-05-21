@@ -217,8 +217,8 @@ importers:
         specifier: ^1.5.0
         version: 1.5.0
       radash:
-        specifier: ^11.0.0
-        version: 11.0.0
+        specifier: ^12.1.0
+        version: 12.1.0
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -471,8 +471,8 @@ importers:
         specifier: ^0.91.0
         version: 0.91.0
       radash:
-        specifier: ^11.0.0
-        version: 11.0.0
+        specifier: ^12.1.0
+        version: 12.1.0
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -614,8 +614,8 @@ importers:
         specifier: ^1.0.13
         version: 1.0.13
       radash:
-        specifier: ^11.0.0
-        version: 11.0.0
+        specifier: ^12.1.0
+        version: 12.1.0
       react:
         specifier: ^18
         version: 18.2.0
@@ -1809,19 +1809,6 @@ packages:
     dependencies:
       '@babel/core': 7.23.9
       '@babel/helper-plugin-utils': 7.24.0
-
-  /@babel/plugin-transform-typescript@7.21.3(@babel/core@7.23.9):
-    resolution: {integrity: sha512-RQxPz6Iqt8T0uw/WsJNReuBpWpBqs/n7mNo18sKLoTbMp+UrEekhH+pKSVC7gWz+DNjo9gryfV8YzCiT45RgMw==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-    dependencies:
-      '@babel/core': 7.23.9
-      '@babel/helper-annotate-as-pure': 7.22.5
-      '@babel/helper-create-class-features-plugin': 7.24.1(@babel/core@7.23.9)
-      '@babel/helper-plugin-utils': 7.24.0
-      '@babel/plugin-syntax-typescript': 7.23.3(@babel/core@7.23.9)
-    dev: true
 
   /@babel/plugin-transform-typescript@7.23.6(@babel/core@7.23.9):
     resolution: {integrity: sha512-6cBG5mBvUu4VUD04OHKnYzbuHNP8huDsD3EDqqpIpsswTDoqHCjLoHb6+QgsV1WsT2nipRqCPgxD3LXnEO7XfA==}
@@ -3579,7 +3566,7 @@ packages:
     resolution: {integrity: sha512-WlFttNnySKQMeujN09fRmrdWqh46QyJluM5jdtDNrkl/2Hx6N4XeDUGhABvConeK95OidVO7sFFf7sNebVXogA==}
     engines: {node: '>=18'}
     peerDependencies:
-      '@babel/core': 7.21.5
+      '@babel/core': '*'
     dependencies:
       '@babel/core': 7.23.9
       '@babel/plugin-proposal-async-generator-functions': 7.20.7(@babel/core@7.23.9)
@@ -3617,7 +3604,7 @@ packages:
       '@babel/plugin-transform-shorthand-properties': 7.24.1(@babel/core@7.23.9)
       '@babel/plugin-transform-spread': 7.24.1(@babel/core@7.23.9)
       '@babel/plugin-transform-sticky-regex': 7.24.1(@babel/core@7.23.9)
-      '@babel/plugin-transform-typescript': 7.21.3(@babel/core@7.23.9)
+      '@babel/plugin-transform-typescript': 7.23.6(@babel/core@7.23.9)
       '@babel/plugin-transform-unicode-regex': 7.24.1(@babel/core@7.23.9)
       '@babel/template': 7.24.0
       '@react-native/babel-plugin-codegen': 0.73.4(@babel/preset-env@7.24.3)
@@ -3708,7 +3695,7 @@ packages:
     resolution: {integrity: sha512-LlkSGaXCz+xdxc9819plmpsl4P4gZndoFtpjN3GMBIu6f7TBV0GVbyJAU4GE8fuAWPVSVL5ArOcdkWKSbI1klw==}
     engines: {node: '>=18'}
     peerDependencies:
-      '@babel/core': 7.21.5
+      '@babel/core': '*'
     dependencies:
       '@babel/core': 7.23.9
       '@react-native/babel-preset': 0.73.21(@babel/core@7.23.9)(@babel/preset-env@7.24.3)
@@ -9412,8 +9399,8 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /radash@11.0.0:
-    resolution: {integrity: sha512-CRWxTFTDff0IELGJ/zz58yY4BDgyI14qSM5OLNKbCItJrff7m7dXbVF0kWYVCXQtPb3SXIVhXvAImH6eT7VLSg==}
+  /radash@12.1.0:
+    resolution: {integrity: sha512-b0Zcf09AhqKS83btmUeYBS8tFK7XL2e3RvLmZcm0sTdF1/UUlHSsjXdCcWNxe7yfmAlPve5ym0DmKGtTzP6kVQ==}
     engines: {node: '>=14.18.0'}
 
   /range-parser@1.2.1:
