@@ -495,8 +495,8 @@ importers:
         specifier: ^5.0.0
         version: 5.2.11
       zx:
-        specifier: ^8.0.2
-        version: 8.0.2
+        specifier: ^8.1.1
+        version: 8.1.1
 
   packages/unified-signals:
     dependencies:
@@ -644,8 +644,8 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(@babel/core@7.23.9)(vite@5.2.11)
       zx:
-        specifier: ^8.0.2
-        version: 8.0.2
+        specifier: ^8.1.1
+        version: 8.1.1
 
 packages:
 
@@ -9523,6 +9523,7 @@ packages:
 
   /rimraf@2.6.3:
     resolution: {integrity: sha512-mwqeW5XsA2qAejG46gYdENaxXjx9onRNCfn7L0duuP4hCuTIi/QO7PDK07KJfp1d+izWPrzEJDcSqBa0OZQriA==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
     dependencies:
       glob: 7.2.3
@@ -11316,9 +11317,9 @@ packages:
   /zod@3.23.4:
     resolution: {integrity: sha512-/AtWOKbBgjzEYYQRNfoGKHObgfAZag6qUJX1VbHo2PRBgS+wfWagEY2mizjfyAPcGesrJOcx/wcl0L9WnVrHFw==}
 
-  /zx@8.0.2:
-    resolution: {integrity: sha512-3g+ePtPYmyrjRuASlJiUhkje1je4a47woML/fzTKBb9PA5BzRQbSswwyJ8nlFWJjA1ORRi6TMyAdhuz/jK+Gaw==}
-    engines: {node: '>= 16.0.0'}
+  /zx@8.1.1:
+    resolution: {integrity: sha512-JYAyM06wK+KLy07MkipBTghtd3zsYBxTH44Fh3p932ntDKdT5jxziEK51siPG+rqT+MWV1yK9mCM1/CB92PV7Q==}
+    engines: {node: '>= 12.17.0'}
     hasBin: true
     optionalDependencies:
       '@types/fs-extra': 11.0.4

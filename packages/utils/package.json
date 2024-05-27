@@ -194,7 +194,7 @@
     "typedoc": "^0.25.8",
     "typedoc-plugin-markdown": "4.0.1",
     "vite-plugin-babel": "^1.2.0",
-    "zx": "^8.0.2"
+    "zx": "^8.1.1"
   },
   "keywords": [
     "preact signals",
