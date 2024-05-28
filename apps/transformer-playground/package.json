@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@babel/plugin-syntax-jsx": "^7.24.1",
-    "@babel/preset-env": "^7.24.3",
+    "@babel/preset-env": "^7.24.6",
     "@babel/standalone": "^7.24.3",
     "@monaco-editor/react": "^4.6.0",
     "@preact-signals/safe-react": "workspace:*",
