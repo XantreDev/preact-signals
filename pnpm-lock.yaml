@@ -495,8 +495,8 @@ importers:
         specifier: ^5.0.0
         version: 5.2.11
       zx:
-        specifier: ^8.0.2
-        version: 8.0.2
+        specifier: ^8.1.2
+        version: 8.1.2
 
   packages/unified-signals:
     dependencies:
@@ -644,8 +644,8 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(@babel/core@7.23.9)(vite@5.2.11)
       zx:
-        specifier: ^8.0.2
-        version: 8.0.2
+        specifier: ^8.1.2
+        version: 8.1.2
 
 packages:
 
@@ -11380,9 +11380,9 @@ packages:
   /zod@3.23.4:
     resolution: {integrity: sha512-/AtWOKbBgjzEYYQRNfoGKHObgfAZag6qUJX1VbHo2PRBgS+wfWagEY2mizjfyAPcGesrJOcx/wcl0L9WnVrHFw==}
 
-  /zx@8.0.2:
-    resolution: {integrity: sha512-3g+ePtPYmyrjRuASlJiUhkje1je4a47woML/fzTKBb9PA5BzRQbSswwyJ8nlFWJjA1ORRi6TMyAdhuz/jK+Gaw==}
-    engines: {node: '>= 16.0.0'}
+  /zx@8.1.2:
+    resolution: {integrity: sha512-zkCiXKh8D/eo6r58OmJvO5mc2NthcSRvysb3fuS6VQlHPbEPBcxduRwM3m6ZfHj+7cLHcrahCnuO2TDAbW+6xw==}
+    engines: {node: '>= 12.17.0'}
     hasBin: true
     optionalDependencies:
       '@types/fs-extra': 11.0.4
