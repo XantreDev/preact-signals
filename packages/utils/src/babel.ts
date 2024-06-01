@@ -472,7 +472,7 @@ const processRefMacros = (
       t.callExpression(callee, [t.arrowFunctionExpression([], arg)])
     );
     // crawling newly created scope
-    res.scope.crawl()
+    res.scope.crawl();
     binding.dereference();
   }
   if (binding.references !== 0) {
@@ -589,11 +589,19 @@ const processStateMacros = (
           );
         }
 
+        if (
+          refPath.parentPath?.isCallExpression() &&
+          refPath.parentPath.node.callee === "$deref"
+        ) {
+          refPath.parentPath.replaceWith(t.cloneNode(id));
+
+          continue;
+        }
+
         refPath.replaceWith(
           t.memberExpression(t.cloneNode(id), t.identifier("value"))
         );
       }
-
       binding.dereference();
     }
     if (binding.references !== 0) {

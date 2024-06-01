@@ -1,6 +1,5 @@
-import { describe, expectTypeOf, it, vi } from "vitest";
+import { describe, expectTypeOf, it } from "vitest";
 import * as macro from "../lib/macro";
-import { DeepSignal } from "../lib/store";
 import { ReadonlySignal } from "@preact/signals-core";
 
 describe("macros types", () => {
@@ -10,13 +9,13 @@ describe("macros types", () => {
         let a = macro.$state(10);
 
         return macro.$deref(a);
-      }).returns.toEqualTypeOf<DeepSignal<10>>();
+      }).returns.toEqualTypeOf<ReadonlySignal<10>>();
 
       expectTypeOf(() => {
         let a = macro.$useState(10);
 
         return macro.$deref(a);
-      }).returns.toEqualTypeOf<DeepSignal<10>>();
+      }).returns.toEqualTypeOf<ReadonlySignal<10>>();
     };
   });
 

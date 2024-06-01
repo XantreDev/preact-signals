@@ -52,27 +52,29 @@ const createMacroError =
 export const $$: $$Type = createMacroError("$$");
 
 type WritableStateMacro = {
-  [stateType]: "writable";
+  [stateType]?: "writable";
 };
 
 type ReadonlyStateMacro = {
-  [stateType]: "readonly";
+  [stateType]?: "readonly";
 };
 
 export type DerefMacro<T extends WritableStateMacro | ReadonlyStateMacro> =
   T extends infer X & ReadonlyStateMacro
     ? ReadonlySignal<X>
     : T extends infer X & WritableStateMacro
-      ? DeepSignal<X>
+      // we shouldn't expose mutable type
+      ? ReadonlySignal<X>
+      // ? DeepSignal<X>
       : {
           _typeError: "Provided type is not macro reference";
         };
 
 export type $StateMacroTypeWritable = <T>(value: T) => T & {
-  [stateType]: "writable";
+  [stateType]?: "writable";
 };
 export type $StateMacroType = <T>(value: T) => T & {
-  [stateType]: "readonly";
+  [stateType]?: "readonly";
 };
 
 export type $Deref = <T extends WritableStateMacro | ReadonlyStateMacro>(
