@@ -105,7 +105,7 @@
     "clean": "rimraf dist",
     "clean:docs": "rimraf docs",
     "test": "vitest",
-    "lint": "tsc --noEmit --emitDeclarationOnly false && check-export-map && node ./import-checker.mjs",
+    "lint": "tsc -p ./tsconfig.lint.json && tsc -p ./tsconfig.node.json --noEmit --emitDeclarationOnly false && check-export-map && node ./import-checker.mjs",
     "build": "pnpm clean && rollup -c && pnpm build:types",
     "build:types": "tsc",
     "build:docs": "pnpm clean:docs && node ./build-typedoc.mjs",

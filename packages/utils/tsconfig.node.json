@@ -5,9 +5,10 @@
     "moduleResolution": "Node",
     "rootDir": "./src",
     "allowSyntheticDefaultImports": true,
-    "types": ["vitest.d.ts"]
+    "types": ["./vitest.d.ts"]
   },
   "extends": ["../../tsconfig.json"],
+  "include": ["**/*.test-d.*", "**/*.test.*", "**/__tests__/**/*"],
   "references": [
     {
       "path": "../unified-signals"

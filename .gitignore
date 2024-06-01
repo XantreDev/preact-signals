@@ -25,6 +25,7 @@ dist-ssr
 
 .turbo
 tsconfig.tsbuildinfo
+tsconfig.*.tsbuildinfo
 vite.config.ts.timestamp-*
 vitest.config.ts.timestamp-*
 
