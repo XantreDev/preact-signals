@@ -160,7 +160,7 @@
     }
   },
   "dependencies": {
-    "@babel/core": "^7.23.9",
+    "@babel/core": "^7.24.0",
     "@babel/helper-module-imports": "7.24.3",
     "@babel/traverse": "^7.24.5",
     "@preact-signals/unified-signals": "workspace:*",
