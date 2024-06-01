@@ -238,6 +238,12 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       let b = $state($$(a))
       `
     ),
+    TestCase.makeSuccess('Deref is working', `
+      import { $state, $deref } from '@preact-signals/utils/macro'
+
+      let a = $state(10)
+      const aSig = $deref(a)
+    `),
     TestCase.makeConfigurable(
       "Should transform by preset-env correctly",
       `
@@ -430,6 +436,16 @@ describe.concurrent("@preact-signals/utils/macro", () => {
 
       const a = $state(0)
       a = 10
+      `
+    ),
+
+    TestCase.makeError(
+      "It must be imposible to deref regular var",
+      `
+      import { $state, $deref } from "@preact-signals/utils/macro";
+
+      const a = 10
+      const b = $deref(a)
       `
     ),
   ];

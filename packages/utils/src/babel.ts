@@ -227,12 +227,13 @@ const keys = <T extends string>(obj: Readonly<Record<T, any>>) =>
 
 const stateMacros = keys(stateMacrosMeta);
 const refMacro = "$$" as const;
+const derefMacro = "$deref" as const;
 
-const importSpecifiers = [...stateMacros, refMacro];
+const importSpecifiers = [...stateMacros, refMacro, derefMacro];
 
 type RefMacro = typeof refMacro;
 type StateMacros = (typeof stateMacros)[number];
-type MacroIdentifier = RefMacro | StateMacros;
+type MacroIdentifier = (typeof importSpecifiers)[number];
 
 const getStateMacrosBody = (
   node: BabelTypes.VariableDeclarator
@@ -262,7 +263,6 @@ const getStateMacrosBody = (
   const arg = args[0];
   if (
     !arg ||
-    arg.type === "JSXNamespacedName" ||
     arg.type === "ArgumentPlaceholder" ||
     arg.type === "SpreadElement"
   ) {
@@ -589,11 +589,17 @@ const processStateMacros = (
           );
         }
 
-        if (
+        const callee =
           refPath.parentPath?.isCallExpression() &&
-          refPath.parentPath.node.callee === "$deref"
+          refPath.parentPath.get("callee");
+        if (
+          refPath.parentPath &&
+          callee &&
+          callee.isIdentifier() &&
+          callee.node.name === derefMacro
         ) {
-          refPath.parentPath.replaceWith(t.cloneNode(id));
+          const parent = refPath.parentPath;
+          parent.replaceWith(t.cloneNode(id))[0].scope.crawl();
 
           continue;
         }
@@ -621,6 +627,24 @@ const mapValues = <T extends Record<string, any>, U>(
   }
   return res;
 };
+
+function cleanDerefImport(
+  path: NodePath<BabelTypes.Program>,
+  enableStateMacros: boolean | undefined
+) {
+  const derefBinding = path.scope.getBinding(derefMacro);
+  if (derefBinding && enableStateMacros) {
+    if (derefBinding.referenced) {
+      const firstItem = derefBinding.referencePaths[0];
+      assert(firstItem, "invariant: referenced");
+      throw SyntaxErrorWithLoc.makeFromPosition(
+        `Expected all references to $deref to be removed`,
+        firstItem.node.loc?.start
+      );
+    }
+    createRemoveImport(path.scope, derefBinding, "$deref")?.();
+  }
+}
 
 export default function preactSignalsUtilsBabel(
   { types: t }: PluginArgs,
@@ -657,6 +681,8 @@ export default function preactSignalsUtilsBabel(
           }
         },
         exit(path) {
+          cleanDerefImport(path, enableStateMacros);
+
           path.scope.crawl();
         },
       },
