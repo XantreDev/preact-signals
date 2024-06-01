@@ -1,6 +1,5 @@
-import { ReadonlySignal } from "@preact/signals-core";
+import type { ReadonlySignal } from "@preact/signals-core";
 import type { ReactiveRef } from "./$";
-import { DeepSignal } from "./store";
 
 console.log(
   "To use macro, you need to use babel plugin. Check out the README for more info."
