@@ -51,10 +51,16 @@ const createMacroError =
  */
 export const $$: $$Type = createMacroError("$$");
 
+/**
+ * @internal
+ */
 type WritableStateMacro = {
   [stateType]?: "writable";
 };
 
+/**
+ * @internal
+ */
 type ReadonlyStateMacro = {
   [stateType]?: "readonly";
 };
@@ -63,24 +69,20 @@ export type DerefMacro<T extends WritableStateMacro | ReadonlyStateMacro> =
   T extends infer X & ReadonlyStateMacro
     ? ReadonlySignal<X>
     : T extends infer X & WritableStateMacro
-      // we shouldn't expose mutable type
-      ? ReadonlySignal<X>
-      // ? DeepSignal<X>
-      : {
+      ? // we shouldn't expose mutable type
+        ReadonlySignal<X>
+      : // ? DeepSignal<X>
+        {
           _typeError: "Provided type is not macro reference";
         };
 
-export type $StateMacroTypeWritable = <T>(value: T) => T & {
-  [stateType]?: "writable";
-};
-export type $StateMacroType = <T>(value: T) => T & {
-  [stateType]?: "readonly";
-};
+export type $StateMacroTypeWritable = <T>(value: T) => T & WritableStateMacro;
+export type $StateMacroType = <T>(value: T) => T & ReadonlyStateMacro;
 
 export type $Deref = <T extends WritableStateMacro | ReadonlyStateMacro>(
   value: T
 ) => DerefMacro<T>;
-export declare const $deref: $Deref;
+export const $deref: $Deref = createMacroError("$deref");
 
 /**
  * Macro hook-function that allows you to create global reactive binding. Compile time wrapper around `deepSignal`
