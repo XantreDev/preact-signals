@@ -11,8 +11,8 @@ def main [
 
   cd ./swc
   
-  let $use_skip_rust = --skip-rust == "true" or $env.SKIP_RUST? == "true"
-  if $use_skip_rust == "true" {
+  let use_skip_rust = --skip-rust == "true" or $env.SKIP_RUST? == "true"
+  if $use_skip_rust == true {
     return
   }
   let $use_debug = --cargo-debug == "true" or $env.CARGO_DEBUG? == "true"
