@@ -81,6 +81,20 @@ export type $StateMacroType = <T>(value: T) => T & ReadonlyStateMacro;
 export type $Deref = <T extends WritableStateMacro | ReadonlyStateMacro>(
   value: T
 ) => DerefMacro<T>;
+
+/**
+ *
+ * Macro function that allows to get a real signal under the hood of reactive binding. Returns ReadonlySignal for safety
+ * 
+ * @example
+ * ```tsx
+ * import type { ReadonlySignal } from '@preact-signals/safe-react'
+ * import { $state, $deref } from '@preact-signals/utils/macro'
+ * 
+ * let a = $state(10)
+ * const aSig: ReadonlySignal<10> = $deref(a)
+ * ```
+ */
 export const $deref: $Deref = createMacroError("$deref");
 
 /**
