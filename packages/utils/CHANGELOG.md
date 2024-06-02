@@ -1,5 +1,12 @@
 # @preact-signals/utils
 
+## 0.21.0
+
+### Minor Changes
+
+- b29dbc5: Disallow reexports from macro lib
+- b29dbc5: Added `$deref` feature for state macroses to get actual state macro reference
+
 ## 0.20.2
 
 ### Patch Changes

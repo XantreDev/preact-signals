@@ -1,5 +1,14 @@
 # preact-test
 
+## 0.0.44
+
+### Patch Changes
+
+- Updated dependencies [b29dbc5]
+- Updated dependencies [b29dbc5]
+  - @preact-signals/utils@0.21.0
+  - components-for-test@6.0.5
+
 ## 0.0.43
 
 ### Patch Changes
