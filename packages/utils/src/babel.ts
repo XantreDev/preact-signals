@@ -686,7 +686,46 @@ export default function preactSignalsUtilsBabel(
           path.scope.crawl();
         },
       },
+      //#region exports validation
+      ExportNamedDeclaration(path) {
+        if (
+          !isImportMacrosName(path.node.source?.value ?? "") ||
+          path.node.exportKind === "type"
+        ) {
+          return;
+        }
 
+        for (const specifier of path.get("specifiers")) {
+          if (!specifier.isExportSpecifier()) {
+            throw SyntaxErrorWithLoc.makeFromPosition(
+              `Unexpected ${specifier.type}, you can reexport only types from macroses`,
+              specifier.node.loc?.start
+            );
+          }
+
+          assert(
+            specifier.node.exportKind === "type",
+            SyntaxErrorWithLoc.makeFromPosition(
+              `Cannot export named exports from macro entry`,
+              specifier.node.loc?.start
+            )
+          );
+        }
+      },
+      ExportAllDeclaration(path) {
+        if (
+          !isImportMacrosName(path.node.source.value) ||
+          path.node.exportKind === "type"
+        ) {
+          return;
+        }
+
+        throw SyntaxErrorWithLoc.makeFromPosition(
+          "You can only reexport types from macro entry",
+          path.node.loc?.start
+        );
+      },
+      //#endregion exports validation
       ImportDeclaration(path) {
         if (
           !isImportMacrosName(path.node.source.value) ||

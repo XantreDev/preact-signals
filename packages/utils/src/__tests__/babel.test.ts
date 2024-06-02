@@ -1,4 +1,4 @@
-import { it, describe } from "vitest";
+import { it, describe, Test } from "vitest";
 import { format as _format } from "prettier";
 import { transform } from "@babel/core";
 import preactSignalsUtilsBabel, {
@@ -6,19 +6,38 @@ import preactSignalsUtilsBabel, {
   SyntaxErrorWithLoc,
 } from "../babel";
 
-const format = (code: string) => _format(code, { parser: "acorn" });
-
 type TestCase = {
   type: "success" | "error";
   name: string;
   input: string;
   isCJS: boolean;
   usePresetEnv: boolean;
+  typescript: boolean;
   options: BabelMacroPluginOptions | undefined;
 };
+
+const transformFromOptions = (testCase: TestCase) =>
+  transform(testCase.input, {
+    presets: testCase.usePresetEnv ? presetEnvConfig : undefined,
+    parserOpts: testCase.typescript
+      ? {
+          plugins: ["typescript"],
+        }
+      : undefined,
+    plugins: [[preactSignalsUtilsBabel, testCase.options]],
+    sourceType: testCase.isCJS ? "script" : "module",
+  })?.code!;
+
+const transformAndFormatFromOptions = (testCase: TestCase) =>
+  _format(transformFromOptions(testCase), {
+    parser: testCase.typescript ? "babel-ts" : "acorn",
+  });
+
 const TestCase = {
   makeSuccess: (name: string, input: string): TestCase =>
     TestCase.makeConfigurable(name, input, {}),
+  makeSuccessTypescript: (name: string, input: string): TestCase =>
+    TestCase.makeConfigurable(name, input, { typescript: true }),
   makeConfigurable: (
     name: string,
     input: string,
@@ -28,6 +47,7 @@ const TestCase = {
     name,
     input,
     isCJS: params.isCJS ?? false,
+    typescript: params.typescript ?? false,
     options: params.options ?? {
       experimental_stateMacros: true,
     },
@@ -221,7 +241,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       `
     ),
     TestCase.makeSuccess(
-      "State macro inside of ref macro", 
+      "State macro inside of ref macro",
       `
       import { $$, $state } from '@preact-signals/utils/macro'
 
@@ -230,7 +250,8 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       $$(a)
       `
     ),
-    TestCase.makeSuccess("Ref macro inside of state macro", 
+    TestCase.makeSuccess(
+      "Ref macro inside of state macro",
       `
       import { $$, $state } from '@preact-signals/utils/macro'
 
@@ -238,12 +259,23 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       let b = $state($$(a))
       `
     ),
-    TestCase.makeSuccess('Deref is working', `
+    TestCase.makeSuccess(
+      "Deref is working",
+      `
       import { $state, $deref } from '@preact-signals/utils/macro'
 
       let a = $state(10)
       const aSig = $deref(a)
-    `),
+    `
+    ),
+    TestCase.makeSuccessTypescript(
+      "Allows to export types",
+      `
+      export type * from '@preact-signals/utils/macro'
+      export type { a } from '@preact-signals/utils/macro'
+      export { type a } from '@preact-signals/utils/macro'
+    `
+    ),
     TestCase.makeConfigurable(
       "Should transform by preset-env correctly",
       `
@@ -258,17 +290,9 @@ describe.concurrent("@preact-signals/utils/macro", () => {
     ),
   ];
 
-  for (const { input, isCJS, name, options, usePresetEnv } of success) {
-    it(name, async ({ expect }) => {
-      expect(
-        await format(
-          transform(input, {
-            presets: usePresetEnv ? presetEnvConfig : undefined,
-            plugins: [[preactSignalsUtilsBabel, options]],
-            sourceType: isCJS ? "script" : "module",
-          })?.code!
-        )
-      ).toMatchSnapshot();
+  for (const testCase of success) {
+    it(testCase.name, async ({ expect }) => {
+      expect(await transformAndFormatFromOptions(testCase)).toMatchSnapshot();
     });
   }
   const fail = [
@@ -392,6 +416,26 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       `
     ),
     TestCase.makeError(
+      "Should throw if trying to export macro",
+      `
+      import { $state } from "@preact-signals/utils/macro";
+
+      export { $state }
+      `
+    ),
+    TestCase.makeError(
+      "Should throw on reexport (all)",
+      `
+      export * from "@preact-signals/utils/macro";
+      `
+    ),
+    TestCase.makeError(
+      "Should throw on reexport (one)",
+      `
+      export { $state } from "@preact-signals/utils/macro";
+      `
+    ),
+    TestCase.makeError(
       "Throws if top level macro exported from module (statement export)",
       `
       const { $state } = require("@preact-signals/utils/macro");
@@ -450,19 +494,10 @@ describe.concurrent("@preact-signals/utils/macro", () => {
     ),
   ];
 
-  for (const { input, isCJS, name, options, usePresetEnv } of fail) {
-    it(name, async ({ expect }) => {
+  for (const testCase of fail) {
+    it(testCase.name, async ({ expect }) => {
       expect(() => {
-        try {
-          transform(input, {
-            presets: usePresetEnv ? presetEnvConfig : undefined,
-            plugins: [[preactSignalsUtilsBabel, options]],
-            sourceType: isCJS ? "script" : "module",
-          });
-        } catch (e) {
-          // console.log(e);
-          throw e;
-        }
+        transformFromOptions(testCase);
         // @ts-expect-error private constructor is a shit show
       }).toThrowError(SyntaxErrorWithLoc);
     });
