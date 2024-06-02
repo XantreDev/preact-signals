@@ -288,6 +288,22 @@ describe.concurrent("@preact-signals/utils/macro", () => {
         usePresetEnv: true,
       }
     ),
+    TestCase.makeConfigurable(
+      "Should optimize JSX",
+      `
+      import { $state } from '@preact-signals/utils/macro'
+      
+      const a = $state(10)
+
+      const b = <>{a}</>
+      `,
+      {
+        options: {
+          experimental_stateMacros: true,
+          experimental_stateMacrosOptimization: true,
+        },
+      }
+    ),
   ];
 
   for (const testCase of success) {

@@ -276,6 +276,7 @@ const getStateMacrosBody = (
 
 export type BabelMacroPluginOptions = {
   experimental_stateMacros: boolean;
+  experimental_stateMacrosOptimization: boolean;
 };
 
 export class SyntaxErrorWithLoc extends SyntaxError {
@@ -490,7 +491,8 @@ const processStateMacros = (
   path: NodePath<BabelTypes.Program>,
   t: typeof BabelTypes,
   state: PluginPass,
-  importLazily: Record<StateMacros, LazyIdent>
+  importLazily: Record<StateMacros, LazyIdent>,
+  useJSXOptimizations: boolean
 ) => {
   for (const macro of stateMacros) {
     if (!path.scope.references[macro]) {
@@ -589,18 +591,26 @@ const processStateMacros = (
           );
         }
 
+        const parent = refPath.parentPath;
         const callee =
           refPath.parentPath?.isCallExpression() &&
           refPath.parentPath.get("callee");
         if (
-          refPath.parentPath &&
+          parent &&
           callee &&
           callee.isIdentifier() &&
           callee.node.name === derefMacro
         ) {
-          const parent = refPath.parentPath;
           parent.replaceWith(t.cloneNode(id))[0].scope.crawl();
 
+          continue;
+        }
+
+        if (
+          useJSXOptimizations &&
+          parent &&
+          parent.isJSXExpressionContainer()
+        ) {
           continue;
         }
 
@@ -651,6 +661,14 @@ export default function preactSignalsUtilsBabel(
   options?: BabelMacroPluginOptions
 ): PluginObj {
   const enableStateMacros = options?.experimental_stateMacros;
+  assert(
+    options?.experimental_stateMacrosOptimization
+      ? options.experimental_stateMacros
+      : true,
+    "Cannot enable experimental_stateMacrosOptimization without enabling experimental_stateMacros"
+  );
+  const enableStateMacrosOptimization =
+    options?.experimental_stateMacrosOptimization;
 
   return {
     name: PLUGIN_NAME,
@@ -676,7 +694,8 @@ export default function preactSignalsUtilsBabel(
                   data.importIdent,
                   data.importSource
                 )
-              )
+              ),
+              !!enableStateMacrosOptimization
             );
           }
         },
@@ -769,7 +788,6 @@ export default function preactSignalsUtilsBabel(
           );
         }
       },
-
       AssignmentExpression(path, state) {
         if (!enableStateMacros) {
           return;
