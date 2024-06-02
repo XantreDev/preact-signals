@@ -14,6 +14,13 @@ const _ = () => {
 "
 `;
 
+exports[`@preact-signals/utils/macro > Allows to export types 1`] = `
+"export type * from "@preact-signals/utils/macro";
+export type { a } from "@preact-signals/utils/macro";
+export { type a } from "@preact-signals/utils/macro";
+"
+`;
+
 exports[`@preact-signals/utils/macro > CJS import 1`] = `
 "var _$ = require("@preact-signals/utils").$;
 const a = _$(() => 1);
@@ -47,6 +54,13 @@ const _ = () => {
     c: c.value,
   };
 };
+"
+`;
+
+exports[`@preact-signals/utils/macro > Deref is working 1`] = `
+"import { deepSignal as _deepSignal } from "@preact-signals/utils";
+let a = _deepSignal(10);
+const aSig = a;
 "
 `;
 

@@ -1,10 +1,13 @@
-import { type ReactiveRef } from "./$";
+import type { ReadonlySignal } from "@preact/signals-core";
+import type { ReactiveRef } from "./$";
 
 console.log(
   "To use macro, you need to use babel plugin. Check out the README for more info."
 );
 
 export type $$Type = <T>(value: T) => ReactiveRef<T>;
+
+declare const stateType: unique symbol;
 
 const createMacroError =
   (macroName: string): ((...args: any[]) => never) =>
@@ -47,7 +50,52 @@ const createMacroError =
  */
 export const $$: $$Type = createMacroError("$$");
 
-export type $StateMacroType = <T>(value: T) => T;
+/**
+ * @internal
+ */
+type WritableStateMacro = {
+  [stateType]?: "writable";
+};
+
+/**
+ * @internal
+ */
+type ReadonlyStateMacro = {
+  [stateType]?: "readonly";
+};
+
+export type DerefMacro<T extends WritableStateMacro | ReadonlyStateMacro> =
+  T extends infer X & ReadonlyStateMacro
+    ? ReadonlySignal<X>
+    : T extends infer X & WritableStateMacro
+      ? // we shouldn't expose mutable type
+        ReadonlySignal<X>
+      : // ? DeepSignal<X>
+        {
+          _typeError: "Provided type is not macro reference";
+        };
+
+export type $StateMacroTypeWritable = <T>(value: T) => T & WritableStateMacro;
+export type $StateMacroType = <T>(value: T) => T & ReadonlyStateMacro;
+
+export type $Deref = <T extends WritableStateMacro | ReadonlyStateMacro>(
+  value: T
+) => DerefMacro<T>;
+
+/**
+ *
+ * Macro function that allows to get a real signal under the hood of reactive binding. Returns ReadonlySignal for safety
+ * 
+ * @example
+ * ```tsx
+ * import type { ReadonlySignal } from '@preact-signals/safe-react'
+ * import { $state, $deref } from '@preact-signals/utils/macro'
+ * 
+ * let a = $state(10)
+ * const aSig: ReadonlySignal<10> = $deref(a)
+ * ```
+ */
+export const $deref: $Deref = createMacroError("$deref");
 
 /**
  * Macro hook-function that allows you to create global reactive binding. Compile time wrapper around `deepSignal`
@@ -67,7 +115,7 @@ export type $StateMacroType = <T>(value: T) => T;
  * ```
  *
  */
-export const $state: $StateMacroType = createMacroError("$state");
+export const $state: $StateMacroTypeWritable = createMacroError("$state");
 
 /**
  * Macro hook-function that allows you to create deep reactive binding inside of component. Compile time wrapper around `useDeepSignal`
@@ -89,7 +137,7 @@ export const $state: $StateMacroType = createMacroError("$state");
  * ```
  *
  */
-export const $useState: $StateMacroType = createMacroError("$useState");
+export const $useState: $StateMacroTypeWritable = createMacroError("$useState");
 
 /**
  * Macro hook-function that creates reactive binding that is linked to a state that passed as argument. Compile time wrapper around `useSignalOfState`

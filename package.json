@@ -17,6 +17,7 @@
   "scripts": {
     "build": "turbo run build --filter=./packages/*",
     "build:with-apps": "turbo run build",
+    "build:with-playground": "turbo run build --filter=./packages/* --filter=./apps/transformer-playground",
     "watch": "turbo run watch --parallel",
     "test": "turbo run test --parallel",
     "eslint": "eslint --ext .ts,.tsx,.js,.jsx,.cjs,.mjs . --cache --cache-location=node_modules/.eslintcache",

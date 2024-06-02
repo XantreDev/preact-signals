@@ -227,12 +227,13 @@ const keys = <T extends string>(obj: Readonly<Record<T, any>>) =>
 
 const stateMacros = keys(stateMacrosMeta);
 const refMacro = "$$" as const;
+const derefMacro = "$deref" as const;
 
-const importSpecifiers = [...stateMacros, refMacro];
+const importSpecifiers = [...stateMacros, refMacro, derefMacro];
 
 type RefMacro = typeof refMacro;
 type StateMacros = (typeof stateMacros)[number];
-type MacroIdentifier = RefMacro | StateMacros;
+type MacroIdentifier = (typeof importSpecifiers)[number];
 
 const getStateMacrosBody = (
   node: BabelTypes.VariableDeclarator
@@ -262,7 +263,6 @@ const getStateMacrosBody = (
   const arg = args[0];
   if (
     !arg ||
-    arg.type === "JSXNamespacedName" ||
     arg.type === "ArgumentPlaceholder" ||
     arg.type === "SpreadElement"
   ) {
@@ -472,7 +472,7 @@ const processRefMacros = (
       t.callExpression(callee, [t.arrowFunctionExpression([], arg)])
     );
     // crawling newly created scope
-    res.scope.crawl()
+    res.scope.crawl();
     binding.dereference();
   }
   if (binding.references !== 0) {
@@ -589,11 +589,25 @@ const processStateMacros = (
           );
         }
 
+        const callee =
+          refPath.parentPath?.isCallExpression() &&
+          refPath.parentPath.get("callee");
+        if (
+          refPath.parentPath &&
+          callee &&
+          callee.isIdentifier() &&
+          callee.node.name === derefMacro
+        ) {
+          const parent = refPath.parentPath;
+          parent.replaceWith(t.cloneNode(id))[0].scope.crawl();
+
+          continue;
+        }
+
         refPath.replaceWith(
           t.memberExpression(t.cloneNode(id), t.identifier("value"))
         );
       }
-
       binding.dereference();
     }
     if (binding.references !== 0) {
@@ -613,6 +627,24 @@ const mapValues = <T extends Record<string, any>, U>(
   }
   return res;
 };
+
+function cleanDerefImport(
+  path: NodePath<BabelTypes.Program>,
+  enableStateMacros: boolean | undefined
+) {
+  const derefBinding = path.scope.getBinding(derefMacro);
+  if (derefBinding && enableStateMacros) {
+    if (derefBinding.referenced) {
+      const firstItem = derefBinding.referencePaths[0];
+      assert(firstItem, "invariant: referenced");
+      throw SyntaxErrorWithLoc.makeFromPosition(
+        `Expected all references to $deref to be removed`,
+        firstItem.node.loc?.start
+      );
+    }
+    createRemoveImport(path.scope, derefBinding, "$deref")?.();
+  }
+}
 
 export default function preactSignalsUtilsBabel(
   { types: t }: PluginArgs,
@@ -649,10 +681,51 @@ export default function preactSignalsUtilsBabel(
           }
         },
         exit(path) {
+          cleanDerefImport(path, enableStateMacros);
+
           path.scope.crawl();
         },
       },
+      //#region exports validation
+      ExportNamedDeclaration(path) {
+        if (
+          !isImportMacrosName(path.node.source?.value ?? "") ||
+          path.node.exportKind === "type"
+        ) {
+          return;
+        }
 
+        for (const specifier of path.get("specifiers")) {
+          if (!specifier.isExportSpecifier()) {
+            throw SyntaxErrorWithLoc.makeFromPosition(
+              `Unexpected ${specifier.type}, you can reexport only types from macroses`,
+              specifier.node.loc?.start
+            );
+          }
+
+          assert(
+            specifier.node.exportKind === "type",
+            SyntaxErrorWithLoc.makeFromPosition(
+              `Cannot export named exports from macro entry`,
+              specifier.node.loc?.start
+            )
+          );
+        }
+      },
+      ExportAllDeclaration(path) {
+        if (
+          !isImportMacrosName(path.node.source.value) ||
+          path.node.exportKind === "type"
+        ) {
+          return;
+        }
+
+        throw SyntaxErrorWithLoc.makeFromPosition(
+          "You can only reexport types from macro entry",
+          path.node.loc?.start
+        );
+      },
+      //#endregion exports validation
       ImportDeclaration(path) {
         if (
           !isImportMacrosName(path.node.source.value) ||

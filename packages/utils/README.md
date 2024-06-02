@@ -202,6 +202,7 @@ Allowed state macros:
 - `$useLinkedState`
 - `$derived`
 - `$useDerived`
+- `$deref`
 
 Here is example of how it works. You can play with it [here](https://preact-signals.netlify.app/?transformerConfig=N4Igxg9gtgDhB2BTeAXAziAXAMwIYBs1EAaEKXMAJwixUoFdEBfIA&code=JYWwDg9gTgLgBAbzgEgM4wIYwKYBoUAm2UwAbtgXAL5wBmUEIcA5AAJhTYYDGMAtKmABzAHYYANqgD0AVxjBJUkDwbMAUKEixEcbLVrZe1OgyZsOXXlMGiJqPpx4x1a8dnjos2OAF4UnnAAKBDU4OAwALjgARgAGXFC4ACMogCZYtSoASjU1bggRdDgiEnJKP2QSsgpAgOwAOgw4AGo4OvqknLU9A15AwKzfAD5ERPzCiDd68QghQIAiKrL5-CWKHOzc9oxm5qA)
 
