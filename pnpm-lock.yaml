@@ -166,8 +166,8 @@ importers:
         specifier: ^18.2.15
         version: 18.2.23
       '@vitejs/plugin-react':
-        specifier: ^4.1.1
-        version: 4.2.1(vite@5.2.11)
+        specifier: ^4.3.0
+        version: 4.3.0(vite@5.2.11)
       '@vitejs/plugin-react-swc':
         specifier: ^3.6.0
         version: 3.6.0(vite@5.2.11)
@@ -248,8 +248,8 @@ importers:
         specifier: ^7.2.0
         version: 7.4.0(eslint@8.57.0)(typescript@5.3.3)
       '@vitejs/plugin-react':
-        specifier: ^4.2.1
-        version: 4.2.1(vite@5.2.11)
+        specifier: ^4.3.0
+        version: 4.3.0(vite@5.2.11)
       autoprefixer:
         specifier: ^10.4.19
         version: 10.4.19(postcss@8.4.38)
@@ -456,8 +456,8 @@ importers:
         specifier: ^0.0.3
         version: 0.0.3
       '@vitejs/plugin-react':
-        specifier: ^4.1.1
-        version: 4.2.1(vite@5.2.11)
+        specifier: ^4.3.0
+        version: 4.3.0(vite@5.2.11)
       check-export-map:
         specifier: ^1.3.1
         version: 1.3.1
@@ -1691,8 +1691,8 @@ packages:
       '@babel/plugin-transform-react-jsx': 7.22.15(@babel/core@7.24.6)
     dev: true
 
-  /@babel/plugin-transform-react-jsx-self@7.23.3(@babel/core@7.24.6):
-    resolution: {integrity: sha512-qXRvbeKDSfwnlJnanVRp0SfuWE5DQhwQr5xtLBzp56Wabyo+4CMosF6Kfp+eOD/4FYpql64XVJ2W0pVLlJZxOQ==}
+  /@babel/plugin-transform-react-jsx-self@7.24.6(@babel/core@7.24.6):
+    resolution: {integrity: sha512-FfZfHXtQ5jYPQsCRyLpOv2GeLIIJhs8aydpNh39vRDjhD411XcfWDni5i7OjP/Rs8GAtTn7sWFFELJSHqkIxYg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
@@ -1701,8 +1701,8 @@ packages:
       '@babel/helper-plugin-utils': 7.24.6
     dev: true
 
-  /@babel/plugin-transform-react-jsx-source@7.23.3(@babel/core@7.24.6):
-    resolution: {integrity: sha512-91RS0MDnAWDNvGC6Wio5XYkyWI39FMFO+JK9+4AlgaTH+yWwVTsw7/sn6LK0lH7c5F+TFkpv/3LfCJ1Ydwof/g==}
+  /@babel/plugin-transform-react-jsx-source@7.24.6(@babel/core@7.24.6):
+    resolution: {integrity: sha512-BQTBCXmFRreU3oTUXcGKuPOfXAGb1liNY4AvvFKsOBAJ89RKcTsIrSsnMYkj59fNa66OFKnSa4AJZfy5Y4B9WA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
@@ -1806,19 +1806,6 @@ packages:
     dependencies:
       '@babel/core': 7.24.6
       '@babel/helper-plugin-utils': 7.24.6
-
-  /@babel/plugin-transform-typescript@7.21.3(@babel/core@7.24.6):
-    resolution: {integrity: sha512-RQxPz6Iqt8T0uw/WsJNReuBpWpBqs/n7mNo18sKLoTbMp+UrEekhH+pKSVC7gWz+DNjo9gryfV8YzCiT45RgMw==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-    dependencies:
-      '@babel/core': 7.24.6
-      '@babel/helper-annotate-as-pure': 7.24.6
-      '@babel/helper-create-class-features-plugin': 7.24.6(@babel/core@7.24.6)
-      '@babel/helper-plugin-utils': 7.24.6
-      '@babel/plugin-syntax-typescript': 7.23.3(@babel/core@7.24.6)
-    dev: true
 
   /@babel/plugin-transform-typescript@7.23.6(@babel/core@7.24.6):
     resolution: {integrity: sha512-6cBG5mBvUu4VUD04OHKnYzbuHNP8huDsD3EDqqpIpsswTDoqHCjLoHb6+QgsV1WsT2nipRqCPgxD3LXnEO7XfA==}
@@ -3366,7 +3353,7 @@ packages:
     resolution: {integrity: sha512-WlFttNnySKQMeujN09fRmrdWqh46QyJluM5jdtDNrkl/2Hx6N4XeDUGhABvConeK95OidVO7sFFf7sNebVXogA==}
     engines: {node: '>=18'}
     peerDependencies:
-      '@babel/core': 7.21.5
+      '@babel/core': '*'
     dependencies:
       '@babel/core': 7.24.6
       '@babel/plugin-proposal-async-generator-functions': 7.20.7(@babel/core@7.24.6)
@@ -3398,18 +3385,18 @@ packages:
       '@babel/plugin-transform-private-property-in-object': 7.24.6(@babel/core@7.24.6)
       '@babel/plugin-transform-react-display-name': 7.23.3(@babel/core@7.24.6)
       '@babel/plugin-transform-react-jsx': 7.22.15(@babel/core@7.24.6)
-      '@babel/plugin-transform-react-jsx-self': 7.23.3(@babel/core@7.24.6)
-      '@babel/plugin-transform-react-jsx-source': 7.23.3(@babel/core@7.24.6)
+      '@babel/plugin-transform-react-jsx-self': 7.24.6(@babel/core@7.24.6)
+      '@babel/plugin-transform-react-jsx-source': 7.24.6(@babel/core@7.24.6)
       '@babel/plugin-transform-runtime': 7.23.9(@babel/core@7.24.6)
       '@babel/plugin-transform-shorthand-properties': 7.24.6(@babel/core@7.24.6)
       '@babel/plugin-transform-spread': 7.24.6(@babel/core@7.24.6)
       '@babel/plugin-transform-sticky-regex': 7.24.6(@babel/core@7.24.6)
-      '@babel/plugin-transform-typescript': 7.21.3(@babel/core@7.24.6)
+      '@babel/plugin-transform-typescript': 7.23.6(@babel/core@7.24.6)
       '@babel/plugin-transform-unicode-regex': 7.24.6(@babel/core@7.24.6)
       '@babel/template': 7.24.6
       '@react-native/babel-plugin-codegen': 0.73.4(@babel/preset-env@7.24.6)
       babel-plugin-transform-flow-enums: 0.0.2(@babel/core@7.24.6)
-      react-refresh: 0.14.0
+      react-refresh: 0.14.2
     transitivePeerDependencies:
       - '@babel/preset-env'
       - supports-color
@@ -4521,17 +4508,17 @@ packages:
       - '@swc/helpers'
     dev: true
 
-  /@vitejs/plugin-react@4.2.1(vite@5.2.11):
-    resolution: {integrity: sha512-oojO9IDc4nCUUi8qIR11KoQm0XFFLIwsRBwHRR4d/88IWghn1y6ckz/bJ8GHDCsYEJee8mDzqtJxh15/cisJNQ==}
+  /@vitejs/plugin-react@4.3.0(vite@5.2.11):
+    resolution: {integrity: sha512-KcEbMsn4Dpk+LIbHMj7gDPRKaTMStxxWRkRmxsg/jVdFdJCZWt1SchZcf0M4t8lIKdwwMsEyzhrcOXRrDPtOBw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       vite: ^4.2.0 || ^5.0.0
     dependencies:
       '@babel/core': 7.24.6
-      '@babel/plugin-transform-react-jsx-self': 7.23.3(@babel/core@7.24.6)
-      '@babel/plugin-transform-react-jsx-source': 7.23.3(@babel/core@7.24.6)
+      '@babel/plugin-transform-react-jsx-self': 7.24.6(@babel/core@7.24.6)
+      '@babel/plugin-transform-react-jsx-source': 7.24.6(@babel/core@7.24.6)
       '@types/babel__core': 7.20.5
-      react-refresh: 0.14.0
+      react-refresh: 0.14.2
       vite: 5.2.11
     transitivePeerDependencies:
       - supports-color
@@ -9304,7 +9291,7 @@ packages:
       promise: 8.3.0
       react: 18.2.0
       react-devtools-core: 4.28.5
-      react-refresh: 0.14.0
+      react-refresh: 0.14.2
       react-shallow-renderer: 16.15.0(react@18.2.0)
       regenerator-runtime: 0.13.11
       scheduler: 0.24.0-canary-efb381bbf-20230505
@@ -9321,8 +9308,8 @@ packages:
       - utf-8-validate
     dev: true
 
-  /react-refresh@0.14.0:
-    resolution: {integrity: sha512-wViHqhAd8OHeLS/IRMJjTSDHF3U9eWi62F/MledQGPdJGDhodXJ9PBLNGr6WWL7qlH12Mt3TyTpbS+hGXMjCzQ==}
+  /react-refresh@0.14.2:
+    resolution: {integrity: sha512-jCvmsr+1IUSMUyzOkRcvnVbX3ZYC6g9TDrDbFuFmRDq7PD4yaGbLKNQL6k2jnArV8hjYxh7hVhAZB6s9HDGpZA==}
     engines: {node: '>=0.10.0'}
     dev: true
 
