@@ -314,6 +314,21 @@ describe.concurrent("@preact-signals/utils/macro", () => {
         experimental_stateMacrosOptimization: true,
       })
       .setJSX(true),
+    TestCase.make(
+      "Should now fail on complex JSX",
+      `
+      import { $state } from '@preact-signals/utils/macro'
+      
+      const a = $state(10)
+
+      const b = <>{a * 10}</>
+     `
+    )
+      .setOptions({
+        experimental_stateMacros: true,
+        experimental_stateMacrosOptimization: true,
+      })
+      .setJSX(true),
   ];
 
   for (const testCase of success) {
