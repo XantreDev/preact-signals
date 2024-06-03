@@ -2,19 +2,9 @@ import { it, describe, Test } from "vitest";
 import { format as _format } from "prettier";
 import { transform } from "@babel/core";
 import preactSignalsUtilsBabel, {
-  BabelMacroPluginOptions,
+  type BabelMacroPluginOptions,
   SyntaxErrorWithLoc,
 } from "../babel";
-
-type TestCase = {
-  type: "success" | "error";
-  name: string;
-  input: string;
-  isCJS: boolean;
-  usePresetEnv: boolean;
-  typescript: boolean;
-  options: BabelMacroPluginOptions | undefined;
-};
 
 const transformFromOptions = (testCase: TestCase) =>
   transform(testCase.input, {
@@ -33,29 +23,64 @@ const transformAndFormatFromOptions = (testCase: TestCase) =>
     parser: testCase.typescript ? "babel-ts" : "acorn",
   });
 
-const TestCase = {
-  makeSuccess: (name: string, input: string): TestCase =>
-    TestCase.makeConfigurable(name, input, {}),
-  makeSuccessTypescript: (name: string, input: string): TestCase =>
-    TestCase.makeConfigurable(name, input, { typescript: true }),
-  makeConfigurable: (
-    name: string,
-    input: string,
-    params: Partial<Omit<TestCase, "input" | "output" | "name">>
-  ): TestCase => ({
-    type: params.type ?? "success",
-    name,
-    input,
-    isCJS: params.isCJS ?? false,
-    typescript: params.typescript ?? false,
-    options: params.options ?? {
+class TestCase {
+  public type: "success" | "error";
+  public isCJS: boolean;
+  public usePresetEnv: boolean;
+  public typescript: boolean;
+  public options: BabelMacroPluginOptions;
+  public name: string;
+  public input: string;
+
+  private constructor(name: string, input: string) {
+    this.name = name;
+    this.input = input;
+    this.type = "success";
+    this.isCJS = false;
+    this.usePresetEnv = false;
+    this.typescript = false;
+    this.options = {
       experimental_stateMacros: true,
-    },
-    usePresetEnv: params.usePresetEnv ?? false,
-  }),
-  makeError: (name: string, input: string): TestCase =>
-    TestCase.makeConfigurable(name, input, { type: "error" }),
-};
+      experimental_stateMacrosOptimization: false,
+    };
+  }
+
+  setType(type: "success" | "error") {
+    this.type = type;
+    return this;
+  }
+
+  setIsCJS(isCJS: boolean) {
+    this.isCJS = isCJS;
+    return this;
+  }
+
+  setUsePresetEnv(usePresetEnv: boolean) {
+    this.usePresetEnv = usePresetEnv;
+    return this;
+  }
+
+  setTypescript(typescript: boolean) {
+    this.typescript = typescript;
+    return this;
+  }
+
+  setOptions(options: BabelMacroPluginOptions) {
+    this.options = options;
+    return this;
+  }
+
+  static makeSuccess(name: string, input: string): TestCase {
+    return new TestCase(name, input);
+  }
+
+  static makeSuccessTypescript(name: string, input: string): TestCase {
+    return new TestCase(name, input).setTypescript(true);
+  }
+  static makeError(name: string, input: string): TestCase {
+    return new TestCase(name, input).setType("error");
+  }
+}
 
 const presetEnvConfig = [
   [
@@ -120,28 +145,26 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const a = $$({ a: 1 })
     `
     ),
-    TestCase.makeConfigurable(
+    TestCase.makeSuccess(
       "CJS import",
       `
       const { $$ } = require("@preact-signals/utils/macro");
 
       const a = $$(1)
-      `,
-      { isCJS: true }
-    ),
-    TestCase.makeConfigurable(
+      `
+    ).setIsCJS(true),
+    TestCase.makeSuccess(
       "CJS import with multiple imports",
       `
       const { $$, $useState } = require("@preact-signals/utils/macro");
       $$(10)
-      `,
-      {
-        isCJS: true,
-        options: {
-          experimental_stateMacros: false,
-        },
-      }
-    ),
+      `
+    )
+      .setIsCJS(true)
+      .setOptions({
+        experimental_stateMacros: false,
+        experimental_stateMacrosOptimization: false,
+      }),
     TestCase.makeSuccess(
       "nested macro",
       `
@@ -169,15 +192,14 @@ describe.concurrent("@preact-signals/utils/macro", () => {
         import * as path from 'path';
       `
     ),
-    TestCase.makeConfigurable(
+    TestCase.makeSuccess(
       "is not break other imports (CJS)",
       `
         const React = require('react');
         const {readFileSync} = require('fs');
         const path = require('path');
-      `,
-      { isCJS: true }
-    ),
+      `
+    ).setIsCJS(true),
     TestCase.makeSuccess(
       "Replaces $useState references",
       `
@@ -276,19 +298,16 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       export { type a } from '@preact-signals/utils/macro'
     `
     ),
-    TestCase.makeConfigurable(
+    TestCase.makeSuccess(
       "Should transform by preset-env correctly",
       `
       import { $derived, $$ } from '@preact-signals/utils/macro'
       
       const state = $derived(10)
       $$(10)
-    `,
-      {
-        usePresetEnv: true,
-      }
-    ),
-    TestCase.makeConfigurable(
+    `
+    ).setUsePresetEnv(true),
+    TestCase.makeSuccess(
       "Should optimize JSX",
       `
       import { $state } from '@preact-signals/utils/macro'
@@ -296,14 +315,11 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const a = $state(10)
 
       const b = <>{a}</>
-      `,
-      {
-        options: {
-          experimental_stateMacros: true,
-          experimental_stateMacrosOptimization: true,
-        },
-      }
-    ),
+      `
+    ).setOptions({
+      experimental_stateMacros: true,
+      experimental_stateMacrosOptimization: true,
+    }),
   ];
 
   for (const testCase of success) {
@@ -368,12 +384,11 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const a = macro.$$(1)
       `
     ),
-    TestCase.makeConfigurable(
+    TestCase.makeSuccess(
       "CJS cannot rest pattern in require",
       `
-      const { $$, ...a } = require("@preact-signals/utils/macro");`,
-      { isCJS: true }
-    ),
+      const { $$, ...a } = require("@preact-signals/utils/macro");`
+    ).setIsCJS(true),
     TestCase.makeError(
       "Throws error if $linkedState assigned to a variable",
       `
