@@ -99,9 +99,18 @@ const _ = () => {
 `;
 
 exports[`@preact-signals/utils/macro > Should now fail on complex JSX 1`] = `
-"import { deepSignal as _deepSignal } from "@preact-signals/utils";
+"import { deepSignal as _deepSignal, $ as _$ } from "@preact-signals/utils";
 const a = _deepSignal(10);
-const b = <>{a.value * 10}</>;
+const b = <>{_$(() => a.value * 10)}</>;
+"
+`;
+
+exports[`@preact-signals/utils/macro > Should now fail on complex JSX 2`] = `
+"import { deepSignal as _deepSignal, $ as _$ } from "@preact-signals/utils";
+let a = _deepSignal(10);
+let b = _deepSignal(20);
+const c = <>{_$(() => a.value * b.value + 10)}</>;
+const d = <>{() => a.value}</>;
 "
 `;
 

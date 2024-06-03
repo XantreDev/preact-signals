@@ -1,9 +1,10 @@
-import {
+import type {
   types as BabelTypes,
   template as BabelTemplate,
   PluginObj,
   PluginPass,
   NodePath,
+  types,
 } from "@babel/core";
 import type { Binding } from "@babel/traverse";
 import { isModule, addNamed } from "@babel/helper-module-imports";
@@ -98,7 +99,7 @@ function createImportLazily(
         );
       };
 
-      for (let statement of path.get("body")) {
+      for (const statement of path.get("body")) {
         if (
           statement.isImportDeclaration() &&
           statement.node.source.value === source &&
@@ -492,6 +493,7 @@ const processStateMacros = (
   t: typeof BabelTypes,
   state: PluginPass,
   importLazily: Record<StateMacros, LazyIdent>,
+  importRefLazily: LazyIdent,
   useJSXOptimizations: boolean
 ) => {
   for (const macro of stateMacros) {
@@ -614,9 +616,35 @@ const processStateMacros = (
           continue;
         }
 
-        refPath.replaceWith(
+        const [path] = refPath.replaceWith(
           t.memberExpression(t.cloneNode(id), t.identifier("value"))
         );
+        // TODO: optimize this back traversal (maybe plugin should be ran after main traversal with meta info about JSXExpressionContainer-s)
+        if (useJSXOptimizations) {
+          let parentNode: NodePath<types.Node> | null = path.parentPath;
+          while (
+            parentNode &&
+            !parentNode?.isFunction() &&
+            !parentNode?.isExpressionStatement() &&
+            !parentNode?.isProgram() &&
+            !parentNode?.isJSXExpressionContainer()
+          ) {
+            parentNode = parentNode?.parentPath ?? null;
+          }
+
+          if (parentNode?.isJSXExpressionContainer()) {
+            const expr = parentNode.get("expression");
+            expr.replaceWith(
+              t.callExpression(importRefLazily(), [
+                t.arrowFunctionExpression(
+                  [],
+                  parentNode.node.expression as types.Expression
+                ),
+              ])
+            );
+            parentNode.scope.crawl();
+          }
+        }
       }
       binding.dereference();
     }
@@ -675,11 +703,14 @@ export default function preactSignalsUtilsBabel(
     visitor: {
       Program: {
         enter(path, state) {
-          processRefMacros(
-            path,
+          const importLazyIdent = createImportLazily(
             t,
-            createImportLazily(t, state, path, "$", "@preact-signals/utils")
+            state,
+            path,
+            "$",
+            "@preact-signals/utils"
           );
+          processRefMacros(path, t, importLazyIdent);
 
           if (enableStateMacros) {
             processStateMacros(
@@ -695,6 +726,7 @@ export default function preactSignalsUtilsBabel(
                   data.importSource
                 )
               ),
+              importLazyIdent,
               !!enableStateMacrosOptimization
             );
           }
