@@ -98,6 +98,13 @@ const _ = () => {
 "
 `;
 
+exports[`@preact-signals/utils/macro > Should optimize JSX 1`] = `
+"import { deepSignal as _deepSignal } from "@preact-signals/utils";
+const a = _deepSignal(10);
+const b = <>{a}</>;
+"
+`;
+
 exports[`@preact-signals/utils/macro > Should transform by preset-env correctly 1`] = `
 ""use strict";
 

@@ -9,11 +9,14 @@ import preactSignalsUtilsBabel, {
 const transformFromOptions = (testCase: TestCase) =>
   transform(testCase.input, {
     presets: testCase.usePresetEnv ? presetEnvConfig : undefined,
-    parserOpts: testCase.typescript
-      ? {
-          plugins: ["typescript"],
-        }
-      : undefined,
+    parserOpts: {
+      plugins: (
+        [
+          testCase.typescript ? "typescript" : null,
+          testCase.jsx ? "jsx" : null,
+        ] as const
+      ).filter(<T>(it: T): it is Exclude<T, null> => it !== null),
+    },
     plugins: [[preactSignalsUtilsBabel, testCase.options]],
     sourceType: testCase.isCJS ? "script" : "module",
   })?.code!;
@@ -24,10 +27,10 @@ const transformAndFormatFromOptions = (testCase: TestCase) =>
   });
 
 class TestCase {
-  public type: "success" | "error";
   public isCJS: boolean;
   public usePresetEnv: boolean;
   public typescript: boolean;
+  public jsx: boolean;
   public options: BabelMacroPluginOptions;
   public name: string;
   public input: string;
@@ -35,19 +38,14 @@ class TestCase {
   private constructor(name: string, input: string) {
     this.name = name;
     this.input = input;
-    this.type = "success";
     this.isCJS = false;
     this.usePresetEnv = false;
     this.typescript = false;
+    this.jsx = false;
     this.options = {
       experimental_stateMacros: true,
       experimental_stateMacrosOptimization: false,
     };
-  }
-
-  setType(type: "success" | "error") {
-    this.type = type;
-    return this;
   }
 
   setIsCJS(isCJS: boolean) {
@@ -64,21 +62,18 @@ class TestCase {
     this.typescript = typescript;
     return this;
   }
+  setJSX(jsx: boolean) {
+    this.jsx = jsx;
+    return this;
+  }
 
   setOptions(options: BabelMacroPluginOptions) {
     this.options = options;
     return this;
   }
 
-  static makeSuccess(name: string, input: string): TestCase {
+  static make(name: string, input: string): TestCase {
     return new TestCase(name, input);
-  }
-
-  static makeSuccessTypescript(name: string, input: string): TestCase {
-    return new TestCase(name, input).setTypescript(true);
-  }
-  static makeError(name: string, input: string): TestCase {
-    return new TestCase(name, input).setType("error");
   }
 }
 
@@ -93,7 +88,7 @@ const presetEnvConfig = [
 
 describe.concurrent("@preact-signals/utils/macro", () => {
   const success = [
-    TestCase.makeSuccess(
+    TestCase.make(
       "ESM import",
       `
       import { $$ } from "@preact-signals/utils/macro";
@@ -101,7 +96,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const a = $$(1)
     `
     ),
-    TestCase.makeSuccess(
+    TestCase.make(
       "Working inside of scopes",
       `
       import { $$ } from "@preact-signals/utils/macro";
@@ -116,17 +111,14 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       }
       `
     ),
-    TestCase.makeSuccess(
-      "Transforms only resolved as macro: unresolved",
-      `$$(10)`
-    ),
-    TestCase.makeSuccess(
+    TestCase.make("Transforms only resolved as macro: unresolved", `$$(10)`),
+    TestCase.make(
       "Must remove import event if not used",
       `
       import { $$ } from "@preact-signals/utils/macro";
       `
     ),
-    TestCase.makeSuccess(
+    TestCase.make(
       "Transforms only resolved as macro: declared",
       `
       import {$$} from "@preact-signals/utils/macro";
@@ -137,7 +129,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       }
       `
     ),
-    TestCase.makeSuccess(
+    TestCase.make(
       "Correctly handles braces in arrow function if using object",
       `
       import { $$ } from "@preact-signals/utils/macro";
@@ -145,7 +137,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const a = $$({ a: 1 })
     `
     ),
-    TestCase.makeSuccess(
+    TestCase.make(
       "CJS import",
       `
       const { $$ } = require("@preact-signals/utils/macro");
@@ -153,7 +145,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const a = $$(1)
       `
     ).setIsCJS(true),
-    TestCase.makeSuccess(
+    TestCase.make(
       "CJS import with multiple imports",
       `
       const { $$, $useState } = require("@preact-signals/utils/macro");
@@ -165,7 +157,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
         experimental_stateMacros: false,
         experimental_stateMacrosOptimization: false,
       }),
-    TestCase.makeSuccess(
+    TestCase.make(
       "nested macro",
       `
       const {$$} = require("@preact-signals/utils/macro");
@@ -173,7 +165,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       $$($$(1))
       `
     ),
-    TestCase.makeSuccess(
+    TestCase.make(
       "is not breaking directives",
       `
         'use client';
@@ -184,7 +176,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
         const a = $$(1)
       `
     ),
-    TestCase.makeSuccess(
+    TestCase.make(
       "is not break other imports",
       `
         import React from 'react';
@@ -192,7 +184,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
         import * as path from 'path';
       `
     ),
-    TestCase.makeSuccess(
+    TestCase.make(
       "is not break other imports (CJS)",
       `
         const React = require('react');
@@ -200,7 +192,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
         const path = require('path');
       `
     ).setIsCJS(true),
-    TestCase.makeSuccess(
+    TestCase.make(
       "Replaces $useState references",
       `
       import { $useState, $useLinkedState } from "@preact-signals/utils/macro";
@@ -218,7 +210,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       }
       `
     ),
-    TestCase.makeSuccess(
+    TestCase.make(
       "Correctly work with references in object shorthand",
       `
       import { $useState } from "@preact-signals/utils/macro";
@@ -231,7 +223,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       }
       `
     ),
-    TestCase.makeSuccess(
+    TestCase.make(
       "Top level macro works",
       `
       import { $state } from "@preact-signals/utils/macro";
@@ -244,7 +236,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       a += 10
       `
     ),
-    TestCase.makeSuccess(
+    TestCase.make(
       "$derived transforms correctly",
       `
       import { $derived } from '@preact-signals/utils/macro'
@@ -252,7 +244,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const state = $derived(10)
       `
     ),
-    TestCase.makeSuccess(
+    TestCase.make(
       "$useDerived transforms correctly",
       `
       import { $useDerived } from '@preact-signals/utils/macro'
@@ -262,7 +254,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       }
       `
     ),
-    TestCase.makeSuccess(
+    TestCase.make(
       "State macro inside of ref macro",
       `
       import { $$, $state } from '@preact-signals/utils/macro'
@@ -272,7 +264,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       $$(a)
       `
     ),
-    TestCase.makeSuccess(
+    TestCase.make(
       "Ref macro inside of state macro",
       `
       import { $$, $state } from '@preact-signals/utils/macro'
@@ -281,7 +273,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       let b = $state($$(a))
       `
     ),
-    TestCase.makeSuccess(
+    TestCase.make(
       "Deref is working",
       `
       import { $state, $deref } from '@preact-signals/utils/macro'
@@ -290,15 +282,15 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const aSig = $deref(a)
     `
     ),
-    TestCase.makeSuccessTypescript(
+    TestCase.make(
       "Allows to export types",
       `
       export type * from '@preact-signals/utils/macro'
       export type { a } from '@preact-signals/utils/macro'
       export { type a } from '@preact-signals/utils/macro'
     `
-    ),
-    TestCase.makeSuccess(
+    ).setTypescript(true),
+    TestCase.make(
       "Should transform by preset-env correctly",
       `
       import { $derived, $$ } from '@preact-signals/utils/macro'
@@ -307,7 +299,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       $$(10)
     `
     ).setUsePresetEnv(true),
-    TestCase.makeSuccess(
+    TestCase.make(
       "Should optimize JSX",
       `
       import { $state } from '@preact-signals/utils/macro'
@@ -316,10 +308,12 @@ describe.concurrent("@preact-signals/utils/macro", () => {
 
       const b = <>{a}</>
       `
-    ).setOptions({
-      experimental_stateMacros: true,
-      experimental_stateMacrosOptimization: true,
-    }),
+    )
+      .setOptions({
+        experimental_stateMacros: true,
+        experimental_stateMacrosOptimization: true,
+      })
+      .setJSX(true),
   ];
 
   for (const testCase of success) {
@@ -328,7 +322,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
     });
   }
   const fail = [
-    TestCase.makeError(
+    TestCase.make(
       "Throws error if not a CallExpression",
       `
       import { $$ } from "@preact-signals/utils/macro";
@@ -336,7 +330,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const a = $$;
     `
     ),
-    TestCase.makeError(
+    TestCase.make(
       "Throws error if callExpression called with multiple arguments",
       `
       import { $$ } from "@preact-signals/utils/macro";
@@ -344,7 +338,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const a = $$(1, 2);
     `
     ),
-    TestCase.makeError(
+    TestCase.make(
       "Throws error if callExpression called with no arguments",
       `
       import { $$ } from "@preact-signals/utils/macro";
@@ -352,7 +346,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const a = $$();
     `
     ),
-    TestCase.makeError(
+    TestCase.make(
       "Throws error if used with spread argument",
       `
       import { $$ } from "@preact-signals/utils/macro";
@@ -360,7 +354,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const a = $$(...[1]);
     `
     ),
-    TestCase.makeError(
+    TestCase.make(
       "Throws error if `$useState` used with var for variable declaration",
       `
       import { $useState } from "@preact-signals/utils/macro";
@@ -369,14 +363,14 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       }
       `
     ),
-    TestCase.makeError(
+    TestCase.make(
       "Throws error if using $useState outside of function",
       `
       import { $useState } from "@preact-signals/utils/macro";
       let a = $useState(0)
       `
     ),
-    TestCase.makeError(
+    TestCase.make(
       "Cannot use * as declaration",
       `
       import * as macro from "@preact-signals/utils/macro";
@@ -384,12 +378,12 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const a = macro.$$(1)
       `
     ),
-    TestCase.makeSuccess(
+    TestCase.make(
       "CJS cannot rest pattern in require",
       `
       const { $$, ...a } = require("@preact-signals/utils/macro");`
     ).setIsCJS(true),
-    TestCase.makeError(
+    TestCase.make(
       "Throws error if $linkedState assigned to a variable",
       `
       import { $useLinkedState } from "@preact-signals/utils/macro";
@@ -400,20 +394,20 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       `
     ),
     // TODO: throw even has no import of known macro
-    TestCase.makeError(
+    TestCase.make(
       "Throws if imports unknown macro",
       `
       import { $unknown, $$ } from "@preact-signals/utils/macro";
       `
     ),
     // TODO: throw even has no import of known macro
-    TestCase.makeError(
+    TestCase.make(
       "Throws if imports unknown macro (CJS)",
       `
       const { $unknown, $$ } = require("@preact-signals/utils/macro")
       `
     ),
-    TestCase.makeError(
+    TestCase.make(
       "Throws if state macros is used outside of variable declaration ($useState)",
       `
       import { $useState } from "@preact-signals/utils/macro";
@@ -421,7 +415,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
         $useState(0)
       }`
     ),
-    TestCase.makeError(
+    TestCase.make(
       "Throws if state macros is used outside of variable declaration ($useLinkedState)",
       `
       import { $useLinkedState, $useState } from "@preact-signals/utils/macro";
@@ -430,7 +424,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
         $useLinkedState(0)
       }`
     ),
-    TestCase.makeError(
+    TestCase.make(
       "Throws if state macros uses let for linked state",
       `
       import { $useLinkedState } from "@preact-signals/utils/macro";
@@ -438,7 +432,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
         let a = $useLinkedState(0)
       }`
     ),
-    TestCase.makeError(
+    TestCase.make(
       "Throws if top level macro exported from module (inline export)",
       `
       import { $state } from "@preact-signals/utils/macro";
@@ -446,7 +440,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       export let a = $state(0)
       `
     ),
-    TestCase.makeError(
+    TestCase.make(
       "Should throw if trying to export macro",
       `
       import { $state } from "@preact-signals/utils/macro";
@@ -454,19 +448,19 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       export { $state }
       `
     ),
-    TestCase.makeError(
+    TestCase.make(
       "Should throw on reexport (all)",
       `
       export * from "@preact-signals/utils/macro";
       `
     ),
-    TestCase.makeError(
+    TestCase.make(
       "Should throw on reexport (one)",
       `
       export { $state } from "@preact-signals/utils/macro";
       `
     ),
-    TestCase.makeError(
+    TestCase.make(
       "Throws if top level macro exported from module (statement export)",
       `
       const { $state } = require("@preact-signals/utils/macro");
@@ -476,7 +470,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       export { a }
       `
     ),
-    TestCase.makeError(
+    TestCase.make(
       "Throws if linked state assigned",
       `
       import {$useLinkedState} from '@preact-signals/utils/macro'
@@ -490,7 +484,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
     `
     ),
     ...["$derived", "$useDerived"].map((it) =>
-      TestCase.makeError(
+      TestCase.make(
         `Throws if ${it} state is ressigned`,
         `
       import {${it}} from '@preact-signals/utils/macro'
@@ -504,7 +498,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       `
       )
     ),
-    TestCase.makeError(
+    TestCase.make(
       "Throws if state is reassigned",
       `
       import { $state } from "@preact-signals/utils/macro";
@@ -514,7 +508,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       `
     ),
 
-    TestCase.makeError(
+    TestCase.make(
       "It must be imposible to deref regular var",
       `
       import { $state, $deref } from "@preact-signals/utils/macro";
