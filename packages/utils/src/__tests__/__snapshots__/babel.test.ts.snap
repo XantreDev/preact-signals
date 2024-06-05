@@ -98,6 +98,16 @@ const _ = () => {
 "
 `;
 
+exports[`@preact-signals/utils/macro > Should not wrap hooks 1`] = `
+"import { useRef } from "react";
+import { deepSignal as _deepSignal, $ as _$ } from "@preact-signals/utils";
+let a = _deepSignal(0);
+const Component = () => {
+  return <>{_$(() => useRef(a.value).current)}</>;
+};
+"
+`;
+
 exports[`@preact-signals/utils/macro > Should now fail on complex JSX 1`] = `
 "import { deepSignal as _deepSignal, $ as _$ } from "@preact-signals/utils";
 const a = _deepSignal(10);

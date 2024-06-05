@@ -72,6 +72,14 @@ class TestCase {
     return this;
   }
 
+  turnOnAllStateMacroFeatures() {
+    this.setOptions({
+      experimental_stateMacros: true,
+      experimental_stateMacrosOptimization: true,
+    });
+    return this;
+  }
+
   static make(name: string, input: string): TestCase {
     return new TestCase(name, input);
   }
@@ -309,10 +317,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const b = <>{a}</>
       `
     )
-      .setOptions({
-        experimental_stateMacros: true,
-        experimental_stateMacrosOptimization: true,
-      })
+      .turnOnAllStateMacroFeatures()
       .setJSX(true),
     TestCase.make(
       "Should now fail on complex JSX",
@@ -324,12 +329,9 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const b = <>{a * 10}</>
      `
     )
-      .setOptions({
-        experimental_stateMacros: true,
-        experimental_stateMacrosOptimization: true,
-      })
+      .turnOnAllStateMacroFeatures()
       .setJSX(true),
-    
+
     TestCase.make(
       "Should now fail on complex JSX",
       `
@@ -342,10 +344,23 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const d = <>{() => a}</>
      `
     )
-      .setOptions({
-        experimental_stateMacros: true,
-        experimental_stateMacrosOptimization: true,
-      })
+      .turnOnAllStateMacroFeatures()
+      .setJSX(true),
+    TestCase.make(
+      "Should not wrap hooks",
+      `
+      import { $state } from '@preact-signals/utils/macro'
+      import { useRef } from 'react'
+
+      
+      let a = $state(0)
+      
+      const Component = () => {
+        return <>{useRef(a).current}</>
+      }      
+      `
+    )
+      .turnOnAllStateMacroFeatures()
       .setJSX(true),
   ];
 

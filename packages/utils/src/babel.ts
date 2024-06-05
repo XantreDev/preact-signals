@@ -585,7 +585,10 @@ const processStateMacros = (
         throw new Error("invariant: Expected a binding");
       }
 
-      for (const refPath of varBinding.referencePaths) {
+      // after crawl in can be extended
+      const initialLength = varBinding.referencePaths.length;
+      for (let i = 0; i < initialLength; ++i) {
+        const refPath = varBinding.referencePaths[i]!;
         if (refPath.parentPath?.isExportSpecifier()) {
           throw SyntaxErrorWithLoc.makeFromPosition(
             `Cannot export ${macro} variable`,
@@ -634,15 +637,16 @@ const processStateMacros = (
 
           if (parentNode?.isJSXExpressionContainer()) {
             const expr = parentNode.get("expression");
-            expr.replaceWith(
-              t.callExpression(importRefLazily(), [
-                t.arrowFunctionExpression(
-                  [],
-                  parentNode.node.expression as types.Expression
-                ),
-              ])
-            );
-            parentNode.scope.crawl();
+            parentNode.replaceWith(
+              t.jsxExpressionContainer(
+                t.callExpression(importRefLazily(), [
+                  t.arrowFunctionExpression(
+                    [],
+                    expr.node as BabelTypes.Expression
+                  ),
+                ])
+              )
+            )[0].scope.crawl();
           }
         }
       }
