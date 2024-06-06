@@ -1,4 +1,4 @@
-import { it, describe, Test } from "vitest";
+import { it, describe } from "vitest";
 import { format as _format } from "prettier";
 import { transform } from "@babel/core";
 import preactSignalsUtilsBabel, {
