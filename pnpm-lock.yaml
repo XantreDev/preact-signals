@@ -230,8 +230,8 @@ importers:
         version: 1.2.3
     devDependencies:
       '@shikijs/monaco':
-        specifier: ^1.2.3
-        version: 1.2.3
+        specifier: ^1.6.5
+        version: 1.6.5
       '@types/babel__standalone':
         specifier: ^7.1.7
         version: 7.1.7
@@ -3702,11 +3702,16 @@ packages:
 
   /@shikijs/core@1.2.3:
     resolution: {integrity: sha512-SM+aiQVaEK2P53dEcsvhq9+LJPr0rzwezHbMQhHaSrPN4OlOB4vp1qTdhVEKfMg6atdq8s9ZotWW/CSCzWftwg==}
+    dev: false
 
-  /@shikijs/monaco@1.2.3:
-    resolution: {integrity: sha512-a9LY7g4Gx8ZssOhn476MHCx0QMUMg+EHjBYHjv0rqCgU9MLlBYr8+xqgd3JTjiDWDQdKrxVgy4X9o8YdFQTM2g==}
+  /@shikijs/core@1.6.5:
+    resolution: {integrity: sha512-XcQYt6e4L61ruAxHiL3Xg1DL/XkWWjzDdeckB/DtN8jAxoAU+bcxsV6DetC8NafHpL4YpGhxy9iXF0ND/u6HmA==}
+    dev: true
+
+  /@shikijs/monaco@1.6.5:
+    resolution: {integrity: sha512-kuxvZZ/No7/2s+zyTjbeLoMUIM+u6KlLHIJSWu56xdcKZM8oHMoJhH3V62PyV1b7JwleYN214IUAb6Txfhwd6g==}
     dependencies:
-      '@shikijs/core': 1.2.3
+      '@shikijs/core': 1.6.5
     dev: true
 
   /@sideway/address@4.1.5:
