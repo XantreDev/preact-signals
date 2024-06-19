@@ -587,12 +587,18 @@ const markAndRemoveMacros = (
   }
 
   if (useJSXOptimizations && parent && parent.isJSXExpressionContainer()) {
-    IdentFlagsHelper.set(pass, refPath.node, IdentFlags.AS_VALUE | parentFlag);
+    IdentFlagsHelper.set(pass, refPath.node, IdentFlags.AS_IS | parentFlag);
 
     return;
   }
 
   IdentFlagsHelper.set(pass, id, IdentFlags.AS_VALUE | parentFlag);
+
+  // console.log(
+  //   "asdfasdf",
+  //   refPath.node,
+  //   IdentFlagsHelper.get(pass, refPath.node)
+  // );
 
   // TODO: optimize this back traversal (maybe plugin should be ran after main traversal with meta info about JSXExpressionContainer-s)
   /* if (useJSXOptimizations) {
@@ -730,17 +736,20 @@ const processStateMacros = (
 
       // we need to skip declaration itself
       for (let i = 0; i < varBinding.referencePaths.length; ++i) {
-        // console.log(varBinding.referencePaths[i]?.node === id);
+        const node = varBinding.referencePaths[i]!;
+        assert(node.isIdentifier(), "invariant node must be ident");
 
         const mut = markAndRemoveMacros(
           pass,
-          varBinding.referencePaths[i]!,
-          id,
+          // varBinding.referencePaths[i]!,
+          node,
+          node.node,
           stateFlag,
           macro,
           derefMacro,
           useJSXOptimizations
         );
+
         if (mut) {
           mutations.push(mut);
         }
