@@ -853,9 +853,13 @@ export default function preactSignalsUtilsBabel(
           const flags = IdentFlagsHelper.get(pass, path.node);
           // variable declarator check is redundant, but for some reason it doesn't working without it
           // `let a.value = deepSignal(0)` is produced
-          if (flags === null || path.parentPath.isVariableDeclarator()) {
+          if (flags === null) {
             return;
           }
+          assert(
+            !path.parentPath.isVariableDeclarator() || flags & IdentFlags.AS_IS,
+            "invariant"
+          );
 
           const asFlag =
             flags &
