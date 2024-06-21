@@ -18,11 +18,12 @@ import signalsTransformPlugin from "@preact-signals/safe-react/babel";
 import macroTransformPlugin from "@preact-signals/utils/babel";
 import { shikiToMonaco } from "@shikijs/monaco";
 import { getHighlighter } from "shiki";
-import { resource } from "@preact-signals/utils";
+import { reaction, resource } from "@preact-signals/utils";
 import {
   decompressFromEncodedURIComponent,
   compressToEncodedURIComponent,
 } from "lz-string";
+import { toast } from "sonner";
 
 const signalsTransformName = "signals-transform";
 Babel.registerPlugin(signalsTransformName, signalsTransformPlugin);
@@ -40,6 +41,7 @@ const errorToNull = <T,>(fn: () => T): T | null => {
 
 type TransformerConfig = {
   macro: boolean;
+  macroOptimizations: boolean;
   components: boolean;
 };
 const getStateFromParams = () => {
@@ -85,12 +87,14 @@ const syncTransformerConfigToUrl = debounce(
 const transformerConfig = $state({
   "Transform components": defaults.transformerConfig?.components ?? false,
   "Transform macros": defaults.transformerConfig?.macro ?? true,
+  "Optimize macros": defaults.transformerConfig?.macroOptimizations ?? true,
 });
 
 effect(() => {
   syncTransformerConfigToUrl({
     components: transformerConfig["Transform components"],
     macro: transformerConfig["Transform macros"],
+    macroOptimizations: transformerConfig["Optimize macros"],
   });
 });
 
@@ -135,6 +139,8 @@ const babelOutput = computed(() => {
       Babel.availablePlugins[macroTransformName],
       {
         experimental_stateMacros: true,
+        experimental_stateMacrosOptimization:
+          transformerConfig["Optimize macros"],
       },
     ],
   ].filter(Boolean);
@@ -158,6 +164,19 @@ const babelOutput = computed(() => {
     } as const;
   }
 });
+reaction(
+  () =>
+    transformerConfig["Optimize macros"] &&
+    !transformerConfig["Transform macros"],
+  (isIncorrectOptions) => {
+    if (isIncorrectOptions) {
+      toast.warning(
+        "`Optimize macros` option will take any effect only if `Transform macros` used"
+      );
+    }
+  },
+  { memoize: true }
+);
 
 const highlighter = resource({
   fetcher: async () => {
