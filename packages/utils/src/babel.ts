@@ -1,4 +1,4 @@
-import {
+import type {
   types as BabelTypes,
   template as BabelTemplate,
   PluginObj,
@@ -23,12 +23,37 @@ function assert(
   }
 }
 
+function assertTest(condition: unknown, message: string | Error) {
+  if (import.meta.vitest && !condition) {
+    throw typeof message === "object" ? message : new AssertionError(message);
+  }
+}
+
+const IdentFlags = {
+  STATE: 1 << 0,
+  DERIVED: 1 << 1,
+
+  AS_IS: 1 << 2,
+  AS_VALUE: 1 << 3,
+  AS_PICK: 1 << 4,
+
+  LET: 1 << 5,
+  CONST: 1 << 6,
+};
+
+type OptimizationStackFrame = {
+  value: number;
+};
+
 const PLUGIN_NAME = "@preact-signals/utils/babel";
 type PluginStoreMap = Record<
   `ident/${StateMacros}`,
   Set<BabelTypes.Identifier>
-> &
-  Record<`${"imports" | "requires"}/${string}`, BabelTypes.Identifier>;
+> & {
+  identFlags: WeakMap<BabelTypes.Identifier, number>;
+  refImport: () => BabelTypes.Identifier;
+  optimizationStack: OptimizationStackFrame[];
+} & Record<`${"imports" | "requires"}/${string}`, BabelTypes.Identifier>;
 
 const self = {
   get: <T extends keyof PluginStoreMap>(
@@ -40,6 +65,17 @@ const self = {
     name: T,
     v: PluginStoreMap[T]
   ) => pass.set(`${PLUGIN_NAME}/${name}`, v),
+  getRefImport: (pass: PluginPass) => self.get(pass, "refImport"),
+  getOptimizationStack: (pass: PluginPass) => {
+    let stack = self.get(pass, "optimizationStack");
+
+    if (!stack) {
+      stack = [];
+      self.set(pass, "optimizationStack", stack);
+    }
+
+    return stack;
+  },
   addToSet: <T extends keyof PluginStoreMap>(
     pass: PluginPass,
     name: T,
@@ -66,8 +102,106 @@ const self = {
   },
 };
 
-const getIdentKey = <T extends StateMacros>(macro: T) =>
-  `ident/${macro}` as const;
+const IdentFlagsHelper = {
+  set: (pass: PluginPass, ident: BabelTypes.Identifier, flags: number) => {
+    let flagsMap = self.get(pass, "identFlags");
+    if (!flagsMap) {
+      flagsMap = new WeakMap();
+      self.set(pass, "identFlags", flagsMap);
+    }
+    flagsMap.set(ident, flags);
+  },
+  get: (pass: PluginPass, ident: BabelTypes.Identifier) => {
+    return self.get(pass, "identFlags")?.get(ident) ?? null;
+  },
+  isChecked: (pass: PluginPass, ident: BabelTypes.Identifier) => {
+    return IdentFlagsHelper.get(pass, ident) === null;
+  },
+  debug: (flags: number) => mapValues(IdentFlags, (value) => !!(value & flags)),
+};
+
+const OptmizeStackFlags = {
+  USES_REACTIVE_BINDINGS: 1 << 0,
+  HAS_BAILOUT: 1 << 1,
+};
+
+const OptimizeStackHelper = {
+  _getUnsafe(pass: PluginPass) {
+    const arr = self.get(pass, "optimizationStack");
+
+    assert(arr, "invariant: stack should not be empty");
+
+    return arr;
+  },
+  _mutateCurrentUnsafe(
+    pass: PluginPass,
+    mut: (it: OptimizationStackFrame) => OptimizationStackFrame
+  ) {
+    const arr = OptimizeStackHelper._getUnsafe(pass);
+
+    assert(arr.length > 0, "invariant");
+    arr[arr.length - 1] = mut(arr.at(-1)!);
+  },
+  bailoutCurrent(pass: PluginPass) {
+    OptimizeStackHelper._mutateCurrentUnsafe(pass, (it) => {
+      it.value |= OptmizeStackFlags.HAS_BAILOUT;
+      return it;
+    });
+  },
+  setUsesBindings(pass: PluginPass) {
+    OptimizeStackHelper._mutateCurrentUnsafe(pass, (it) => {
+      it.value |= OptmizeStackFlags.USES_REACTIVE_BINDINGS;
+      return it;
+    });
+  },
+  createFrame(pass: PluginPass) {
+    let arr = self.get(pass, "optimizationStack");
+    if (!arr) {
+      arr = [];
+      self.set(pass, "optimizationStack", arr);
+    }
+
+    arr.push({
+      value: 0,
+      // deopCallbacks: [],
+    });
+  },
+  removeFrame(pass: PluginPass) {
+    const arr = OptimizeStackHelper._getUnsafe(pass);
+
+    arr.pop();
+  },
+  isDeoptCurrent(pass: PluginPass) {
+    const arr = self.get(pass, "optimizationStack");
+
+    return arr && !!((arr.at(-1)?.value ?? 0) & OptmizeStackFlags.HAS_BAILOUT);
+  },
+  needsOptimization(pass: PluginPass) {
+    const arr = OptimizeStackHelper._getUnsafe(pass);
+
+    return arr.at(-1)?.value === OptmizeStackFlags.USES_REACTIVE_BINDINGS;
+  },
+  // runDeopCallbacks(pass: PluginPass) {
+  //   const arr = self.get(pass, "optimizationStack");
+
+  //   assert(arr && arr.length > 0, "invariant must exist if trying to deop");
+  //   for (const callback of arr.at(-1)!.deopCallbacks) {
+  //     callback();
+  //   }
+  // },
+  // addDeopCallback(pass: PluginPass, deopCallback: () => void) {
+  //   const arr = OptimizeStackHelper._getUnsafe(pass);
+
+  //   assert(arr.length > 0, "invariant");
+
+  //   arr.at(-1)!.deopCallbacks.push(deopCallback);
+  // },
+  hasCurrent(pass: PluginPass) {
+    const arr = self.get(pass, "optimizationStack");
+
+    return arr && arr.length > 0;
+  },
+};
 
 function createImportLazily(
   t: typeof BabelTypes,
@@ -98,7 +232,7 @@ function createImportLazily(
         );
       };
 
-      for (let statement of path.get("body")) {
+      for (const statement of path.get("body")) {
         if (
           statement.isImportDeclaration() &&
           statement.node.source.value === source &&
@@ -276,6 +410,7 @@ const getStateMacrosBody = (
 
 export type BabelMacroPluginOptions = {
   experimental_stateMacros: boolean;
+  experimental_stateMacrosOptimization: boolean;
 };
 
 export class SyntaxErrorWithLoc extends SyntaxError {
@@ -486,32 +621,97 @@ type LazyIdent = () => BabelTypes.Identifier;
 
 const includes = (arr: readonly string[], name: string) => arr.includes(name);
 
+const canBeOptimized = (parent: BabelTypes.Node, node: BabelTypes.Node) =>
+  (parent.type === "JSXElement" || parent.type === "JSXFragment") &&
+  node.type === "JSXExpressionContainer" &&
+  node.expression.type !== "JSXEmptyExpression";
+
+const markAndRemoveMacros = (
+  pass: PluginPass,
+  refPath: NodePath<BabelTypes.Node>,
+  id: BabelTypes.Identifier,
+  parentFlag: number,
+  macro: string,
+  derefMacro: string,
+  useJSXOptimizations: boolean
+): void => {
+  if (refPath.parentPath?.isExportSpecifier()) {
+    throw SyntaxErrorWithLoc.makeFromPosition(
+      `Cannot export ${macro} variable`,
+      refPath.node.loc?.start
+    );
+  }
+
+  assert(
+    refPath.isIdentifier(),
+    SyntaxErrorWithLoc.makeFromPosition(
+      "Expected $deref to be used with an identifier",
+      refPath.node.loc?.start
+    )
+  );
+  const parent = refPath.parentPath;
+  const callee =
+    refPath.parentPath?.isCallExpression() && refPath.parentPath.get("callee");
+  if (
+    parent &&
+    callee &&
+    callee.isIdentifier() &&
+    callee.node.name === derefMacro
+  ) {
+    IdentFlagsHelper.set(pass, refPath.node, IdentFlags.AS_IS | parentFlag);
+
+    parent.replaceWith(refPath.node);
+    parent.scope.getBinding(derefMacro)?.dereference();
+    return;
+  }
+  if (parent.isVariableDeclarator()) {
+    IdentFlagsHelper.set(pass, refPath.node, IdentFlags.AS_IS | parentFlag);
+    return;
+  }
+
+  if (
+    useJSXOptimizations &&
+    parent &&
+    canBeOptimized(parent.parent, parent.node)
+  ) {
+    IdentFlagsHelper.set(pass, refPath.node, IdentFlags.AS_IS | parentFlag);
+
+    return;
+  }
+
+  IdentFlagsHelper.set(pass, id, IdentFlags.AS_VALUE | parentFlag);
+};
+
 const processStateMacros = (
+  pass: PluginPass,
   path: NodePath<BabelTypes.Program>,
   t: typeof BabelTypes,
-  state: PluginPass,
-  importLazily: Record<StateMacros, LazyIdent>
+  importLazily: Record<StateMacros, LazyIdent>,
+  useJSXOptimizations: boolean
 ) => {
   for (const macro of stateMacros) {
     if (!path.scope.references[macro]) {
       continue;
     }
-    const binding = path.scope.getBinding(macro);
-    if (!binding) {
+    const macroBinding = path.scope.getBinding(macro);
+    if (!macroBinding) {
       continue;
     }
-    const remove = createRemoveImport(path.scope, binding, macro);
+    const remove = createRemoveImport(path.scope, macroBinding, macro);
     if (!remove) {
       continue;
     }
 
-    if (!binding.referencePaths || binding.referencePaths.length === 0) {
+    if (
+      !macroBinding.referencePaths ||
+      macroBinding.referencePaths.length === 0
+    ) {
       remove();
       continue;
     }
     const macroMeta = stateMacrosMeta[macro];
 
-    for (const path of binding.referencePaths) {
+    for (const path of macroBinding.referencePaths) {
       const callParent = path.parentPath;
       if (!callParent || !callParent.isCallExpression()) {
         throw SyntaxErrorWithLoc.makeFromPosition(
@@ -565,7 +765,7 @@ const processStateMacros = (
       }
 
       const constructorIdent = importLazily[macro]();
-      const [referencePath] = callParent.replaceWith(
+      callParent.replaceWith(
         createState(
           t,
           constructorIdent,
@@ -573,44 +773,40 @@ const processStateMacros = (
           stateMacrosMeta[macro].constructorType
         )
       );
-      path.scope.getBinding(constructorIdent.name)?.reference(referencePath);
-      self.addToSet(state, getIdentKey(macro), id);
+      // path.scope.getBinding(constructorIdent.name)?.reference(referencePath.get('callee'));
+      // self.addToSet(pass, getIdentKey(macro), id);
 
       const varBinding = path.scope.getBinding(id.name);
       if (!varBinding) {
         throw new Error("invariant: Expected a binding");
       }
 
-      for (const refPath of varBinding.referencePaths) {
-        if (refPath.parentPath?.isExportSpecifier()) {
-          throw SyntaxErrorWithLoc.makeFromPosition(
-            `Cannot export ${macro} variable`,
-            refPath.node.loc?.start
-          );
-        }
+      const stateFlag =
+        (macroMeta.canBeReassigned ? IdentFlags.STATE : IdentFlags.DERIVED) |
+        (varBinding.kind === "const" ? IdentFlags.CONST : IdentFlags.LET);
 
-        const callee =
-          refPath.parentPath?.isCallExpression() &&
-          refPath.parentPath.get("callee");
-        if (
-          refPath.parentPath &&
-          callee &&
-          callee.isIdentifier() &&
-          callee.node.name === derefMacro
-        ) {
-          const parent = refPath.parentPath;
-          parent.replaceWith(t.cloneNode(id))[0].scope.crawl();
+      IdentFlagsHelper.set(pass, id, stateFlag | IdentFlags.AS_IS);
 
-          continue;
-        }
+      // we need to skip declaration itself
+      for (let i = 0; i < varBinding.referencePaths.length; ++i) {
+        const node = varBinding.referencePaths[i]!;
+        assert(node.isIdentifier(), "invariant node must be ident");
 
-        refPath.replaceWith(
-          t.memberExpression(t.cloneNode(id), t.identifier("value"))
+        markAndRemoveMacros(
+          pass,
+          // varBinding.referencePaths[i]!,
+          node,
+          node.node,
+          stateFlag,
+          macro,
+          derefMacro,
+          useJSXOptimizations
         );
       }
-      binding.dereference();
+      macroBinding.dereference();
     }
-    if (binding.references !== 0) {
+
+    if (macroBinding.references !== 0) {
       throw new Error("invariant: Expected no references");
     }
     remove();
@@ -651,32 +847,45 @@ export default function preactSignalsUtilsBabel(
   options?: BabelMacroPluginOptions
 ): PluginObj {
   const enableStateMacros = options?.experimental_stateMacros;
+  assert(
+    options?.experimental_stateMacrosOptimization
+      ? options.experimental_stateMacros
+      : true,
+    "Cannot enable experimental_stateMacrosOptimization without enabling experimental_stateMacros"
+  );
+  const enableStateMacrosOptimization =
+    options?.experimental_stateMacrosOptimization;
 
   return {
     name: PLUGIN_NAME,
     visitor: {
       Program: {
-        enter(path, state) {
-          processRefMacros(
-            path,
+        enter(path, pass) {
+          const importLazyIdent = createImportLazily(
             t,
-            createImportLazily(t, state, path, "$", "@preact-signals/utils")
+            pass,
+            path,
+            "$",
+            "@preact-signals/utils"
           );
+          self.set(pass, "refImport", importLazyIdent);
+          processRefMacros(path, t, importLazyIdent);
 
           if (enableStateMacros) {
             processStateMacros(
+              pass,
               path,
               t,
-              state,
               mapValues(stateMacrosMeta, (data) =>
                 createImportLazily(
                   t,
-                  state,
+                  pass,
                   path,
                   data.importIdent,
                   data.importSource
                 )
-              )
+              ),
+              !!enableStateMacrosOptimization
             );
           }
         },
@@ -684,6 +893,68 @@ export default function preactSignalsUtilsBabel(
           cleanDerefImport(path, enableStateMacros);
 
           path.scope.crawl();
+        },
+      },
+      Identifier: {
+        exit(path, pass) {
+          const flags = IdentFlagsHelper.get(pass, path.node);
+          // variable declarator check is redundant, but for some reason it doesn't working without it
+          // `let a.value = deepSignal(0)` is produced
+          if (flags === null) {
+            return;
+          }
+          assert(
+            !path.parentPath.isVariableDeclarator() || flags & IdentFlags.AS_IS,
+            "invariant"
+          );
+
+          const asFlag =
+            flags &
+            (IdentFlags.AS_IS | IdentFlags.AS_PICK | IdentFlags.AS_VALUE);
+          assertTest(
+            asFlag === IdentFlags.AS_IS ||
+              asFlag === IdentFlags.AS_VALUE ||
+              asFlag === IdentFlags.AS_PICK,
+            "Expected AS_IS, AS_VALUE or AS_PICK"
+          );
+
+          const stateFlag = flags & (IdentFlags.STATE | IdentFlags.DERIVED);
+          assertTest(
+            stateFlag === IdentFlags.STATE || stateFlag === IdentFlags.DERIVED,
+            "Expected STATE or DERIVED"
+          );
+
+          const letConstFlag = flags & (IdentFlags.LET | IdentFlags.CONST);
+          assertTest(
+            letConstFlag === IdentFlags.LET ||
+              letConstFlag === IdentFlags.CONST,
+            "Expected LET or CONST"
+          );
+
+          const ident = path.node;
+
+          if (flags & IdentFlags.AS_IS) {
+            return;
+          }
+          if (flags & IdentFlags.AS_PICK) {
+            path.replaceWith(
+              t.callExpression(
+                t.memberExpression(path.node, t.identifier("peek")),
+                []
+              )
+            );
+            const newFlags = (flags ^ IdentFlags.AS_PICK) | IdentFlags.AS_IS;
+            IdentFlagsHelper.set(pass, ident, newFlags);
+          } else if (flags & IdentFlags.AS_VALUE) {
+            if (OptimizeStackHelper.hasCurrent(pass)) {
+              OptimizeStackHelper.setUsesBindings(pass);
+            }
+            path.replaceWith(
+              t.memberExpression(path.node, t.identifier("value"))
+            );
+            const newFlags = (flags ^ IdentFlags.AS_VALUE) | IdentFlags.AS_IS;
+            IdentFlagsHelper.set(pass, ident, newFlags);
+          }
         },
       },
       //#region exports validation
@@ -696,12 +967,13 @@ export default function preactSignalsUtilsBabel(
         }
 
         for (const specifier of path.get("specifiers")) {
-          if (!specifier.isExportSpecifier()) {
-            throw SyntaxErrorWithLoc.makeFromPosition(
+          assert(
+            specifier.isExportSpecifier(),
+            SyntaxErrorWithLoc.makeFromPosition(
               `Unexpected ${specifier.type}, you can reexport only types from macroses`,
               specifier.node.loc?.start
-            );
-          }
+            )
+          );
 
           assert(
             specifier.node.exportKind === "type",
@@ -712,6 +984,77 @@ export default function preactSignalsUtilsBabel(
           );
         }
       },
+      ...(enableStateMacrosOptimization &&
+        (() => {
+          const bailOut = (_: unknown, pass: PluginPass) => {
+            if (OptimizeStackHelper.hasCurrent(pass)) {
+              OptimizeStackHelper.bailoutCurrent(pass);
+            }
+          };
+
+          return {
+            // [TODO]: make bailouts more granular (only case when we should bailout - when we passing callback to jsx)
+            ArrowFunctionExpression: bailOut,
+            FunctionExpression: bailOut,
+            ObjectMethod: bailOut,
+            JSXExpressionContainer: {
+              enter: (path, pass) => {
+                console.log(path.parent.type === "JSXAttribute");
+                if (!canBeOptimized(path.parent, path.node)) {
+                  return;
+                }
+                OptimizeStackHelper.createFrame(pass);
+              },
+              exit: (path, pass) => {
+                const expr = path.get("expression");
+                const exprNode = expr.node;
+
+                if (!canBeOptimized(path.parent, path.node)) {
+                  return;
+                }
+                assert(OptimizeStackHelper.hasCurrent(pass) && exprNode.type !== 'JSXEmptyExpression', "invariant");
+
+                if (OptimizeStackHelper.needsOptimization(pass)) {
+                  const refImport = self.getRefImport(pass);
+                  assert(refImport, "invariant");
+
+                  expr.replaceWith(
+                    t.callExpression(refImport(), [
+                      t.arrowFunctionExpression([], exprNode),
+                    ])
+                  );              
+                }
+
+                OptimizeStackHelper.removeFrame(pass);
+              },
+            },
+            CallExpression: (path, pass) => {
+              if (
+                !OptimizeStackHelper.hasCurrent(pass) ||
+                OptimizeStackHelper.isDeoptCurrent(pass)
+              ) {
+                return;
+              }
+
+              const callee = path.get("callee");
+              const isHookName = (name: string) =>
+                name.startsWith("use") &&
+                name.length > 3 &&
+                name[3]?.toUpperCase() === name[3];
+
+              const isPathHook = (ident: NodePath) =>
+                ident.isIdentifier() && isHookName(ident.node.name);
+
+              if (
+                (callee.isIdentifier() && isPathHook(callee)) ||
+                (callee.isMemberExpression() &&
+                  isPathHook(callee.get("property")))
+              ) {
+                OptimizeStackHelper.bailoutCurrent(pass);
+              }
+            },
+          };
+        })()),
       ExportAllDeclaration(path) {
         if (
           !isImportMacrosName(path.node.source.value) ||
@@ -769,7 +1112,6 @@ export default function preactSignalsUtilsBabel(
           );
         }
       },
-
       AssignmentExpression(path, state) {
         if (!enableStateMacros) {
           return;
@@ -779,42 +1121,37 @@ export default function preactSignalsUtilsBabel(
           return;
         }
         const left = path.node.left;
-        const binding = path.scope.getBinding(path.node.left.name);
+        const binding = path.scope.getBindingIdentifier(left.name);
         if (!binding) {
           return;
         }
-        const ident = binding.identifier;
-        for (const key of stateMacros) {
-          const { canBeReassigned } = stateMacrosMeta[key];
-          if (!self.hasInSet(state, getIdentKey(key), ident)) {
-            continue;
-          }
-
-          assert(
-            canBeReassigned,
-            SyntaxErrorWithLoc.makeFromPosition(
-              `Cannot assign to a binded state`,
-              path.node.loc?.start
-            )
-          );
-          assert(
-            binding.kind !== "const",
-            SyntaxErrorWithLoc.makeFromPosition(
-              `Cannot reassign a constant binding`,
-              path.node.loc?.start
-            )
-          );
-
-          path.replaceWith(
-            t.assignmentExpression(
-              path.node.operator,
-              t.memberExpression(t.cloneNode(left), t.identifier("value")),
-              path.node.right
-            )
-          );
-
-          break;
+        const flags = IdentFlagsHelper.get(state, binding);
+        if (!flags) {
+          return;
         }
+
+        assert(
+          flags & IdentFlags.STATE,
+          SyntaxErrorWithLoc.makeFromPosition(
+            `Cannot assign to a binded state`,
+            path.node.loc?.start
+          )
+        );
+        assert(
+          flags & IdentFlags.LET,
+          SyntaxErrorWithLoc.makeFromPosition(
+            `Cannot reassign a constant binding`,
+            path.node.loc?.start
+          )
+        );
+
+        path.replaceWith(
+          t.assignmentExpression(
+            path.node.operator,
+            t.memberExpression(t.cloneNode(left), t.identifier("value")),
+            path.node.right
+          )
+        );
       },
     },
   };

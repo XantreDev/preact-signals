@@ -5,7 +5,7 @@
     "rootDir": "./src",
     "tsBuildInfoFile": "./node_modules/.tsbuildinfo",
     "outDir": "./dist/types",
-    "types": ["./global.d.ts"]
+    "types": ["./global.d.ts", "vitest/importMeta"]
   },
   "exclude": [
     "**/dist/**",
