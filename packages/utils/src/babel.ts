@@ -4,7 +4,6 @@ import type {
   PluginObj,
   PluginPass,
   NodePath,
-  types,
 } from "@babel/core";
 import type { Binding } from "@babel/traverse";
 import { isModule, addNamed } from "@babel/helper-module-imports";
@@ -622,6 +621,11 @@ type LazyIdent = () => BabelTypes.Identifier;
 
 const includes = (arr: readonly string[], name: string) => arr.includes(name);
 
+const canBeOptimized = (parent: BabelTypes.Node, node: BabelTypes.Node) =>
+  (parent.type === "JSXElement" || parent.type === "JSXFragment") &&
+  node.type === "JSXExpressionContainer" &&
+  node.expression.type !== "JSXEmptyExpression";
+
 const markAndRemoveMacros = (
   pass: PluginPass,
   refPath: NodePath<BabelTypes.Node>,
@@ -665,7 +669,11 @@ const markAndRemoveMacros = (
     return;
   }
 
-  if (useJSXOptimizations && parent && parent.isJSXExpressionContainer()) {
+  if (
+    useJSXOptimizations &&
+    parent &&
+    canBeOptimized(parent.parent, parent.node)
+  ) {
     IdentFlagsHelper.set(pass, refPath.node, IdentFlags.AS_IS | parentFlag);
 
     return;
@@ -991,7 +999,8 @@ export default function preactSignalsUtilsBabel(
             ObjectMethod: bailOut,
             JSXExpressionContainer: {
               enter: (path, pass) => {
-                if (path.node.expression.type === "JSXEmptyExpression") {
+                console.log(path.parent.type === "JSXAttribute");
+                if (!canBeOptimized(path.parent, path.node)) {
                   return;
                 }
                 OptimizeStackHelper.createFrame(pass);
@@ -999,10 +1008,11 @@ export default function preactSignalsUtilsBabel(
               exit: (path, pass) => {
                 const expr = path.get("expression");
                 const exprNode = expr.node;
-                if (exprNode.type === "JSXEmptyExpression") {
+
+                if (!canBeOptimized(path.parent, path.node)) {
                   return;
                 }
-                assert(OptimizeStackHelper.hasCurrent(pass), "invariant");
+                assert(OptimizeStackHelper.hasCurrent(pass) && exprNode.type !== 'JSXEmptyExpression', "invariant");
 
                 if (OptimizeStackHelper.needsOptimization(pass)) {
                   const refImport = self.getRefImport(pass);
@@ -1012,7 +1022,7 @@ export default function preactSignalsUtilsBabel(
                     t.callExpression(refImport(), [
                       t.arrowFunctionExpression([], exprNode),
                     ])
-                  );
+                  );              
                 }
 
                 OptimizeStackHelper.removeFrame(pass);

@@ -160,6 +160,16 @@ const state = (0, _macroHelper.computed)(() => 10);
 "
 `;
 
+exports[`@preact-signals/utils/macro > Should unwrap signals only inside of children element 1`] = `
+"import { useRef } from "react";
+import { deepSignal as _deepSignal } from "@preact-signals/utils";
+let a = _deepSignal(0);
+const Component = () => {
+  return <a href={a.value}>{a}</a>;
+};
+"
+`;
+
 exports[`@preact-signals/utils/macro > State macro inside of ref macro 1`] = `
 "import { $ as _$, deepSignal as _deepSignal } from "@preact-signals/utils";
 let a = _deepSignal(10);

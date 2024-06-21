@@ -370,6 +370,23 @@ describe.concurrent("@preact-signals/utils/macro", () => {
     )
       .turnOnAllStateMacroFeatures()
       .setJSX(true),
+
+    TestCase.make(
+      "Should unwrap signals only inside of children element",
+      `
+      import { $state } from '@preact-signals/utils/macro'
+      import { useRef } from 'react'
+
+      
+      let a = $state(0)
+      
+      const Component = () => {
+        return <a href={a}>{a}</a>
+      }      
+      `
+    )
+      .turnOnAllStateMacroFeatures()
+      .setJSX(true),
     TestCase.make(
       "Should optimize nested statements",
       `
