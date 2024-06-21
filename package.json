@@ -28,5 +28,8 @@
   "dependencies": {
     "concurrently": "^8.2.2",
     "prettier": "^3.2.5"
+  },
+  "engines": {
+    "pnpm": "^9"
   }
 }
