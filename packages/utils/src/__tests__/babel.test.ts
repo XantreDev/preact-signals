@@ -290,6 +290,14 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const aSig = $deref(a)
     `
     ),
+    TestCase.make("Deref is working inside other macro", 
+      `
+      import { $state, $deref } from '@preact-signals/utils/macro'
+
+      let a = $state(10)
+      const aSig = $state($deref(a))
+    `
+    ),
     TestCase.make(
       "Allows to export types",
       `

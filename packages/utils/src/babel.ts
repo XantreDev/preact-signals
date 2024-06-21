@@ -630,7 +630,7 @@ const markAndRemoveMacros = (
   macro: string,
   derefMacro: string,
   useJSXOptimizations: boolean
-) => {
+): void => {
   if (refPath.parentPath?.isExportSpecifier()) {
     throw SyntaxErrorWithLoc.makeFromPosition(
       `Cannot export ${macro} variable`,
@@ -656,10 +656,9 @@ const markAndRemoveMacros = (
   ) {
     IdentFlagsHelper.set(pass, refPath.node, IdentFlags.AS_IS | parentFlag);
 
-    return () => {
-      parent.replaceWith(refPath.node);
-      parent.scope.getBinding(derefMacro)?.dereference();
-    };
+    parent.replaceWith(refPath.node);
+    parent.scope.getBinding(derefMacro)?.dereference();
+    return;
   }
   if (parent.isVariableDeclarator()) {
     IdentFlagsHelper.set(pass, refPath.node, IdentFlags.AS_IS | parentFlag);
@@ -682,7 +681,6 @@ const processStateMacros = (
   importLazily: Record<StateMacros, LazyIdent>,
   useJSXOptimizations: boolean
 ) => {
-  const mutations: (() => void)[] = [];
   for (const macro of stateMacros) {
     if (!path.scope.references[macro]) {
       continue;
@@ -786,7 +784,7 @@ const processStateMacros = (
         const node = varBinding.referencePaths[i]!;
         assert(node.isIdentifier(), "invariant node must be ident");
 
-        const mut = markAndRemoveMacros(
+        markAndRemoveMacros(
           pass,
           // varBinding.referencePaths[i]!,
           node,
@@ -796,10 +794,6 @@ const processStateMacros = (
           derefMacro,
           useJSXOptimizations
         );
-
-        if (mut) {
-          mutations.push(mut);
-        }
       }
       macroBinding.dereference();
     }
@@ -808,9 +802,6 @@ const processStateMacros = (
       throw new Error("invariant: Expected no references");
     }
     remove();
-  }
-  for (const mut of mutations) {
-    mut();
   }
 };
 
