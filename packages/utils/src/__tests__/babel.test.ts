@@ -362,6 +362,22 @@ describe.concurrent("@preact-signals/utils/macro", () => {
     )
       .turnOnAllStateMacroFeatures()
       .setJSX(true),
+    TestCase.make(
+      "Should optimize nested statements",
+      `
+      import { $state } from '@preact-signals/utils/macro'
+      import { useRef } from 'react'
+
+      
+      let a = $state(0)
+      
+      const Component = () => {
+        return <>{a > 10 ? <>{a * 20}</> : a}</>
+      }
+      `
+    )
+      .turnOnAllStateMacroFeatures()
+      .setJSX(true),
   ];
 
   for (const testCase of success) {

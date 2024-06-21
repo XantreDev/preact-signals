@@ -100,10 +100,10 @@ const _ = () => {
 
 exports[`@preact-signals/utils/macro > Should not wrap hooks 1`] = `
 "import { useRef } from "react";
-import { deepSignal as _deepSignal, $ as _$ } from "@preact-signals/utils";
+import { deepSignal as _deepSignal } from "@preact-signals/utils";
 let a = _deepSignal(0);
 const Component = () => {
-  return <>{_$(() => useRef(a.value).current)}</>;
+  return <>{useRef(a.value).current}</>;
 };
 "
 `;
@@ -128,6 +128,18 @@ exports[`@preact-signals/utils/macro > Should optimize JSX 1`] = `
 "import { deepSignal as _deepSignal } from "@preact-signals/utils";
 const a = _deepSignal(10);
 const b = <>{a}</>;
+"
+`;
+
+exports[`@preact-signals/utils/macro > Should optimize nested statements 1`] = `
+"import { useRef } from "react";
+import { deepSignal as _deepSignal, $ as _$ } from "@preact-signals/utils";
+let a = _deepSignal(0);
+const Component = () => {
+  return (
+    <>{_$(() => (a.value > 10 ? <>{_$(() => a.value * 20)}</> : a.value))}</>
+  );
+};
 "
 `;
 

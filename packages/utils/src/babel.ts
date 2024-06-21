@@ -46,6 +46,10 @@ const IdentFlags = {
   CONST: 1 << 6,
 };
 
+type OptimizationStackFrame = {
+  value: number;
+};
+
 const PLUGIN_NAME = "@preact-signals/utils/babel";
 type PluginStoreMap = Record<
   `ident/${StateMacros}`,
@@ -53,7 +57,7 @@ type PluginStoreMap = Record<
 > & {
   identFlags: WeakMap<BabelTypes.Identifier, number>;
   refImport: () => BabelTypes.Identifier;
-  optimizationStack: number[];
+  optimizationStack: OptimizationStackFrame[];
 } & Record<`${"imports" | "requires"}/${string}`, BabelTypes.Identifier>;
 
 const self = {
@@ -121,8 +125,88 @@ const IdentFlagsHelper = {
   debug: (flags: number) => mapValues(IdentFlags, (value) => !!(value & flags)),
 };
 
-const getIdentKey = <T extends StateMacros>(macro: T) =>
-  `ident/${macro}` as const;
+const OptmizeStackFlags = {
+  USES_REACTIVE_BINDINGS: 1 << 0,
+  HAS_BAILOUT: 1 << 1,
+};
+
+const OptimizeStackHelper = {
+  _getUnsafe(pass: PluginPass) {
+    const arr = self.get(pass, "optimizationStack");
+
+    assert(arr, "invariant: stack should not be empty");
+
+    return arr;
+  },
+  _mutateCurrentUnsafe(
+    pass: PluginPass,
+    mut: (it: OptimizationStackFrame) => OptimizationStackFrame
+  ) {
+    const arr = OptimizeStackHelper._getUnsafe(pass);
+
+    assert(arr.length > 0, "invariant");
+    arr[arr.length - 1] = mut(arr.at(-1)!);
+  },
+  bailoutCurrent(pass: PluginPass) {
+    OptimizeStackHelper._mutateCurrentUnsafe(pass, (it) => {
+      it.value |= OptmizeStackFlags.HAS_BAILOUT;
+      return it;
+    });
+  },
+  setUsesBindings(pass: PluginPass) {
+    OptimizeStackHelper._mutateCurrentUnsafe(pass, (it) => {
+      it.value |= OptmizeStackFlags.USES_REACTIVE_BINDINGS;
+      return it;
+    });
+  },
+  createFrame(pass: PluginPass) {
+    let arr = self.get(pass, "optimizationStack");
+    if (!arr) {
+      arr = [];
+      self.set(pass, "optimizationStack", arr);
+    }
+
+    arr.push({
+      value: 0,
+      // deopCallbacks: [],
+    });
+  },
+  removeFrame(pass: PluginPass) {
+    const arr = OptimizeStackHelper._getUnsafe(pass);
+
+    arr.pop();
+  },
+  isDeoptCurrent(pass: PluginPass) {
+    const arr = self.get(pass, "optimizationStack");
+
+    return arr && !!((arr.at(-1)?.value ?? 0) & OptmizeStackFlags.HAS_BAILOUT);
+  },
+  needsOptimization(pass: PluginPass) {
+    const arr = OptimizeStackHelper._getUnsafe(pass);
+
+    return arr.at(-1)?.value === OptmizeStackFlags.USES_REACTIVE_BINDINGS;
+  },
+  // runDeopCallbacks(pass: PluginPass) {
+  //   const arr = self.get(pass, "optimizationStack");
+
+  //   assert(arr && arr.length > 0, "invariant must exist if trying to deop");
+  //   for (const callback of arr.at(-1)!.deopCallbacks) {
+  //     callback();
+  //   }
+  // },
+  // addDeopCallback(pass: PluginPass, deopCallback: () => void) {
+  //   const arr = OptimizeStackHelper._getUnsafe(pass);
+
+  //   assert(arr.length > 0, "invariant");
+
+  //   arr.at(-1)!.deopCallbacks.push(deopCallback);
+  // },
+  hasCurrent(pass: PluginPass) {
+    const arr = self.get(pass, "optimizationStack");
+
+    return arr && arr.length > 0;
+  },
+};
 
 function createImportLazily(
   t: typeof BabelTypes,
@@ -593,39 +677,6 @@ const markAndRemoveMacros = (
   }
 
   IdentFlagsHelper.set(pass, id, IdentFlags.AS_VALUE | parentFlag);
-
-  // console.log(
-  //   "asdfasdf",
-  //   refPath.node,
-  //   IdentFlagsHelper.get(pass, refPath.node)
-  // );
-
-  // TODO: optimize this back traversal (maybe plugin should be ran after main traversal with meta info about JSXExpressionContainer-s)
-  /* if (useJSXOptimizations) {
-    let parentNode: NodePath<types.Node> | null = path.parentPath;
-    while (
-      parentNode &&
-      !parentNode?.isFunction() &&
-      !parentNode?.isExpressionStatement() &&
-      !parentNode?.isProgram() &&
-      !parentNode?.isJSXExpressionContainer()
-    ) {
-      parentNode = parentNode?.parentPath ?? null;
-    }
-
-    if (parentNode?.isJSXExpressionContainer()) {
-      const expr = parentNode.get("expression");
-      parentNode
-        .replaceWith(
-          t.jsxExpressionContainer(
-            t.callExpression(importRefLazily(), [
-              t.arrowFunctionExpression([], expr.node as BabelTypes.Expression),
-            ])
-          )
-        )[0]
-        .scope.crawl();
-    }
-  } */
 };
 
 const processStateMacros = (
@@ -822,6 +873,7 @@ export default function preactSignalsUtilsBabel(
             "$",
             "@preact-signals/utils"
           );
+          self.set(pass, "refImport", importLazyIdent);
           processRefMacros(path, t, importLazyIdent);
 
           if (enableStateMacros) {
@@ -849,7 +901,7 @@ export default function preactSignalsUtilsBabel(
         },
       },
       Identifier: {
-        enter(path, pass) {
+        exit(path, pass) {
           const flags = IdentFlagsHelper.get(pass, path.node);
           // variable declarator check is redundant, but for some reason it doesn't working without it
           // `let a.value = deepSignal(0)` is produced
@@ -899,6 +951,9 @@ export default function preactSignalsUtilsBabel(
             const newFlags = (flags ^ IdentFlags.AS_PICK) | IdentFlags.AS_IS;
             IdentFlagsHelper.set(pass, ident, newFlags);
           } else if (flags & IdentFlags.AS_VALUE) {
+            if (OptimizeStackHelper.hasCurrent(pass)) {
+              OptimizeStackHelper.setUsesBindings(pass);
+            }
             path.replaceWith(
               t.memberExpression(path.node, t.identifier("value"))
             );
@@ -934,6 +989,75 @@ export default function preactSignalsUtilsBabel(
           );
         }
       },
+      ...(enableStateMacrosOptimization &&
+        (() => {
+          const bailOut = (_: unknown, pass: PluginPass) => {
+            if (OptimizeStackHelper.hasCurrent(pass)) {
+              OptimizeStackHelper.bailoutCurrent(pass);
+            }
+          };
+
+          return {
+            // [TODO]: make bailouts more granular (only case when we should bailout - when we passing callback to jsx)
+            ArrowFunctionExpression: bailOut,
+            FunctionExpression: bailOut,
+            ObjectMethod: bailOut,
+            JSXExpressionContainer: {
+              enter: (path, pass) => {
+                if (path.node.expression.type === "JSXEmptyExpression") {
+                  return;
+                }
+                OptimizeStackHelper.createFrame(pass);
+              },
+              exit: (path, pass) => {
+                const expr = path.get("expression");
+                const exprNode = expr.node;
+                if (exprNode.type === "JSXEmptyExpression") {
+                  return;
+                }
+                assert(OptimizeStackHelper.hasCurrent(pass), "invariant");
+
+                if (OptimizeStackHelper.needsOptimization(pass)) {
+                  const refImport = self.getRefImport(pass);
+                  assert(refImport, "invariant");
+
+                  expr.replaceWith(
+                    t.callExpression(refImport(), [
+                      t.arrowFunctionExpression([], exprNode),
+                    ])
+                  );
+                }
+
+                OptimizeStackHelper.removeFrame(pass);
+              },
+            },
+            CallExpression: (path, pass) => {
+              if (
+                !OptimizeStackHelper.hasCurrent(pass) ||
+                OptimizeStackHelper.isDeoptCurrent(pass)
+              ) {
+                return;
+              }
+
+              const callee = path.get("callee");
+              const isHookName = (name: string) =>
+                name.startsWith("use") &&
+                name.length > 3 &&
+                name[3]?.toUpperCase() === name[3];
+
+              const isPathHook = (ident: NodePath) =>
+                ident.isIdentifier() && isHookName(ident.node.name);
+
+              if (
+                (callee.isIdentifier() && isPathHook(callee)) ||
+                (callee.isMemberExpression() &&
+                  isPathHook(callee.get("property")))
+              ) {
+                OptimizeStackHelper.bailoutCurrent(pass);
+              }
+            },
+          };
+        })()),
       ExportAllDeclaration(path) {
         if (
           !isImportMacrosName(path.node.source.value) ||
