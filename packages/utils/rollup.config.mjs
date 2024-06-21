@@ -43,6 +43,7 @@ const commonPlugins = [
     preventAssignment: true,
     values: {
       __DEV__: "process.env.NODE_ENV !== 'production'",
+      "import.meta.vitest": "undefined",
     },
   }),
 ];

@@ -25,11 +25,7 @@ function assert(
 }
 
 function assertTest(condition: unknown, message: string | Error) {
-  if (
-    typeof process !== "undefined" &&
-    process?.env?.VITEST === "true" &&
-    !condition
-  ) {
+  if (import.meta.vitest && !condition) {
     throw typeof message === "object" ? message : new AssertionError(message);
   }
 }
