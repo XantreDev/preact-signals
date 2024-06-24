@@ -290,6 +290,8 @@ const isVariableDeclaratorRefMacros = (
   child.node.init.arguments[0]?.type === "StringLiteral" &&
   isImportMacrosName(child.node.init.arguments[0].value);
 
+// $state(), $state.useState(), $state.useLinked(), 
+// $derived(), $derived.useState()
 type ConstructorType = "raw" | "callback";
 const stateMacrosMeta = {
   $state: {
