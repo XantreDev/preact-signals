@@ -290,7 +290,8 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const aSig = $deref(a)
     `
     ),
-    TestCase.make("Deref is working inside other macro", 
+    TestCase.make(
+      "Deref is working inside other macro",
       `
       import { $state, $deref } from '@preact-signals/utils/macro'
 
@@ -399,6 +400,18 @@ describe.concurrent("@preact-signals/utils/macro", () => {
       const Component = () => {
         return <>{a > 10 ? <>{a * 20}</> : a}</>
       }
+      `
+    )
+      .turnOnAllStateMacroFeatures()
+      .setJSX(true),
+    TestCase.make(
+      "Optimizes nested components",
+      `
+      import { $state } from '@preact-signals/utils/macro'
+
+      let a = $state(10)
+
+      const _ = <A>{<B prop={a} >{a + 10}</B>}</A>
       `
     )
       .turnOnAllStateMacroFeatures()

@@ -79,6 +79,19 @@ const a = _$(() => 1);
 
 exports[`@preact-signals/utils/macro > Must remove import event if not used 1`] = `""`;
 
+exports[`@preact-signals/utils/macro > Optimizes nested components 1`] = `
+"import { deepSignal as _deepSignal, $ as _$ } from "@preact-signals/utils";
+let a = _deepSignal(10);
+const _ = (
+  <A>
+    {_$(() => (
+      <B prop={a.value}>{_$(() => a.value + 10)}</B>
+    ))}
+  </A>
+);
+"
+`;
+
 exports[`@preact-signals/utils/macro > Ref macro inside of state macro 1`] = `
 "import { $ as _$, deepSignal as _deepSignal } from "@preact-signals/utils";
 let a = _deepSignal(10);
