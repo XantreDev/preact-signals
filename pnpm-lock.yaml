@@ -293,8 +293,8 @@ importers:
         specifier: ^1.*
         version: 1.2.1(preact@10.21.0)
       '@tanstack/react-router':
-        specifier: 1.31.20
-        version: 1.31.20(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: 1.43.4
+        version: 1.43.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@tanstack/router':
         specifier: 0.0.1-beta.140
         version: 0.0.1-beta.140(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2370,19 +2370,19 @@ packages:
       typescript:
         optional: true
 
-  '@tanstack/history@1.31.16':
-    resolution: {integrity: sha512-rahAZXlR879P7dngDH7BZwGYiODA9D5Hqo6nUHn9GAURcqZU5IW0ZiT54dPtV5EPES7muZZmknReYueDHs7FFQ==}
+  '@tanstack/history@1.41.0':
+    resolution: {integrity: sha512-euTyZoHidW1+NeAW9V7SSPNjD6c54TBqKBO8HypA880HWlTXLW6V8rcBnfi1LY1W706dGCvDmZDTg6fsl/jJUw==}
     engines: {node: '>=12'}
 
   '@tanstack/query-core@4.29.23':
     resolution: {integrity: sha512-4BMHPrkfYmLP+NvqbbkV7Mk1nnphu+bNmxhhuB0+EMjKA7VfyFCfiyiTf55RRDgLaevyb9LrFK16lHW2owF52w==}
 
-  '@tanstack/react-router@1.31.20':
-    resolution: {integrity: sha512-as2TcwCMyv+Nq+dYvgDF1o5AP0qfNM2FWu8X2Skei3yJ4n7SyQYPNfcmzs6AQQzj8Okf6I0lJdscOl5f9Ut6Mg==}
+  '@tanstack/react-router@1.43.4':
+    resolution: {integrity: sha512-6N1s6vzhgd5Ala/2Fyr1DYx01D/KnoswpJuTaU+ZjCzm355UU3mkB371Ep1vfjSAylCSIKjLb0y/v/sV3DpD3Q==}
     engines: {node: '>=12'}
     peerDependencies:
-      react: '>=16.8'
-      react-dom: '>=16.8'
+      react: '>=18'
+      react-dom: '>=18'
 
   '@tanstack/react-store@0.0.1-beta.134':
     resolution: {integrity: sha512-sdd78TYYp2uye6QTRMCafREkummomQPILI8egKgquu3/Cww/QbEIu+BVAssWw5At94j7ZXpVEyHGHXt0Iyuliw==}
@@ -8372,13 +8372,13 @@ snapshots:
     optionalDependencies:
       typescript: 5.4.5
 
-  '@tanstack/history@1.31.16': {}
+  '@tanstack/history@1.41.0': {}
 
   '@tanstack/query-core@4.29.23': {}
 
-  '@tanstack/react-router@1.31.20(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@tanstack/react-router@1.43.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
-      '@tanstack/history': 1.31.16
+      '@tanstack/history': 1.41.0
       '@tanstack/react-store': 0.2.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
