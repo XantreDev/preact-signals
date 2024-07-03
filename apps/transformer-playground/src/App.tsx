@@ -1,11 +1,6 @@
 import * as Babel from "@babel/standalone";
 import { Editor, useMonaco } from "@monaco-editor/react";
-import {
-  $$,
-  $state,
-  $useLinkedState,
-  $useState,
-} from "@preact-signals/utils/macro";
+import { $$, $state, $useLinkedState } from "@preact-signals/utils/macro";
 import {
   computed,
   effect,
@@ -190,28 +185,6 @@ const highlighter = resource({
   },
 });
 
-const formattedHtml = resource({
-  fetcher: ({ code, h }) => {
-    if (!code) {
-      return "";
-    }
-
-    return h.codeToHtml(code, {
-      lang: "tsx",
-      defaultColor: "dark",
-      themes: {
-        light: "github-light",
-        dark: "github-dark",
-      },
-    });
-  },
-  source: () => {
-    return babelOutput.value.isError || !highlighter.latest
-      ? null
-      : { code: babelOutput.value.value, h: highlighter.latest };
-  },
-});
-
 const ErrorDialog = ({
   className,
   error,
@@ -240,40 +213,14 @@ const ErrorDialog = ({
   );
 };
 
-const TransformedCode = () => {
-  let divRef: HTMLDivElement | null = $useState(null);
-
-  useSignalEffect(() => {
-    if (!divRef) {
-      return;
-    }
-    divRef.innerHTML = formattedHtml() ?? "";
-  });
-  useSignalEffect(() => {
-    const error = babelOutput.value.isError && babelOutput.value.value;
-
-    if (error) {
-      console.error(error);
-    }
-  });
-  return (
-    <div className="overflow-auto relative flex flex-col w-full h-full">
-      Output:
-      <div
-        className="overflow-auto flex-1"
-        ref={(ref) => {
-          divRef = ref;
-        }}
-      />
-      <ErrorDialog
-        error={$$(
-          babelOutput.value.isError ? String(babelOutput.value.value) : null
-        )}
-        className="absolute inset-0"
-      />
-    </div>
-  );
-};
+let $prevSuccessCompilation = $state(
+  babelOutput.value.isError ? "" : babelOutput.value.value
+);
+effect(() => {
+  if (!babelOutput.value.isError) {
+    $prevSuccessCompilation = babelOutput.value.value;
+  }
+});
 
 function App() {
   const monaco = $useLinkedState(useMonaco());
@@ -309,20 +256,48 @@ function App() {
           ))
         )}
       </div>
-      <Editor
-        height={"100%"}
-        options={{
-          minimap: {
-            enabled: false,
-          },
-        }}
-        theme="github-dark"
-        defaultLanguage="tsx"
-        defaultValue={untracked(() => text)}
-        onChange={(v) => setDebouncedText(v ?? "")}
-      />
+      <div className="flex flex-row h-full">
+        <Editor
+          height={"100%"}
+          width={"50%"}
+          className="flex-1"
+          options={{
+            minimap: {
+              enabled: false,
+            },
+          }}
+          theme="github-dark"
+          defaultLanguage="tsx"
+          defaultValue={untracked(() => text)}
+          onChange={(v) => setDebouncedText(v ?? "")}
+        />
 
-      <TransformedCode />
+        {$$(
+          <div className="relative h-full flex-1">
+            <Editor
+              height={"100%"}
+              options={{
+                minimap: {
+                  enabled: false,
+                },
+                readOnly: true,
+              }}
+              theme="github-dark"
+              defaultLanguage="tsx"
+              value={$prevSuccessCompilation}
+            />
+
+            <ErrorDialog
+              error={$$(
+                babelOutput.value.isError
+                  ? String(babelOutput.value.value)
+                  : null
+              )}
+              className="absolute inset-0"
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
