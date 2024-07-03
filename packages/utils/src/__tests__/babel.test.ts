@@ -43,7 +43,7 @@ class TestCase {
     this.typescript = false;
     this.jsx = false;
     this.options = {
-      experimental_stateMacros: true,
+      stateMacros: true,
       experimental_stateMacrosOptimization: false,
     };
   }
@@ -74,7 +74,7 @@ class TestCase {
 
   turnOnAllStateMacroFeatures() {
     this.setOptions({
-      experimental_stateMacros: true,
+      stateMacros: true,
       experimental_stateMacrosOptimization: true,
     });
     return this;
@@ -162,7 +162,7 @@ describe.concurrent("@preact-signals/utils/macro", () => {
     )
       .setIsCJS(true)
       .setOptions({
-        experimental_stateMacros: false,
+        stateMacros: false,
         experimental_stateMacrosOptimization: false,
       }),
     TestCase.make(

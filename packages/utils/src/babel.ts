@@ -409,7 +409,7 @@ const getStateMacrosBody = (
 };
 
 export type BabelMacroPluginOptions = {
-  experimental_stateMacros: boolean;
+  stateMacros: boolean;
   experimental_stateMacrosOptimization: boolean;
 };
 
@@ -846,12 +846,12 @@ export default function preactSignalsUtilsBabel(
   { types: t }: PluginArgs,
   options?: BabelMacroPluginOptions
 ): PluginObj {
-  const enableStateMacros = options?.experimental_stateMacros;
+  const enableStateMacros = options?.stateMacros;
   assert(
     options?.experimental_stateMacrosOptimization
-      ? options.experimental_stateMacros
+      ? options.stateMacros
       : true,
-    "Cannot enable experimental_stateMacrosOptimization without enabling experimental_stateMacros"
+    "Cannot enable experimental_stateMacrosOptimization without enabling stateMacros"
   );
   const enableStateMacrosOptimization =
     options?.experimental_stateMacrosOptimization;
