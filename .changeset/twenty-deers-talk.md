@@ -1,3 +1,12 @@
+---
+"@preact-signals/utils": minor
+---
+
+Removed `experimental_` prefix from `stateMacro` options of `@preact-signals/utils/babel`
+
+Migration (Vite):
+
+```diff
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
@@ -11,7 +20,8 @@ export default defineConfig({
           [
             "module:@preact-signals/utils/babel",
             {
-              stateMacros: true,
+-              experimental_stateMacros: true,
++              stateMacros: true,
             },
           ],
         ],
@@ -19,3 +29,4 @@ export default defineConfig({
     }),
   ],
 });
+```

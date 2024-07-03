@@ -234,7 +234,7 @@ To use macros you need to add babel plugin to your babel config:
       "module:@preact-signals/utils/babel",
       {
         // if you want to use stateMacros
-        "experimental_stateMacros": true
+        "stateMacros": true
       }
     ]
   ]

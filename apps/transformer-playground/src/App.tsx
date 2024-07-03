@@ -138,7 +138,7 @@ const babelOutput = computed(() => {
     transformerConfig["Transform macros"] && [
       Babel.availablePlugins[macroTransformName],
       {
-        experimental_stateMacros: true,
+        stateMacros: true,
         experimental_stateMacrosOptimization:
           transformerConfig["Optimize macros"],
       },
