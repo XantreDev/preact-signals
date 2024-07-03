@@ -1,5 +1,13 @@
 # @preact-signals/query
 
+## 2.0.6
+
+### Patch Changes
+
+- Updated dependencies [dcd7e2c]
+- Updated dependencies [f706a6e]
+  - @preact-signals/utils@0.22.0
+
 ## 2.0.5
 
 ### Patch Changes

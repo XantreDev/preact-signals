@@ -1,5 +1,64 @@
 # @preact-signals/utils
 
+## 0.22.0
+
+### Minor Changes
+
+- dcd7e2c: Implemented `experimental_stateMacrosOptimization` for automatic optimization of state macroses in JSX
+
+  Example:
+
+  ```tsx
+  import { $state, $derived } from "@preact-signals/utils/macro";
+
+  let a = $state(10);
+  let b = $state(20);
+
+  const c = <>{a * b + 10}</>;
+  ```
+
+  Will be optimized to:
+
+  ```tsx
+  import { deepSignal as _deepSignal, $ as _$ } from "@preact-signals/utils";
+
+  let a = _deepSignal(10);
+  let b = _deepSignal(20);
+
+  const c = <>{_$(() => a.value * b.value + 10)}</>;
+  ```
+
+  In result your components will have less rerender when using state bindings
+
+- f706a6e: Removed `experimental_` prefix from `stateMacro` options of `@preact-signals/utils/babel`
+
+  Migration (Vite):
+
+  ```diff
+  import { defineConfig } from "vite";
+  import react from "@vitejs/plugin-react";
+
+  // https://vitejs.dev/config/
+  export default defineConfig({
+    plugins: [
+      react({
+        babel: {
+          plugins: [
+            "module:@preact-signals/safe-react/babel",
+            [
+              "module:@preact-signals/utils/babel",
+              {
+  -              experimental_stateMacros: true,
+  +              stateMacros: true,
+              },
+            ],
+          ],
+        },
+      }),
+    ],
+  });
+  ```
+
 ## 0.21.0
 
 ### Minor Changes
