@@ -626,8 +626,8 @@ importers:
         specifier: ^18
         version: 18.2.0(react@18.2.0)
       react-native-reanimated:
-        specifier: ^3.7.0
-        version: 3.7.0(@babel/core@7.24.6)(@babel/plugin-proposal-nullish-coalescing-operator@7.18.6(@babel/core@7.24.6))(@babel/plugin-proposal-optional-chaining@7.21.0(@babel/core@7.24.6))(@babel/plugin-transform-arrow-functions@7.24.6(@babel/core@7.24.6))(@babel/plugin-transform-shorthand-properties@7.24.6(@babel/core@7.24.6))(@babel/plugin-transform-template-literals@7.24.6(@babel/core@7.24.6))(react-native@0.73.4(@babel/core@7.24.6)(@babel/preset-env@7.24.6(@babel/core@7.24.6))(react@18.2.0))(react@18.2.0)
+        specifier: ^3.14.0
+        version: 3.14.0(@babel/core@7.24.6)(react-native@0.73.4(@babel/core@7.24.6)(@babel/preset-env@7.24.6(@babel/core@7.24.6))(react@18.2.0))(react@18.2.0)
       rollup:
         specifier: ^4.17.1
         version: 4.17.1
@@ -1197,12 +1197,6 @@ packages:
 
   '@babel/plugin-transform-numeric-separator@7.24.6':
     resolution: {integrity: sha512-6voawq8T25Jvvnc4/rXcWZQKKxUNZcKMS8ZNrjxQqoRFernJJKjE3s18Qo6VFaatG5aiX5JV1oPD7DbJhn0a4Q==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-
-  '@babel/plugin-transform-object-assign@7.23.3':
-    resolution: {integrity: sha512-TPJ6O7gVC2rlQH2hvQGRH273G1xdoloCj9Pc07Q7JbIZYDi+Sv5gaE2fu+r5E7qK4zyt6vj0FbZaZTRU5C3OMA==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
@@ -5226,15 +5220,10 @@ packages:
   react-is@18.2.0:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
 
-  react-native-reanimated@3.7.0:
-    resolution: {integrity: sha512-KM+MKa3CJWqsF4GlOLLKBxTR2NEcrg5/HP9J2b6Dfgvll1sjZPywCOEEIh967SboEU8N9LjYZuoVm2UoXGxp2Q==}
+  react-native-reanimated@3.14.0:
+    resolution: {integrity: sha512-TAxLtCfRyC/nOLeWoX/8MhdIF+Fi1e1NbLhIgEm5Kv9/gioAwSNaqLUYxjIClU1RaLwSTE8iaiHNVhTU4TS9DA==}
     peerDependencies:
       '@babel/core': ^7.0.0-0
-      '@babel/plugin-proposal-nullish-coalescing-operator': ^7.0.0-0
-      '@babel/plugin-proposal-optional-chaining': ^7.0.0-0
-      '@babel/plugin-transform-arrow-functions': ^7.0.0-0
-      '@babel/plugin-transform-shorthand-properties': ^7.0.0-0
-      '@babel/plugin-transform-template-literals': ^7.0.0-0
       react: '*'
       react-native: '*'
 
@@ -6813,7 +6802,7 @@ snapshots:
   '@babel/plugin-transform-arrow-functions@7.24.6(@babel/core@7.24.6)':
     dependencies:
       '@babel/core': 7.24.6
-      '@babel/helper-plugin-utils': 7.24.6
+      '@babel/helper-plugin-utils': 7.24.7
 
   '@babel/plugin-transform-async-generator-functions@7.24.6(@babel/core@7.24.6)':
     dependencies:
@@ -6987,7 +6976,7 @@ snapshots:
   '@babel/plugin-transform-nullish-coalescing-operator@7.24.6(@babel/core@7.24.6)':
     dependencies:
       '@babel/core': 7.24.6
-      '@babel/helper-plugin-utils': 7.24.6
+      '@babel/helper-plugin-utils': 7.24.7
       '@babel/plugin-syntax-nullish-coalescing-operator': 7.8.3(@babel/core@7.24.6)
 
   '@babel/plugin-transform-numeric-separator@7.24.6(@babel/core@7.24.6)':
@@ -6995,11 +6984,6 @@ snapshots:
       '@babel/core': 7.24.6
       '@babel/helper-plugin-utils': 7.24.6
       '@babel/plugin-syntax-numeric-separator': 7.10.4(@babel/core@7.24.6)
-
-  '@babel/plugin-transform-object-assign@7.23.3(@babel/core@7.24.6)':
-    dependencies:
-      '@babel/core': 7.24.6
-      '@babel/helper-plugin-utils': 7.24.6
 
   '@babel/plugin-transform-object-rest-spread@7.24.6(@babel/core@7.24.6)':
     dependencies:
@@ -7024,7 +7008,7 @@ snapshots:
   '@babel/plugin-transform-optional-chaining@7.24.6(@babel/core@7.24.6)':
     dependencies:
       '@babel/core': 7.24.6
-      '@babel/helper-plugin-utils': 7.24.6
+      '@babel/helper-plugin-utils': 7.24.7
       '@babel/helper-skip-transparent-expression-wrappers': 7.24.6
       '@babel/plugin-syntax-optional-chaining': 7.8.3(@babel/core@7.24.6)
 
@@ -7107,7 +7091,7 @@ snapshots:
   '@babel/plugin-transform-shorthand-properties@7.24.6(@babel/core@7.24.6)':
     dependencies:
       '@babel/core': 7.24.6
-      '@babel/helper-plugin-utils': 7.24.6
+      '@babel/helper-plugin-utils': 7.24.7
 
   '@babel/plugin-transform-spread@7.24.6(@babel/core@7.24.6)':
     dependencies:
@@ -7123,7 +7107,7 @@ snapshots:
   '@babel/plugin-transform-template-literals@7.24.6(@babel/core@7.24.6)':
     dependencies:
       '@babel/core': 7.24.6
-      '@babel/helper-plugin-utils': 7.24.6
+      '@babel/helper-plugin-utils': 7.24.7
 
   '@babel/plugin-transform-typeof-symbol@7.24.6(@babel/core@7.24.6)':
     dependencies:
@@ -7265,7 +7249,7 @@ snapshots:
   '@babel/preset-typescript@7.23.3(@babel/core@7.24.6)':
     dependencies:
       '@babel/core': 7.24.6
-      '@babel/helper-plugin-utils': 7.24.6
+      '@babel/helper-plugin-utils': 7.24.7
       '@babel/helper-validator-option': 7.24.6
       '@babel/plugin-syntax-jsx': 7.24.1(@babel/core@7.24.6)
       '@babel/plugin-transform-modules-commonjs': 7.24.6(@babel/core@7.24.6)
@@ -11675,13 +11659,12 @@ snapshots:
 
   react-is@18.2.0: {}
 
-  react-native-reanimated@3.7.0(@babel/core@7.24.6)(@babel/plugin-proposal-nullish-coalescing-operator@7.18.6(@babel/core@7.24.6))(@babel/plugin-proposal-optional-chaining@7.21.0(@babel/core@7.24.6))(@babel/plugin-transform-arrow-functions@7.24.6(@babel/core@7.24.6))(@babel/plugin-transform-shorthand-properties@7.24.6(@babel/core@7.24.6))(@babel/plugin-transform-template-literals@7.24.6(@babel/core@7.24.6))(react-native@0.73.4(@babel/core@7.24.6)(@babel/preset-env@7.24.6(@babel/core@7.24.6))(react@18.2.0))(react@18.2.0):
+  react-native-reanimated@3.14.0(@babel/core@7.24.6)(react-native@0.73.4(@babel/core@7.24.6)(@babel/preset-env@7.24.6(@babel/core@7.24.6))(react@18.2.0))(react@18.2.0):
     dependencies:
       '@babel/core': 7.24.6
-      '@babel/plugin-proposal-nullish-coalescing-operator': 7.18.6(@babel/core@7.24.6)
-      '@babel/plugin-proposal-optional-chaining': 7.21.0(@babel/core@7.24.6)
       '@babel/plugin-transform-arrow-functions': 7.24.6(@babel/core@7.24.6)
-      '@babel/plugin-transform-object-assign': 7.23.3(@babel/core@7.24.6)
+      '@babel/plugin-transform-nullish-coalescing-operator': 7.24.6(@babel/core@7.24.6)
+      '@babel/plugin-transform-optional-chaining': 7.24.6(@babel/core@7.24.6)
       '@babel/plugin-transform-shorthand-properties': 7.24.6(@babel/core@7.24.6)
       '@babel/plugin-transform-template-literals': 7.24.6(@babel/core@7.24.6)
       '@babel/preset-typescript': 7.23.3(@babel/core@7.24.6)
