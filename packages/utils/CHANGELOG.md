@@ -1,5 +1,11 @@
 # @preact-signals/utils
 
+## 0.22.1
+
+### Patch Changes
+
+- 661a86e: babel plugin: removed unexpected logging
+
 ## 0.22.0
 
 ### Minor Changes

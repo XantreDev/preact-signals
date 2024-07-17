@@ -1,5 +1,12 @@
 # transformer-playground
 
+## 0.0.9
+
+### Patch Changes
+
+- Updated dependencies [661a86e]
+  - @preact-signals/utils@0.22.1
+
 ## 0.0.8
 
 ### Patch Changes
