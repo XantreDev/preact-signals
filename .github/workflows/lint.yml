@@ -27,7 +27,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           cache: "pnpm"
-          node-version: latest
+          node-version: 22.4.0
       - run: pnpm i
       - run: rustup toolchain install nightly-2023-12-23
       - run: rustup target add wasm32-wasi --toolchain nightly-2023-12-23
