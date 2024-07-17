@@ -999,7 +999,6 @@ export default function preactSignalsUtilsBabel(
             ObjectMethod: bailOut,
             JSXExpressionContainer: {
               enter: (path, pass) => {
-                console.log(path.parent.type === "JSXAttribute");
                 if (!canBeOptimized(path.parent, path.node)) {
                   return;
                 }
