@@ -71,7 +71,7 @@
   },
   "devDependencies": {
     "@preact/signals-react": ">=1.2.0",
-    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^13.4.0",
     "@types/jsdom": "^21.1.5",
     "@types/react": "^18.2.37",
