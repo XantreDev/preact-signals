@@ -802,4 +802,40 @@ describe("React Signals Babel Transform", () => {
       expect(signalsBinding.referenced).toBeTruthy();
     });
   });
+
+  it("must transform components wrapped with HOCs", async () => {
+    const inputCode = `
+    import {forwardRef} from "react";
+
+    const Component = forwardRef(() => <div></div>);
+			`;
+
+    const expectedOutput = `
+        import {forwardRef} from 'react'
+        import { useSignals as _useSignals } from "custom-source";
+				const Component  = forwardRef(() => {
+					var _effect = _useSignals();
+					try {
+						return <div></div>;
+					} finally {
+						_effect.f();
+					}
+        });
+			`;
+
+    await runTest(
+      expect,
+      inputCode,
+      expectedOutput,
+      {
+        type: "babel",
+        options: {
+          importSource: "custom-source",
+          mode: "all",
+        },
+      },
+      false,
+      false
+    );
+  });
 });
