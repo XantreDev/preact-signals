@@ -38,12 +38,13 @@ fn get_import_source(str: &str) -> Str {
     }
 }
 fn is_track_signals_directive(string: &str) -> bool {
-    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r#"\s@useSignals\s"#).unwrap());
+    // https://github.com/preactjs/signals/blob/e04671469e9272de356109170b2e429db49db2f0/packages/react-transform/src/index.ts#L18
+    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r#"(\s|^)@useSignals(\s|$)"#).unwrap());
 
     RE.is_match(string)
 }
 fn is_no_track_signals_directive(string: &str) -> bool {
-    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r#"\s@noUseSignals\s"#).unwrap());
+    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r#"(\s|^)@noUseSignals(\s|$)"#).unwrap());
 
     RE.is_match(string)
 }
