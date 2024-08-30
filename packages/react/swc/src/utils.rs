@@ -39,37 +39,54 @@ fn is_component_name(name: &str) -> bool {
     RE.is_match(name)
 }
 
+fn is_hook_name(name: &str) -> bool {
+    static RE: Lazy<Regex> = Lazy::new(|| Regex::new("^use[A-Z]").unwrap());
+    RE.is_match(name)
+}
+
+#[derive(Clone)]
+pub enum Trackable {
+    Hook,
+    Component,
+}
 pub trait MaybeComponentName {
-    fn is_component_name(&self) -> bool;
+    fn is_trackable(&self) -> Option<Trackable>;
 }
 
 impl MaybeComponentName for str {
-    fn is_component_name(&self) -> bool {
-        is_component_name(self)
+    fn is_trackable(&self) -> Option<Trackable> {
+        if is_component_name(self) {
+            Some(Trackable::Component)
+        } else if is_hook_name(self) {
+            Some(Trackable::Hook)
+        } else {
+            None
+        }
     }
 }
 
 impl MaybeComponentName for Str {
-    fn is_component_name(&self) -> bool {
-        is_component_name(self.value.as_str())
+    fn is_trackable(&self) -> Option<Trackable> {
+        self.value.as_str().is_trackable()
     }
 }
 impl MaybeComponentName for Ident {
-    fn is_component_name(&self) -> bool {
-        is_component_name(self.sym.as_str())
+    fn is_trackable(&self) -> Option<Trackable> {
+        self.sym.as_str().is_trackable()
     }
 }
 impl MaybeComponentName for BindingIdent {
-    fn is_component_name(&self) -> bool {
-        self.id.is_component_name()
+    fn is_trackable(&self) -> Option<Trackable> {
+        self.id.is_trackable()
     }
 }
 impl MaybeComponentName for Pat {
-    fn is_component_name(&self) -> bool {
+    fn is_trackable(&self) -> Option<Trackable> {
         if let Pat::Ident(id) = self {
-            return id.is_component_name();
+            id.is_trackable()
+        } else {
+            None
         }
-        false
     }
 }
 
@@ -87,62 +104,59 @@ impl MaybeComponentName for Pat {
 } */
 
 impl MaybeComponentName for MemberProp {
-    fn is_component_name(&self) -> bool {
+    fn is_trackable(&self) -> Option<Trackable> {
         match self {
-            MemberProp::Ident(ident) => ident.is_component_name(),
-            MemberProp::PrivateName(_) => false,
+            MemberProp::Ident(ident) => ident.is_trackable(),
+            MemberProp::PrivateName(_) => None,
             MemberProp::Computed(ComputedPropName { span: _, expr }) => {
-                if let Expr::Lit(Lit::Str(Str {
+                let Expr::Lit(Lit::Str(Str {
                     span: _,
                     value,
                     raw: _,
                 })) = expr.unwrap_parens()
-                {
-                    is_component_name(value.as_str())
-                }
+                else {
+                    return None;
+                };
                 /* else if let Some(Expr::Lit(Lit::Str(left_str))) = get_left_add_binary(expr) {
                     is_component_name(left_str.value.as_str())
                 }  */
-                else {
-                    false
-                }
+
+                value.as_str().is_trackable()
             }
         }
     }
 }
 impl MaybeComponentName for Expr {
-    fn is_component_name(&self) -> bool {
+    fn is_trackable(&self) -> Option<Trackable> {
         match self.unwrap_parens() {
-            Expr::Ident(ident) => ident.is_component_name(),
-            Expr::Member(member_expr) => member_expr.prop.is_component_name(),
-            Expr::Lit(Lit::Str(str)) => str.is_component_name(),
-            _ => false,
+            Expr::Ident(ident) => ident.is_trackable(),
+            Expr::Member(member_expr) => member_expr.prop.is_trackable(),
+            Expr::Lit(Lit::Str(str)) => str.is_trackable(),
+            _ => None,
         }
     }
 }
 impl MaybeComponentName for PropName {
-    fn is_component_name(&self) -> bool {
+    fn is_trackable(&self) -> Option<Trackable> {
         match self {
-            PropName::Computed(computed_expr) => computed_expr.expr.is_component_name(),
-            PropName::Str(str) => str.is_component_name(),
-            PropName::Ident(ident) => ident.is_component_name(),
-            _ => false,
+            PropName::Computed(computed_expr) => computed_expr.expr.is_trackable(),
+            PropName::Str(str) => str.is_trackable(),
+            PropName::Ident(ident) => ident.is_trackable(),
+            _ => None,
         }
     }
 }
 
 impl MaybeComponentName for AssignTarget {
-    fn is_component_name(&self) -> bool {
-        let pat = if let AssignTarget::Simple(pat) = self {
-            pat
-        } else {
-            return false;
+    fn is_trackable(&self) -> Option<Trackable> {
+        let AssignTarget::Simple(pat) = self else {
+            return None;
         };
         match pat {
-            SimpleAssignTarget::Ident(ident) => ident.is_component_name(),
-            SimpleAssignTarget::Member(member) => member.prop.is_component_name(),
-            SimpleAssignTarget::Paren(paren) => paren.expr.is_component_name(),
-            _ => false,
+            SimpleAssignTarget::Ident(ident) => ident.is_trackable(),
+            SimpleAssignTarget::Member(member) => member.prop.is_trackable(),
+            SimpleAssignTarget::Paren(paren) => paren.expr.is_trackable(),
+            _ => None,
         }
     }
 }
