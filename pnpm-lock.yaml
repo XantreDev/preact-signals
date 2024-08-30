@@ -135,8 +135,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/utils
       '@preact/signals-react':
-        specifier: ^1.3.3
-        version: 1.3.6(react@18.2.0)
+        specifier: ^2.2.0
+        version: 2.2.0(react@18.2.0)
       components-for-test:
         specifier: workspace:*
         version: link:../../packages/components-for-test
@@ -303,8 +303,8 @@ importers:
         specifier: workspace:*
         version: link:../query
       '@preact/signals-react':
-        specifier: ^2.0.1
-        version: 2.0.1(react@18.2.0)
+        specifier: ^2.2.0
+        version: 2.2.0(react@18.2.0)
       '@types/react':
         specifier: ^18.2.37
         version: 18.2.73
@@ -352,8 +352,8 @@ importers:
         version: 1.2.0(react@18.2.0)
     devDependencies:
       '@preact/signals-react':
-        specifier: '>=1.2.0'
-        version: 1.3.6(react@18.2.0)
+        specifier: '>=2.2.0'
+        version: 2.2.0(react@18.2.0)
       '@testing-library/jest-dom':
         specifier: ^6.5.0
         version: 6.5.0
@@ -514,8 +514,8 @@ importers:
         version: 1.6.0
     devDependencies:
       '@preact/signals-react':
-        specifier: 1.3.4
-        version: 1.3.4(react@18.2.0)
+        specifier: 2.2.0
+        version: 2.2.0(react@18.2.0)
       '@rollup/plugin-replace':
         specifier: ^5.0.5
         version: 5.0.5(rollup@4.17.1)
@@ -578,8 +578,8 @@ importers:
         specifier: ^7.24.6
         version: 7.24.6(@babel/core@7.24.6)
       '@preact/signals-react':
-        specifier: ^1.3.6
-        version: 1.3.6(react@18.2.0)
+        specifier: ^2.2.0
+        version: 2.2.0(react@18.2.0)
       '@rollup/plugin-replace':
         specifier: ^5.0.5
         version: 5.0.5(rollup@4.17.1)
@@ -1981,18 +1981,11 @@ packages:
   '@preact/signals-core@1.6.0':
     resolution: {integrity: sha512-O/XGxwP85h1F7+ouqTMOIZ3+V1whfaV9ToIVcuyGriD4JkSD00cQo54BKdqjvBJxbenvp7ynfqRHEwI6e+NIhw==}
 
-  '@preact/signals-react@1.3.4':
-    resolution: {integrity: sha512-+MIGr7ZXpRwGhk9VrK4sT5SGQSzzNCgNHuPRJ1so4rwj/DY0Ks1//2ie0sMyPhWjO7NDA91Mp4ph1Nzo3hDHhA==}
-    peerDependencies:
-      react: ^16.14.0 || 17.x || 18.x
+  '@preact/signals-core@1.8.0':
+    resolution: {integrity: sha512-OBvUsRZqNmjzCZXWLxkZfhcgT+Fk8DDcT/8vD6a1xhDemodyy87UJRJfASMuSD8FaAIeGgGm85ydXhm7lr4fyA==}
 
-  '@preact/signals-react@1.3.6':
-    resolution: {integrity: sha512-jr/4lhcRo5W3hfieCJGDPbxq3YjfZDvpmTcisJ+lRhjWvnoYrgMKBoTiLsFPACO8VIEATaIBZXYiGAV08YvnfQ==}
-    peerDependencies:
-      react: ^16.14.0 || 17.x || 18.x
-
-  '@preact/signals-react@2.0.1':
-    resolution: {integrity: sha512-QQoxAPiliH6oeZPF5OZHmyala5zyFya0ZCp/A0lR4y6R9wO4lT7GdtYg5UFlmKNWMcFN6PiAjNPMTiNFMmnCpw==}
+  '@preact/signals-react@2.2.0':
+    resolution: {integrity: sha512-EPYlhXqqcOUxz2gTQGt4rtK6X7Jr04517DcJVZ4I5a7Gxy39haK24uFeVWtiU/tnEReRFcxpQN6poYra1jf68A==}
     peerDependencies:
       react: ^16.14.0 || 17.x || 18.x
 
@@ -7846,21 +7839,11 @@ snapshots:
 
   '@preact/signals-core@1.6.0': {}
 
-  '@preact/signals-react@1.3.4(react@18.2.0)':
-    dependencies:
-      '@preact/signals-core': 1.6.0
-      react: 18.2.0
-      use-sync-external-store: 1.2.0(react@18.2.0)
+  '@preact/signals-core@1.8.0': {}
 
-  '@preact/signals-react@1.3.6(react@18.2.0)':
+  '@preact/signals-react@2.2.0(react@18.2.0)':
     dependencies:
-      '@preact/signals-core': 1.6.0
-      react: 18.2.0
-      use-sync-external-store: 1.2.0(react@18.2.0)
-
-  '@preact/signals-react@2.0.1(react@18.2.0)':
-    dependencies:
-      '@preact/signals-core': 1.6.0
+      '@preact/signals-core': 1.8.0
       react: 18.2.0
       use-sync-external-store: 1.2.0(react@18.2.0)
 

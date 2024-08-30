@@ -45,7 +45,7 @@
     "@preact-signals/safe-react": "*",
     "@preact/signals": ">=1.1.0",
     "@preact/signals-core": ">=1.1.0",
-    "@preact/signals-react": ">=1.2.0",
+    "@preact/signals-react": ">=2.2.0",
     "react": "17.*.* || 18.*.*",
     "react-dom": "^18.2.0"
   },
@@ -70,7 +70,7 @@
     }
   },
   "devDependencies": {
-    "@preact/signals-react": ">=1.2.0",
+    "@preact/signals-react": ">=2.2.0",
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^13.4.0",
     "@types/jsdom": "^21.1.5",
