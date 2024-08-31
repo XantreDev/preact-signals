@@ -63,6 +63,9 @@ fn get_named_import_ident() -> Ident {
 #[serde(rename_all = "kebab-case")]
 enum TransformMode {
     Manual,
+    /**
+     * all options affects only components
+     */
     All,
     Auto,
 }
@@ -242,7 +245,7 @@ where
                 _ => false,
             },
             TransformMode::All => match should_track_by_name() {
-                Some(Trackable::Hook) if self.transform_hooks => true,
+                Some(Trackable::Hook) if self.transform_hooks => component.has_dot_value(),
                 Some(Trackable::Component) => component.has_jsx(),
                 _ => false,
             },
@@ -1029,7 +1032,12 @@ const Bebe = ()=>{
 
 test_inline!(
     get_syntax(),
-    |tester| as_folder(SignalsTransformVisitor::from_default(
+    |tester| as_folder(SignalsTransformVisitor::from_options(
+        PreactSignalsPluginOptions {
+            import_source: None,
+            mode: Some(TransformMode::All),
+            transform_hooks: Some(true)
+        },
         tester.comments.clone(),
         None
     )),
@@ -1038,7 +1046,6 @@ test_inline!(
     r#"
 'use strict';
 
-// @useSignals
 const useAboba = () => a.value
 "#,
     // Expected codes
@@ -1051,6 +1058,42 @@ const useAboba = () => {
   var _effect = _useSignals();
   try {
     return a.value
+  } finally{
+   _effect.f()
+  }
+"#
+);
+
+test_inline!(
+    get_syntax(),
+    |tester| as_folder(SignalsTransformVisitor::from_options(
+        PreactSignalsPluginOptions {
+            import_source: None,
+            mode: Some(TransformMode::Auto),
+            transform_hooks: Some(true)
+        },
+        tester.comments.clone(),
+        None
+    )),
+    hook_code_auto,
+    r#"
+'use strict';
+
+const useAboba = () => {
+  const counter = useSignal(0)
+  console.log(counter.value)
+}
+"#,
+    r#"
+'use strict';
+
+import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
+
+const useAboba = () => { 
+  var _effect = _useSignals();
+  try {
+    const counter = useSignal(0)
+    console.log(counter.value)
   } finally{
    _effect.f()
   }
