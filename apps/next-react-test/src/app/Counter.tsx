@@ -3,8 +3,15 @@
 
 import { useSignal } from "@preact-signals/safe-react";
 
-export const Counter = () => {
+const useCount = () => {
   const count = useSignal(0);
+
+  console.log(count.value);
+  return count;
+};
+
+export const Counter = () => {
+  const count = useCount();
   return (
     <div>
       <h1>Counter</h1>

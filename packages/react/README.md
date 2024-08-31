@@ -373,11 +373,24 @@ Supported parsers:
 
 Parser plugin transforms your components to subscribe to signals. It works in 3 modes:
 
-- `all` (default) - all components will be wrapped with try/finally block to track signals
-- `manual` - you should wrap your components with `@useSignals` directive to track signals
-- `auto` - all component which contains `.value` access will be wrapped with try/finally block to track signals
+- `all` (default)
 
-##### How to specify mode
+  - Components: will be wrapped with try/finally block to track signals
+  - Hooks (if [`transformHooks`](#swc-specific-options): `true`): all hooks that accesses `.value` will be wrapped with try/finally block to track signals
+
+- `auto`
+
+  - Components: components which contains `.value` access will be wrapped with try/finally block to track signals
+  - Hooks (if [`transformHooks`](#swc-specific-options) true) that which contains `.value` access will be wrapped with try/finally block to track signals
+
+- `manual` - none of hooks or components are tracked by default. You can use `@useSignals` comment to track signals
+
+```ts
+// @useSignals
+const Component = () => <div />
+```
+
+##### How to options mode
 
 - babel
 
@@ -396,17 +409,29 @@ Parser plugin transforms your components to subscribe to signals. It works in 3 
 
 - swc
   ```json
-  {
-    "plugins": [
-      [
-        "@preact-signals/safe-react/swc",
-        {
-          "mode": "manual"
-        }
-      ]
-    ]
-  }
+  [
+    "@preact-signals/safe-react/swc",
+    {
+      "mode": "manual"
+    }
+  ]
   ```
+
+#### SWC specific options
+
+`transformHooks` - default: `true`
+
+- `true` - transform hooks which uses `.value` access
+- `false` - don't transform hooks
+
+```json
+[
+  "@preact-signals/safe-react/swc",
+  {
+    "transformHooks": false
+  }
+]
+```
 
 ##### How parser plugin detects components?
 

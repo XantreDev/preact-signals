@@ -38,12 +38,13 @@ fn get_import_source(str: &str) -> Str {
     }
 }
 fn is_track_signals_directive(string: &str) -> bool {
-    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r#"\s@useSignals\s"#).unwrap());
+    // https://github.com/preactjs/signals/blob/e04671469e9272de356109170b2e429db49db2f0/packages/react-transform/src/index.ts#L18
+    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r#"(\s|^)@useSignals(\s|$)"#).unwrap());
 
     RE.is_match(string)
 }
 fn is_no_track_signals_directive(string: &str) -> bool {
-    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r#"\s@noUseSignals\s"#).unwrap());
+    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r#"(\s|^)@noUseSignals(\s|$)"#).unwrap());
 
     RE.is_match(string)
 }
@@ -62,6 +63,9 @@ fn get_named_import_ident() -> Ident {
 #[serde(rename_all = "kebab-case")]
 enum TransformMode {
     Manual,
+    /**
+     * all options affects only components
+     */
     All,
     Auto,
 }
@@ -71,6 +75,7 @@ enum TransformMode {
 struct PreactSignalsPluginOptions {
     mode: Option<TransformMode>,
     import_source: Option<String>,
+    transform_hooks: Option<bool>,
 }
 
 pub struct SignalsTransformVisitor<C>
@@ -82,7 +87,8 @@ where
     import_use_signals: Option<Ident>,
     use_signals_import_source: Str,
     ignore_span: Option<Span>,
-    is_file_named_like_component: bool,
+    file_trackable_name: Option<Trackable>,
+    transform_hooks: bool,
 }
 
 impl<C> SignalsTransformVisitor<C>
@@ -97,27 +103,29 @@ where
     fn from_options(
         options: PreactSignalsPluginOptions,
         comments: C,
-        is_file_named_like_component: bool,
+        file_trackable_name: Option<Trackable>,
     ) -> Self {
         SignalsTransformVisitor {
             comments: comments,
-            is_file_named_like_component,
+            file_trackable_name,
             mode: options.mode.unwrap_or(TransformMode::All),
             import_use_signals: None,
             use_signals_import_source: options
                 .import_source
                 .map(|it| get_import_source(it.as_str()))
                 .unwrap_or(get_default_import_source()),
+            transform_hooks: options.transform_hooks.unwrap_or(true),
             ignore_span: None,
         }
     }
-    fn from_default(comments: C, is_file_named_like_component: bool) -> Self {
+    fn from_default(comments: C, file_trackable_name: Option<Trackable>) -> Self {
         SignalsTransformVisitor {
             comments: comments,
-            is_file_named_like_component,
+            file_trackable_name,
             mode: TransformMode::All,
             import_use_signals: None,
             use_signals_import_source: get_default_import_source(),
+            transform_hooks: true,
             ignore_span: None,
         }
     }
@@ -223,17 +231,24 @@ where
     {
         let should_track_by_name = || {
             if is_default_export && ident.is_none() {
-                self.is_file_named_like_component
+                self.file_trackable_name.to_owned()
             } else {
-                ident.map(|it| it.is_component_name()).unwrap_or(false)
+                ident.and_then(|it| it.is_trackable())
             }
         };
+        // [TODO]: distinguish trackbables to support @preact/signals-react/runtime
         match self.mode {
-            TransformMode::All => should_track_by_name() && component.has_jsx(),
             TransformMode::Manual => false,
-            TransformMode::Auto => {
-                should_track_by_name() && component.has_jsx() && component.has_dot_value()
-            }
+            TransformMode::Auto => match should_track_by_name() {
+                Some(Trackable::Hook) if self.transform_hooks => component.has_dot_value(),
+                Some(Trackable::Component) => component.has_jsx() && component.has_dot_value(),
+                _ => false,
+            },
+            TransformMode::All => match should_track_by_name() {
+                Some(Trackable::Hook) if self.transform_hooks => component.has_dot_value(),
+                Some(Trackable::Component) => component.has_jsx(),
+                _ => false,
+            },
         }
     }
 
@@ -483,18 +498,14 @@ pub fn process_transform(program: Program, _metadata: TransformPluginProgramMeta
     program.fold_with(&mut as_folder({
         let data = _metadata.get_transform_plugin_config();
 
-        let is_file_named_like_component = _metadata
+        let file_has_trackable_name = _metadata
             .get_context(&TransformPluginMetadataContextKind::Filename)
-            .map(|it| {
-                PathBuf::from(it)
-                    .file_name()
-                    .map(|it| it.to_str())
-                    .flatten()
-                    .map(|it| it.to_owned())
-            })
-            .flatten()
-            .map(|it| it.is_component_name())
-            .unwrap_or(false);
+            .map(|it| PathBuf::from(it))
+            .and_then(|it| {
+                it.file_name()
+                    .and_then(|it| it.to_str())
+                    .and_then(|it| it.is_trackable())
+            });
 
         match data {
             Some(data) => {
@@ -503,13 +514,12 @@ pub fn process_transform(program: Program, _metadata: TransformPluginProgramMeta
                 SignalsTransformVisitor::from_options(
                     options,
                     _metadata.comments,
-                    is_file_named_like_component,
+                    file_has_trackable_name,
                 )
             }
-            None => SignalsTransformVisitor::from_default(
-                _metadata.comments,
-                is_file_named_like_component,
-            ),
+            None => {
+                SignalsTransformVisitor::from_default(_metadata.comments, file_has_trackable_name)
+            }
         }
     }))
 }
@@ -527,7 +537,7 @@ test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
-        false
+        None
     )),
     arrow_fn,
     // Input codes
@@ -563,7 +573,7 @@ test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
-        false
+        None
     )),
     function,
     // Input codes
@@ -591,7 +601,7 @@ test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
-        false
+        None
     )),
     function_expr,
     // Input codes
@@ -629,7 +639,7 @@ test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
-        false
+        None
     )),
     opt_in,
     // Input codes
@@ -731,7 +741,7 @@ test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
-        false
+        None
     )),
     nested_components,
     // Input codes
@@ -789,7 +799,7 @@ test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
-        false
+        None
     )),
     hocs,
     // Input codes
@@ -828,7 +838,7 @@ test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
-        false
+        None
     )),
     opt_in_opt_out,
     // Input codes
@@ -861,7 +871,7 @@ test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
-        false
+        None
     )),
     rare_components,
     // Input codes
@@ -956,7 +966,7 @@ test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
-        true
+        Some(Trackable::Component)
     )),
     default_components,
     // Input codes
@@ -995,7 +1005,7 @@ test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
-        false
+        None
     )),
     import_goes_after_directives,
     // Input codes
@@ -1017,5 +1027,75 @@ const Bebe = ()=>{
         _effect.f();
     }
 }
+"#
+);
+
+test_inline!(
+    get_syntax(),
+    |tester| as_folder(SignalsTransformVisitor::from_options(
+        PreactSignalsPluginOptions {
+            import_source: None,
+            mode: Some(TransformMode::All),
+            transform_hooks: Some(true)
+        },
+        tester.comments.clone(),
+        None
+    )),
+    hooks_code_is_transformed,
+    // Input codes
+    r#"
+'use strict';
+
+const useAboba = () => a.value
+"#,
+    // Expected codes
+    r#"
+'use strict';
+
+import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
+
+const useAboba = () => { 
+  var _effect = _useSignals();
+  try {
+    return a.value
+  } finally{
+   _effect.f()
+  }
+"#
+);
+
+test_inline!(
+    get_syntax(),
+    |tester| as_folder(SignalsTransformVisitor::from_options(
+        PreactSignalsPluginOptions {
+            import_source: None,
+            mode: Some(TransformMode::Auto),
+            transform_hooks: Some(true)
+        },
+        tester.comments.clone(),
+        None
+    )),
+    hook_code_auto,
+    r#"
+'use strict';
+
+const useAboba = () => {
+  const counter = useSignal(0)
+  console.log(counter.value)
+}
+"#,
+    r#"
+'use strict';
+
+import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
+
+const useAboba = () => { 
+  var _effect = _useSignals();
+  try {
+    const counter = useSignal(0)
+    console.log(counter.value)
+  } finally{
+   _effect.f()
+  }
 "#
 );

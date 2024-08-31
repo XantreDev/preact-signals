@@ -1,7 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    swcPlugins: [[require.resolve("@preact-signals/safe-react/swc"), {}]],
+    swcPlugins: [
+      [
+        require.resolve("@preact-signals/safe-react/swc"),
+        {
+          transformHooks: true,
+        },
+      ],
+    ],
     turbo: {
       resolveAlias: {
         "@preact/signals-react": "@preact-signals/safe-react",
