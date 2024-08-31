@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "@preact-signals/query": "workspace:*",
-    "@preact/signals-react": "^2.0.1",
+    "@preact/signals-react": "^2.2.0",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
     "concurrently": "^8.2.2",
