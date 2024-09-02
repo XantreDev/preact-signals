@@ -233,8 +233,8 @@ importers:
         version: 1.5.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
     devDependencies:
       '@shikijs/monaco':
-        specifier: ^1.2.3
-        version: 1.2.3
+        specifier: ^1.16.1
+        version: 1.16.1
       '@types/babel__standalone':
         specifier: ^7.1.7
         version: 7.1.7
@@ -1327,12 +1327,6 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
 
-  '@babel/plugin-transform-typescript@7.21.3':
-    resolution: {integrity: sha512-RQxPz6Iqt8T0uw/WsJNReuBpWpBqs/n7mNo18sKLoTbMp+UrEekhH+pKSVC7gWz+DNjo9gryfV8YzCiT45RgMw==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-
   '@babel/plugin-transform-typescript@7.23.6':
     resolution: {integrity: sha512-6cBG5mBvUu4VUD04OHKnYzbuHNP8huDsD3EDqqpIpsswTDoqHCjLoHb6+QgsV1WsT2nipRqCPgxD3LXnEO7XfA==}
     engines: {node: '>=6.9.0'}
@@ -2089,7 +2083,7 @@ packages:
     resolution: {integrity: sha512-WlFttNnySKQMeujN09fRmrdWqh46QyJluM5jdtDNrkl/2Hx6N4XeDUGhABvConeK95OidVO7sFFf7sNebVXogA==}
     engines: {node: '>=18'}
     peerDependencies:
-      '@babel/core': 7.21.5
+      '@babel/core': '*'
 
   '@react-native/codegen@0.73.3':
     resolution: {integrity: sha512-sxslCAAb8kM06vGy9Jyh4TtvjhcP36k/rvj2QE2Jdhdm61KvfafCATSIsOfc0QvnduWFcpXUPvAVyYwuv7PYDg==}
@@ -2251,11 +2245,17 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@shikijs/core@1.16.1':
+    resolution: {integrity: sha512-aI0hBtw+a6KsJp2jcD4YuQqKpeCbURMZbhHVozDknJpm+KJqeMRkEnfBC8BaKE/5XC+uofPgCLsa/TkTk0Ba0w==}
+
   '@shikijs/core@1.2.3':
     resolution: {integrity: sha512-SM+aiQVaEK2P53dEcsvhq9+LJPr0rzwezHbMQhHaSrPN4OlOB4vp1qTdhVEKfMg6atdq8s9ZotWW/CSCzWftwg==}
 
-  '@shikijs/monaco@1.2.3':
-    resolution: {integrity: sha512-a9LY7g4Gx8ZssOhn476MHCx0QMUMg+EHjBYHjv0rqCgU9MLlBYr8+xqgd3JTjiDWDQdKrxVgy4X9o8YdFQTM2g==}
+  '@shikijs/monaco@1.16.1':
+    resolution: {integrity: sha512-gxrHLCMId0Wdhku68Zok2VGmpb2bVJqsIY33YNzlLf52xHAhhPtZx+/dFq85lw2jmaUQTop2u3EDOeRJeLRVig==}
+
+  '@shikijs/vscode-textmate@9.2.0':
+    resolution: {integrity: sha512-5FinaOp6Vdh/dl4/yaOTh0ZeKch+rYS8DUb38V3GMKYVkdqzxw53lViRKUYkVILRiVQT7dcPC7VvAKOR73zVtQ==}
 
   '@sideway/address@4.1.5':
     resolution: {integrity: sha512-IqO/DUQHUkPeixNQ8n0JA6102hT9CmaljNTPmQ1u8MEhBo/R4Q8eKLN/vGZxuebwOroDB4cbpjheD4+/sKFK4Q==}
@@ -2462,6 +2462,9 @@ packages:
   '@types/fs-extra@11.0.4':
     resolution: {integrity: sha512-yTbItCNreRooED33qjunPthRcSjERP1r4MqCZc7wv0u2sUkzTFp45tgUfS5+r7FrZPdmCCNflLhVSP/o+SemsQ==}
 
+  '@types/hast@3.0.4':
+    resolution: {integrity: sha512-WPs+bbQw5aCj+x6laNGWLH3wviHtoCv/P3+otBhbOhJgG8qtpdAMlTCxLtsTWA7LH1Oh/bFCHsBn0TPS5m30EQ==}
+
   '@types/http-cache-semantics@4.0.4':
     resolution: {integrity: sha512-1m0bIFVc7eJWyve9S0RnuRgcQqF/Xd5QsUZAZeQFr1Q3/p9JWoQQEqmVy+DPTNpGXwhgIetAoYF8JSc33q29QA==}
 
@@ -2521,6 +2524,9 @@ packages:
 
   '@types/tough-cookie@4.0.2':
     resolution: {integrity: sha512-Q5vtl1W5ue16D+nIaW8JWebSSraJVlK+EthKn7e7UcD4KWsaSJ8BqGPXNaPghgtcn/fhvrN17Tv8ksUsQpiplw==}
+
+  '@types/unist@3.0.3':
+    resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
 
   '@types/use-sync-external-store@0.0.3':
     resolution: {integrity: sha512-EwmlvuaxPNej9+T4v5AuBPJa2x2UOJVdjCtDHgcDqitUeOtjnJKJ+apYjVcAoBEMjKW1VVFGZLUb5+qqa09XFA==}
@@ -7124,14 +7130,6 @@ snapshots:
       '@babel/core': 7.24.6
       '@babel/helper-plugin-utils': 7.24.6
 
-  '@babel/plugin-transform-typescript@7.21.3(@babel/core@7.24.6)':
-    dependencies:
-      '@babel/core': 7.24.6
-      '@babel/helper-annotate-as-pure': 7.24.6
-      '@babel/helper-create-class-features-plugin': 7.24.6(@babel/core@7.24.6)
-      '@babel/helper-plugin-utils': 7.24.7
-      '@babel/plugin-syntax-typescript': 7.23.3(@babel/core@7.24.6)
-
   '@babel/plugin-transform-typescript@7.23.6(@babel/core@7.24.6)':
     dependencies:
       '@babel/core': 7.24.6
@@ -8119,7 +8117,7 @@ snapshots:
       '@babel/plugin-transform-shorthand-properties': 7.24.6(@babel/core@7.24.6)
       '@babel/plugin-transform-spread': 7.24.6(@babel/core@7.24.6)
       '@babel/plugin-transform-sticky-regex': 7.24.6(@babel/core@7.24.6)
-      '@babel/plugin-transform-typescript': 7.21.3(@babel/core@7.24.6)
+      '@babel/plugin-transform-typescript': 7.23.6(@babel/core@7.24.6)
       '@babel/plugin-transform-unicode-regex': 7.24.6(@babel/core@7.24.6)
       '@babel/template': 7.24.6
       '@react-native/babel-plugin-codegen': 0.73.4(@babel/preset-env@7.24.6(@babel/core@7.24.6))
@@ -8282,11 +8280,19 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.17.1':
     optional: true
 
+  '@shikijs/core@1.16.1':
+    dependencies:
+      '@shikijs/vscode-textmate': 9.2.0
+      '@types/hast': 3.0.4
+
   '@shikijs/core@1.2.3': {}
 
-  '@shikijs/monaco@1.2.3':
+  '@shikijs/monaco@1.16.1':
     dependencies:
-      '@shikijs/core': 1.2.3
+      '@shikijs/core': 1.16.1
+      '@shikijs/vscode-textmate': 9.2.0
+
+  '@shikijs/vscode-textmate@9.2.0': {}
 
   '@sideway/address@4.1.5':
     dependencies:
@@ -8494,6 +8500,10 @@ snapshots:
       '@types/node': 20.12.12
     optional: true
 
+  '@types/hast@3.0.4':
+    dependencies:
+      '@types/unist': 3.0.3
+
   '@types/http-cache-semantics@4.0.4': {}
 
   '@types/is-ci@3.0.0':
@@ -8553,6 +8563,8 @@ snapshots:
   '@types/stack-utils@2.0.1': {}
 
   '@types/tough-cookie@4.0.2': {}
+
+  '@types/unist@3.0.3': {}
 
   '@types/use-sync-external-store@0.0.3': {}
 
