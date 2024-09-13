@@ -72,20 +72,16 @@ impl IdentExt for Ident {
 mod options {
     use serde::Deserialize;
 
-    #[derive(PartialEq, Eq, Deserialize)]
+    #[derive(PartialEq, Eq, Deserialize, Default)]
     #[serde(rename_all = "kebab-case")]
     pub enum TransformMode {
         Manual,
         /**
          * all options affects only components
          */
+        #[default]
         All,
         Auto,
-    }
-    impl TransformMode {
-        fn all() -> TransformMode {
-            TransformMode::All
-        }
     }
 
     #[derive(Deserialize)]
@@ -111,7 +107,7 @@ mod options {
     #[derive(Deserialize)]
     #[serde(rename_all = "camelCase")]
     pub struct PreactSignalsPluginOptions {
-        #[serde(default = "TransformMode::all")]
+        #[serde(default)]
         pub mode: TransformMode,
         #[serde(default = "default_import_source")]
         pub import_source: String,
@@ -121,6 +117,16 @@ mod options {
         pub experimental: PreactSignalsPluginExperimental,
     }
 
+    impl Default for PreactSignalsPluginOptions {
+        fn default() -> Self {
+            PreactSignalsPluginOptions {
+                mode: TransformMode::default(),
+                import_source: default_import_source(),
+                transform_hooks: default_transform_hooks(),
+                experimental: PreactSignalsPluginExperimental::default(),
+            }
+        }
+    }
     impl PreactSignalsPluginOptions {
         pub fn auto_hooks() -> PreactSignalsPluginOptions {
             PreactSignalsPluginOptions {
@@ -143,7 +149,7 @@ mod options {
         }
     }
 }
-use options::{PreactSignalsPluginExperimental, PreactSignalsPluginOptions, TransformMode};
+use options::{PreactSignalsPluginOptions, TransformMode};
 
 pub struct SignalsTransformVisitor<C>
 where
@@ -156,6 +162,7 @@ where
     ignore_span: Option<Span>,
     file_trackable_name: Option<Trackable>,
     transform_hooks: bool,
+    add_context_to_hooks: bool,
 }
 
 impl<C> SignalsTransformVisitor<C>
@@ -173,25 +180,22 @@ where
         file_trackable_name: Option<Trackable>,
     ) -> Self {
         SignalsTransformVisitor {
-            comments: comments,
+            comments,
             file_trackable_name,
             mode: options.mode,
             import_use_signals: None,
             use_signals_import_source: Str::from_str(options.import_source.as_str()),
             transform_hooks: options.transform_hooks,
             ignore_span: None,
+            add_context_to_hooks: options.experimental.add_context_flags,
         }
     }
     fn from_default(comments: C, file_trackable_name: Option<Trackable>) -> Self {
-        SignalsTransformVisitor {
-            comments: comments,
+        SignalsTransformVisitor::from_options(
+            PreactSignalsPluginOptions::default(),
+            comments,
             file_trackable_name,
-            mode: TransformMode::All,
-            import_use_signals: None,
-            use_signals_import_source: Str::signals_default_source(),
-            transform_hooks: true,
-            ignore_span: None,
-        }
+        )
     }
 
     fn process_var_decl<T>(
