@@ -11,8 +11,6 @@ use std::{
 };
 
 use regex::Regex;
-use serde::Deserialize;
-use serde_json;
 use std::path::PathBuf;
 use swc_core::{
     common::comments::Comments,
@@ -30,13 +28,6 @@ use swc_core::{
     },
 };
 
-fn get_import_source(str: &str) -> Str {
-    Str {
-        span: DUMMY_SP,
-        value: Atom::new(str),
-        raw: None,
-    }
-}
 fn is_track_signals_directive(string: &str) -> bool {
     // https://github.com/preactjs/signals/blob/e04671469e9272de356109170b2e429db49db2f0/packages/react-transform/src/index.ts#L18
     static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r#"(\s|^)@useSignals(\s|$)"#).unwrap());
@@ -48,35 +39,111 @@ fn is_no_track_signals_directive(string: &str) -> bool {
 
     RE.is_match(string)
 }
-fn get_default_import_source() -> Str {
-    get_import_source("@preact-signals/safe-react/tracking")
+
+trait StrExt {
+    fn from_str(str: &str) -> Str;
+    fn signals_default_source() -> Str;
 }
-fn get_named_import_ident() -> Ident {
-    Ident {
-        span: DUMMY_SP,
-        sym: "useSignals".into(),
-        optional: false,
+impl StrExt for Str {
+    fn from_str(str: &str) -> Str {
+        Str {
+            span: DUMMY_SP,
+            value: Atom::new(str),
+            raw: None,
+        }
+    }
+    fn signals_default_source() -> Str {
+        Str::from_str("@preact-signals/safe-react/tracking")
+    }
+}
+trait IdentExt {
+    fn use_signals() -> Ident;
+}
+impl IdentExt for Ident {
+    fn use_signals() -> Ident {
+        Ident {
+            span: DUMMY_SP,
+            sym: "useSignals".into(),
+            optional: false,
+        }
     }
 }
 
-#[derive(PartialEq, Eq, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-enum TransformMode {
-    Manual,
-    /**
-     * all options affects only components
-     */
-    All,
-    Auto,
-}
+mod options {
+    use serde::Deserialize;
 
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct PreactSignalsPluginOptions {
-    mode: Option<TransformMode>,
-    import_source: Option<String>,
-    transform_hooks: Option<bool>,
+    #[derive(PartialEq, Eq, Deserialize)]
+    #[serde(rename_all = "kebab-case")]
+    pub enum TransformMode {
+        Manual,
+        /**
+         * all options affects only components
+         */
+        All,
+        Auto,
+    }
+    impl TransformMode {
+        fn all() -> TransformMode {
+            TransformMode::All
+        }
+    }
+
+    #[derive(Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PreactSignalsPluginExperimental {
+        #[serde(default)]
+        pub add_context_flags: bool,
+    }
+    impl Default for PreactSignalsPluginExperimental {
+        fn default() -> Self {
+            Self {
+                add_context_flags: false,
+            }
+        }
+    }
+    fn default_import_source() -> String {
+        "@preact-signals/safe-react/tracking".into()
+    }
+    fn default_transform_hooks() -> bool {
+        true
+    }
+
+    #[derive(Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PreactSignalsPluginOptions {
+        #[serde(default = "TransformMode::all")]
+        pub mode: TransformMode,
+        #[serde(default = "default_import_source")]
+        pub import_source: String,
+        #[serde(default = "default_transform_hooks")]
+        pub transform_hooks: bool,
+        #[serde(default)]
+        pub experimental: PreactSignalsPluginExperimental,
+    }
+
+    impl PreactSignalsPluginOptions {
+        pub fn auto_hooks() -> PreactSignalsPluginOptions {
+            PreactSignalsPluginOptions {
+                mode: TransformMode::Auto,
+                import_source: default_import_source(),
+                transform_hooks: true,
+                experimental: PreactSignalsPluginExperimental::default(),
+            }
+        }
+
+        pub fn auto_hooks_context_flags() -> PreactSignalsPluginOptions {
+            PreactSignalsPluginOptions {
+                mode: TransformMode::Auto,
+                import_source: default_import_source(),
+                transform_hooks: true,
+                experimental: PreactSignalsPluginExperimental {
+                    add_context_flags: true,
+                },
+            }
+        }
+    }
 }
+use options::{PreactSignalsPluginExperimental, PreactSignalsPluginOptions, TransformMode};
 
 pub struct SignalsTransformVisitor<C>
 where
@@ -108,13 +175,10 @@ where
         SignalsTransformVisitor {
             comments: comments,
             file_trackable_name,
-            mode: options.mode.unwrap_or(TransformMode::All),
+            mode: options.mode,
             import_use_signals: None,
-            use_signals_import_source: options
-                .import_source
-                .map(|it| get_import_source(it.as_str()))
-                .unwrap_or(get_default_import_source()),
-            transform_hooks: options.transform_hooks.unwrap_or(true),
+            use_signals_import_source: Str::from_str(options.import_source.as_str()),
+            transform_hooks: options.transform_hooks,
             ignore_span: None,
         }
     }
@@ -124,7 +188,7 @@ where
             file_trackable_name,
             mode: TransformMode::All,
             import_use_signals: None,
-            use_signals_import_source: get_default_import_source(),
+            use_signals_import_source: Str::signals_default_source(),
             transform_hooks: true,
             ignore_span: None,
         }
@@ -453,7 +517,7 @@ where
                     add_import(
                         ident.clone(),
                         self.use_signals_import_source.clone(),
-                        get_named_import_ident().into(),
+                        Some(Ident::use_signals()),
                     )
                     .into(),
                 ),
@@ -471,7 +535,7 @@ where
                 add_require(
                     ident.clone(),
                     self.use_signals_import_source.clone(),
-                    get_named_import_ident().into(),
+                    Some(Ident::use_signals()),
                 ),
             )
         }
@@ -507,6 +571,7 @@ pub fn process_transform(program: Program, _metadata: TransformPluginProgramMeta
                     .and_then(|it| it.is_trackable())
             });
 
+        use serde_json;
         match data {
             Some(data) => {
                 let options = serde_json::from_str::<PreactSignalsPluginOptions>(data.as_str())
@@ -895,7 +960,7 @@ const Beb = {
 
 const _ = {
     ['Aboba']() {
-        return <div />        
+        return <div />
     }
 }
     "#,
@@ -1033,11 +1098,7 @@ const Bebe = ()=>{
 test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_options(
-        PreactSignalsPluginOptions {
-            import_source: None,
-            mode: Some(TransformMode::All),
-            transform_hooks: Some(true)
-        },
+        PreactSignalsPluginOptions::auto_hooks(),
         tester.comments.clone(),
         None
     )),
@@ -1054,7 +1115,7 @@ const useAboba = () => a.value
 
 import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
 
-const useAboba = () => { 
+const useAboba = () => {
   var _effect = _useSignals();
   try {
     return a.value
@@ -1067,11 +1128,7 @@ const useAboba = () => {
 test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_options(
-        PreactSignalsPluginOptions {
-            import_source: None,
-            mode: Some(TransformMode::Auto),
-            transform_hooks: Some(true)
-        },
+        PreactSignalsPluginOptions::auto_hooks(),
         tester.comments.clone(),
         None
     )),
@@ -1089,7 +1146,7 @@ const useAboba = () => {
 
 import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
 
-const useAboba = () => { 
+const useAboba = () => {
   var _effect = _useSignals();
   try {
     const counter = useSignal(0)
