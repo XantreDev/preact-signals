@@ -48,6 +48,17 @@ fn is_hook_name(name: &str) -> bool {
 pub enum Trackable {
     Hook,
     Component,
+    Unknown,
+}
+impl Trackable {
+    pub fn to_arg(&self, add_hook_usage_flag: bool) -> Option<u8> {
+        match (add_hook_usage_flag, self) {
+            (false, _) => None,
+            (true, Trackable::Component) => Some(1),
+            (true, Trackable::Hook) => Some(2),
+            (true, Trackable::Unknown) => Some(0),
+        }
+    }
 }
 pub trait MaybeComponentName {
     fn is_trackable(&self) -> Option<Trackable>;
@@ -165,7 +176,11 @@ pub enum FunctionLike<'a> {
     Arrow(&'a mut ArrowExpr),
     Fn(&'a mut FnExpr),
 }
-pub fn wrap_with_use_signals(n: &Vec<Stmt>, use_signals_ident: Ident) -> Vec<Stmt> {
+pub fn wrap_with_use_signals(
+    n: &Vec<Stmt>,
+    use_signals_ident: Ident,
+    arg: Option<u8>,
+) -> Vec<Stmt> {
     let mut new_stmts = Vec::new();
     let signal_effect_ident = private_ident!("_effect");
     new_stmts.push(Stmt::Decl(Decl::Var(Box::new(VarDecl {
@@ -178,7 +193,17 @@ pub fn wrap_with_use_signals(n: &Vec<Stmt>, use_signals_ident: Ident) -> Vec<Stm
             init: Some(Box::new(Expr::Call(CallExpr {
                 span: DUMMY_SP,
                 callee: Callee::Expr(Box::new(Expr::Ident(use_signals_ident))),
-                args: vec![],
+                args: match arg {
+                    Some(value) => vec![ExprOrSpread {
+                        spread: None,
+                        expr: Box::new(Expr::Lit(Lit::Num(Number {
+                            span: DUMMY_SP,
+                            value: value.into(),
+                            raw: None,
+                        }))),
+                    }],
+                    None => vec![],
+                },
                 type_args: None,
             }))),
             name: Pat::Ident(BindingIdent {
@@ -220,7 +245,7 @@ pub fn wrap_with_use_signals(n: &Vec<Stmt>, use_signals_ident: Ident) -> Vec<Stm
 }
 
 pub trait SignalWrappable {
-    fn wrap_with_use_signals(&mut self, import_use_signals: Ident);
+    fn wrap_with_use_signals(&mut self, import_use_signals: Ident, arg: Option<u8>);
 }
 
 impl<'a> FunctionLike<'a> {
@@ -236,30 +261,27 @@ impl<'a> FunctionLike<'a> {
 }
 
 impl SignalWrappable for Function {
-    fn wrap_with_use_signals(&mut self, import_use_signals: Ident) {
+    fn wrap_with_use_signals(&mut self, import_use_signals: Ident, arg: Option<u8>) {
         if let Some(body) = &mut self.body {
-            body.stmts = wrap_with_use_signals(&body.stmts, import_use_signals);
+            body.stmts = wrap_with_use_signals(&body.stmts, import_use_signals, arg);
         }
     }
 }
-impl SignalWrappable for FnExpr {
-    fn wrap_with_use_signals(&mut self, import_use_signals: Ident) {
-        self.function.wrap_with_use_signals(import_use_signals);
-    }
-}
-impl SignalWrappable for ArrowExpr {
-    fn wrap_with_use_signals(&mut self, import_use_signals: Ident) {
-        let mut block = self.body.to_block();
-        let wrapped_body = wrap_with_use_signals(&block.stmts, import_use_signals);
-        block.stmts = wrapped_body;
-        self.body = Box::new(BlockStmtOrExpr::BlockStmt(block.to_owned()));
-    }
-}
 impl<'a> SignalWrappable for FunctionLike<'a> {
-    fn wrap_with_use_signals(&mut self, import_use_signals: Ident) {
+    fn wrap_with_use_signals(&mut self, import_use_signals: Ident, arg: Option<u8>) {
         match self {
-            FunctionLike::Arrow(arrow_expr) => arrow_expr.wrap_with_use_signals(import_use_signals),
-            FunctionLike::Fn(fn_expr) => fn_expr.wrap_with_use_signals(import_use_signals),
+            FunctionLike::Arrow(arrow_expr) => {
+                let this = &mut *arrow_expr;
+                let mut block = this.body.to_block();
+                let wrapped_body = wrap_with_use_signals(&block.stmts, import_use_signals, arg);
+                block.stmts = wrapped_body;
+                this.body = Box::new(BlockStmtOrExpr::BlockStmt(block.to_owned()));
+            }
+            FunctionLike::Fn(fn_expr) => {
+                fn_expr
+                    .function
+                    .wrap_with_use_signals(import_use_signals, arg);
+            }
         }
     }
 }

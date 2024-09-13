@@ -88,12 +88,12 @@ mod options {
     #[serde(rename_all = "camelCase")]
     pub struct PreactSignalsPluginExperimental {
         #[serde(default)]
-        pub add_context_flags: bool,
+        pub add_hook_usage_flag: bool,
     }
     impl Default for PreactSignalsPluginExperimental {
         fn default() -> Self {
             Self {
-                add_context_flags: false,
+                add_hook_usage_flag: false,
             }
         }
     }
@@ -143,13 +143,29 @@ mod options {
                 import_source: default_import_source(),
                 transform_hooks: true,
                 experimental: PreactSignalsPluginExperimental {
-                    add_context_flags: true,
+                    add_hook_usage_flag: true,
                 },
             }
         }
     }
 }
 use options::{PreactSignalsPluginOptions, TransformMode};
+
+// https://github.com/preactjs/signals/blob/e04671469e9272de356109170b2e429db49db2f0/packages/react-transform/src/index.ts#L28-L30
+enum HookUsage {
+    // we do not support noTryFinally so - we shouldn't care
+    // Unmanaged,
+    ManagedComponent,
+    ManagedHook,
+}
+impl HookUsage {
+    fn to_arg(&self) -> Option<u8> {
+        match self {
+            HookUsage::ManagedComponent => Some(1),
+            HookUsage::ManagedHook => Some(2),
+        }
+    }
+}
 
 pub struct SignalsTransformVisitor<C>
 where
@@ -164,7 +180,6 @@ where
     transform_hooks: bool,
     add_context_to_hooks: bool,
 }
-
 impl<C> SignalsTransformVisitor<C>
 where
     C: Comments + Debug,
@@ -187,7 +202,7 @@ where
             use_signals_import_source: Str::from_str(options.import_source.as_str()),
             transform_hooks: options.transform_hooks,
             ignore_span: None,
-            add_context_to_hooks: options.experimental.add_context_flags,
+            add_context_to_hooks: options.experimental.add_hook_usage_flag,
         }
     }
     fn from_default(comments: C, file_trackable_name: Option<Trackable>) -> Self {
@@ -198,26 +213,22 @@ where
         )
     }
 
-    fn process_var_decl<T>(
-        &mut self,
-        n: &mut VarDecl,
-        additional_spans: Option<&[Option<Span>]>,
-        transform: T,
-    ) where
-        T: FnOnce(&mut SignalsTransformVisitor<C>, &mut FunctionLike),
-    {
+    fn process_var_decl<T>(&mut self, n: &mut VarDecl, additional_spans: Option<&[Option<Span>]>) {
         if let Some(first) = n.decls.as_mut_slice().take_first_mut()
             && let Some(init) = &mut first.init
             && let child_span = init.unwrap_parens().get_span().clone()
             && let Some(mut component) = extract_fn_from_expr(init.unwrap_parens_mut())
             && let defaults_spans = [Some(child_span), Some(n.span)]
             && let spans = [additional_spans.unwrap_or(&[]), &defaults_spans].concat()
-            && match component.get_fn_ident() {
+            && let Some(trackable) = match component.get_fn_ident() {
                 None => self.should_track(&spans, &first.name, &component, false),
                 Some(ident) => self.should_track(&spans, &ident, &component, false),
             }
         {
-            transform(self, &mut component)
+            component.wrap_with_use_signals(
+                self.get_import_use_signals(),
+                trackable.to_arg(self.add_context_to_hooks),
+            );
         }
     }
 }
@@ -287,35 +298,43 @@ impl<C> SignalsTransformVisitor<C>
 where
     C: Comments + Debug,
 {
+    fn is_trackable<I>(&self, ident: Option<&I>, is_default_export: bool) -> Option<Trackable>
+    where
+        I: MaybeComponentName,
+    {
+        if is_default_export && ident.is_none() {
+            self.file_trackable_name.to_owned()
+        } else {
+            ident.and_then(|it| it.is_trackable())
+        }
+    }
     fn should_track_auto<I, Comp>(
         &self,
         ident: Option<&I>,
         component: &Comp,
         is_default_export: bool,
-    ) -> bool
+    ) -> Option<Trackable>
     where
         Comp: Detectable,
         I: MaybeComponentName,
     {
-        let should_track_by_name = || {
-            if is_default_export && ident.is_none() {
-                self.file_trackable_name.to_owned()
-            } else {
-                ident.and_then(|it| it.is_trackable())
-            }
-        };
-        // [TODO]: distinguish trackbables to support @preact/signals-react/runtime
         match self.mode {
-            TransformMode::Manual => false,
-            TransformMode::Auto => match should_track_by_name() {
-                Some(Trackable::Hook) if self.transform_hooks => component.has_dot_value(),
-                Some(Trackable::Component) => component.has_jsx() && component.has_dot_value(),
-                _ => false,
+            TransformMode::Manual => None,
+            TransformMode::Auto => match self.is_trackable(ident, is_default_export) {
+                Some(Trackable::Hook) if self.transform_hooks && component.has_dot_value() => {
+                    Some(Trackable::Hook)
+                }
+                Some(Trackable::Component) if component.has_jsx() && component.has_dot_value() => {
+                    Some(Trackable::Component)
+                }
+                _ => None,
             },
-            TransformMode::All => match should_track_by_name() {
-                Some(Trackable::Hook) if self.transform_hooks => component.has_dot_value(),
-                Some(Trackable::Component) => component.has_jsx(),
-                _ => false,
+            TransformMode::All => match self.is_trackable(ident, is_default_export) {
+                Some(Trackable::Hook) if self.transform_hooks && component.has_dot_value() => {
+                    Some(Trackable::Hook)
+                }
+                Some(Trackable::Component) if component.has_jsx() => Some(Trackable::Component),
+                _ => None,
             },
         }
     }
@@ -327,15 +346,19 @@ where
         ident: Option<&I>,
         component: &Comp,
         is_default_export: bool,
-    ) -> bool
+    ) -> Option<Trackable>
     where
         Comp: Detectable,
         I: MaybeComponentName,
     {
         match should_track_by_comments(&self.comments, comment_spans) {
             ShouldTrack::Auto => self.should_track_auto(ident, component, is_default_export),
-            ShouldTrack::OptIn => true,
-            ShouldTrack::OptOut => false,
+            // [TODO]: detect trackable type
+            ShouldTrack::OptIn => Some(
+                self.is_trackable(ident, is_default_export)
+                    .unwrap_or(Trackable::Unknown),
+            ),
+            ShouldTrack::OptOut => None,
         }
     }
     fn should_track<I, Comp>(
@@ -344,7 +367,7 @@ where
         ident: &I,
         component: &Comp,
         is_default_export: bool,
-    ) -> bool
+    ) -> Option<Trackable>
     where
         Comp: Detectable,
         I: MaybeComponentName,
@@ -365,9 +388,7 @@ where
             .unwrap_or(true);
 
         if should_process {
-            self.process_var_decl(n, None, |mut_self, it| {
-                it.wrap_with_use_signals(mut_self.get_import_use_signals())
-            })
+            self.process_var_decl::<SignalsTransformVisitor<C>>(n, None)
         }
 
         n.visit_mut_children_with(self);
@@ -378,10 +399,9 @@ where
                 span,
                 decl: Decl::Var(ref mut var_decl),
             } => {
-                self.process_var_decl(
+                self.process_var_decl::<SignalsTransformVisitor<C>>(
                     var_decl.deref_mut(),
                     Some(&[Some(*span)]),
-                    |mut_self, it| it.wrap_with_use_signals(mut_self.get_import_use_signals()),
                 );
                 let old_span = self.ignore_span;
                 self.ignore_span = Some(var_decl.span.clone());
@@ -392,15 +412,16 @@ where
                 span,
                 decl: Decl::Fn(ref mut fn_declr),
             } => {
-                if self.should_track(
+                if let Some(trackable) = self.should_track(
                     &[Some(span.clone()), Some(fn_declr.function.span)],
                     &fn_declr.ident,
                     fn_declr,
                     false,
                 ) {
-                    fn_declr
-                        .function
-                        .wrap_with_use_signals(self.get_import_use_signals())
+                    fn_declr.function.wrap_with_use_signals(
+                        self.get_import_use_signals(),
+                        trackable.to_arg(self.add_context_to_hooks),
+                    )
                 }
                 let old_span = self.ignore_span;
                 self.ignore_span = Some(fn_declr.function.span.clone());
@@ -416,15 +437,16 @@ where
                 span,
                 decl: DefaultDecl::Fn(ref mut fn_expr),
             } => {
-                if self.should_track_option_ident(
+                if let Some(trackable) = self.should_track_option_ident(
                     &[Some(span.clone()), Some(fn_expr.function.span)],
                     fn_expr.ident.as_ref(),
                     fn_expr,
                     true,
                 ) {
-                    fn_expr
-                        .function
-                        .wrap_with_use_signals(self.get_import_use_signals())
+                    fn_expr.function.wrap_with_use_signals(
+                        self.get_import_use_signals(),
+                        trackable.to_arg(self.add_context_to_hooks),
+                    )
                 }
                 let old_span = self.ignore_span;
                 self.ignore_span = Some(fn_expr.function.span.clone());
@@ -440,14 +462,17 @@ where
                 let child_span = expr.unwrap_parens().get_span().clone();
                 if let Some(mut component) = extract_fn_from_expr(expr.unwrap_parens_mut())
                     && let spans = [Some(span.clone()), Some(child_span), Some(n.span)]
-                    && self.should_track_option_ident(
+                    && let Some(trackable) = self.should_track_option_ident(
                         &spans,
                         component.get_fn_ident().as_ref(),
                         &component,
                         true,
                     )
                 {
-                    component.wrap_with_use_signals(self.get_import_use_signals());
+                    component.wrap_with_use_signals(
+                        self.get_import_use_signals(),
+                        trackable.to_arg(self.add_context_to_hooks),
+                    );
                 }
 
                 n.visit_mut_children_with(self);
@@ -461,29 +486,35 @@ where
         if match self.ignore_span {
             Some(span) => !span.eq(&n.function.span),
             None => true,
-        } && self.should_track(&[Some(n.function.span)], &n.ident, n, false)
+        } && let Some(trackable) =
+            self.should_track(&[Some(n.function.span)], &n.ident, n, false)
         {
-            n.function
-                .wrap_with_use_signals(self.get_import_use_signals())
+            n.function.wrap_with_use_signals(
+                self.get_import_use_signals(),
+                trackable.to_arg(self.add_context_to_hooks),
+            )
         }
         n.visit_mut_children_with(self);
     }
 
     fn visit_mut_assign_expr(&mut self, n: &mut AssignExpr) {
         if let Some(mut component) = extract_fn_from_expr(n.right.borrow_mut())
-            && match component.get_fn_ident() {
+            && let Some(trackable) = match component.get_fn_ident() {
                 None => self.should_track(&[Some(n.span)], &n.left, &component, false),
                 Some(ident) => self.should_track(&[Some(n.span)], &ident, &component, false),
             }
         {
-            component.wrap_with_use_signals(self.get_import_use_signals())
+            component.wrap_with_use_signals(
+                self.get_import_use_signals(),
+                trackable.to_arg(self.add_context_to_hooks),
+            )
         }
 
         n.visit_mut_children_with(self);
     }
     fn visit_mut_key_value_prop(&mut self, n: &mut KeyValueProp) {
         if let Some(mut component) = extract_fn_from_expr(&mut n.value)
-            && self.should_track(
+            && let Some(trackable) = self.should_track(
                 &[Some(*n.key.get_span())],
                 &component
                     .get_fn_ident()
@@ -492,20 +523,25 @@ where
                 false,
             )
         {
-            component.wrap_with_use_signals(self.get_import_use_signals())
+            component.wrap_with_use_signals(
+                self.get_import_use_signals(),
+                trackable.to_arg(self.add_context_to_hooks),
+            )
         }
 
         n.visit_mut_children_with(self);
     }
     fn visit_mut_method_prop(&mut self, n: &mut MethodProp) {
-        if self.should_track(
+        if let Some(trackable) = self.should_track(
             &[n.function.span.into(), n.key.get_span().clone().into()],
             &n.key,
             n.function.deref(),
             false,
         ) {
-            n.function
-                .wrap_with_use_signals(self.get_import_use_signals())
+            n.function.wrap_with_use_signals(
+                self.get_import_use_signals(),
+                trackable.to_arg(self.add_context_to_hooks),
+            )
         }
 
         n.visit_mut_children_with(self);
