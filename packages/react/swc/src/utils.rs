@@ -52,6 +52,7 @@ pub enum Trackable {
 }
 impl Trackable {
     pub fn to_arg(&self, add_hook_usage_flag: bool) -> Option<u8> {
+        // https://github.com/preactjs/signals/blob/e04671469e9272de356109170b2e429db49db2f0/packages/react-transform/src/index.ts#L28-L30
         match (add_hook_usage_flag, self) {
             (false, _) => None,
             (true, Trackable::Component) => Some(1),

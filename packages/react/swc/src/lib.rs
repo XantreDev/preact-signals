@@ -161,22 +161,6 @@ mod options {
 }
 use options::{PreactSignalsPluginOptions, TransformMode};
 
-// https://github.com/preactjs/signals/blob/e04671469e9272de356109170b2e429db49db2f0/packages/react-transform/src/index.ts#L28-L30
-enum HookUsage {
-    // we do not support noTryFinally so - we shouldn't care
-    // Unmanaged,
-    ManagedComponent,
-    ManagedHook,
-}
-impl HookUsage {
-    fn to_arg(&self) -> Option<u8> {
-        match self {
-            HookUsage::ManagedComponent => Some(1),
-            HookUsage::ManagedHook => Some(2),
-        }
-    }
-}
-
 pub struct SignalsTransformVisitor<C>
 where
     C: Comments + Debug,
