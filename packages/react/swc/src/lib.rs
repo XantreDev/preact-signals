@@ -136,6 +136,16 @@ mod options {
                 experimental: PreactSignalsPluginExperimental::default(),
             }
         }
+        pub fn auto_hooks_and_hook_usage_flag() -> PreactSignalsPluginOptions {
+            PreactSignalsPluginOptions {
+                mode: TransformMode::Auto,
+                import_source: default_import_source(),
+                transform_hooks: true,
+                experimental: PreactSignalsPluginExperimental {
+                    add_hook_usage_flag: true,
+                },
+            }
+        }
 
         pub fn auto_hooks_context_flags() -> PreactSignalsPluginOptions {
             PreactSignalsPluginOptions {
@@ -1171,5 +1181,68 @@ const useAboba = () => {
   } finally{
    _effect.f()
   }
+}
+"#
+);
+
+test_inline!(
+    get_syntax(),
+    |tester| as_folder(SignalsTransformVisitor::from_options(
+        PreactSignalsPluginOptions::auto_hooks_and_hook_usage_flag(),
+        tester.comments.clone(),
+        None
+    )),
+    hook_code_auto_with_ctx,
+    r#"
+'use strict';
+
+const useAboba = () => {
+  const counter = useSignal(0)
+  console.log(counter.value)
+}
+
+// [TODO]: fix inline comments
+/**
+ * @useSignals
+ */
+const unknown = () => undefined
+
+const Component = () => {
+    a.value
+    return <></>
+}
+"#,
+    r#"
+'use strict';
+
+import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
+
+const useAboba = () => {
+  var _effect = _useSignals(2);
+  try {
+    const counter = useSignal(0)
+    console.log(counter.value)
+  } finally{
+   _effect.f()
+  }
+}
+const unknown = ()=>{
+    var _effect = _useSignals(0);
+    try {
+        return undefined;
+    } finally{
+        _effect.f();
+    }
+};
+
+const Component = ()=>{
+    var _effect = _useSignals(1);
+    try {
+        a.value;
+        return <></>;
+     } finally{
+         _effect.f();
+     }
+ };
 "#
 );
