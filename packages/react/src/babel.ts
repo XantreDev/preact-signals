@@ -417,7 +417,7 @@ export interface PluginOptions {
   importSource?: string;
   experimental?: {
     // apliable only to swc plugin
-    add_hook_usage_flag?: boolean;
+    addHookUsageFlag?: boolean;
   };
 }
 

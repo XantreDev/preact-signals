@@ -125,7 +125,7 @@ const TransformerTestOptions = {
       mode,
       importSource: "@preact/signals-react/runtime",
       experimental: {
-        add_hook_usage_flag: true,
+        addHookUsageFlag: true,
       },
     });
   },
