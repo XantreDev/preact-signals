@@ -1,4 +1,4 @@
-import { parse, transform, traverse } from "@babel/core";
+import { transform, traverse } from "@babel/core";
 import type { Visitor } from "@babel/core";
 import type { Scope } from "@babel/traverse";
 import prettier from "prettier";
@@ -20,6 +20,9 @@ import * as swcCore from "@swc/core";
 import { expect, it, describe, vi, ExpectStatic } from "vitest";
 import { beforeAll } from "vitest";
 import { afterAll } from "vitest";
+import { memo } from "radash";
+// @ts-ignore
+import referenceSignalsTransform from "@preact/signals-react-transform";
 
 // To help interactively debug a specific test case, add the test ids of the
 // test cases you want to debug to the `debugTestIds` array, e.g. (["258",
@@ -29,7 +32,12 @@ const DEBUG_TEST_IDS: string[] | true = [];
 const removeComments = (code: string) =>
   code.replace(/\/\*[\s\S]*?\*\//g, "").trim();
 
-const format = (code: string) => prettier.format(code, { parser: "babel" });
+const format = memo(
+  (code: string) => prettier.format(code, { parser: "babel" }),
+  {
+    ttl: 20_000,
+  }
+);
 
 const getSwcConfig = (
   usePlugin: false | PluginOptions,
@@ -80,7 +88,6 @@ function transformCode(
 
   return swcCore
     .transform(code, getSwcConfig(options.options, filename, !!isCJS))
-
     .then((it) => it.code);
 }
 type TransformerTestOptions =
@@ -105,11 +112,23 @@ const TransformerTestOptions = {
   makeFromMode: (
     type: "babel" | "swc",
     mode: PluginOptions["mode"],
-    options?: Omit<PluginOptions, "mode">
-  ) => ({
-    type,
-    options: { ...options, mode },
-  }),
+    referenceMode: boolean
+  ) => {
+    if (!referenceMode) {
+      return TransformerTestOptions.make(type, { mode });
+    }
+
+    if (type === "babel")
+      throw new Error("babel is incompatible with reference mode");
+
+    return TransformerTestOptions.make("swc", {
+      mode,
+      importSource: "@preact/signals-react/runtime",
+      experimental: {
+        add_hook_usage_flag: true,
+      },
+    });
+  },
 };
 
 const toThenable = <T,>(value: T | Promise<T>): PromiseLike<T> => {
@@ -157,6 +176,8 @@ interface TestCaseConfig {
   useValidAutoMode: boolean;
   /** Whether to assert that the plugin transforms the code (true) or not (false) */
   expectTransformed: boolean;
+  // tests agains reference `@preact/signals-react-transform`
+  testAgainstReferencePlugin: boolean;
   /** What kind of opt-in or opt-out to include if any */
   comment?: CommentKind;
   compareWithoutComments?: true;
@@ -173,11 +194,13 @@ async function runTestCases(
 ) {
   testCases = (
     await Promise.all(
-      testCases.map(async (t) => ({
-        ...t,
-        input: await format(t.input),
-        transformed: await format(t.transformed),
-      }))
+      testCases.map(async (t) => {
+        return {
+          ...t,
+          input: await format(t.input),
+          transformed: await format(t.transformed),
+        };
+      })
     )
   ).sort((a, b) => (a.name < b.name ? -1 : 1));
 
@@ -200,18 +223,27 @@ async function runTestCases(
       }
 
       const input = testCase.input;
+      const filename = config.useValidAutoMode
+        ? "/path/to/Component.js"
+        : "C:\\path\\to\\lowercase.js";
+
       let expected = "";
-      if (config.expectTransformed) {
+      if (config.expectTransformed && config.testAgainstReferencePlugin) {
+        expected = transform(input, {
+          filename,
+          plugins: [
+            [referenceSignalsTransform, config.options],
+            "@babel/plugin-syntax-jsx",
+          ],
+          sourceType: "module",
+        })!.code!;
+      } else if (config.expectTransformed) {
         expected +=
           'import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";\n';
         expected += testCase.transformed;
       } else {
         expected = input;
       }
-
-      const filename = config.useValidAutoMode
-        ? "/path/to/Component.js"
-        : "C:\\path\\to\\lowercase.js";
 
       await runTest(
         expect,
@@ -227,7 +259,10 @@ async function runTestCases(
 }
 
 function runGeneratedTestCases(config: TestCaseConfig) {
-  const codeConfig = { auto: config.useValidAutoMode, comment: config.comment };
+  const codeConfig = {
+    auto: config.useValidAutoMode,
+    comment: config.comment,
+  };
 
   // e.g. function C() {}
   describe("function components", async () => {
@@ -291,18 +326,33 @@ afterAll(() => {
   console.timeEnd("all tests");
 });
 for (const parser of ["swc", "babel"] as const) {
+  const againsReferencePluginOptions =
+    parser === "swc" ? [true, false] : [false];
   describe.concurrent(`React Signals ${parser} Transform`, () => {
-    describe.concurrent("auto mode transforms", () => {
-      runGeneratedTestCases({
-        useValidAutoMode: true,
-        expectTransformed: true,
-        options: TransformerTestOptions.makeFromMode(parser, "auto"),
+    for (const testAgainstReferencePlugin of againsReferencePluginOptions) {
+      console.log({
+        testAgainstReferencePlugin,
+        parser,
       });
-    });
+      describe.concurrent(
+        "test agains reference: " + testAgainstReferencePlugin,
+        () => {
+          describe.concurrent("auto mode transforms", () => {
+            runGeneratedTestCases({
+              useValidAutoMode: true,
+              expectTransformed: true,
+              options: TransformerTestOptions.makeFromMode(
+                parser,
+                "auto",
+                testAgainstReferencePlugin
+              ),
+              testAgainstReferencePlugin,
+            });
+          });
 
-    describe.concurrent("auto mode doesn't transform", () => {
-      // TODO: figure out what to do with the following
-      /*it("useEffect callbacks that use signals", async ({ expect }) => {
+          describe.concurrent("auto mode doesn't transform", () => {
+            // TODO: figure out what to do with the following
+            /*it("useEffect callbacks that use signals", async ({ expect }) => {
         const inputCode = `
 				function App() {
 					useEffect(() => {
@@ -323,16 +373,23 @@ for (const parser of ["swc", "babel"] as const) {
         );
       }); */
 
-      runGeneratedTestCases({
-        useValidAutoMode: false,
-        expectTransformed: false,
-        options: TransformerTestOptions.makeFromMode(parser, "auto"),
-      });
-    });
+            runGeneratedTestCases({
+              useValidAutoMode: false,
+              expectTransformed: false,
+              options: TransformerTestOptions.makeFromMode(
+                parser,
+                "auto",
+                testAgainstReferencePlugin
+              ),
+              testAgainstReferencePlugin,
+            });
+          });
 
-    describe.concurrent("auto mode supports opting out of transforming", () => {
-      it("opt-out comment overrides opt-in comment", async () => {
-        const inputCode = `
+          describe.concurrent(
+            "auto mode supports opting out of transforming",
+            () => {
+              it("opt-out comment overrides opt-in comment", async () => {
+                const inputCode = `
        	/**
        	 * @noUseSignals
        	 * @useSignals
@@ -341,40 +398,58 @@ for (const parser of ["swc", "babel"] as const) {
        		return <div>{signal.value}</div>;
        	};
        `;
-        const expectedOutput = inputCode;
-        await runTest(
-          expect,
-          inputCode,
-          expectedOutput,
-          TransformerTestOptions.makeFromMode(parser, "auto"),
-          false,
-          true
-        );
-      });
+                const expectedOutput = inputCode;
+                await runTest(
+                  expect,
+                  inputCode,
+                  expectedOutput,
+                  TransformerTestOptions.makeFromMode(
+                    parser,
+                    "auto",
+                    testAgainstReferencePlugin
+                  ),
+                  false,
+                  true
+                );
+              });
 
-      runGeneratedTestCases({
-        useValidAutoMode: true,
-        expectTransformed: false,
-        comment: "opt-out",
-        options: TransformerTestOptions.makeFromMode(parser, "auto"),
-      });
-    });
+              runGeneratedTestCases({
+                useValidAutoMode: true,
+                expectTransformed: false,
+                comment: "opt-out",
+                options: TransformerTestOptions.makeFromMode(
+                  parser,
+                  "auto",
+                  testAgainstReferencePlugin
+                ),
+                testAgainstReferencePlugin,
+              });
+            }
+          );
 
-    describe.concurrent("auto mode supports opting into transformation", () => {
-      runGeneratedTestCases({
-        useValidAutoMode: false,
-        expectTransformed: true,
-        comment: "opt-in",
-        compareWithoutComments: true,
-        options: TransformerTestOptions.makeFromMode(parser, "auto"),
-      });
-    });
+          describe.concurrent(
+            "auto mode supports opting into transformation",
+            () => {
+              runGeneratedTestCases({
+                useValidAutoMode: false,
+                expectTransformed: true,
+                comment: "opt-in",
+                compareWithoutComments: true,
+                options: TransformerTestOptions.makeFromMode(
+                  parser,
+                  "auto",
+                  testAgainstReferencePlugin
+                ),
+                testAgainstReferencePlugin,
+              });
+            }
+          );
 
-    describe.concurrent(
-      "manual mode doesn't transform anything by default",
-      () => {
-        it("useEffect callbacks that use signals", async ({ expect }) => {
-          const inputCode = `
+          describe.concurrent(
+            "manual mode doesn't transform anything by default",
+            () => {
+              it("useEffect callbacks that use signals", async ({ expect }) => {
+                const inputCode = `
 				function App() {
 					useEffect(() => {
 						signal.value = <span>Hi</span>;
@@ -383,29 +458,34 @@ for (const parser of ["swc", "babel"] as const) {
 				}
 			`;
 
-          const expectedOutput = inputCode;
-          await runTest(
-            expect,
-            inputCode,
-            expectedOutput,
-            TransformerTestOptions.makeFromMode(parser, "manual"),
-            false,
-            false
+                const expectedOutput = inputCode;
+                await runTest(
+                  expect,
+                  inputCode,
+                  expectedOutput,
+                  TransformerTestOptions.makeFromMode(parser, "manual", false),
+                  false,
+                  false
+                );
+              });
+
+              runGeneratedTestCases({
+                useValidAutoMode: true,
+                expectTransformed: false,
+                options: TransformerTestOptions.makeFromMode(
+                  parser,
+                  "manual",
+                  testAgainstReferencePlugin
+                ),
+                testAgainstReferencePlugin,
+              });
+            }
           );
-        });
 
-        runGeneratedTestCases({
-          useValidAutoMode: true,
-          expectTransformed: false,
-          options: TransformerTestOptions.makeFromMode(parser, "manual"),
-        });
-      }
-    );
-
-    describe.concurrent("manual mode opts into transforming", () => {
-      // TODO: Should throw an error
-      it("opt-out comment overrides opt-in comment", async () => {
-        const inputCode = `
+          describe.concurrent("manual mode opts into transforming", () => {
+            // TODO: Should throw an error
+            it("opt-out comment overrides opt-in comment", async () => {
+              const inputCode = `
       	/**
       	 * @noUseSignals
       	 * @useSignals
@@ -415,26 +495,34 @@ for (const parser of ["swc", "babel"] as const) {
       	};
       `;
 
-        const expectedOutput = inputCode;
+              const expectedOutput = inputCode;
 
-        await runTest(
-          expect,
-          inputCode,
-          expectedOutput,
-          TransformerTestOptions.makeFromMode(parser, "auto"),
-          false,
-          true
-        );
-      });
+              await runTest(
+                expect,
+                inputCode,
+                expectedOutput,
+                TransformerTestOptions.makeFromMode(parser, "auto", false),
+                false,
+                true
+              );
+            });
 
-      runGeneratedTestCases({
-        useValidAutoMode: true,
-        expectTransformed: true,
-        comment: "opt-in",
-        compareWithoutComments: true,
-        options: TransformerTestOptions.makeFromMode(parser, "manual"),
-      });
-    });
+            runGeneratedTestCases({
+              useValidAutoMode: true,
+              expectTransformed: true,
+              comment: "opt-in",
+              compareWithoutComments: true,
+              options: TransformerTestOptions.makeFromMode(
+                parser,
+                "manual",
+                testAgainstReferencePlugin
+              ),
+              testAgainstReferencePlugin,
+            });
+          });
+        }
+      );
+    }
 
     describe.concurrent("imports before directives", () => {
       const inputCode = `
@@ -467,7 +555,7 @@ for (const parser of ["swc", "babel"] as const) {
           expect,
           inputCode,
           expectedOutput,
-          TransformerTestOptions.makeFromMode(parser, "all"),
+          TransformerTestOptions.makeFromMode(parser, "all", false),
           false,
           false
         );
@@ -475,7 +563,7 @@ for (const parser of ["swc", "babel"] as const) {
 
       it("cjs", async ({ expect }) => {
         const expectedOutput = `
-      'use client'; 
+      'use client';
       'use strict';
 
       var _useSignals = require("@preact-signals/safe-react/tracking").useSignals;
@@ -493,7 +581,7 @@ for (const parser of ["swc", "babel"] as const) {
           expect,
           inputCode,
           expectedOutput,
-          TransformerTestOptions.makeFromMode(parser, "all"),
+          TransformerTestOptions.makeFromMode(parser, "all", false),
           true,
           false
         );
@@ -518,7 +606,7 @@ for (const parser of ["swc", "babel"] as const) {
         expect,
         inputCode,
         expectedOutput,
-        TransformerTestOptions.makeFromMode(parser, "all"),
+        TransformerTestOptions.makeFromMode(parser, "all", false),
         false,
         false
       );
@@ -540,7 +628,7 @@ for (const parser of ["swc", "babel"] as const) {
         expect,
         inputCode,
         expectedOutput,
-        TransformerTestOptions.makeFromMode(parser, "all"),
+        TransformerTestOptions.makeFromMode(parser, "all", false),
         false,
         false
       );
@@ -571,7 +659,7 @@ for (const parser of ["swc", "babel"] as const) {
         expect,
         inputCode,
         expectedOutput,
-        TransformerTestOptions.makeFromMode(parser, "all"),
+        TransformerTestOptions.makeFromMode(parser, "all", false),
         false,
         false
       );
@@ -602,7 +690,7 @@ for (const parser of ["swc", "babel"] as const) {
         expect,
         inputCode,
         expectedOutput,
-        TransformerTestOptions.makeFromMode(parser, "all"),
+        TransformerTestOptions.makeFromMode(parser, "all", false),
         false,
         false
       );
@@ -635,7 +723,7 @@ for (const parser of ["swc", "babel"] as const) {
         expect,
         inputCode,
         expectedOutput,
-        TransformerTestOptions.makeFromMode(parser, "all"),
+        TransformerTestOptions.makeFromMode(parser, "all", false),
         false,
         false
       );
@@ -668,7 +756,7 @@ for (const parser of ["swc", "babel"] as const) {
         expect,
         inputCode,
         expectedOutput,
-        TransformerTestOptions.makeFromMode(parser, "all"),
+        TransformerTestOptions.makeFromMode(parser, "all", false),
         false,
         false
       );
@@ -701,7 +789,7 @@ for (const parser of ["swc", "babel"] as const) {
         expect,
         inputCode,
         expectedOutput,
-        TransformerTestOptions.makeFromMode(parser, "all"),
+        TransformerTestOptions.makeFromMode(parser, "all", false),
         true,
         false
       );

@@ -415,7 +415,10 @@ export interface PluginOptions {
    * @default "@preact-signals/safe-react/tracking"
    */
   importSource?: string;
-  experimental?: {};
+  experimental?: {
+    // apliable only to swc plugin
+    add_hook_usage_flag?: boolean;
+  };
 }
 
 function log(
