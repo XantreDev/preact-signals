@@ -36,13 +36,13 @@ const format = memo(
   (code: string) => prettier.format(code, { parser: "babel" }),
   {
     ttl: 20_000,
-  }
+  },
 );
 
 const getSwcConfig = (
   usePlugin: false | PluginOptions,
   filename: string | undefined,
-  isCJS: boolean
+  isCJS: boolean,
 ) =>
   ({
     jsc: {
@@ -71,7 +71,7 @@ function transformCode(
   code: string,
   options: TransformerTestOptions,
   filename?: string,
-  isCJS?: boolean
+  isCJS?: boolean,
 ) {
   if (options.type === "babel") {
     return (
@@ -104,7 +104,7 @@ const TransformerTestOptions = {
     TransformerTestOptions.make("babel", options),
   make: (
     type: "babel" | "swc",
-    options: PluginOptions
+    options: PluginOptions,
   ): TransformerTestOptions => ({
     type,
     options,
@@ -112,7 +112,7 @@ const TransformerTestOptions = {
   makeFromMode: (
     type: "babel" | "swc",
     mode: PluginOptions["mode"],
-    referenceMode: boolean
+    referenceMode: boolean,
   ) => {
     if (!referenceMode) {
       return TransformerTestOptions.make(type, { mode });
@@ -152,22 +152,22 @@ async function runTest(
   options: TransformerTestOptions,
   isCJS: boolean,
   compareWithoutComments: boolean,
-  filename?: string
+  filename?: string,
 ) {
   expect(
     await toThenable(transformCode(input, options, filename, isCJS))
       .then((it) => (compareWithoutComments ? removeComments(it) : it))
-      .then(format)
+      .then(format),
   ).to.equal(
     await toThenable(
       options.type === "swc"
         ? swcCore
             .transform(expected, getSwcConfig(false, filename, !!isCJS))
             .then((it) => it.code)
-        : expected
+        : expected,
     )
       .then((it) => (compareWithoutComments ? removeComments(it) : it))
-      .then(format)
+      .then(format),
   );
 }
 
@@ -190,7 +190,7 @@ const getTestId = () => (testCount++).toString().padStart(3, "0");
 
 async function runTestCases(
   config: TestCaseConfig,
-  testCases: GeneratedCode[]
+  testCases: GeneratedCode[],
 ) {
   testCases = (
     await Promise.all(
@@ -200,7 +200,7 @@ async function runTestCases(
           input: await format(t.input),
           transformed: await format(t.transformed),
         };
-      })
+      }),
     )
   ).sort((a, b) => (a.name < b.name ? -1 : 1));
 
@@ -227,6 +227,7 @@ async function runTestCases(
         ? "/path/to/Component.js"
         : "C:\\path\\to\\lowercase.js";
 
+      testId === "473" && console.log(filename);
       let expected = "";
       if (config.expectTransformed && config.testAgainstReferencePlugin) {
         expected = transform(input, {
@@ -252,7 +253,7 @@ async function runTestCases(
         config.options,
         false,
         !!config.compareWithoutComments,
-        filename
+        filename,
       );
     });
   }
@@ -284,7 +285,7 @@ function runGeneratedTestCases(config: TestCaseConfig) {
           ...codeConfig,
           comment: undefined,
           inlineComment: config.comment,
-        })
+        }),
       );
     });
   }
@@ -344,7 +345,7 @@ for (const parser of ["swc", "babel"] as const) {
               options: TransformerTestOptions.makeFromMode(
                 parser,
                 "auto",
-                testAgainstReferencePlugin
+                testAgainstReferencePlugin,
               ),
               testAgainstReferencePlugin,
             });
@@ -379,7 +380,7 @@ for (const parser of ["swc", "babel"] as const) {
               options: TransformerTestOptions.makeFromMode(
                 parser,
                 "auto",
-                testAgainstReferencePlugin
+                testAgainstReferencePlugin,
               ),
               testAgainstReferencePlugin,
             });
@@ -406,10 +407,10 @@ for (const parser of ["swc", "babel"] as const) {
                   TransformerTestOptions.makeFromMode(
                     parser,
                     "auto",
-                    testAgainstReferencePlugin
+                    testAgainstReferencePlugin,
                   ),
                   false,
-                  true
+                  true,
                 );
               });
 
@@ -420,11 +421,11 @@ for (const parser of ["swc", "babel"] as const) {
                 options: TransformerTestOptions.makeFromMode(
                   parser,
                   "auto",
-                  testAgainstReferencePlugin
+                  testAgainstReferencePlugin,
                 ),
                 testAgainstReferencePlugin,
               });
-            }
+            },
           );
 
           describe.concurrent(
@@ -438,11 +439,11 @@ for (const parser of ["swc", "babel"] as const) {
                 options: TransformerTestOptions.makeFromMode(
                   parser,
                   "auto",
-                  testAgainstReferencePlugin
+                  testAgainstReferencePlugin,
                 ),
                 testAgainstReferencePlugin,
               });
-            }
+            },
           );
 
           describe.concurrent(
@@ -465,7 +466,7 @@ for (const parser of ["swc", "babel"] as const) {
                   expectedOutput,
                   TransformerTestOptions.makeFromMode(parser, "manual", false),
                   false,
-                  false
+                  false,
                 );
               });
 
@@ -475,11 +476,11 @@ for (const parser of ["swc", "babel"] as const) {
                 options: TransformerTestOptions.makeFromMode(
                   parser,
                   "manual",
-                  testAgainstReferencePlugin
+                  testAgainstReferencePlugin,
                 ),
                 testAgainstReferencePlugin,
               });
-            }
+            },
           );
 
           describe.concurrent("manual mode opts into transforming", () => {
@@ -503,7 +504,7 @@ for (const parser of ["swc", "babel"] as const) {
                 expectedOutput,
                 TransformerTestOptions.makeFromMode(parser, "auto", false),
                 false,
-                true
+                true,
               );
             });
 
@@ -515,12 +516,12 @@ for (const parser of ["swc", "babel"] as const) {
               options: TransformerTestOptions.makeFromMode(
                 parser,
                 "manual",
-                testAgainstReferencePlugin
+                testAgainstReferencePlugin,
               ),
               testAgainstReferencePlugin,
             });
           });
-        }
+        },
       );
     }
 
@@ -557,7 +558,7 @@ for (const parser of ["swc", "babel"] as const) {
           expectedOutput,
           TransformerTestOptions.makeFromMode(parser, "all", false),
           false,
-          false
+          false,
         );
       });
 
@@ -583,7 +584,7 @@ for (const parser of ["swc", "babel"] as const) {
           expectedOutput,
           TransformerTestOptions.makeFromMode(parser, "all", false),
           true,
-          false
+          false,
         );
       });
     });
@@ -608,7 +609,7 @@ for (const parser of ["swc", "babel"] as const) {
         expectedOutput,
         TransformerTestOptions.makeFromMode(parser, "all", false),
         false,
-        false
+        false,
       );
     });
 
@@ -630,7 +631,7 @@ for (const parser of ["swc", "babel"] as const) {
         expectedOutput,
         TransformerTestOptions.makeFromMode(parser, "all", false),
         false,
-        false
+        false,
       );
     });
 
@@ -661,7 +662,7 @@ for (const parser of ["swc", "babel"] as const) {
         expectedOutput,
         TransformerTestOptions.makeFromMode(parser, "all", false),
         false,
-        false
+        false,
       );
     });
 
@@ -692,7 +693,7 @@ for (const parser of ["swc", "babel"] as const) {
         expectedOutput,
         TransformerTestOptions.makeFromMode(parser, "all", false),
         false,
-        false
+        false,
       );
     });
 
@@ -725,7 +726,7 @@ for (const parser of ["swc", "babel"] as const) {
         expectedOutput,
         TransformerTestOptions.makeFromMode(parser, "all", false),
         false,
-        false
+        false,
       );
     });
 
@@ -758,7 +759,7 @@ for (const parser of ["swc", "babel"] as const) {
         expectedOutput,
         TransformerTestOptions.makeFromMode(parser, "all", false),
         false,
-        false
+        false,
       );
     });
 
@@ -791,7 +792,7 @@ for (const parser of ["swc", "babel"] as const) {
         expectedOutput,
         TransformerTestOptions.makeFromMode(parser, "all", false),
         true,
-        false
+        false,
       );
     });
   });
@@ -831,7 +832,7 @@ for (const parser of ["swc", "babel"] as const) {
           },
         },
         false,
-        false
+        false,
       );
     });
   });
@@ -923,7 +924,7 @@ describe("React Signals Babel Transform", () => {
         },
       },
       false,
-      false
+      false,
     );
   });
 });

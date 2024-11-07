@@ -345,7 +345,6 @@ where
                     },
                 }
             }
-            // [TODO]: detect trackable type
             ShouldTrack::OptIn => Some(
                 self.is_trackable(ident, is_default_export)
                     .unwrap_or(Trackable::Unknown),
@@ -361,7 +360,10 @@ where
     {
         wrappable.wrap_with_use_signals(
             self.get_import_use_signals(),
-            trackable.to_arg(self.add_context_to_hooks),
+            match self.add_context_to_hooks {
+                false => None,
+                true => Some(trackable),
+            },
         )
     }
 }
@@ -1211,12 +1213,8 @@ const useAboba = () => {
   }
 }
 const unknown = ()=>{
-    var _effect = _useSignals(0);
-    try {
-        return undefined;
-    } finally{
-        _effect.f();
-    }
+    _useSignals();
+    return undefined;
 };
 
 const Component = ()=>{

@@ -50,17 +50,7 @@ pub enum Trackable {
     Component,
     Unknown,
 }
-impl Trackable {
-    pub fn to_arg(&self, add_hook_usage_flag: bool) -> Option<u8> {
-        // https://github.com/preactjs/signals/blob/e04671469e9272de356109170b2e429db49db2f0/packages/react-transform/src/index.ts#L28-L30
-        match (add_hook_usage_flag, self) {
-            (false, _) => None,
-            (true, Trackable::Component) => Some(1),
-            (true, Trackable::Hook) => Some(2),
-            (true, Trackable::Unknown) => Some(0),
-        }
-    }
-}
+
 pub trait MaybeComponentName {
     fn is_trackable(&self) -> Option<Trackable>;
 }
@@ -180,73 +170,91 @@ pub enum FunctionLike<'a> {
 pub fn wrap_with_use_signals(
     n: &Vec<Stmt>,
     use_signals_ident: Ident,
-    arg: Option<u8>,
+    trackable: Option<Trackable>,
 ) -> Vec<Stmt> {
-    let mut new_stmts = Vec::new();
     let signal_effect_ident = private_ident!("_effect");
-    new_stmts.push(Stmt::Decl(Decl::Var(Box::new(VarDecl {
+    let (wrap_in_try_finally, hook_arg) = match trackable {
+        Some(Trackable::Component) => (true, Some(1_f64)),
+        Some(Trackable::Hook) => (true, Some(2_f64)),
+        Some(Trackable::Unknown) => (false, None),
+        None => (true, None),
+    };
+    let hook_call = Expr::Call(CallExpr {
         span: DUMMY_SP,
-        kind: VarDeclKind::Var,
-        declare: false,
-        decls: vec![VarDeclarator {
-            definite: false,
-            span: DUMMY_SP,
-            init: Some(Box::new(Expr::Call(CallExpr {
-                span: DUMMY_SP,
-                callee: Callee::Expr(Box::new(Expr::Ident(use_signals_ident))),
-                args: match arg {
-                    Some(value) => vec![ExprOrSpread {
-                        spread: None,
-                        expr: Box::new(Expr::Lit(Lit::Num(Number {
-                            span: DUMMY_SP,
-                            value: value.into(),
-                            raw: None,
-                        }))),
-                    }],
-                    None => vec![],
-                },
-                type_args: None,
-            }))),
-            name: Pat::Ident(BindingIdent {
-                id: signal_effect_ident.clone(),
-                type_ann: None,
-            }),
-        }],
-    }))));
-    new_stmts.push(Stmt::Try(Box::new(TryStmt {
-        span: DUMMY_SP,
-        block: BlockStmt {
-            span: DUMMY_SP,
-            stmts: n.to_vec(),
-        },
-        handler: None,
-        finalizer: Some(BlockStmt {
-            span: DUMMY_SP,
-            stmts: vec![Stmt::Expr(ExprStmt {
-                span: DUMMY_SP,
-                expr: Box::new(Expr::Call(CallExpr {
-                    args: vec![],
+        callee: Callee::Expr(Box::new(Expr::Ident(use_signals_ident))),
+        args: match hook_arg {
+            Some(value) => vec![ExprOrSpread {
+                spread: None,
+                expr: Box::new(Expr::Lit(Lit::Num(Number {
                     span: DUMMY_SP,
-                    type_args: None,
-                    callee: Callee::Expr(Box::new(Expr::Member(MemberExpr {
-                        span: DUMMY_SP,
-                        prop: MemberProp::Ident(Ident {
-                            span: DUMMY_SP,
-                            sym: Atom::from("f"),
-                            optional: false,
-                        }),
-                        obj: Box::new(Expr::Ident(signal_effect_ident)),
-                    }))),
-                })),
-            })],
-        }),
-    })));
+                    value: value,
+                    raw: None,
+                }))),
+            }],
+            None => vec![],
+        },
+        type_args: None,
+    });
+    if !wrap_in_try_finally {
+        let mut res = Vec::with_capacity(n.capacity() + 1);
+        res.push(Stmt::Expr(ExprStmt {
+            span: DUMMY_SP,
+            expr: Box::new(hook_call),
+        }));
 
-    new_stmts
+        n.iter().for_each(|it| res.push(it.clone()));
+
+        return res;
+    }
+
+    return vec![
+        Stmt::Decl(Decl::Var(Box::new(VarDecl {
+            span: DUMMY_SP,
+            kind: VarDeclKind::Var,
+            declare: false,
+            decls: vec![VarDeclarator {
+                definite: false,
+                span: DUMMY_SP,
+                init: Some(Box::new(hook_call)),
+                name: Pat::Ident(BindingIdent {
+                    id: signal_effect_ident.clone(),
+                    type_ann: None,
+                }),
+            }],
+        }))),
+        Stmt::Try(Box::new(TryStmt {
+            span: DUMMY_SP,
+            block: BlockStmt {
+                span: DUMMY_SP,
+                stmts: n.to_vec(),
+            },
+            handler: None,
+            finalizer: Some(BlockStmt {
+                span: DUMMY_SP,
+                stmts: vec![Stmt::Expr(ExprStmt {
+                    span: DUMMY_SP,
+                    expr: Box::new(Expr::Call(CallExpr {
+                        args: vec![],
+                        span: DUMMY_SP,
+                        type_args: None,
+                        callee: Callee::Expr(Box::new(Expr::Member(MemberExpr {
+                            span: DUMMY_SP,
+                            prop: MemberProp::Ident(Ident {
+                                span: DUMMY_SP,
+                                sym: Atom::from("f"),
+                                optional: false,
+                            }),
+                            obj: Box::new(Expr::Ident(signal_effect_ident)),
+                        }))),
+                    })),
+                })],
+            }),
+        })),
+    ];
 }
 
 pub trait SignalWrappable {
-    fn wrap_with_use_signals(&mut self, import_use_signals: Ident, arg: Option<u8>);
+    fn wrap_with_use_signals(&mut self, import_use_signals: Ident, arg: Option<Trackable>);
 }
 
 impl<'a> FunctionLike<'a> {
@@ -262,14 +270,14 @@ impl<'a> FunctionLike<'a> {
 }
 
 impl SignalWrappable for Function {
-    fn wrap_with_use_signals(&mut self, import_use_signals: Ident, arg: Option<u8>) {
+    fn wrap_with_use_signals(&mut self, import_use_signals: Ident, arg: Option<Trackable>) {
         if let Some(body) = &mut self.body {
             body.stmts = wrap_with_use_signals(&body.stmts, import_use_signals, arg);
         }
     }
 }
 impl<'a> SignalWrappable for FunctionLike<'a> {
-    fn wrap_with_use_signals(&mut self, import_use_signals: Ident, arg: Option<u8>) {
+    fn wrap_with_use_signals(&mut self, import_use_signals: Ident, arg: Option<Trackable>) {
         match self {
             FunctionLike::Arrow(arrow_expr) => {
                 let this = &mut *arrow_expr;
