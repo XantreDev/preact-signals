@@ -1,5 +1,11 @@
 # @preact-signals/utils
 
+## 0.22.2
+
+### Patch Changes
+
+- 46f2d7e: Updated babel version to remove browserlist warnings
+
 ## 0.22.1
 
 ### Patch Changes

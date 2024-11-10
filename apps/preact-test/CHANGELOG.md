@@ -1,5 +1,13 @@
 # preact-test
 
+## 0.0.47
+
+### Patch Changes
+
+- Updated dependencies [46f2d7e]
+  - @preact-signals/utils@0.22.2
+  - components-for-test@6.0.8
+
 ## 0.0.46
 
 ### Patch Changes

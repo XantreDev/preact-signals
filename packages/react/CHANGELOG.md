@@ -1,5 +1,15 @@
 # @preact-signals/safe-react
 
+## 0.8.0
+
+### Minor Changes
+
+- 3891ed7: Refactored codebase for easier alignment with preact/signals original transform
+
+### Patch Changes
+
+- 46f2d7e: Updated babel version to remove browserlist warnings
+
 ## 0.7.0
 
 ### Minor Changes
