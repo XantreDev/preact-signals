@@ -11,8 +11,6 @@ use std::{
 };
 
 use regex::Regex;
-use serde::Deserialize;
-use serde_json;
 use std::path::PathBuf;
 use swc_core::{
     common::comments::Comments,
@@ -30,13 +28,6 @@ use swc_core::{
     },
 };
 
-fn get_import_source(str: &str) -> Str {
-    Str {
-        span: DUMMY_SP,
-        value: Atom::new(str),
-        raw: None,
-    }
-}
 fn is_track_signals_directive(string: &str) -> bool {
     // https://github.com/preactjs/signals/blob/e04671469e9272de356109170b2e429db49db2f0/packages/react-transform/src/index.ts#L18
     static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r#"(\s|^)@useSignals(\s|$)"#).unwrap());
@@ -48,35 +39,127 @@ fn is_no_track_signals_directive(string: &str) -> bool {
 
     RE.is_match(string)
 }
-fn get_default_import_source() -> Str {
-    get_import_source("@preact-signals/safe-react/tracking")
+
+trait StrExt {
+    fn from_str(str: &str) -> Str;
+    fn signals_default_source() -> Str;
 }
-fn get_named_import_ident() -> Ident {
-    Ident {
-        span: DUMMY_SP,
-        sym: "useSignals".into(),
-        optional: false,
+impl StrExt for Str {
+    fn from_str(str: &str) -> Str {
+        Str {
+            span: DUMMY_SP,
+            value: Atom::new(str),
+            raw: None,
+        }
+    }
+    fn signals_default_source() -> Str {
+        Str::from_str("@preact-signals/safe-react/tracking")
+    }
+}
+trait IdentExt {
+    fn use_signals() -> Ident;
+}
+impl IdentExt for Ident {
+    fn use_signals() -> Ident {
+        Ident {
+            span: DUMMY_SP,
+            sym: "useSignals".into(),
+            optional: false,
+        }
     }
 }
 
-#[derive(PartialEq, Eq, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-enum TransformMode {
-    Manual,
-    /**
-     * all options affects only components
-     */
-    All,
-    Auto,
-}
+mod options {
+    use serde::Deserialize;
 
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct PreactSignalsPluginOptions {
-    mode: Option<TransformMode>,
-    import_source: Option<String>,
-    transform_hooks: Option<bool>,
+    #[derive(PartialEq, Eq, Deserialize, Default)]
+    #[serde(rename_all = "kebab-case")]
+    pub enum TransformMode {
+        Manual,
+        /**
+         * all options affects only components
+         */
+        #[default]
+        All,
+        Auto,
+    }
+
+    #[derive(Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PreactSignalsPluginExperimental {
+        #[serde(default)]
+        pub add_hook_usage_flag: bool,
+    }
+    impl Default for PreactSignalsPluginExperimental {
+        fn default() -> Self {
+            Self {
+                add_hook_usage_flag: false,
+            }
+        }
+    }
+    fn default_import_source() -> String {
+        "@preact-signals/safe-react/tracking".into()
+    }
+    fn default_transform_hooks() -> bool {
+        true
+    }
+
+    #[derive(Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PreactSignalsPluginOptions {
+        #[serde(default)]
+        pub mode: TransformMode,
+        #[serde(default = "default_import_source")]
+        pub import_source: String,
+        #[serde(default = "default_transform_hooks")]
+        pub transform_hooks: bool,
+        #[serde(default)]
+        pub experimental: PreactSignalsPluginExperimental,
+    }
+
+    impl Default for PreactSignalsPluginOptions {
+        fn default() -> Self {
+            PreactSignalsPluginOptions {
+                mode: TransformMode::default(),
+                import_source: default_import_source(),
+                transform_hooks: default_transform_hooks(),
+                experimental: PreactSignalsPluginExperimental::default(),
+            }
+        }
+    }
+    impl PreactSignalsPluginOptions {
+        pub fn auto_hooks() -> PreactSignalsPluginOptions {
+            PreactSignalsPluginOptions {
+                mode: TransformMode::Auto,
+                import_source: default_import_source(),
+                transform_hooks: true,
+                experimental: PreactSignalsPluginExperimental::default(),
+            }
+        }
+        pub fn auto_hooks_and_hook_usage_flag() -> PreactSignalsPluginOptions {
+            PreactSignalsPluginOptions {
+                mode: TransformMode::Auto,
+                import_source: default_import_source(),
+                transform_hooks: true,
+                experimental: PreactSignalsPluginExperimental {
+                    add_hook_usage_flag: true,
+                },
+            }
+        }
+
+        pub fn auto_hooks_context_flags() -> PreactSignalsPluginOptions {
+            PreactSignalsPluginOptions {
+                mode: TransformMode::Auto,
+                import_source: default_import_source(),
+                transform_hooks: true,
+                experimental: PreactSignalsPluginExperimental {
+                    add_hook_usage_flag: true,
+                },
+            }
+        }
+    }
 }
+use options::{PreactSignalsPluginOptions, TransformMode};
 
 pub struct SignalsTransformVisitor<C>
 where
@@ -89,8 +172,8 @@ where
     ignore_span: Option<Span>,
     file_trackable_name: Option<Trackable>,
     transform_hooks: bool,
+    add_context_to_hooks: bool,
 }
-
 impl<C> SignalsTransformVisitor<C>
 where
     C: Comments + Debug,
@@ -106,50 +189,45 @@ where
         file_trackable_name: Option<Trackable>,
     ) -> Self {
         SignalsTransformVisitor {
-            comments: comments,
+            comments,
             file_trackable_name,
-            mode: options.mode.unwrap_or(TransformMode::All),
+            mode: options.mode,
             import_use_signals: None,
-            use_signals_import_source: options
-                .import_source
-                .map(|it| get_import_source(it.as_str()))
-                .unwrap_or(get_default_import_source()),
-            transform_hooks: options.transform_hooks.unwrap_or(true),
+            use_signals_import_source: Str::from_str(options.import_source.as_str()),
+            transform_hooks: options.transform_hooks,
             ignore_span: None,
+            add_context_to_hooks: options.experimental.add_hook_usage_flag,
         }
     }
     fn from_default(comments: C, file_trackable_name: Option<Trackable>) -> Self {
-        SignalsTransformVisitor {
-            comments: comments,
+        SignalsTransformVisitor::from_options(
+            PreactSignalsPluginOptions::default(),
+            comments,
             file_trackable_name,
-            mode: TransformMode::All,
-            import_use_signals: None,
-            use_signals_import_source: get_default_import_source(),
-            transform_hooks: true,
-            ignore_span: None,
-        }
+        )
     }
 
-    fn process_var_decl<T>(
-        &mut self,
-        n: &mut VarDecl,
-        additional_spans: Option<&[Option<Span>]>,
-        transform: T,
-    ) where
-        T: FnOnce(&mut SignalsTransformVisitor<C>, &mut FunctionLike),
-    {
+    fn process_var_decl<T>(&mut self, n: &mut VarDecl, additional_spans: Option<&[&Span]>) {
         if let Some(first) = n.decls.as_mut_slice().take_first_mut()
             && let Some(init) = &mut first.init
             && let child_span = init.unwrap_parens().get_span().clone()
             && let Some(mut component) = extract_fn_from_expr(init.unwrap_parens_mut())
-            && let defaults_spans = [Some(child_span), Some(n.span)]
-            && let spans = [additional_spans.unwrap_or(&[]), &defaults_spans].concat()
-            && match component.get_fn_ident() {
-                None => self.should_track(&spans, &first.name, &component, false),
-                Some(ident) => self.should_track(&spans, &ident, &component, false),
+            && let defaults_spans = &[&child_span, &n.span]
+            && let spans = if let Some(extra_spans) = additional_spans {
+                [defaults_spans, extra_spans].concat()
+            } else {
+                defaults_spans.to_vec()
+            }
+            && let Some(trackable) = match component.get_fn_ident() {
+                None => {
+                    self.should_track_option_ident(&spans, Some(&first.name), &component, false)
+                }
+                Some(ident) => {
+                    self.should_track_option_ident(&spans, Some(&ident), &component, false)
+                }
             }
         {
-            transform(self, &mut component)
+            self.track(trackable, &mut component);
         }
     }
 }
@@ -194,94 +272,99 @@ where
         None => ShouldTrack::Auto,
     }
 }
-fn should_track_by_comments<C>(comments: &C, spans: &[Option<Span>]) -> ShouldTrack
-where
-    C: Comments + Debug,
-{
-    spans
-        .into_iter()
-        .filter_map(|it| match it {
-            Some(span) => match should_track_by_comment(comments, span) {
-                ShouldTrack::Auto => None,
-                it => Some(it),
-            },
-            None => None,
-        })
-        .reduce(|acc, it| match (acc, it) {
-            (ShouldTrack::OptIn, ShouldTrack::OptOut) => ShouldTrack::OptOut,
-            (ShouldTrack::OptOut, ShouldTrack::OptIn) => ShouldTrack::OptOut,
-            (_, it) => it,
-        })
-        .unwrap_or(ShouldTrack::Auto)
-}
 
 impl<C> SignalsTransformVisitor<C>
 where
     C: Comments + Debug,
 {
-    fn should_track_auto<I, Comp>(
-        &self,
-        ident: Option<&I>,
-        component: &Comp,
-        is_default_export: bool,
-    ) -> bool
+    fn is_trackable<I>(&self, ident: Option<&I>, is_default_export: bool) -> Option<Trackable>
     where
-        Comp: Detectable,
         I: MaybeComponentName,
     {
-        let should_track_by_name = || {
-            if is_default_export && ident.is_none() {
-                self.file_trackable_name.to_owned()
-            } else {
-                ident.and_then(|it| it.is_trackable())
-            }
-        };
-        // [TODO]: distinguish trackbables to support @preact/signals-react/runtime
-        match self.mode {
-            TransformMode::Manual => false,
-            TransformMode::Auto => match should_track_by_name() {
-                Some(Trackable::Hook) if self.transform_hooks => component.has_dot_value(),
-                Some(Trackable::Component) => component.has_jsx() && component.has_dot_value(),
-                _ => false,
-            },
-            TransformMode::All => match should_track_by_name() {
-                Some(Trackable::Hook) if self.transform_hooks => component.has_dot_value(),
-                Some(Trackable::Component) => component.has_jsx(),
-                _ => false,
-            },
+        if is_default_export && ident.is_none() {
+            self.file_trackable_name.to_owned()
+        } else {
+            ident.and_then(|it| it.is_trackable())
         }
     }
 
     #[inline]
     fn should_track_option_ident<I, Comp>(
         &self,
-        comment_spans: &[Option<Span>],
+        comment_spans: &[&Span],
         ident: Option<&I>,
         component: &Comp,
         is_default_export: bool,
-    ) -> bool
+    ) -> Option<Trackable>
     where
         Comp: Detectable,
         I: MaybeComponentName,
     {
-        match should_track_by_comments(&self.comments, comment_spans) {
-            ShouldTrack::Auto => self.should_track_auto(ident, component, is_default_export),
-            ShouldTrack::OptIn => true,
-            ShouldTrack::OptOut => false,
+        let comments: &C = &self.comments;
+        let should_track = comment_spans
+            .into_iter()
+            .filter_map(|span| match should_track_by_comment(comments, span) {
+                ShouldTrack::Auto => None,
+                it => Some(it),
+            })
+            .reduce(|acc, it| match (acc, it) {
+                (ShouldTrack::OptIn, ShouldTrack::OptOut) => ShouldTrack::OptOut,
+                (ShouldTrack::OptOut, ShouldTrack::OptIn) => ShouldTrack::OptOut,
+                (_, it) => it,
+            })
+            .unwrap_or(ShouldTrack::Auto);
+
+        match should_track {
+            ShouldTrack::Auto => {
+                let this = &self;
+                match this.mode {
+                    TransformMode::Manual => None,
+                    TransformMode::Auto => match this.is_trackable(ident, is_default_export) {
+                        Some(Trackable::Hook)
+                            if this.transform_hooks && component.has_dot_value() =>
+                        {
+                            Some(Trackable::Hook)
+                        }
+                        Some(Trackable::Component)
+                            if component.has_jsx() && component.has_dot_value() =>
+                        {
+                            Some(Trackable::Component)
+                        }
+                        _ => None,
+                    },
+                    TransformMode::All => match this.is_trackable(ident, is_default_export) {
+                        Some(Trackable::Hook)
+                            if this.transform_hooks && component.has_dot_value() =>
+                        {
+                            Some(Trackable::Hook)
+                        }
+                        Some(Trackable::Component) if component.has_jsx() => {
+                            Some(Trackable::Component)
+                        }
+                        _ => None,
+                    },
+                }
+            }
+            ShouldTrack::OptIn => Some(
+                self.is_trackable(ident, is_default_export)
+                    .unwrap_or(Trackable::Unknown),
+            ),
+            ShouldTrack::OptOut => None,
         }
     }
-    fn should_track<I, Comp>(
-        &self,
-        comment_spans: &[Option<Span>],
-        ident: &I,
-        component: &Comp,
-        is_default_export: bool,
-    ) -> bool
+
+    #[inline]
+    fn track<TWrappable>(&mut self, trackable: Trackable, wrappable: &mut TWrappable)
     where
-        Comp: Detectable,
-        I: MaybeComponentName,
+        TWrappable: SignalWrappable,
     {
-        self.should_track_option_ident(comment_spans, Some(ident), component, is_default_export)
+        wrappable.wrap_with_use_signals(
+            self.get_import_use_signals(),
+            match self.add_context_to_hooks {
+                false => None,
+                true => Some(trackable),
+            },
+        )
     }
 }
 impl<C> VisitMut for SignalsTransformVisitor<C>
@@ -297,9 +380,7 @@ where
             .unwrap_or(true);
 
         if should_process {
-            self.process_var_decl(n, None, |mut_self, it| {
-                it.wrap_with_use_signals(mut_self.get_import_use_signals())
-            })
+            self.process_var_decl::<SignalsTransformVisitor<C>>(n, None)
         }
 
         n.visit_mut_children_with(self);
@@ -310,10 +391,9 @@ where
                 span,
                 decl: Decl::Var(ref mut var_decl),
             } => {
-                self.process_var_decl(
+                self.process_var_decl::<SignalsTransformVisitor<C>>(
                     var_decl.deref_mut(),
-                    Some(&[Some(*span)]),
-                    |mut_self, it| it.wrap_with_use_signals(mut_self.get_import_use_signals()),
+                    Some(&[&span]),
                 );
                 let old_span = self.ignore_span;
                 self.ignore_span = Some(var_decl.span.clone());
@@ -324,16 +404,14 @@ where
                 span,
                 decl: Decl::Fn(ref mut fn_declr),
             } => {
-                if self.should_track(
-                    &[Some(span.clone()), Some(fn_declr.function.span)],
-                    &fn_declr.ident,
+                self.should_track_option_ident(
+                    &[&span, &fn_declr.function.span],
+                    Some(&fn_declr.ident),
                     fn_declr,
                     false,
-                ) {
-                    fn_declr
-                        .function
-                        .wrap_with_use_signals(self.get_import_use_signals())
-                }
+                )
+                .inspect(|trackable| self.track(trackable.clone(), &mut *fn_declr.function));
+
                 let old_span = self.ignore_span;
                 self.ignore_span = Some(fn_declr.function.span.clone());
                 n.visit_mut_children_with(self);
@@ -348,15 +426,13 @@ where
                 span,
                 decl: DefaultDecl::Fn(ref mut fn_expr),
             } => {
-                if self.should_track_option_ident(
-                    &[Some(span.clone()), Some(fn_expr.function.span)],
+                if let Some(trackable) = self.should_track_option_ident(
+                    &[&span, &fn_expr.function.span],
                     fn_expr.ident.as_ref(),
                     fn_expr,
                     true,
                 ) {
-                    fn_expr
-                        .function
-                        .wrap_with_use_signals(self.get_import_use_signals())
+                    self.track(trackable, &mut *fn_expr.function);
                 }
                 let old_span = self.ignore_span;
                 self.ignore_span = Some(fn_expr.function.span.clone());
@@ -367,77 +443,78 @@ where
         }
     }
     fn visit_mut_export_default_expr(&mut self, n: &mut ExportDefaultExpr) {
-        match n {
-            ExportDefaultExpr { span, ref mut expr } => {
-                let child_span = expr.unwrap_parens().get_span().clone();
-                if let Some(mut component) = extract_fn_from_expr(expr.unwrap_parens_mut())
-                    && let spans = [Some(span.clone()), Some(child_span), Some(n.span)]
-                    && self.should_track_option_ident(
-                        &spans,
-                        component.get_fn_ident().as_ref(),
-                        &component,
-                        true,
-                    )
-                {
-                    component.wrap_with_use_signals(self.get_import_use_signals());
-                }
+        let ExportDefaultExpr { ref mut expr, span } = n;
+        let child_span = expr.unwrap_parens().get_span().clone();
 
-                n.visit_mut_children_with(self);
-                // let old_span = self.ignore_span;
-                // self.ignore_span = Some(child_span);
-                // self.ignore_span = old_span
-            }
+        if let Some(mut component) = extract_fn_from_expr(expr.unwrap_parens_mut()) {
+            self.should_track_option_ident(
+                &[&span, &child_span],
+                component.get_fn_ident().as_ref(),
+                &component,
+                true,
+            )
+            .inspect(|trackable| self.track(trackable.clone(), &mut component));
         }
+
+        n.visit_mut_children_with(self);
+        // let old_span = self.ignore_span;
+        // self.ignore_span = Some(child_span);
+        // self.ignore_span = old_span
     }
     fn visit_mut_fn_decl(&mut self, n: &mut FnDecl) {
         if match self.ignore_span {
             Some(span) => !span.eq(&n.function.span),
             None => true,
-        } && self.should_track(&[Some(n.function.span)], &n.ident, n, false)
+        } && let Some(trackable) =
+            self.should_track_option_ident(&[&n.function.span], Some(&n.ident), n, false)
         {
-            n.function
-                .wrap_with_use_signals(self.get_import_use_signals())
+            self.track(trackable, &mut *n.function)
         }
         n.visit_mut_children_with(self);
     }
 
     fn visit_mut_assign_expr(&mut self, n: &mut AssignExpr) {
         if let Some(mut component) = extract_fn_from_expr(n.right.borrow_mut())
-            && match component.get_fn_ident() {
-                None => self.should_track(&[Some(n.span)], &n.left, &component, false),
-                Some(ident) => self.should_track(&[Some(n.span)], &ident, &component, false),
+            && let Some(trackable) = match component.get_fn_ident() {
+                None => {
+                    self.should_track_option_ident(&[&n.span], Some(&n.left), &component, false)
+                }
+                Some(ident) => {
+                    self.should_track_option_ident(&[&n.span], Some(&ident), &component, false)
+                }
             }
         {
-            component.wrap_with_use_signals(self.get_import_use_signals())
+            self.track(trackable, &mut component);
         }
 
         n.visit_mut_children_with(self);
     }
     fn visit_mut_key_value_prop(&mut self, n: &mut KeyValueProp) {
         if let Some(mut component) = extract_fn_from_expr(&mut n.value)
-            && self.should_track(
-                &[Some(*n.key.get_span())],
-                &component
-                    .get_fn_ident()
-                    .map_or(n.key.clone(), |it| PropName::Ident(it)),
+            && let Some(trackable) = self.should_track_option_ident(
+                &[n.key.get_span()],
+                Some(
+                    &component
+                        .get_fn_ident()
+                        .map_or(n.key.clone(), |it| PropName::Ident(it)),
+                ),
                 &component,
                 false,
             )
         {
-            component.wrap_with_use_signals(self.get_import_use_signals())
+            self.track(trackable, &mut component);
         }
 
         n.visit_mut_children_with(self);
     }
     fn visit_mut_method_prop(&mut self, n: &mut MethodProp) {
-        if self.should_track(
-            &[n.function.span.into(), n.key.get_span().clone().into()],
-            &n.key,
+        if let Some(trackable) = self.should_track_option_ident(
+            &[&n.function.span, n.key.get_span()],
+            Some(&n.key),
             n.function.deref(),
             false,
         ) {
-            n.function
-                .wrap_with_use_signals(self.get_import_use_signals())
+            self.track(trackable, &mut *n.function);
         }
 
         n.visit_mut_children_with(self);
@@ -453,7 +530,7 @@ where
                     add_import(
                         ident.clone(),
                         self.use_signals_import_source.clone(),
-                        get_named_import_ident().into(),
+                        Some(Ident::use_signals()),
                     )
                     .into(),
                 ),
@@ -471,7 +548,7 @@ where
                 add_require(
                     ident.clone(),
                     self.use_signals_import_source.clone(),
-                    get_named_import_ident().into(),
+                    Some(Ident::use_signals()),
                 ),
             )
         }
@@ -507,6 +584,7 @@ pub fn process_transform(program: Program, _metadata: TransformPluginProgramMeta
                     .and_then(|it| it.is_trackable())
             });
 
+        use serde_json;
         match data {
             Some(data) => {
                 let options = serde_json::from_str::<PreactSignalsPluginOptions>(data.as_str())
@@ -895,7 +973,7 @@ const Beb = {
 
 const _ = {
     ['Aboba']() {
-        return <div />        
+        return <div />
     }
 }
     "#,
@@ -1033,11 +1111,7 @@ const Bebe = ()=>{
 test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_options(
-        PreactSignalsPluginOptions {
-            import_source: None,
-            mode: Some(TransformMode::All),
-            transform_hooks: Some(true)
-        },
+        PreactSignalsPluginOptions::auto_hooks(),
         tester.comments.clone(),
         None
     )),
@@ -1054,7 +1128,7 @@ const useAboba = () => a.value
 
 import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
 
-const useAboba = () => { 
+const useAboba = () => {
   var _effect = _useSignals();
   try {
     return a.value
@@ -1067,11 +1141,7 @@ const useAboba = () => {
 test_inline!(
     get_syntax(),
     |tester| as_folder(SignalsTransformVisitor::from_options(
-        PreactSignalsPluginOptions {
-            import_source: None,
-            mode: Some(TransformMode::Auto),
-            transform_hooks: Some(true)
-        },
+        PreactSignalsPluginOptions::auto_hooks(),
         tester.comments.clone(),
         None
     )),
@@ -1089,7 +1159,7 @@ const useAboba = () => {
 
 import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
 
-const useAboba = () => { 
+const useAboba = () => {
   var _effect = _useSignals();
   try {
     const counter = useSignal(0)
@@ -1097,5 +1167,64 @@ const useAboba = () => {
   } finally{
    _effect.f()
   }
+}
+"#
+);
+
+test_inline!(
+    get_syntax(),
+    |tester| as_folder(SignalsTransformVisitor::from_options(
+        PreactSignalsPluginOptions::auto_hooks_and_hook_usage_flag(),
+        tester.comments.clone(),
+        None
+    )),
+    hook_code_auto_with_ctx,
+    r#"
+'use strict';
+
+const useAboba = () => {
+  const counter = useSignal(0)
+  console.log(counter.value)
+}
+
+// [TODO]: fix inline comments
+/**
+ * @useSignals
+ */
+const unknown = () => undefined
+
+const Component = () => {
+    a.value
+    return <></>
+}
+"#,
+    r#"
+'use strict';
+
+import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
+
+const useAboba = () => {
+  var _effect = _useSignals(2);
+  try {
+    const counter = useSignal(0)
+    console.log(counter.value)
+  } finally{
+   _effect.f()
+  }
+}
+const unknown = ()=>{
+    _useSignals();
+    return undefined;
+};
+
+const Component = ()=>{
+    var _effect = _useSignals(1);
+    try {
+        a.value;
+        return <></>;
+     } finally{
+         _effect.f();
+     }
+ };
 "#
 );
