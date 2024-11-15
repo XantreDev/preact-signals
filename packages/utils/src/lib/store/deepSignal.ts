@@ -9,11 +9,12 @@ import { isSignal } from "./utils";
 
 type BaseTypes = string | number | boolean;
 
-export type UnwrapSignal<T> = T extends DeepSignal<infer V>
-  ? UnwrapSignalSimple<V>
-  : T extends Signal<infer V>
-    ? V
-    : UnwrapSignalSimple<T>;
+export type UnwrapSignal<T> =
+  T extends DeepSignal<infer V>
+    ? UnwrapSignalSimple<V>
+    : T extends Signal<infer V>
+      ? V
+      : UnwrapSignalSimple<T>;
 
 export type UnwrapSignalSimple<T> = T extends
   | Function
@@ -46,9 +47,8 @@ export interface DeepSignal<T> extends Signal<T> {
   __not_exist_deepSignal: true;
 }
 
-export type WrapDeepSignal<T> = T extends Signal<any>
-  ? T
-  : DeepSignal<UnwrapSignal<T>>;
+export type WrapDeepSignal<T> =
+  T extends Signal<any> ? T : DeepSignal<UnwrapSignal<T>>;
 
 /**
  *

@@ -220,7 +220,7 @@ describe("reactivity/reactive", () => {
     const assertValue = (value: any) => {
       reactive(value);
       expect(
-        `value cannot be made reactive: ${String(value)}`
+        `value cannot be made reactive: ${String(value)}`,
       ).toHaveBeenWarnedLast();
     };
 
