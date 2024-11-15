@@ -71,7 +71,9 @@ describe.concurrent("writableRefOfObjectProp()", () => {
       },
     });
 
-    const sigDeps = vi.fn(() => sig.value);
+    const sigDeps = vi.fn(() => {
+      sig.value;
+    });
 
     const disposeSig = effect(sigDeps);
     expect(sigDeps).toHaveBeenCalledTimes(1);
@@ -80,8 +82,12 @@ describe.concurrent("writableRefOfObjectProp()", () => {
     const bProp = writableRefOfObjectProp(sig, "b");
     const cProp = writableRefOfObjectProp(bProp, "c");
 
-    const bDeps = vi.fn(() => bProp.value);
-    const cDeps = vi.fn(() => cProp.value);
+    const bDeps = vi.fn(() => {
+      bProp.value;
+    });
+    const cDeps = vi.fn(() => {
+      cProp.value;
+    });
 
     const disposeB = effect(bDeps);
     const disposeC = effect(cDeps);

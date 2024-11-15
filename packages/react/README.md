@@ -48,6 +48,14 @@ There are two ways of tracking signals:
 - [Troubleshooting](#troubleshooting)
 - [License](#license)
 
+## SWC plugin compatibility table
+
+| `next` | `@preact-signals/safe-react` |  `@swc/core` |
+|--------|------------------------------|--------------|
+| `^14.0.0`  | `0.7.0`                  | -            |
+| `15.0.3`   | `~0.8.0`                 | `1.8.0-1.9.2`|
+
+
 ## React Integration features
 
 > Note: please open an issue here if in some scenario you have problems with this integration.

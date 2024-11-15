@@ -15,7 +15,9 @@ describe("store", () => {
     const store = Store.deepReactive({
       count: 0,
     });
-    const fn = vi.fn(() => store.count);
+    const fn = vi.fn(() => {
+      store.count;
+    });
     effect(fn);
     expect(fn).toHaveBeenCalledTimes(1);
 
@@ -44,7 +46,7 @@ describe("store", () => {
       await act(() => store.count++);
 
       expect(root.innerHTML).toBe("<div>1</div>");
-    }
+    },
   );
 
   it("custom class tracking", () => {
@@ -54,7 +56,9 @@ describe("store", () => {
     const store = Store.deepReactive({
       count: new CustomClass(0),
     });
-    const fn = vi.fn(() => store.count.value);
+    const fn = vi.fn(() => {
+      store.count.value;
+    });
     effect(fn);
     expect(fn).toHaveBeenCalledTimes(1);
 

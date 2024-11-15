@@ -1,8 +1,10 @@
 import { effect, Signal } from "@preact/signals-core";
-import { useRef } from "react";
+import { useRef, version } from "react";
 import { useSyncExternalStore } from "use-sync-external-store/shim/index.js";
 
-const ReactElemType = Symbol.for("react.element"); // https://github.com/facebook/react/blob/346c7d4c43a0717302d446da9e7423a8e28d8996/packages/shared/ReactSymbols.js#L15
+const ReactElemType = Symbol.for(
+  parseInt(version) >= 19 ? "react.transitional.element" : "react.element",
+); // https://github.com/facebook/react/blob/346c7d4c43a0717302d446da9e7423a8e28d8996/packages/shared/ReactSymbols.js#L15
 
 const symDispose: unique symbol =
   (Symbol as any).dispose || Symbol.for("Symbol.dispose");
@@ -95,7 +97,7 @@ function createEffectStore(): EffectStore {
     }
     if (syncRerendersCount > maxSyncRerenders) {
       throw new Error(
-        `preact-signals: Too many sync rerenders (${syncRerendersCount}), you might change parent component signal dependencies in render of child component.`
+        `preact-signals: Too many sync rerenders (${syncRerendersCount}), you might change parent component signal dependencies in render of child component.`,
       );
     }
     version = (version + 1) | 0;
