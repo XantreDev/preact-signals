@@ -1,8 +1,9 @@
 "use strict";
 "use client";
-
+import { version } from "react";
 import { useSignal } from "@preact-signals/safe-react";
 
+console.log("react version", version);
 const useCount = () => {
   const count = useSignal(0);
 

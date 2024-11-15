@@ -1,12 +1,5 @@
 # `@preact-signals/safe-react`
 
-## Next.js compatibility table
-
-| `next` | `@preact-signals/safe-react` |
-|--------|------------------------------|
-| `^14.0.0`  | `0.7.0`                  |
-| `15.0.*`   | `~0.8.0`                  |
-
 This is community driven preact/signals integration for React, based on official `@preact/signals-react` integration, since it's patching react - there are a lot of problems in different environments and bundlers. This package tries to solve this problem by this steps:
 
 - no runtime react internals patching
@@ -54,6 +47,14 @@ There are two ways of tracking signals:
 - [How it works](#how-it-works)
 - [Troubleshooting](#troubleshooting)
 - [License](#license)
+
+## SWC plugin compatibility table
+
+| `next` | `@preact-signals/safe-react` |  `@swc/core` |
+|--------|------------------------------|--------------|
+| `^14.0.0`  | `0.7.0`                  | -            |
+| `15.0.3`   | `~0.8.0`                 | `1.8.0-1.9.2`|
+
 
 ## React Integration features
 
