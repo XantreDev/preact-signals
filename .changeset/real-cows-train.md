@@ -3,4 +3,4 @@
 ---
 
 - dropped support of old @preact/signals versions
-- separed `untrackedPolyfill` into separeate entry
+- separated `untrackedPolyfill` into distinct entry
