@@ -32,6 +32,8 @@ declare class ReactiveRef<T> extends Signal<T> {
 declare class WritableReactiveRef<T> extends ReactiveRef<T> {
   set value(value: T);
   constructor(get: () => T, set: (value: T) => void);
+
+  /** @internal */
   [UncachedField.Setter](value: T): void;
 }
 
@@ -51,7 +53,7 @@ export type WritableRefOptions<T> = {
 function WritableReactiveRef<T>(
   this: WritableReactiveRef<T>,
   get: () => T,
-  set: (value: T) => void
+  set: (value: T) => void,
 ) {
   this[UncachedField.Accessor] = get;
   this[UncachedField.Setter] = set;
@@ -172,7 +174,7 @@ export const signalOf$ = <T>($value: ReactiveRef<T>): ReadonlySignal<T> =>
   computesCache.get($value[UncachedField.Accessor]) ??
   (computesCache.set(
     $value[UncachedField.Accessor],
-    computed($value[UncachedField.Accessor])
+    computed($value[UncachedField.Accessor]),
   ),
   computesCache.get($value[UncachedField.Accessor])!);
 

@@ -1,7 +1,10 @@
 #![feature(box_patterns, let_chains, if_let_guard, slice_take)]
 
 mod utils;
-use swc_core::ecma::transforms::testing::test_inline;
+use swc_core::{
+    common::{Mark, SyntaxContext},
+    ecma::visit::{fold_pass, visit_mut_pass, FoldPass},
+};
 use utils::*;
 
 use std::{
@@ -20,7 +23,7 @@ use swc_core::{
         atoms::Atom,
         parser::Syntax,
         utils::{prepend_stmt, private_ident},
-        visit::{as_folder, noop_visit_mut_type, FoldWith, VisitMut, VisitMutWith},
+        visit::{noop_visit_mut_type, FoldWith, VisitMut, VisitMutWith},
     },
     plugin::{
         metadata::TransformPluginMetadataContextKind, plugin_transform,
@@ -57,13 +60,14 @@ impl StrExt for Str {
     }
 }
 trait IdentExt {
-    fn use_signals() -> Ident;
+    fn use_signals(ctxt: SyntaxContext) -> Ident;
 }
 impl IdentExt for Ident {
-    fn use_signals() -> Ident {
+    fn use_signals(ctxt: SyntaxContext) -> Ident {
         Ident {
             span: DUMMY_SP,
             sym: "useSignals".into(),
+            ctxt,
             optional: false,
         }
     }
@@ -173,6 +177,7 @@ where
     file_trackable_name: Option<Trackable>,
     transform_hooks: bool,
     add_context_to_hooks: bool,
+    // unresolved_mark: Mark,
 }
 impl<C> SignalsTransformVisitor<C>
 where
@@ -187,6 +192,7 @@ where
         options: PreactSignalsPluginOptions,
         comments: C,
         file_trackable_name: Option<Trackable>,
+        // unresolved_mark: Mark,
     ) -> Self {
         SignalsTransformVisitor {
             comments,
@@ -197,13 +203,20 @@ where
             transform_hooks: options.transform_hooks,
             ignore_span: None,
             add_context_to_hooks: options.experimental.add_hook_usage_flag,
+            // unresolved_mark,
+            // context_mark: unresolved_mark,
         }
     }
-    fn from_default(comments: C, file_trackable_name: Option<Trackable>) -> Self {
+    fn from_default(
+        comments: C,
+        file_trackable_name: Option<Trackable>,
+        // unresolved_mark: Mark,
+    ) -> Self {
         SignalsTransformVisitor::from_options(
             PreactSignalsPluginOptions::default(),
             comments,
             file_trackable_name,
+            // unresolved_mark,
         )
     }
 
@@ -496,7 +509,7 @@ where
                 Some(
                     &component
                         .get_fn_ident()
-                        .map_or(n.key.clone(), |it| PropName::Ident(it)),
+                        .map_or(n.key.clone(), |it| PropName::Ident(it.into())),
                 ),
                 &component,
                 false,
@@ -530,7 +543,7 @@ where
                     add_import(
                         ident.clone(),
                         self.use_signals_import_source.clone(),
-                        Some(Ident::use_signals()),
+                        Some(Ident::use_signals(ident.ctxt)),
                     )
                     .into(),
                 ),
@@ -548,7 +561,8 @@ where
                 add_require(
                     ident.clone(),
                     self.use_signals_import_source.clone(),
-                    Some(Ident::use_signals()),
+                    Some(Ident::use_signals(ident.ctxt)),
+                    ident.ctxt,
                 ),
             )
         }
@@ -571,35 +585,45 @@ where
 /// This requires manual handling of serialization / deserialization from ptrs.
 /// Refer swc_plugin_macro to see how does it work internally.
 #[plugin_transform]
-pub fn process_transform(program: Program, _metadata: TransformPluginProgramMetadata) -> Program {
-    program.fold_with(&mut as_folder({
-        let data = _metadata.get_transform_plugin_config();
+pub fn process_transform(
+    mut program: Program,
+    _metadata: TransformPluginProgramMetadata,
+) -> Program {
+    // _metadata.mark
+    program.visit_mut_with(
+        &mut ({
+            let data = _metadata.get_transform_plugin_config();
 
-        let file_has_trackable_name = _metadata
-            .get_context(&TransformPluginMetadataContextKind::Filename)
-            .map(|it| PathBuf::from(it))
-            .and_then(|it| {
-                it.file_name()
-                    .and_then(|it| it.to_str())
-                    .and_then(|it| it.is_trackable())
-            });
+            let file_has_trackable_name = _metadata
+                .get_context(&TransformPluginMetadataContextKind::Filename)
+                .map(|it| PathBuf::from(it))
+                .and_then(|it| {
+                    it.file_name()
+                        .and_then(|it| it.to_str())
+                        .and_then(|it| it.is_trackable())
+                });
 
-        use serde_json;
-        match data {
-            Some(data) => {
-                let options = serde_json::from_str::<PreactSignalsPluginOptions>(data.as_str())
-                    .expect("transform plugin config should be valid json");
-                SignalsTransformVisitor::from_options(
-                    options,
+            use serde_json;
+            match data {
+                Some(data) => {
+                    let options = serde_json::from_str::<PreactSignalsPluginOptions>(data.as_str())
+                        .expect("transform plugin config should be valid json");
+                    SignalsTransformVisitor::from_options(
+                        options,
+                        _metadata.comments,
+                        file_has_trackable_name,
+                        // _metadata.unresolved_mark,
+                    )
+                }
+                None => SignalsTransformVisitor::from_default(
                     _metadata.comments,
                     file_has_trackable_name,
-                )
+                    // _metadata.unresolved_mark,
+                ),
             }
-            None => {
-                SignalsTransformVisitor::from_default(_metadata.comments, file_has_trackable_name)
-            }
-        }
-    }))
+        }),
+    );
+    program
 }
 
 #[cfg(test)]
@@ -611,9 +635,30 @@ fn get_syntax() -> Syntax {
     Syntax::Es(a)
 }
 
+macro_rules! test_inline {
+    (ignore, $syntax:expr, $tr:expr, $test_name:ident, $input:expr, $output:expr) => {
+        #[test]
+        #[ignore]
+        fn $test_name() {
+            use swc_core::ecma::transforms::testing::test_inline_input_output;
+            // defaulting to module
+            test_inline_input_output($syntax, Some(true), $tr, $input, $output)
+        }
+    };
+
+    ($syntax:expr, $tr:expr, $test_name:ident, $input:expr, $output:expr) => {
+        #[test]
+        fn $test_name() {
+            use swc_core::ecma::transforms::testing::test_inline_input_output;
+            // defaulting to module
+            test_inline_input_output($syntax, Some(true), $tr, $input, $output)
+        }
+    };
+}
+
 test_inline!(
     get_syntax(),
-    |tester| as_folder(SignalsTransformVisitor::from_default(
+    |tester| visit_mut_pass(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
         None
     )),
@@ -649,7 +694,7 @@ const Cecek = ()=>{
 
 test_inline!(
     get_syntax(),
-    |tester| as_folder(SignalsTransformVisitor::from_default(
+    |tester| visit_mut_pass(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
         None
     )),
@@ -677,7 +722,7 @@ function A() {
 
 test_inline!(
     get_syntax(),
-    |tester| as_folder(SignalsTransformVisitor::from_default(
+    |tester| visit_mut_pass(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
         None
     )),
@@ -715,7 +760,7 @@ var C2 = function C3() {
 
 test_inline!(
     get_syntax(),
-    |tester| as_folder(SignalsTransformVisitor::from_default(
+    |tester| visit_mut_pass(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
         None
     )),
@@ -817,7 +862,7 @@ export const boba2 = ()=>{
 
 test_inline!(
     get_syntax(),
-    |tester| as_folder(SignalsTransformVisitor::from_default(
+    |tester| visit_mut_pass(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
         None
     )),
@@ -875,7 +920,7 @@ function Asdjsadf() {
 
 test_inline!(
     get_syntax(),
-    |tester| as_folder(SignalsTransformVisitor::from_default(
+    |tester| visit_mut_pass(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
         None
     )),
@@ -914,7 +959,7 @@ const Cyc = React.lazy(React.memo(()=>{
 
 test_inline!(
     get_syntax(),
-    |tester| as_folder(SignalsTransformVisitor::from_default(
+    |tester| visit_mut_pass(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
         None
     )),
@@ -947,7 +992,7 @@ function MyComponent() {
 // unless explicitly required to do so.
 test_inline!(
     get_syntax(),
-    |tester| as_folder(SignalsTransformVisitor::from_default(
+    |tester| visit_mut_pass(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
         None
     )),
@@ -1042,7 +1087,7 @@ const _ = {
 
 test_inline!(
     get_syntax(),
-    |tester| as_folder(SignalsTransformVisitor::from_default(
+    |tester| visit_mut_pass(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
         Some(Trackable::Component)
     )),
@@ -1081,7 +1126,7 @@ export default (()=>{
 
 test_inline!(
     get_syntax(),
-    |tester| as_folder(SignalsTransformVisitor::from_default(
+    |tester| visit_mut_pass(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
         None
     )),
@@ -1110,7 +1155,7 @@ const Bebe = ()=>{
 
 test_inline!(
     get_syntax(),
-    |tester| as_folder(SignalsTransformVisitor::from_options(
+    |tester| visit_mut_pass(SignalsTransformVisitor::from_options(
         PreactSignalsPluginOptions::auto_hooks(),
         tester.comments.clone(),
         None
@@ -1140,7 +1185,7 @@ const useAboba = () => {
 
 test_inline!(
     get_syntax(),
-    |tester| as_folder(SignalsTransformVisitor::from_options(
+    |tester| visit_mut_pass(SignalsTransformVisitor::from_options(
         PreactSignalsPluginOptions::auto_hooks(),
         tester.comments.clone(),
         None
@@ -1173,7 +1218,7 @@ const useAboba = () => {
 
 test_inline!(
     get_syntax(),
-    |tester| as_folder(SignalsTransformVisitor::from_options(
+    |tester| visit_mut_pass(SignalsTransformVisitor::from_options(
         PreactSignalsPluginOptions::auto_hooks_and_hook_usage_flag(),
         tester.comments.clone(),
         None

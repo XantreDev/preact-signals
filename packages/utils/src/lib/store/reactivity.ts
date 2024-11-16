@@ -24,7 +24,9 @@ export const shallowReadonlyMap = new WeakMap<Target, any>();
 // only unwrap nested ref
 export type UnwrapNestedSignals<T> = T extends Signal
   ? T
-  : UnwrapSignalSimple<T>;
+  : T extends ReadonlySignal
+    ? T
+    : UnwrapSignalSimple<T>;
 
 const enum TargetType {
   INVALID = 0,
@@ -106,7 +108,7 @@ export function toRaw<T>(observed: T): T {
  * @returns
  */
 export const deepReactive = <T extends object>(
-  target: T
+  target: T,
 ): UnwrapNestedSignals<T> => {
   if (target && (target as Target)[ReactiveFlags.RAW]) {
     return target as UnwrapNestedSignals<T>;
@@ -116,7 +118,7 @@ export const deepReactive = <T extends object>(
     false,
     mutableHandlers,
     mutableCollectionHandlers,
-    deepReactiveMap
+    deepReactiveMap,
   );
 };
 
@@ -154,14 +156,14 @@ export type ShallowReactive<T> = T & { [ShallowReactiveMarker]?: true };
  * @param target - The source object.
  */
 export function shallowReactive<T extends object>(
-  target: T
+  target: T,
 ): ShallowReactive<T> {
   return createReactiveObject(
     target,
     false,
     shallowReactiveHandlers,
     shallowCollectionHandlers,
-    shallowReactiveMap
+    shallowReactiveMap,
   );
 }
 
@@ -218,14 +220,14 @@ export type DeepReadonly<T> = T extends Builtin
  * @param target - The source object.
  */
 export function deepReadonly<T extends object>(
-  target: T
+  target: T,
 ): DeepReadonly<UnwrapNestedSignals<T>> {
   return createReactiveObject(
     target,
     true,
     readonlyHandlers,
     readonlyCollectionHandlers,
-    deepReadonlyMap
+    deepReadonlyMap,
   );
 }
 
@@ -264,7 +266,7 @@ export function shallowReadonly<T extends object>(target: T): Readonly<T> {
     true,
     shallowReadonlyHandlers,
     shallowReadonlyCollectionHandlers,
-    shallowReadonlyMap
+    shallowReadonlyMap,
   );
 }
 
@@ -273,7 +275,7 @@ function createReactiveObject(
   isReadonly: boolean,
   baseHandlers: ProxyHandler<any>,
   collectionHandlers: ProxyHandler<any>,
-  proxyMap: WeakMap<Target, any>
+  proxyMap: WeakMap<Target, any>,
 ) {
   if (!isObject(target)) {
     if (__DEV__) {
@@ -301,7 +303,7 @@ function createReactiveObject(
   }
   const proxy = new Proxy(
     target,
-    targetType === TargetType.COLLECTION ? collectionHandlers : baseHandlers
+    targetType === TargetType.COLLECTION ? collectionHandlers : baseHandlers,
   );
   proxyMap.set(target, proxy);
   return proxy;
