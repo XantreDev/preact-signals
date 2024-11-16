@@ -20,4 +20,4 @@ export const useSignal =
 export const useSignalEffect =
   signals?.useSignalEffect ?? throwNotSupportedByPreactSignalsRuntime;
 
-export { Signal, batch, computed, effect, signal };
+export { Signal, batch, computed, effect, signal, untracked };

@@ -1,6 +1,6 @@
 # `@preact-signals/unified-signals`
 
-`@preact-signals/unified-signals` is runtime agnostic `@preact/signals` reexport. That can be used for library developers that want to rely on user preact signals runtime. If you want to write library that uses preact signals you can take benefit from `@preact-signals/unified-signals`. It uses shims instead of hooks if runtime is not providing it, also we polyfilling `untracked` API.
+`@preact-signals/unified-signals` is runtime agnostic `@preact/signals` reexport. That can be used for library developers that want to rely on user preact signals runtime. If you want to write library that uses preact signals you can take benefit from `@preact-signals/unified-signals`. It uses shims instead of hooks if runtime do not providing them. Also we ship `untracked` polyfill in `untracked-polyfill` entry.
 
 ## Installation
 
@@ -23,18 +23,19 @@ into your `package.json`:
 ```json
 {
   "peerDependencies": {
-    "@preact/signals-react": ">=1.2.0",
-    "@preact/signals": ">=1.1.0",
-    "@preact/signals-core": ">=1.1.0"
+    "@preact/signals": ">=1.2.0",
+    "@preact/signals-core": ">=1.5.0",
+    "@preact/signals-react": ">=2.0.0",
+    "@preact-signals/safe-react": "workspace:*"
   },
   "peerDependenciesMeta": {
-    "@preact/signals-react": {
-      "optional": true
-    },
     "@preact/signals": {
       "optional": true
     },
     "@preact/signals-core": {
+      "optional": true
+    },
+    "@preact-signals/safe-react": {
       "optional": true
     }
   }
@@ -43,11 +44,22 @@ into your `package.json`:
 
 ## API Overview
 
-Basic `@preact/signals` API and untracked
+Basic `@preact/signals` API and untracked-polyfill
 
-### `untracked`
+### `untrackedPolyfill`
+
+On old versions of preact signals untracked is not implemented, so it can be reasonable to use polyfill
 
 ```ts
+import * as signals from '@preact-signals/unified-signals'
+import {untrackedPolyfill} from '@preact-signals/unified-signals/untracked-polyfill'
+
+const {
+  signal,
+  computed
+} = signals
+const untracked = signals?.untracked ?? untrackedPolyfill
+
 const a = signal(1);
 const b = signal(2);
 const c = computed(() => a.value + untracked(() => b.value));

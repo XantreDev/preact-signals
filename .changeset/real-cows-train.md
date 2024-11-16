@@ -2,4 +2,5 @@
 "@preact-signals/unified-signals": minor
 ---
 
-Dropped support of old @preact/signals versions
+- dropped support of old @preact/signals versions
+- separed `untrackedPolyfill` into separeate entry

@@ -31,6 +31,12 @@
       "require": "./dist/cjs/index.cjs",
       "react-native": "./src/index.ts"
     },
+    "./untracked-polyfill": {
+      "types": "./src/untrackedPolyfill.d.ts",
+      "import": "./dist/esm/untrackedPolyfill.mjs",
+      "require": "./dist/cjs/untrackedPolyfill.cjs",
+      "react-native": "./src/untrackedPolyfill.ts"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {
