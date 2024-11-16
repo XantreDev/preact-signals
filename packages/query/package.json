@@ -42,10 +42,10 @@
     "build": "pnpm clean && concurrently \"pnpm build:esm\" \"pnpm build:cjs\""
   },
   "peerDependencies": {
+    "@preact/signals": ">=1.2.0",
+    "@preact/signals-core": ">=1.5.0",
+    "@preact/signals-react": ">=2.0.0",
     "@preact-signals/safe-react": "workspace:*",
-    "@preact/signals": ">=1.1.0",
-    "@preact/signals-core": ">=1.1.0",
-    "@preact/signals-react": ">=1.2.0",
     "react": "17.*.* || 18.*.* || 19.x",
     "react-dom": "^18.2.0"
   },
