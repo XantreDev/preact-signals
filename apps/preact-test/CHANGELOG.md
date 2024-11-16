@@ -5,7 +5,7 @@
 ### Patch Changes
 
 - Updated dependencies [46f2d7e]
-  - @preact-signals/utils@0.22.2
+  - @preact-signals/utils@0.23.0
   - components-for-test@7.0.0
 
 ## 0.0.46

@@ -1,6 +1,10 @@
 # @preact-signals/utils
 
-## 0.22.2
+## 0.23.0
+
+### Minor changes
+
+`@preact/signals-react` `^2.0.0` is supported
 
 ### Patch Changes
 
@@ -9,7 +13,7 @@
 - Updated dependencies [75b4375]
 - Updated dependencies [3891ed7]
   - @preact-signals/safe-react@0.8.0
-  - @preact-signals/unified-signals@1.0.0
+  - @preact-signals/unified-signals@0.3.0
 
 ## 0.22.1
 
