@@ -13,9 +13,7 @@ const useThrowOnError = true; // On error throw and exception
 const useSourceMap = true; // Generate source map files
 const useEsbuild = true; // `true` -> use esbuild, `false` use tsc
 
-const input = [
-  "src/index.ts",
-];
+const input = ["src/index.ts", "src/untrackedPolyfill.ts"];
 
 const commonPlugins = [
   externals(),
