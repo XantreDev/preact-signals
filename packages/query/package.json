@@ -1,6 +1,6 @@
 {
   "name": "@preact-signals/query",
-  "version": "2.0.7",
+  "version": "3.0.0",
   "private": false,
   "publishConfig": {
     "access": "public"

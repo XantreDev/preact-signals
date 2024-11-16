@@ -1,5 +1,16 @@
 # @preact-signals/utils
 
+## 0.22.2
+
+### Patch Changes
+
+- 46f2d7e: Updated babel version to remove browserlist warnings
+- Updated dependencies [46f2d7e]
+- Updated dependencies [75b4375]
+- Updated dependencies [3891ed7]
+  - @preact-signals/safe-react@0.8.0
+  - @preact-signals/unified-signals@1.0.0
+
 ## 0.22.1
 
 ### Patch Changes
