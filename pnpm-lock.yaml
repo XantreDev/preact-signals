@@ -550,7 +550,7 @@ importers:
         specifier: ^7.25.9
         version: 7.25.9
       '@preact-signals/safe-react':
-        specifier: workspace:>=0.5.1
+        specifier: workspace:>=0.8.0
         version: link:../react
       '@preact-signals/unified-signals':
         specifier: workspace:*
