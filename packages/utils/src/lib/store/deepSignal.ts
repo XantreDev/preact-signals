@@ -1,4 +1,4 @@
-import { Signal } from "@preact-signals/unified-signals";
+import { ReadonlySignal, Signal } from "@preact-signals/unified-signals";
 import { CollectionTypes } from "./collectionHandlers";
 import {
   type RawSymbol,
@@ -14,7 +14,9 @@ export type UnwrapSignal<T> =
     ? UnwrapSignalSimple<V>
     : T extends Signal<infer V>
       ? V
-      : UnwrapSignalSimple<T>;
+      : T extends ReadonlySignal<infer V>
+        ? V
+        : UnwrapSignalSimple<T>;
 
 export type UnwrapSignalSimple<T> = T extends
   | Function

@@ -43,12 +43,16 @@ describe.concurrent("writableRefOfObjectProp()", () => {
 
     expect(aProp.value).toBe(0);
 
-    const depsParent = vi.fn(() => sig.value);
+    const depsParent = vi.fn(() => {
+      sig.value;
+    });
     const disposeParent = effect(depsParent);
 
     expect(depsParent).toHaveBeenCalledTimes(1);
 
-    const deps = vi.fn(() => aProp.value);
+    const deps = vi.fn(() => {
+      aProp.value;
+    });
     const dispose = effect(deps);
 
     expect(deps).toHaveBeenCalledTimes(1);
