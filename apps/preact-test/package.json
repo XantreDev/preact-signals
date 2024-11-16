@@ -13,7 +13,7 @@
     "@preact-signals/utils": "workspace:*",
     "@preact/signals": "^1.2.1",
     "components-for-test": "workspace:*",
-    "preact": "^10.21.0"
+    "preact": "^10.24.3"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.8.2",

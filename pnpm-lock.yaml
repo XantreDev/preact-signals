@@ -93,17 +93,17 @@ importers:
         version: link:../../packages/utils
       '@preact/signals':
         specifier: ^1.2.1
-        version: 1.2.1(preact@10.21.0)
+        version: 1.2.1(preact@10.24.3)
       components-for-test:
         specifier: workspace:*
         version: link:../../packages/components-for-test
       preact:
-        specifier: ^10.21.0
-        version: 10.21.0
+        specifier: ^10.24.3
+        version: 10.24.3
     devDependencies:
       '@preact/preset-vite':
         specifier: ^2.8.2
-        version: 2.8.2(@babel/core@7.26.0)(preact@10.21.0)(vite@5.2.11(@types/node@20.12.12)(terser@5.27.1))
+        version: 2.8.2(@babel/core@7.26.0)(preact@10.24.3)(vite@5.2.11(@types/node@20.12.12)(terser@5.27.1))
       autoprefixer:
         specifier: ^10.4.19
         version: 10.4.19(postcss@8.4.38)
@@ -285,7 +285,7 @@ importers:
         version: link:../utils
       '@preact/signals':
         specifier: ^1.*
-        version: 1.2.1(preact@10.21.0)
+        version: 1.2.1(preact@10.24.3)
       '@tanstack/react-router':
         specifier: 1.43.4
         version: 1.43.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -331,7 +331,7 @@ importers:
         version: link:../utils
       '@preact/signals':
         specifier: '>=1.2.0'
-        version: 1.2.1(preact@10.21.0)
+        version: 1.2.1(preact@10.24.3)
       '@preact/signals-core':
         specifier: '>=1.5.0'
         version: 1.8.0
@@ -505,7 +505,7 @@ importers:
         version: link:../react
       '@preact/signals':
         specifier: '>=1.2.0'
-        version: 1.2.1(preact@10.21.0)
+        version: 1.2.1(preact@10.24.3)
       '@preact/signals-core':
         specifier: '>=1.5.0'
         version: 1.8.0
@@ -557,7 +557,7 @@ importers:
         version: link:../unified-signals
       '@preact/signals':
         specifier: '>=1.2.0'
-        version: 1.2.1(preact@10.21.0)
+        version: 1.2.1(preact@10.24.3)
       '@preact/signals-core':
         specifier: '>=1.5.0'
         version: 1.8.0
@@ -1267,12 +1267,6 @@ packages:
 
   '@babel/plugin-transform-typeof-symbol@7.25.9':
     resolution: {integrity: sha512-v61XqUMiueJROUv66BVIOi0Fv/CUuZuZMl5NkRoCVxLAnMexZ0A3kMe7vvZ0nulxMuMp0Mk6S5hNh48yki08ZA==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-
-  '@babel/plugin-transform-typescript@7.21.3':
-    resolution: {integrity: sha512-RQxPz6Iqt8T0uw/WsJNReuBpWpBqs/n7mNo18sKLoTbMp+UrEekhH+pKSVC7gWz+DNjo9gryfV8YzCiT45RgMw==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
@@ -2127,7 +2121,7 @@ packages:
     resolution: {integrity: sha512-WlFttNnySKQMeujN09fRmrdWqh46QyJluM5jdtDNrkl/2Hx6N4XeDUGhABvConeK95OidVO7sFFf7sNebVXogA==}
     engines: {node: '>=18'}
     peerDependencies:
-      '@babel/core': 7.21.5
+      '@babel/core': '*'
 
   '@react-native/codegen@0.73.3':
     resolution: {integrity: sha512-sxslCAAb8kM06vGy9Jyh4TtvjhcP36k/rvj2QE2Jdhdm61KvfafCATSIsOfc0QvnduWFcpXUPvAVyYwuv7PYDg==}
@@ -5088,8 +5082,8 @@ packages:
     resolution: {integrity: sha512-Wglpdk03BSfXkHoQa3b/oulrotAkwrlLDRSOb9D0bN86FdRyE9lppSp33aHNPgBa0JKCoB+drFLZkQoRRYae5A==}
     engines: {node: ^10 || ^12 || >=14}
 
-  preact@10.21.0:
-    resolution: {integrity: sha512-aQAIxtzWEwH8ou+OovWVSVNlFImL7xUCwJX3YMqA3U8iKCNC34999fFOnWjYNsylgfPgMexpbk7WYOLtKr/mxg==}
+  preact@10.24.3:
+    resolution: {integrity: sha512-Z2dPnBnMUfyQfSQ+GBdsGa16hz35YmLmtTLhM169uW944hYL6xzTYkJjC07j+Wosz733pMWx0fgON3JNw1jJQA==}
 
   preferred-pm@3.0.3:
     resolution: {integrity: sha512-+wZgbxNES/KlJs9q40F/1sfOd/j7f1O9JaHcW5Dsn3aUUOZg3L2bjpVUcKV2jvtElYfoTuQiNeMfQJ4kwUAhCQ==}
@@ -7128,16 +7122,6 @@ snapshots:
       '@babel/core': 7.26.0
       '@babel/helper-plugin-utils': 7.25.9
 
-  '@babel/plugin-transform-typescript@7.21.3(@babel/core@7.26.0)':
-    dependencies:
-      '@babel/core': 7.26.0
-      '@babel/helper-annotate-as-pure': 7.25.9
-      '@babel/helper-create-class-features-plugin': 7.25.9(@babel/core@7.26.0)
-      '@babel/helper-plugin-utils': 7.25.9
-      '@babel/plugin-syntax-typescript': 7.23.3(@babel/core@7.26.0)
-    transitivePeerDependencies:
-      - supports-color
-
   '@babel/plugin-transform-typescript@7.23.6(@babel/core@7.26.0)':
     dependencies:
       '@babel/core': 7.26.0
@@ -7890,12 +7874,12 @@ snapshots:
 
   '@polka/url@1.0.0-next.24': {}
 
-  '@preact/preset-vite@2.8.2(@babel/core@7.26.0)(preact@10.21.0)(vite@5.2.11(@types/node@20.12.12)(terser@5.27.1))':
+  '@preact/preset-vite@2.8.2(@babel/core@7.26.0)(preact@10.24.3)(vite@5.2.11(@types/node@20.12.12)(terser@5.27.1))':
     dependencies:
       '@babel/core': 7.26.0
       '@babel/plugin-transform-react-jsx': 7.22.15(@babel/core@7.26.0)
       '@babel/plugin-transform-react-jsx-development': 7.22.5(@babel/core@7.26.0)
-      '@prefresh/vite': 2.4.1(preact@10.21.0)(vite@5.2.11(@types/node@20.12.12)(terser@5.27.1))
+      '@prefresh/vite': 2.4.1(preact@10.24.3)(vite@5.2.11(@types/node@20.12.12)(terser@5.27.1))
       '@rollup/pluginutils': 4.2.1
       babel-plugin-transform-hook-names: 1.0.2(@babel/core@7.26.0)
       debug: 4.3.4
@@ -7936,27 +7920,27 @@ snapshots:
       react: 18.2.0
       use-sync-external-store: 1.2.0(react@18.2.0)
 
-  '@preact/signals@1.2.1(preact@10.21.0)':
+  '@preact/signals@1.2.1(preact@10.24.3)':
     dependencies:
       '@preact/signals-core': 1.8.0
-      preact: 10.21.0
+      preact: 10.24.3
 
   '@prefresh/babel-plugin@0.5.0': {}
 
-  '@prefresh/core@1.5.1(preact@10.21.0)':
+  '@prefresh/core@1.5.1(preact@10.24.3)':
     dependencies:
-      preact: 10.21.0
+      preact: 10.24.3
 
   '@prefresh/utils@1.2.0': {}
 
-  '@prefresh/vite@2.4.1(preact@10.21.0)(vite@5.2.11(@types/node@20.12.12)(terser@5.27.1))':
+  '@prefresh/vite@2.4.1(preact@10.24.3)(vite@5.2.11(@types/node@20.12.12)(terser@5.27.1))':
     dependencies:
       '@babel/core': 7.26.0
       '@prefresh/babel-plugin': 0.5.0
-      '@prefresh/core': 1.5.1(preact@10.21.0)
+      '@prefresh/core': 1.5.1(preact@10.24.3)
       '@prefresh/utils': 1.2.0
       '@rollup/pluginutils': 4.2.1
-      preact: 10.21.0
+      preact: 10.24.3
       vite: 5.2.11(@types/node@20.12.12)(terser@5.27.1)
     transitivePeerDependencies:
       - supports-color
@@ -8177,7 +8161,7 @@ snapshots:
       '@babel/plugin-transform-shorthand-properties': 7.25.9(@babel/core@7.26.0)
       '@babel/plugin-transform-spread': 7.25.9(@babel/core@7.26.0)
       '@babel/plugin-transform-sticky-regex': 7.25.9(@babel/core@7.26.0)
-      '@babel/plugin-transform-typescript': 7.21.3(@babel/core@7.26.0)
+      '@babel/plugin-transform-typescript': 7.23.6(@babel/core@7.26.0)
       '@babel/plugin-transform-unicode-regex': 7.25.9(@babel/core@7.26.0)
       '@babel/template': 7.25.9
       '@react-native/babel-plugin-codegen': 0.73.4(@babel/preset-env@7.26.0(@babel/core@7.26.0))
@@ -11561,7 +11545,7 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.0
 
-  preact@10.21.0: {}
+  preact@10.24.3: {}
 
   preferred-pm@3.0.3:
     dependencies:
