@@ -106,13 +106,13 @@ importers:
         version: 2.8.2(@babel/core@7.26.0)(preact@10.24.3)(vite@5.2.11(@types/node@20.12.12)(terser@5.27.1))
       autoprefixer:
         specifier: ^10.4.19
-        version: 10.4.19(postcss@8.4.38)
+        version: 10.4.19(postcss@8.4.49)
       daisyui:
         specifier: ^3.9.4
         version: 3.9.4
       postcss:
-        specifier: ^8.4.31
-        version: 8.4.38
+        specifier: ^8.4.49
+        version: 8.4.49
       tailwindcss:
         specifier: ^3.3.5
         version: 3.4.3
@@ -167,7 +167,7 @@ importers:
         version: 3.6.0(@swc/helpers@0.5.13)(vite@5.2.11(@types/node@20.12.12)(terser@5.27.1))
       autoprefixer:
         specifier: ^10.4.19
-        version: 10.4.19(postcss@8.4.38)
+        version: 10.4.19(postcss@8.4.49)
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -175,8 +175,8 @@ importers:
         specifier: ^3.9.4
         version: 3.9.4
       postcss:
-        specifier: ^8.4.31
-        version: 8.4.38
+        specifier: ^8.4.49
+        version: 8.4.49
       tailwindcss:
         specifier: ^3.3.5
         version: 3.4.3
@@ -249,10 +249,10 @@ importers:
         version: 4.3.1(vite@5.2.11(@types/node@20.12.12)(terser@5.27.1))
       autoprefixer:
         specifier: ^10.4.19
-        version: 10.4.19(postcss@8.4.38)
+        version: 10.4.19(postcss@8.4.49)
       daisyui:
         specifier: ^4.9.0
-        version: 4.9.0(postcss@8.4.38)
+        version: 4.9.0(postcss@8.4.49)
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
@@ -263,8 +263,8 @@ importers:
         specifier: ^0.4.6
         version: 0.4.6(eslint@8.57.0)
       postcss:
-        specifier: ^8.4.38
-        version: 8.4.38
+        specifier: ^8.4.49
+        version: 8.4.49
       tailwindcss:
         specifier: ^3.4.3
         version: 3.4.3
@@ -5082,6 +5082,10 @@ packages:
     resolution: {integrity: sha512-Wglpdk03BSfXkHoQa3b/oulrotAkwrlLDRSOb9D0bN86FdRyE9lppSp33aHNPgBa0JKCoB+drFLZkQoRRYae5A==}
     engines: {node: ^10 || ^12 || >=14}
 
+  postcss@8.4.49:
+    resolution: {integrity: sha512-OCVPnIObs4N29kxTjzLfUryOkvZEq+pf8jTF0lg8E7uETuWHA+v7j3c/xJmiqpX450191LlmZfUKkXxkTry7nA==}
+    engines: {node: ^10 || ^12 || >=14}
+
   preact@10.24.3:
     resolution: {integrity: sha512-Z2dPnBnMUfyQfSQ+GBdsGa16hz35YmLmtTLhM169uW944hYL6xzTYkJjC07j+Wosz733pMWx0fgON3JNw1jJQA==}
 
@@ -5596,6 +5600,10 @@ packages:
 
   source-map-js@1.2.0:
     resolution: {integrity: sha512-itJW8lvSA0TXEphiRoawsCksnlf8SyvmFzIhltqAHluXd88pkCd+cXJVHTDwdCr0IzwptSm035IHQktUu1QUMg==}
+    engines: {node: '>=0.10.0'}
+
+  source-map-js@1.2.1:
+    resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
 
   source-map-support@0.5.21:
@@ -9037,6 +9045,16 @@ snapshots:
       postcss: 8.4.38
       postcss-value-parser: 4.2.0
 
+  autoprefixer@10.4.19(postcss@8.4.49):
+    dependencies:
+      browserslist: 4.24.2
+      caniuse-lite: 1.0.30001679
+      fraction.js: 4.3.7
+      normalize-range: 0.1.2
+      picocolors: 1.1.1
+      postcss: 8.4.49
+      postcss-value-parser: 4.2.0
+
   available-typed-arrays@1.0.5: {}
 
   b4a@1.6.4: {}
@@ -9507,18 +9525,18 @@ snapshots:
     dependencies:
       colord: 2.9.3
       css-selector-tokenizer: 0.8.0
-      postcss: 8.4.38
-      postcss-js: 4.0.1(postcss@8.4.38)
+      postcss: 8.4.49
+      postcss-js: 4.0.1(postcss@8.4.49)
       tailwindcss: 3.4.3
     transitivePeerDependencies:
       - ts-node
 
-  daisyui@4.9.0(postcss@8.4.38):
+  daisyui@4.9.0(postcss@8.4.49):
     dependencies:
       css-selector-tokenizer: 0.8.0
       culori: 3.3.0
       picocolors: 1.1.1
-      postcss-js: 4.0.1(postcss@8.4.38)
+      postcss-js: 4.0.1(postcss@8.4.49)
     transitivePeerDependencies:
       - postcss
 
@@ -11514,6 +11532,11 @@ snapshots:
       camelcase-css: 2.0.1
       postcss: 8.4.38
 
+  postcss-js@4.0.1(postcss@8.4.49):
+    dependencies:
+      camelcase-css: 2.0.1
+      postcss: 8.4.49
+
   postcss-load-config@4.0.1(postcss@8.4.38):
     dependencies:
       lilconfig: 2.1.0
@@ -11544,6 +11567,12 @@ snapshots:
       nanoid: 3.3.7
       picocolors: 1.1.1
       source-map-js: 1.2.0
+
+  postcss@8.4.49:
+    dependencies:
+      nanoid: 3.3.7
+      picocolors: 1.1.1
+      source-map-js: 1.2.1
 
   preact@10.24.3: {}
 
@@ -12204,6 +12233,8 @@ snapshots:
 
   source-map-js@1.2.0: {}
 
+  source-map-js@1.2.1: {}
+
   source-map-support@0.5.21:
     dependencies:
       buffer-from: 1.1.2
@@ -12713,7 +12744,7 @@ snapshots:
   vite@5.2.11(@types/node@20.12.12)(terser@5.27.1):
     dependencies:
       esbuild: 0.20.2
-      postcss: 8.4.38
+      postcss: 8.4.49
       rollup: 4.17.1
     optionalDependencies:
       '@types/node': 20.12.12
