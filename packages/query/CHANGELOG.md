@@ -1,6 +1,6 @@
 # @preact-signals/query
 
-## 3.0.0
+## 2.1.0
 
 ### Patch Changes
 
@@ -9,7 +9,7 @@
 - Updated dependencies [3891ed7]
   - @preact-signals/safe-react@0.8.0
   - @preact-signals/utils@0.22.2
-  - @preact-signals/unified-signals@1.0.0
+  - @preact-signals/unified-signals@0.3.0
 
 ## 2.0.7
 
