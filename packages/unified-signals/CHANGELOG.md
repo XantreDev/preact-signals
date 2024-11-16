@@ -1,5 +1,18 @@
 # @preact-signals/unified-signals
 
+## 0.3.0
+
+### Minor Changes
+
+- 75b4375: - dropped support of old @preact/signals versions
+  - separated `untrackedPolyfill` into distinct entry
+
+### Patch Changes
+
+- Updated dependencies [46f2d7e]
+- Updated dependencies [3891ed7]
+  - @preact-signals/safe-react@0.8.0
+
 ## 0.2.7
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # transformer-playground
 
+## 0.0.11
+
+### Patch Changes
+
+- 46f2d7e: Updated babel version to remove browserlist warnings
+- Updated dependencies [46f2d7e]
+- Updated dependencies [3891ed7]
+  - @preact-signals/safe-react@0.8.0
+  - @preact-signals/utils@0.23.0
+
 ## 0.0.10
 
 ### Patch Changes

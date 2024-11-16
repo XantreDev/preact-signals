@@ -1,6 +1,6 @@
 {
   "name": "@preact-signals/unified-signals",
-  "version": "0.2.7",
+  "version": "0.3.0",
   "private": false,
   "publishConfig": {
     "access": "public"
