@@ -1,5 +1,13 @@
 # @preact-signals/utils
 
+## 0.23.1
+
+### Patch Changes
+
+- Updated dependencies [7a3fab2]
+  - @preact-signals/safe-react@0.8.1
+  - @preact-signals/unified-signals@0.3.1
+
 ## 0.23.0
 
 ### Minor changes

@@ -1,5 +1,11 @@
 # @preact-signals/safe-react
 
+## 0.8.1
+
+### Patch Changes
+
+- 7a3fab2: Fixed type mimatch for ReadonlySignals inside of JSX
+
 ## 0.8.0
 
 ### Minor Changes
