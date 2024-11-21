@@ -1,5 +1,14 @@
 # components-for-test
 
+## 7.0.1
+
+### Patch Changes
+
+- Updated dependencies [7a3fab2]
+  - @preact-signals/safe-react@0.8.1
+  - @preact-signals/query@2.1.1
+  - @preact-signals/utils@0.23.1
+
 ## 7.0.0
 
 ### Patch Changes
