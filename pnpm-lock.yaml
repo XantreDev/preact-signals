@@ -550,7 +550,7 @@ importers:
         specifier: ^7.25.9
         version: 7.25.9
       '@preact-signals/safe-react':
-        specifier: workspace:>=0.8.0
+        specifier: workspace:>=0.8.1
         version: link:../react
       '@preact-signals/unified-signals':
         specifier: workspace:*
@@ -1267,12 +1267,6 @@ packages:
 
   '@babel/plugin-transform-typeof-symbol@7.25.9':
     resolution: {integrity: sha512-v61XqUMiueJROUv66BVIOi0Fv/CUuZuZMl5NkRoCVxLAnMexZ0A3kMe7vvZ0nulxMuMp0Mk6S5hNh48yki08ZA==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-
-  '@babel/plugin-transform-typescript@7.21.3':
-    resolution: {integrity: sha512-RQxPz6Iqt8T0uw/WsJNReuBpWpBqs/n7mNo18sKLoTbMp+UrEekhH+pKSVC7gWz+DNjo9gryfV8YzCiT45RgMw==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
@@ -2127,7 +2121,7 @@ packages:
     resolution: {integrity: sha512-WlFttNnySKQMeujN09fRmrdWqh46QyJluM5jdtDNrkl/2Hx6N4XeDUGhABvConeK95OidVO7sFFf7sNebVXogA==}
     engines: {node: '>=18'}
     peerDependencies:
-      '@babel/core': 7.21.5
+      '@babel/core': '*'
 
   '@react-native/codegen@0.73.3':
     resolution: {integrity: sha512-sxslCAAb8kM06vGy9Jyh4TtvjhcP36k/rvj2QE2Jdhdm61KvfafCATSIsOfc0QvnduWFcpXUPvAVyYwuv7PYDg==}
@@ -7172,16 +7166,6 @@ snapshots:
       '@babel/core': 7.26.0
       '@babel/helper-plugin-utils': 7.25.9
 
-  '@babel/plugin-transform-typescript@7.21.3(@babel/core@7.26.0)':
-    dependencies:
-      '@babel/core': 7.26.0
-      '@babel/helper-annotate-as-pure': 7.25.9
-      '@babel/helper-create-class-features-plugin': 7.25.9(@babel/core@7.26.0)
-      '@babel/helper-plugin-utils': 7.25.9
-      '@babel/plugin-syntax-typescript': 7.23.3(@babel/core@7.26.0)
-    transitivePeerDependencies:
-      - supports-color
-
   '@babel/plugin-transform-typescript@7.23.6(@babel/core@7.26.0)':
     dependencies:
       '@babel/core': 7.26.0
@@ -8221,7 +8205,7 @@ snapshots:
       '@babel/plugin-transform-shorthand-properties': 7.25.9(@babel/core@7.26.0)
       '@babel/plugin-transform-spread': 7.25.9(@babel/core@7.26.0)
       '@babel/plugin-transform-sticky-regex': 7.25.9(@babel/core@7.26.0)
-      '@babel/plugin-transform-typescript': 7.21.3(@babel/core@7.26.0)
+      '@babel/plugin-transform-typescript': 7.23.6(@babel/core@7.26.0)
       '@babel/plugin-transform-unicode-regex': 7.25.9(@babel/core@7.26.0)
       '@babel/template': 7.25.9
       '@react-native/babel-plugin-codegen': 0.73.4(@babel/preset-env@7.26.0(@babel/core@7.26.0))
