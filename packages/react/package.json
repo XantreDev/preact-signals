@@ -158,6 +158,6 @@
     "rollup-plugin-esbuild": "^5.0.0",
     "rollup-plugin-node-externals": "^6.1.2",
     "vite": "^5.0.0",
-    "zx": "^8.1.2"
+    "zx": "^8.2.2"
   }
 }
