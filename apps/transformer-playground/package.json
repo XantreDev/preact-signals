@@ -21,7 +21,7 @@
     "radash": "^12.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "shiki": "^1.2.3",
+    "shiki": "^1.24.0",
     "sonner": "^1.5.0"
   },
   "devDependencies": {
