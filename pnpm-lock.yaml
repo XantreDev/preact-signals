@@ -352,8 +352,8 @@ importers:
         specifier: ^6.5.0
         version: 6.5.0
       '@testing-library/react':
-        specifier: ^13.4.0
-        version: 13.4.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: ^16.1.0
+        version: 16.1.0(@testing-library/dom@8.20.1)(@types/react-dom@18.2.23)(@types/react@18.2.73)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@types/jsdom':
         specifier: ^21.1.5
         version: 21.1.5
@@ -2458,12 +2458,20 @@ packages:
     resolution: {integrity: sha512-xGGHpBXYSHUUr6XsKBfs85TWlYKpTc37cSBBVrXcib2MkHLboWlkClhWF37JKlDb9KEq3dHs+f2xR7XJEWGBxA==}
     engines: {node: '>=14', npm: '>=6', yarn: '>=1'}
 
-  '@testing-library/react@13.4.0':
-    resolution: {integrity: sha512-sXOGON+WNTh3MLE9rve97ftaZukN3oNf2KjDy7YTx6hcTO2uuLHuCGynMDhFwGw/jYf4OJ2Qk0i4i79qMNNkyw==}
-    engines: {node: '>=12'}
+  '@testing-library/react@16.1.0':
+    resolution: {integrity: sha512-Q2ToPvg0KsVL0ohND9A3zLJWcOXXcO8IDu3fj11KhNt0UlCWyFyvnCIBkd12tidB2lkiVRG8VFqdhcqhqnAQtg==}
+    engines: {node: '>=18'}
     peerDependencies:
-      react: ^18.0.0
-      react-dom: ^18.0.0
+      '@testing-library/dom': ^10.0.0
+      '@types/react': ^18.0.0 || ^19.0.0
+      '@types/react-dom': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
 
   '@tootallnate/quickjs-emscripten@0.23.0':
     resolution: {integrity: sha512-C5Mc6rdnsaJDjO3UpGW/CQTHtCKaYlScZTly4JIu97Jxo/odCiH0ITnDXSJPTOrEKk/ycSZ0AOgTmkDtkOsvIA==}
@@ -8665,13 +8673,15 @@ snapshots:
       lodash: 4.17.21
       redent: 3.0.0
 
-  '@testing-library/react@13.4.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@testing-library/react@16.1.0(@testing-library/dom@8.20.1)(@types/react-dom@18.2.23)(@types/react@18.2.73)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@babel/runtime': 7.26.0
       '@testing-library/dom': 8.20.1
-      '@types/react-dom': 18.2.23
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
+    optionalDependencies:
+      '@types/react': 18.2.73
+      '@types/react-dom': 18.2.23
 
   '@tootallnate/quickjs-emscripten@0.23.0': {}
 
