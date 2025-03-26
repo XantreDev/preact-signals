@@ -6,7 +6,7 @@ on:
   pull_request:
     types: [opened, synchronize]
     paths-ignore:
-      - '**/*.md'
+      - "**/*.md"
       - "!.github/workflows/lint.yml"
 
     branches:
@@ -15,6 +15,7 @@ on:
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  RUST_TOOLCHAIN: "nightly-2025-03-26"
 jobs:
   test:
     name: Test
@@ -29,8 +30,8 @@ jobs:
           cache: "pnpm"
           node-version: latest
       - run: pnpm i
-      - run: rustup toolchain install nightly-2023-12-23
-      - run: rustup target add wasm32-wasi --toolchain nightly-2023-12-23
+      - run: rustup toolchain install $RUST_TOOLCHAIN
+      - run: rustup target add wasm32-wasip1 --toolchain $RUST_TOOLCHAIN
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: "packages/react/swc"
@@ -49,8 +50,8 @@ jobs:
           cache: "pnpm"
           node-version: latest
       - run: pnpm i
-      - run: rustup toolchain install nightly-2023-12-23
-      - run: rustup target add wasm32-wasi --toolchain nightly-2023-12-23
+      - run: rustup toolchain install $RUST_TOOLCHAIN
+      - run: rustup target add wasm32-wasip1 --toolchain $RUST_TOOLCHAIN
       - uses: Swatinem/rust-cache@v2
 
         with:
@@ -73,8 +74,8 @@ jobs:
           cache: "pnpm"
           node-version: 22.4.0
       - run: pnpm i
-      - run: rustup toolchain install nightly-2023-12-23
-      - run: rustup target add wasm32-wasi --toolchain nightly-2023-12-23
+      - run: rustup toolchain install $RUST_TOOLCHAIN
+      - run: rustup target add wasm32-wasip1 --toolchain $RUST_TOOLCHAIN
       - uses: Swatinem/rust-cache@v2
 
         with:

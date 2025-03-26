@@ -312,7 +312,7 @@ pub fn extract_fn_from_expr<'a>(expr: &'a mut Expr) -> Option<FunctionLike<'a>> 
             if let Some(ExprOrSpread {
                 spread: None,
                 expr: first_arg_expr,
-            }) = args.as_mut_slice().take_first_mut()
+            }) = args.as_mut_slice().first_mut()
             {
                 extract_fn_from_expr(first_arg_expr.unwrap_parens_mut())
             } else {
