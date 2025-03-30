@@ -321,7 +321,7 @@ importers:
   packages/query:
     dependencies:
       '@preact-signals/safe-react':
-        specifier: workspace:*
+        specifier: workspace:>=0.8.1
         version: link:../react
       '@preact-signals/unified-signals':
         specifier: workspace:*
@@ -501,7 +501,7 @@ importers:
   packages/unified-signals:
     dependencies:
       '@preact-signals/safe-react':
-        specifier: workspace:*
+        specifier: workspace:>=0.8.1
         version: link:../react
       '@preact/signals':
         specifier: '>=1.2.0'
