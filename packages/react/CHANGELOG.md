@@ -1,5 +1,11 @@
 # @preact-signals/safe-react
 
+## 0.9.0
+
+### Minor Changes
+
+- f81ecfd: - added compatibility with next 15.2
+
 ## 0.8.1
 
 ### Patch Changes

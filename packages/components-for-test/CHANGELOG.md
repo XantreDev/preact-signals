@@ -1,5 +1,12 @@
 # components-for-test
 
+## 8.0.0
+
+### Patch Changes
+
+- Updated dependencies [f81ecfd]
+  - @preact-signals/safe-react@0.9.0
+
 ## 7.0.1
 
 ### Patch Changes
