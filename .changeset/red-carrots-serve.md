@@ -2,4 +2,4 @@
 "@preact-signals/safe-react": minor
 ---
 
-Fixed work of nextjs15.3
+- added compatibility with next 15.2
