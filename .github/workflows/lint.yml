@@ -72,7 +72,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           cache: "pnpm"
-          node-version: 22.4.0
+          version: latest
       - run: pnpm i
       - run: rustup toolchain install $RUST_TOOLCHAIN
       - run: rustup target add wasm32-wasip1 --toolchain $RUST_TOOLCHAIN
