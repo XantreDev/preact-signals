@@ -315,8 +315,8 @@ importers:
         specifier: ^18
         version: 18.2.0(react@18.2.0)
       type-fest:
-        specifier: ^3.13.1
-        version: 3.13.1
+        specifier: ^4.38.0
+        version: 4.38.0
 
   packages/query:
     dependencies:
@@ -339,8 +339,8 @@ importers:
         specifier: 4.29.23
         version: 4.29.23
       type-fest:
-        specifier: ^3.13.1
-        version: 3.13.1
+        specifier: ^4.38.0
+        version: 4.38.0
       use-sync-external-store:
         specifier: ^1.2.0
         version: 1.2.0(react@18.2.0)
@@ -568,8 +568,8 @@ importers:
         specifier: 0.3.2
         version: 0.3.2(hotscript@1.0.13)(react@18.2.0)
       type-fest:
-        specifier: ^3.13.1
-        version: 3.13.1
+        specifier: ^4.38.0
+        version: 4.38.0
     devDependencies:
       '@babel/preset-env':
         specifier: ^7.25.9
@@ -6161,9 +6161,9 @@ packages:
     resolution: {integrity: sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==}
     engines: {node: '>=12.20'}
 
-  type-fest@3.13.1:
-    resolution: {integrity: sha512-tLq3bSNx+xSpwvAJnzrK0Ep5CLNWjvFTOp71URMaAEWBfRb9nnJiBoUe0tF8bI4ZFO3omgBR6NvnbzVUT3Ly4g==}
-    engines: {node: '>=14.16'}
+  type-fest@4.38.0:
+    resolution: {integrity: sha512-2dBz5D5ycHIoliLYLi0Q2V7KRaDlH0uWIvmk7TYlAg5slqwiPv1ezJdZm1QEM0xgk29oYWMCbIG7E6gHpvChlg==}
+    engines: {node: '>=16'}
 
   typed-array-buffer@1.0.0:
     resolution: {integrity: sha512-Y8KTSIglk9OZEr8zywiIHG/kmQ7KWyjseXs1CbSo8vC42w7hg2HgYTxSWwP0+is7bWDc1H+Fo026CpHFwm8tkw==}
@@ -12964,7 +12964,7 @@ snapshots:
 
   type-fest@2.19.0: {}
 
-  type-fest@3.13.1: {}
+  type-fest@4.38.0: {}
 
   typed-array-buffer@1.0.0:
     dependencies:

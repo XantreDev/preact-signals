@@ -88,7 +88,7 @@
     "@preact-signals/unified-signals": "workspace:*",
     "@preact-signals/utils": "workspace:*",
     "@tanstack/query-core": "4.29.23",
-    "type-fest": "^3.13.1",
+    "type-fest": "^4.38.0",
     "use-sync-external-store": "^1.2.0"
   },
   "keywords": [
