@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@preact-signals/utils": "workspace:*",
-    "@preact/signals": "^1.2.1",
+    "@preact/signals": "^2.0.2",
     "components-for-test": "workspace:*",
     "preact": "^10.24.3"
   },

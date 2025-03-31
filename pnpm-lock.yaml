@@ -92,8 +92,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/utils
       '@preact/signals':
-        specifier: ^1.2.1
-        version: 1.2.1(preact@10.24.3)
+        specifier: ^2.0.2
+        version: 2.0.2(preact@10.24.3)
       components-for-test:
         specifier: workspace:*
         version: link:../../packages/components-for-test
@@ -2023,6 +2023,11 @@ packages:
 
   '@preact/signals@1.2.1':
     resolution: {integrity: sha512-hRPvp1C2ooDzOHqfnhdpHgoIFDbYFAXLhoid3+jSItuPPD/J0r/UsiWKv/8ZO/oEhjRaP0M5niuRYsWqmY2GEA==}
+    peerDependencies:
+      preact: 10.x
+
+  '@preact/signals@2.0.2':
+    resolution: {integrity: sha512-Qvu30QoIswaWXmFQZwzBc1CdyB+biIZCpHxoYcNplRTySLkCH6f7RMlHtwb0tmkfQJ+WBkUqR7ajPjdsc1Uq+w==}
     peerDependencies:
       preact: 10.x
 
@@ -8099,6 +8104,11 @@ snapshots:
       use-sync-external-store: 1.2.0(react@18.2.0)
 
   '@preact/signals@1.2.1(preact@10.24.3)':
+    dependencies:
+      '@preact/signals-core': 1.8.0
+      preact: 10.24.3
+
+  '@preact/signals@2.0.2(preact@10.24.3)':
     dependencies:
       '@preact/signals-core': 1.8.0
       preact: 10.24.3
