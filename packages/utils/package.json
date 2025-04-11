@@ -166,7 +166,7 @@
     "@preact-signals/unified-signals": "workspace:*",
     "assert": "^2.1.0",
     "react-fast-hoc": "0.3.2",
-    "type-fest": "^3.13.1"
+    "type-fest": "^4.39.1"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.25.9",
