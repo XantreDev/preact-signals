@@ -1,3 +1,5 @@
+"use client";
+
 import { signal, computed, effect } from "@preact/signals-core";
 import { useRef, useMemo, useEffect } from "react";
 

@@ -3,7 +3,7 @@ const nextConfig = {
   experimental: {
     swcPlugins: [
       [
-        require.resolve("@preact-signals/safe-react/swc"),
+        "@preact-signals/safe-react/swc",
         {
           transformHooks: true,
         },
