@@ -1,3 +1,4 @@
+// @ts-check
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
@@ -9,10 +10,10 @@ const nextConfig = {
         },
       ],
     ],
-    turbo: {
-      resolveAlias: {
-        "@preact/signals-react": "@preact-signals/safe-react",
-      },
+  },
+  turbopack: {
+    resolveAlias: {
+      "@preact/signals-react": "@preact-signals/safe-react",
     },
   },
   reactStrictMode: false,
