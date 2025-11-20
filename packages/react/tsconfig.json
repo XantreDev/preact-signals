@@ -9,6 +9,7 @@
     "vitest.config.ts",
     "package.json",
     "src/babel.ts",
-    "src/types.ts"
+    "src/types.ts",
+    "add-directives.mjs"
   ]
 }

@@ -8,6 +8,7 @@ def main [
 
   run-external "pnpm" "rollup" "-c"
   run-external "pnpm" "build:types"
+  run-external "node" "./add-directives.mjs"
 
   cd ./swc
 
