@@ -1,10 +1,7 @@
 #![feature(box_patterns, let_chains, if_let_guard, slice_take)]
 
 mod utils;
-use swc_core::{
-    common::{Mark, SyntaxContext},
-    ecma::visit::{fold_pass, visit_mut_pass, FoldPass},
-};
+use swc_core::common::SyntaxContext;
 use utils::*;
 
 use std::{
@@ -21,9 +18,8 @@ use swc_core::{
     ecma::{
         ast::*,
         atoms::Atom,
-        parser::Syntax,
         utils::{prepend_stmt, private_ident},
-        visit::{noop_visit_mut_type, FoldWith, VisitMut, VisitMutWith},
+        visit::{noop_visit_mut_type, VisitMut, VisitMutWith},
     },
     plugin::{
         metadata::TransformPluginMetadataContextKind, plugin_transform,
@@ -627,7 +623,7 @@ pub fn process_transform(
 }
 
 #[cfg(test)]
-fn get_syntax() -> Syntax {
+fn get_syntax() -> swc_core::ecma::parser::Syntax {
     use swc_core::ecma::parser::{EsSyntax, Syntax};
 
     let mut es_syntax = EsSyntax::default();
@@ -658,7 +654,7 @@ macro_rules! test_inline {
 
 test_inline!(
     get_syntax(),
-    |tester| visit_mut_pass(SignalsTransformVisitor::from_default(
+    |tester| swc_core::ecma::visit::visit_mut_pass(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
         None
     )),
@@ -694,7 +690,7 @@ const Cecek = ()=>{
 
 test_inline!(
     get_syntax(),
-    |tester| visit_mut_pass(SignalsTransformVisitor::from_default(
+    |tester| swc_core::ecma::visit::visit_mut_pass(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
         None
     )),
@@ -722,7 +718,7 @@ function A() {
 
 test_inline!(
     get_syntax(),
-    |tester| visit_mut_pass(SignalsTransformVisitor::from_default(
+    |tester| swc_core::ecma::visit::visit_mut_pass(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
         None
     )),
@@ -760,7 +756,7 @@ var C2 = function C3() {
 
 test_inline!(
     get_syntax(),
-    |tester| visit_mut_pass(SignalsTransformVisitor::from_default(
+    |tester| swc_core::ecma::visit::visit_mut_pass(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
         None
     )),
@@ -862,7 +858,7 @@ export const boba2 = ()=>{
 
 test_inline!(
     get_syntax(),
-    |tester| visit_mut_pass(SignalsTransformVisitor::from_default(
+    |tester| swc_core::ecma::visit::visit_mut_pass(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
         None
     )),
@@ -920,7 +916,7 @@ function Asdjsadf() {
 
 test_inline!(
     get_syntax(),
-    |tester| visit_mut_pass(SignalsTransformVisitor::from_default(
+    |tester| swc_core::ecma::visit::visit_mut_pass(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
         None
     )),
@@ -959,7 +955,7 @@ const Cyc = React.lazy(React.memo(()=>{
 
 test_inline!(
     get_syntax(),
-    |tester| visit_mut_pass(SignalsTransformVisitor::from_default(
+    |tester| swc_core::ecma::visit::visit_mut_pass(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
         None
     )),
@@ -992,7 +988,7 @@ function MyComponent() {
 // unless explicitly required to do so.
 test_inline!(
     get_syntax(),
-    |tester| visit_mut_pass(SignalsTransformVisitor::from_default(
+    |tester| swc_core::ecma::visit::visit_mut_pass(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
         None
     )),
@@ -1087,7 +1083,7 @@ const _ = {
 
 test_inline!(
     get_syntax(),
-    |tester| visit_mut_pass(SignalsTransformVisitor::from_default(
+    |tester| swc_core::ecma::visit::visit_mut_pass(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
         Some(Trackable::Component)
     )),
@@ -1126,7 +1122,7 @@ export default (()=>{
 
 test_inline!(
     get_syntax(),
-    |tester| visit_mut_pass(SignalsTransformVisitor::from_default(
+    |tester| swc_core::ecma::visit::visit_mut_pass(SignalsTransformVisitor::from_default(
         tester.comments.clone(),
         None
     )),
@@ -1155,7 +1151,7 @@ const Bebe = ()=>{
 
 test_inline!(
     get_syntax(),
-    |tester| visit_mut_pass(SignalsTransformVisitor::from_options(
+    |tester| swc_core::ecma::visit::visit_mut_pass(SignalsTransformVisitor::from_options(
         PreactSignalsPluginOptions::auto_hooks(),
         tester.comments.clone(),
         None
@@ -1185,7 +1181,7 @@ const useAboba = () => {
 
 test_inline!(
     get_syntax(),
-    |tester| visit_mut_pass(SignalsTransformVisitor::from_options(
+    |tester| swc_core::ecma::visit::visit_mut_pass(SignalsTransformVisitor::from_options(
         PreactSignalsPluginOptions::auto_hooks(),
         tester.comments.clone(),
         None
@@ -1218,7 +1214,7 @@ const useAboba = () => {
 
 test_inline!(
     get_syntax(),
-    |tester| visit_mut_pass(SignalsTransformVisitor::from_options(
+    |tester| swc_core::ecma::visit::visit_mut_pass(SignalsTransformVisitor::from_options(
         PreactSignalsPluginOptions::auto_hooks_and_hook_usage_flag(),
         tester.comments.clone(),
         None
