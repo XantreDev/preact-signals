@@ -253,14 +253,14 @@ where
     C: Comments + Debug,
 {
     let comments = comments.get_leading(span.lo);
-    println!(
-        "comments: {:?}",
-        comments.as_ref().map(|it| it
-            .iter()
-            .map(|it| it.text.as_str())
-            .collect::<Vec<_>>()
-            .join(", "))
-    );
+    // println!(
+    //     "comments: {:?}",
+    //     comments.as_ref().map(|it| it
+    //         .iter()
+    //         .map(|it| it.text.as_str())
+    //         .collect::<Vec<_>>()
+    //         .join(", "))
+    // );
 
     match comments {
         Some(item) => {

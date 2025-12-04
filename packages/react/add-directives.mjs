@@ -53,6 +53,6 @@ for (let i = 0; i < dirents.length; ++i) {
 await Promise.all(promises);
 
 console.log(
-  "added 'use cleient'; directive for:",
+  "added 'use client'; directive for:",
   overwrittenPaths.map((it) => relative(__dirname, it)).join(", "),
 );
