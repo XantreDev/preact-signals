@@ -5,7 +5,6 @@ const useAboba = () => {
   console.log(counter.value)
 }
 
-// [TODO]: fix inline comments
 /**
  * @useSignals
  */

@@ -9,7 +9,6 @@ const useAboba = ()=>{
         _effect.f();
     }
 };
-// [TODO]: fix inline comments
 /**
  * @useSignals
  */ const unknown = ()=>{
