@@ -1,11 +1,13 @@
 # `@preact-signals/safe-react`
 
-This is community driven preact/signals integration for React, based on official `@preact/signals-react` integration, since it's patching react - there are a lot of problems in different environments and bundlers. This package tries to solve this problem by this steps:
+This is community driven preact/signals integration for React, based on official `@preact/signals-react` integration. 
 
-- no runtime react internals patching
+The library differs in a few ways:
+
+- supports **Next.js** with SWC Plugin written in Rust
+- supports SWC based build systems, like **Next.js** and **`@vitejs/plugin-react-swc`**
 - uses babel/swc plugin to subscribe your components to signals (based on official `@preact/signals-react-transform`).
-- if environment doesn't support babel/swc plugin - exports HOC to subscribe your components to signals
-- achieves the same features by bundler aliasing for react
+- if environment doesn't support babel/swc plugin - exports [HOC](#manual-integration) to subscribe your components to signals
 
 ## Signals
 
