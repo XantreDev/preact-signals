@@ -1,7 +1,7 @@
 'use strict';
 import { useSignals as _useSignals } from "@preact-signals/safe-react/tracking";
 const useAboba = ()=>{
-    var _effect = _useSignals();
+    var _effect = _useSignals(2);
     try {
         const counter = useSignal(0);
         console.log(counter.value);
@@ -13,15 +13,11 @@ const useAboba = ()=>{
 /**
  * @useSignals
  */ const unknown = ()=>{
-    var _effect = _useSignals();
-    try {
-        return undefined;
-    } finally{
-        _effect.f();
-    }
+    _useSignals();
+    return undefined;
 };
 const Component = ()=>{
-    var _effect = _useSignals();
+    var _effect = _useSignals(1);
     try {
         a.value;
         return <></>;
