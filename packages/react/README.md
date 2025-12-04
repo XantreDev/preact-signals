@@ -4,8 +4,7 @@ This is community driven preact/signals integration for React, based on official
 
 The library differs in a few ways:
 
-- supports **Next.js** with SWC Plugin written in Rust
-- supports SWC based build systems, like **Next.js** and **`@vitejs/plugin-react-swc`**
+- supports SWC based build systems, like **Next.js** and **`@vitejs/plugin-react-swc`** with a Rust based plugin
 - uses babel/swc plugin to subscribe your components to signals (based on official `@preact/signals-react-transform`).
 - if environment doesn't support babel/swc plugin - exports [HOC](#manual-integration) to subscribe your components to signals
 
