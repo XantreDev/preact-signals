@@ -5,12 +5,13 @@ import {
 } from "@preact-signals/unified-signals";
 import { useComputedOnce } from "./useComputedOnce";
 
-export type UnwrapSignalDeep<T> = T extends ReadonlySignal<infer V>
-  ? UnwrapSignalDeep<V>
-  : T;
+export type UnwrapSignalDeep<T> =
+  T extends ReadonlySignal<infer V> ? UnwrapSignalDeep<V> : T;
 
 const unwrap = <T>(value: T): UnwrapSignalDeep<T> =>
-  value instanceof Signal ? unwrap(value.value) : value;
+  (value instanceof Signal
+    ? unwrap(value.value)
+    : value) as UnwrapSignalDeep<T>;
 
 /**
  *
@@ -34,7 +35,7 @@ const unwrap = <T>(value: T): UnwrapSignalDeep<T> =>
  * @returns
  */
 export const useLinkedSignal = <T>(
-  value: T
+  value: T,
 ): ReadonlySignal<UnwrapSignalDeep<T>> => {
   const sig = useSignal(value);
 
