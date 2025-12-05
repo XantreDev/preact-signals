@@ -7,6 +7,7 @@ const nextConfig = {
         "@preact-signals/safe-react/swc",
         {
           transformHooks: true,
+          mode: "auto"
         },
       ],
     ],
