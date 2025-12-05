@@ -6,6 +6,7 @@ export default defineConfig({
     environment: "happy-dom",
     setupFiles: "./setupVitest.ts",
   },
+
   define: {
     __DEV__: true,
   },
@@ -15,7 +16,6 @@ export default defineConfig({
     },
   },
   plugins: [
-    // @ts-expect-error
     babel({
       filter: /\.(j|t)sx$/,
       babelConfig: {

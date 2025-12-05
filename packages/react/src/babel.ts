@@ -166,7 +166,7 @@ function getFunctionName(
 }
 
 function isComponentName(name: string | null): boolean {
-  return name?.match(/^[A-Z]/) != null ?? false;
+  return name?.match(/^[A-Z]/) != null;
 }
 
 function hasLeadingComment(path: NodePath, comment: RegExp): boolean {
