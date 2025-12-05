@@ -85,7 +85,7 @@ fn path_with_suffix(mut path: PathBuf, suffix: &'static str) -> PathBuf {
 }
 
 fn run_tests() {
-    // we use sync io, for this point of time it's now a problem
+    // we use sync io, for this point of time it's not a problem
     let tests = std::fs::read_dir("./fixtures")
         .expect("fixtures exists")
         .flat_ok()
