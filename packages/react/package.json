@@ -128,14 +128,14 @@
     "react": "^16.14.0 || 17.x || 18.x || 19.x"
   },
   "optionalDependencies": {
-    "@swc/core": ">=1.11.1 <=1.11.1"
+    "@swc/core": "1.13.x"
   },
   "devDependencies": {
     "@babel/traverse": "^7.25.9",
     "@preact/signals-react-transform": "^0.4.0",
-    "@rollup/plugin-replace": "^5.0.5",
-    "@rollup/plugin-typescript": "^12.1.2",
-    "@swc/core": ">=1.11.1 <=1.11.1",
+    "@rollup/plugin-replace": "catalog:",
+    "@rollup/plugin-typescript": "catalog:",
+    "@swc/core": "1.13.x",
     "@types/babel__core": "^7.20.4",
     "@types/babel__helper-module-imports": "^7.18.3",
     "@types/babel__helper-plugin-utils": "^7.10.3",
@@ -154,9 +154,9 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.9.0",
-    "rollup": "^4.17.1",
-    "rollup-plugin-esbuild": "^5.0.0",
-    "rollup-plugin-node-externals": "^6.1.2",
+    "rollup": "catalog:",
+    "rollup-plugin-esbuild": "catalog:",
+    "rollup-plugin-node-externals": "catalog:",
     "vite": "^5.0.0",
     "zx": "^8.2.2"
   }

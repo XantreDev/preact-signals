@@ -1,5 +1,4 @@
 // @ts-check
-// rollup.config.mjs
 import replace from "@rollup/plugin-replace";
 import typescript from "@rollup/plugin-typescript";
 import esbuild from "rollup-plugin-esbuild";

@@ -1,11 +1,11 @@
 # `@preact-signals/safe-react`
 
-This is community driven preact/signals integration for React, based on official `@preact/signals-react` integration, since it's patching react - there are a lot of problems in different environments and bundlers. This package tries to solve this problem by this steps:
+This is a community-driven preact/signals integration for React, based on official `@preact/signals-react` integration. 
 
-- no runtime react internals patching
+The library differs in a few ways:
+- supports SWC-based build systems, like **Next.js** and **`@vitejs/plugin-react-swc`** with a Rust-based plugin
 - uses babel/swc plugin to subscribe your components to signals (based on official `@preact/signals-react-transform`).
-- if environment doesn't support babel/swc plugin - exports HOC to subscribe your components to signals
-- achieves the same features by bundler aliasing for react
+- if environment doesn't support babel/swc plugin - exports [HOC](#manual-integration) to subscribe your components to signals
 
 ## Signals
 
@@ -54,7 +54,8 @@ There are two ways of tracking signals:
 |--------|------------------------------|--------------|
 | `^14.0.0`  | `0.7.0`                  | -            |
 | `15.0.3..15.1.7`   | `~0.8.0`         | `1.8.0-1.9.2`|
-| `>=15.2.0`   | `~0.9.0`               | `1.11.1`     |
+| `15.2.0..16.0.0`   | `~0.9.0`               | `1.11.1`     |
+| [`>=16.0.0`*](#next-comments)   | `~0.10.0`               | `1.13.21`     |
 
 
 ## React Integration features
@@ -613,6 +614,10 @@ To opt into this optimization, simply pass the signal directly instead of access
 
 > **Note**
 > The content is wrapped in a React Fragment due to React 18's newer, more strict children types.
+
+#### Next.js comments
+
+Opt-in and opt-out declarations are unsupported in server components due [to the issue](https://github.com/vercel/next.js/issues/86844). Next.js strips comments for server component files
 
 ## License
 

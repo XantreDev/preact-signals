@@ -1,18 +1,20 @@
+// @ts-check
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
     swcPlugins: [
       [
-        require.resolve("@preact-signals/safe-react/swc"),
+        "@preact-signals/safe-react/swc",
         {
           transformHooks: true,
+          mode: "auto"
         },
       ],
     ],
-    turbo: {
-      resolveAlias: {
-        "@preact/signals-react": "@preact-signals/safe-react",
-      },
+  },
+  turbopack: {
+    resolveAlias: {
+      "@preact/signals-react": "@preact-signals/safe-react",
     },
   },
   reactStrictMode: false,

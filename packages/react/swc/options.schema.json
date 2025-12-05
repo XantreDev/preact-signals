@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Options",
+  "type": "object",
+  "properties": {
+    "file_name": {
+      "type": ["string", "null"],
+      "description": "Optional file name. May be omitted or null."
+    },
+    "options": {
+      "$ref": "#/$defs/PreactSignalsPluginOptions",
+      "description": "Preact Signals plugin options."
+    }
+  },
+  "$defs": {
+    "PreactSignalsPluginOptions": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["manual", "all", "auto"],
+          "description": "Transform mode."
+        },
+        "importSource": {
+          "type": "string",
+          "description": "Module specifier used for imports."
+        },
+        "transformHooks": {
+          "type": "boolean",
+          "description": "Whether to transform hooks."
+        },
+        "experimental": {
+          "$ref": "#/$defs/PreactSignalsPluginExperimental"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PreactSignalsPluginExperimental": {
+      "type": "object",
+      "properties": {
+        "addHookUsageFlag": {
+          "type": "boolean",
+          "description": "Whether to add a hook usage flag (experimental)."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": true
+}

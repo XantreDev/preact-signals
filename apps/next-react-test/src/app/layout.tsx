@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * 
+ *
  * @noUseSignals
  */
 export default function RootLayout({
