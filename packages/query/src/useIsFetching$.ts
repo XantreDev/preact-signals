@@ -4,7 +4,7 @@ import { ContextOptions } from "./react-query/index.ts";
 import { useQueryClient$ } from "./react-query/QueryClientProvider.tsx";
 import { useObserverSignal } from "./useObserver.ts";
 import { EMPTY_OBJECT } from "./utils.ts";
-import { ReadonlySignal } from "@preact/signals-core";
+import type { ReadonlySignal } from "@preact-signals/unified-signals";
 
 const isFetching = (queryClient: QueryClient, filters: QueryFilters) =>
   queryClient.isFetching(filters);
