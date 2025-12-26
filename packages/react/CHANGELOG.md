@@ -1,5 +1,12 @@
 # @preact-signals/safe-react
 
+## 0.10.0
+
+### Minor Changes
+
+- 9de62c1: Update README
+- 9de62c1: Added client directives & Added support for Next.js 16
+
 ## 0.9.0
 
 ### Minor Changes
