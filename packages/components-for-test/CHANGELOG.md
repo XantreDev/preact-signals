@@ -1,5 +1,15 @@
 # components-for-test
 
+## 9.0.0
+
+### Patch Changes
+
+- Updated dependencies [9de62c1]
+- Updated dependencies [9de62c1]
+- Updated dependencies [b1ef022]
+  - @preact-signals/safe-react@0.10.0
+  - @preact-signals/query@2.1.2
+
 ## 8.0.0
 
 ### Patch Changes
