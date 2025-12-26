@@ -16,6 +16,7 @@ jobs:
     permissions:
       id-token: write  # Required for OIDC
       contents: write
+      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
