@@ -10,8 +10,8 @@ import {
   QueryClientProvider,
   useInfiniteQuery,
   useQuery,
-} from "../../react-query";
-import { createQueryClient, queryKey, sleep } from "../utils";
+} from "../../react-query/index.ts";
+import { createQueryClient, queryKey, sleep } from "../utils.tsx";
 
 describe("Server Side Rendering", () => {
   it("should not trigger fetch", () => {
@@ -58,8 +58,8 @@ describe("Server Side Rendering", () => {
     const queryCache = new QueryCache();
     const queryClient = createQueryClient({ queryCache });
     const key = queryKey();
-    const queryFn = vi.fn(() => {
-      sleep(10);
+    const queryFn = vi.fn(async () => {
+      await sleep(10);
       return "data";
     });
 

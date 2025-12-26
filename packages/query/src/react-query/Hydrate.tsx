@@ -3,13 +3,13 @@ import * as React from 'react'
 
 import type { HydrateOptions } from '@tanstack/query-core'
 import { hydrate } from '@tanstack/query-core'
-import { useQueryClient } from './QueryClientProvider'
-import type { ContextOptions } from './types'
+import { useQueryClient } from './QueryClientProvider.tsx'
+import type { ContextOptions } from './types.ts'
 
 export function useHydrate(
   state: unknown,
   options: HydrateOptions & ContextOptions = {},
-) {
+): void {
   const queryClient = useQueryClient({ context: options.context })
 
   const optionsRef = React.useRef(options)

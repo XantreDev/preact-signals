@@ -4,7 +4,7 @@ import * as React from "react";
 import { ReadonlySignal } from "@preact-signals/unified-signals";
 import { useSignalOfState } from "@preact-signals/utils/hooks";
 import type { QueryClient } from "@tanstack/query-core";
-import type { ContextOptions } from "./types";
+import type { ContextOptions } from "./types.ts";
 
 declare global {
   interface Window {
@@ -12,7 +12,7 @@ declare global {
   }
 }
 
-export const defaultContext = React.createContext<QueryClient | undefined>(
+export const defaultContext: React.Context<QueryClient | undefined> = React.createContext<QueryClient | undefined>(
   undefined
 );
 // export const signalContext = React.createContext<
@@ -45,7 +45,7 @@ function getQueryClientContext(
   return defaultContext;
 }
 
-export const useQueryClient = ({ context }: ContextOptions = {}) => {
+export const useQueryClient = ({ context }: ContextOptions = {}): QueryClient => {
   const queryClient = React.useContext(
     getQueryClientContext(context, React.useContext(QueryClientSharingContext))
   );

@@ -10,9 +10,9 @@ import {
   dehydrate,
   useHydrate,
   useQuery,
-} from "@preact-signals/query";
+} from "../../index.ts";
 import * as coreModule from "@tanstack/query-core";
-import { createQueryClient, sleep } from "../utils";
+import { createQueryClient, sleep } from "../utils.tsx";
 
 describe("React hydration", () => {
   const fetchData: (value: string) => Promise<string> = (value) =>

@@ -33,7 +33,7 @@ const QueryErrorResetBoundaryContext = React.createContext(createValue());
 export const useQueryErrorResetBoundary$ =
   (): ReadonlySignal<QueryErrorResetBoundaryValue> =>
     useSignalContext(QueryErrorResetBoundaryContext);
-export const useQueryErrorResetBoundary = () =>
+export const useQueryErrorResetBoundary = (): QueryErrorResetBoundaryValue =>
   React.useContext(QueryErrorResetBoundaryContext);
 
 // COMPONENT

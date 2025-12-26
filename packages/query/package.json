@@ -34,8 +34,8 @@
   },
   "scripts": {
     "clean": "rimraf dist",
-    "build:esm": "tsc --outDir ./dist/esm",
-    "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
+    "build:esm": "tsc",
+    "build:cjs": "tsc -p ./tsconfig.cjs.json",
     "lint": "tsc --noEmit",
     "test": "vitest",
     "watch": "concurrently \"pnpm build:esm -w\" \"pnpm build:cjs -w\"",

@@ -1,22 +1,21 @@
 import {
   useComputedOnce,
   useSignalEffectOnce,
-  useSignalOfReactive,
 } from "@preact-signals/utils/hooks";
 import type { QueryKey, QueryObserver } from "@tanstack/query-core";
 import { useMemo } from "react";
-import { useQueryClient$ } from "./react-query/QueryClientProvider";
-import { useQueryErrorResetBoundary$ } from "./react-query/QueryErrorResetBoundary";
+import { useQueryClient$ } from "./react-query/QueryClientProvider.tsx";
+import { useQueryErrorResetBoundary$ } from "./react-query/QueryErrorResetBoundary.tsx";
 import {
   ensurePreventErrorBoundaryRetry,
   getHasError,
   useClearResetErrorBoundary$,
-} from "./react-query/errorBoundaryUtils";
-import { useIsRestoring$ } from "./react-query/isRestoring";
-import { ensureStaleTime, shouldSuspend } from "./react-query/suspense";
-import { StaticBaseQueryOptions, UseBaseQueryResult$ } from "./types";
-import { useObserverStore } from "./useObserver";
-import { useRefBasedOptions, wrapFunctionsInUntracked } from "./utils";
+} from "./react-query/errorBoundaryUtils.ts";
+import { useIsRestoring$ } from "./react-query/isRestoring.tsx";
+import { ensureStaleTime, shouldSuspend } from "./react-query/suspense.ts";
+import { StaticBaseQueryOptions, UseBaseQueryResult$ } from "./types.ts";
+import { useObserverStore } from "./useObserver.ts";
+import { useRefBasedOptions, wrapFunctionsInUntracked } from "./utils.ts";
 import { untracked } from "@preact-signals/unified-signals";
 import { $ } from "@preact-signals/utils";
 

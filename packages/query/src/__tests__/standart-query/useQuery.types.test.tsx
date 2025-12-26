@@ -1,5 +1,5 @@
 import { describe, it } from "vitest";
-import { useQuery } from "../../react-query/useQuery";
+import { useQuery } from "../../react-query/useQuery.ts";
 
 export type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends <
   T

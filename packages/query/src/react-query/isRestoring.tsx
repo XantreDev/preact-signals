@@ -7,5 +7,5 @@ const IsRestoringContext = React.createContext(false);
 
 export const useIsRestoring$ = (): ReadonlySignal<boolean> =>
   useSignalContext(IsRestoringContext);
-export const useIsRestoring = () => React.useContext(IsRestoringContext);
-export const IsRestoringProvider = IsRestoringContext.Provider;
+export const useIsRestoring = (): boolean => React.useContext(IsRestoringContext);
+export const IsRestoringProvider: React.Provider<boolean> = IsRestoringContext.Provider;

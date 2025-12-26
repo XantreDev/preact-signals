@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, vi } from "vitest";
-import { UseQueryResult$ } from "../types";
-import { useQuery$ } from "../useQuery$";
+import { UseQueryResult$ } from "../types.ts";
+import { useQuery$ } from "../useQuery$.ts";
 
 describe("useQuery$() types", () => {
   vi.mock("../useQuery$", () => ({

@@ -9,8 +9,8 @@ import type {
   QueryFunctionContext,
   UseQueryOptions,
   UseQueryResult,
-} from "../../react-query";
-import { QueryCache, useQuery } from "../../react-query";
+} from "../../react-query/index.ts";
+import { QueryCache, useQuery } from "../../react-query/index.ts";
 import {
   Blink,
   createQueryClient,
@@ -22,7 +22,7 @@ import {
   renderWithClient,
   setActTimeout,
   sleep,
-} from "../utils";
+} from "../utils.tsx";
 
 describe("useQuery", () => {
   const queryCache = new QueryCache();

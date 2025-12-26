@@ -2,7 +2,6 @@ import type { FlatStore, ReadonlyFlatStore } from "@preact-signals/utils";
 import type {
   InfiniteQueryObserverOptions,
   InfiniteQueryObserverResult,
-  MutateFunction,
   MutationObserverOptions,
   MutationObserverResult,
   QueryKey,
@@ -14,7 +13,7 @@ import type {
   ContextOptions,
   UseMutateAsyncFunction,
   UseMutateFunction,
-} from "./react-query";
+} from "./react-query/index.ts";
 
 export type NotSupportedInQuery$ = "onError" | "onSettled" | "onSuccess";
 export type SafeDataField<T> = { dataSafe: T | undefined };
@@ -147,7 +146,7 @@ export type {
    * @deprecated use `UseMutateAsyncFunction`
    */
   UseMutateAsyncFunction as MutationResultMutateAsyncFunction$,
-} from "./react-query";
+} from "./react-query/index.ts";
 
 export type StaticMutationResult<
   TData = unknown,

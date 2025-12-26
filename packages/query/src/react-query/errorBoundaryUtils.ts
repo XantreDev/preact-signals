@@ -12,8 +12,8 @@ import type {
     UseErrorBoundary,
 } from "@tanstack/query-core";
 import * as React from "react";
-import type { QueryErrorResetBoundaryValue } from "./QueryErrorResetBoundary";
-import { shouldThrowError } from "./utils";
+import type { QueryErrorResetBoundaryValue } from "./QueryErrorResetBoundary.tsx";
+import { shouldThrowError } from "./utils.ts";
 
 export const ensurePreventErrorBoundaryRetry = <
   TQueryFnData,
@@ -30,7 +30,7 @@ export const ensurePreventErrorBoundaryRetry = <
     TQueryKey
   >,
   errorResetBoundary: QueryErrorResetBoundaryValue
-) => {
+): void => {
   if (options.suspense || options.useErrorBoundary) {
     // Prevent retrying failed query if the error boundary has not been reset yet
     if (!errorResetBoundary.isReset()) {
@@ -41,7 +41,7 @@ export const ensurePreventErrorBoundaryRetry = <
 
 export const useClearResetErrorBoundary = (
   errorResetBoundary: QueryErrorResetBoundaryValue
-) => {
+): void => {
   React.useEffect(() => {
     errorResetBoundary.clearReset();
   }, [errorResetBoundary]);
@@ -76,7 +76,7 @@ export const getHasError = <
     TQueryKey
   >;
   query: Query<TQueryFnData, TError, TQueryData, TQueryKey>;
-}) => {
+}): boolean => {
   return (
     result.isError &&
     !errorResetBoundary.isReset() &&

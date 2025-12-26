@@ -4,14 +4,16 @@
     "noEmit": false,
     "outDir": "./dist/esm",
     "paths": {
-      "@tanstack/query-core/*": ["./node_modules/@tanstack/query-core/src/*"],
       "@preact-signals/utils/*": ["./packages/utils/src/*"]
     },
-    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+    "types": ["vitest/importMeta", "vitest/globals"],
+    "allowJs": false,
+    "isolatedDeclarations": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "noUnusedLocals": true
   },
   "extends": ["../../tsconfig.nodenext.json"],
-  "exclude": ["**/node_modules", "./dist/**/*", "./*.ts", "**/__tests__/**"],
-
+  "exclude": ["**/node_modules", "./dist/**/*", "./*.ts"],
   "references": [
     {
       "path": "../utils"

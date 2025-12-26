@@ -1,21 +1,21 @@
 import { useComputedOnce } from "@preact-signals/utils/hooks";
 import { MutationObserver, MutationObserverResult } from "@tanstack/query-core";
-import { useMemo, useState } from "react";
-import { useQueryClient$ } from "./react-query/QueryClientProvider";
+import { useMemo } from "react";
+import { useQueryClient$ } from "./react-query/QueryClientProvider.tsx";
 import {
   StaticMutationOptions,
   StaticMutationResult,
   UseMutationResult$,
-} from "./types";
-import { useObserverStore } from "./useObserver";
+} from "./types.ts";
+import { useObserverStore } from "./useObserver.ts";
 import {
   EMPTY_ARRAY,
   useRefBasedOptions,
   wrapFunctionsInUntracked,
-} from "./utils";
+} from "./utils.ts";
 import { untracked, useSignalEffect } from "@preact-signals/unified-signals";
-import { UseMutateFunction } from "./react-query";
-import { shouldThrowError } from "./react-query/utils";
+import { UseMutateFunction } from "./react-query/index.ts";
+import { shouldThrowError } from "./react-query/utils.ts";
 
 function noop() {}
 

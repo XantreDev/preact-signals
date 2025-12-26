@@ -8,15 +8,19 @@ import { act, render } from "@testing-library/react";
 import { randomUUID } from "node:crypto";
 import * as React from "react";
 import { createElement, useEffect, useState } from "react";
-import { vi } from "vitest";
+import { Mock, MockInstance, vi } from "vitest";
 import type {
   ContextOptions,
   MutationOptions,
   QueryClientConfig,
-} from "../react-query";
-import { QueryClient, QueryClientProvider } from "../react-query";
+} from "../react-query/index.ts";
+import { QueryClient, QueryClientProvider } from "../react-query/index.ts";
 
-export const queueSignal = <T,>() => {
+export const queueSignal = <T,>(): {
+    queue: T[];
+    emit: (value: T) => void;
+    dispose: () => void;
+} => {
   const noValue = Symbol("no-value");
   const $signal = signal<T | typeof noValue>(noValue);
   const queue = [] as T[];
@@ -43,13 +47,13 @@ export const useSignalState = <T,>(signal: ReadonlySignal<T>): T => {
 
   return state;
 };
-export const fetchTime = (ms: number) => async () => {
+export const fetchTime = (ms: number) => async (): Promise<string> => {
   await sleep(ms);
 
   return "data";
 };
 
-export const createHooksComponentElement = (hooks: () => unknown) => {
+export const createHooksComponentElement = (hooks: () => unknown): React.FunctionComponentElement<{}> => {
   const Component = () => {
     hooks();
 
@@ -86,7 +90,7 @@ export const Blink = ({
 }: {
   duration: number;
   children: React.ReactNode;
-}) => {
+}): React.JSX.Element => {
   const [shouldShow, setShouldShow] = React.useState<boolean>(true);
 
   React.useEffect(() => {
@@ -105,15 +109,19 @@ export function createQueryClient(config?: QueryClientConfig): QueryClient {
   return new QueryClient({ logger: mockLogger, ...config });
 }
 
-export function mockVisibilityState(value: DocumentVisibilityState) {
+export function mockVisibilityState(value: DocumentVisibilityState): MockInstance<[], DocumentVisibilityState> {
   return vi.spyOn(document, "visibilityState", "get").mockReturnValue(value);
 }
 
-export function mockNavigatorOnLine(value: boolean) {
+export function mockNavigatorOnLine(value: boolean): MockInstance<[], boolean> {
   return vi.spyOn(navigator, "onLine", "get").mockReturnValue(value);
 }
 
-export const mockLogger = {
+export const mockLogger: {
+    log: Mock<any, any>;
+    warn: Mock<any, any>;
+    error: Mock<any, any>;
+} = {
   log: vi.fn(),
   warn: vi.fn(),
   error: vi.fn(),
@@ -123,10 +131,10 @@ export function queryKey(): Array<string> {
   return [`query_${randomUUID()}`];
 }
 
-export const raf = () =>
+export const raf = (): Promise<unknown> =>
   new Promise((resolve) => window.requestAnimationFrame(resolve));
 
-export const sleepRaf = (timeout: number) => sleep(timeout).then(raf);
+export const sleepRaf = (timeout: number): Promise<unknown> => sleep(timeout).then(raf);
 // .then(() => sleep(1));
 
 export function sleep(timeout: number): Promise<void> {
@@ -135,7 +143,7 @@ export function sleep(timeout: number): Promise<void> {
   });
 }
 
-export function setActTimeout(fn: () => void, ms?: number) {
+export function setActTimeout(fn: () => void, ms?: number): NodeJS.Timeout {
   return setTimeout(() => {
     act(() => {
       fn();
@@ -172,7 +180,7 @@ export function setIsServer(isServer: boolean) {
     get: () => isServer,
   });
 
-  return () => {
+  return (): void => {
     Object.defineProperty(utils, "isServer", {
       get: () => original,
     });

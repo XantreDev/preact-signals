@@ -2,22 +2,20 @@ import { untracked } from "@preact-signals/utils";
 import { useSignalEffectOnce } from "@preact-signals/utils/hooks";
 import { render } from "@testing-library/react";
 import React from "react";
-import { describe, expect, it, vi } from "vitest";
-import { QueryClientProvider } from "../react-query";
-import { useQueryClient$ } from "../react-query/QueryClientProvider";
+import { describe, expect, it, } from "vitest";
+import { QueryClientProvider } from "../react-query/index.ts";
+import { useQueryClient$ } from "../react-query/QueryClientProvider.tsx";
 import {
   createHooksComponentElement,
   createQueryClient,
-  fetchTime,
-  queryKey,
   queueSignal,
   renderWithClient,
-} from "./utils";
+} from "./utils.tsx";
 
 describe("useQueryClient$()", () => {
   it("should get", async () => {
-    const key = queryKey();
-    const queryFn = vi.fn(fetchTime(10));
+    // const key = queryKey();
+    // const queryFn = vi.fn(fetchTime(10));
     const { dispose, emit, queue } = queueSignal();
     const client = createQueryClient();
     renderWithClient(

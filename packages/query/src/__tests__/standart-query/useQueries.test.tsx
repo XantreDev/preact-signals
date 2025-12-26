@@ -2,6 +2,7 @@ import { fireEvent, waitFor } from "@testing-library/react";
 import * as React from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
+/* @ts-ignore */
 import * as QueriesObserverModule from "@tanstack/query-core/queriesObserver";
 import { describe, expect, it } from "vitest";
 
@@ -13,8 +14,8 @@ import type {
   QueryObserverResult,
   UseQueryOptions,
   UseQueryResult,
-} from "../../react-query";
-import { QueriesObserver, QueryCache, useQueries } from "../../react-query";
+} from "../../react-query/index.ts";
+import { QueriesObserver, QueryCache, useQueries } from "../../react-query/index.ts";
 import {
   createQueryClient,
   expectType,
@@ -22,7 +23,7 @@ import {
   queryKey,
   renderWithClient,
   sleep,
-} from "../utils";
+} from "../utils.tsx";
 
 describe("useQueries", () => {
   const queryCache = new QueryCache();
@@ -979,8 +980,8 @@ describe("useQueries", () => {
     }
 
     const QueriesObserverSpy = vi
-      .spyOn(QueriesObserverModule, "QueriesObserver")
-      .mockImplementation((fn) => {
+      .spyOn(QueriesObserverModule , "QueriesObserver")
+      .mockImplementation((fn: any): any => {
         return new QueriesObserverMock(fn);
       });
 

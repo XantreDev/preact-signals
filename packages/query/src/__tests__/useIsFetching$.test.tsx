@@ -2,8 +2,8 @@ import { signal, untracked } from "@preact-signals/unified-signals";
 import { useSignalEffectOnce } from "@preact-signals/utils/hooks";
 import React from "react";
 import { describe, expect, it } from "vitest";
-import { useQuery } from "../react-query";
-import { useIsFetching$ } from "../useIsFetching$";
+import { useQuery } from "../react-query/index.ts";
+import { useIsFetching$ } from "../useIsFetching$.ts";
 import {
   createHooksComponentElement,
   createQueryClient,
@@ -13,7 +13,7 @@ import {
   renderWithClient,
   sleep,
   useSignalState,
-} from "./utils";
+} from "./utils.tsx";
 
 const fetch10ms = fetchTime(10);
 describe("useIsFetching$", () => {
