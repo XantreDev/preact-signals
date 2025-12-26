@@ -1,18 +1,19 @@
 import { QueryClient } from "@tanstack/query-core";
+// @ts-ignore
 import * as MutationCacheModule from "@tanstack/query-core/mutationCache";
 import { fireEvent, waitFor } from "@testing-library/react";
 import * as React from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { describe, expect, it, vi } from "vitest";
-import { MutationCache } from "../../react-query";
-import { useIsMutating } from "../../react-query/useIsMutating";
-import { useMutation } from "../../react-query/useMutation";
+import { MutationCache } from "../../react-query/index.ts";
+import { useIsMutating } from "../../react-query/useIsMutating.ts";
+import { useMutation } from "../../react-query/useMutation.ts";
 import {
   createQueryClient,
   renderWithClient,
   setActTimeout,
   sleep,
-} from "../utils";
+} from "../utils.tsx";
 
 describe("useIsMutating", () => {
   it("should return the number of fetching mutations", async () => {
@@ -137,7 +138,7 @@ describe("useIsMutating", () => {
 
     const MutationCacheSpy = vi
       .spyOn(MutationCacheModule, "MutationCache")
-      .mockImplementation((fn) => {
+      .mockImplementation((fn: any): any => {
         return new MutationCacheMock(fn);
       });
 

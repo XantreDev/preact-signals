@@ -3,8 +3,8 @@ import * as React from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { describe, expect, it } from "vitest";
 
-import { QueryCache, QueryErrorResetBoundary, useQueries, useQuery } from "../../react-query";
-import { createQueryClient, queryKey, renderWithClient, sleep } from "../utils";
+import { QueryCache, QueryErrorResetBoundary, useQueries, useQuery } from "../../react-query/index.ts";
+import { createQueryClient, queryKey, renderWithClient, sleep } from "../utils.tsx";
 
 describe("QueryErrorResetBoundary", () => {
   const queryCache = new QueryCache();

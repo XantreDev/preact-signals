@@ -11,7 +11,7 @@
     "rimraf": "^6.0.1",
     "shx": "^0.3.4",
     "turbo": "1.13.1",
-    "typescript": "^5.4.4",
+    "typescript": "^5.9.3",
     "vitest": "^1.2.2"
   },
   "scripts": {

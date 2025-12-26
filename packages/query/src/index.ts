@@ -1,6 +1,5 @@
-export * from "./react-query";
-export * from "./types";
-export * from "./useInfiniteQuery$";
-export * from "./useQuery$";
-export * from "./useMutation$";
-
+export * from "./react-query/index.ts";
+export * from "./types.ts";
+export * from "./useInfiniteQuery$.ts";
+export * from "./useQuery$.ts";
+export * from "./useMutation$.ts";

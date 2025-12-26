@@ -30,7 +30,8 @@
         "./packages/unified-signals/src/index.d.ts"
       ],
       "components-for-tests/*": ["./packages/components-for-test/src/*"]
-    }
+    },
+    "declarationMap": true
   },
   "exclude": ["**/node_modules", "packages/*/dist/**/*"]
 }

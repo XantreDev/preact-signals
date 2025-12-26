@@ -5,8 +5,8 @@ import type {
   QueryObserver,
 } from '@tanstack/query-core'
 import { InfiniteQueryObserver, parseQueryArgs } from '@tanstack/query-core'
-import type { UseInfiniteQueryOptions, UseInfiniteQueryResult } from './types'
-import { useBaseQuery } from './useBaseQuery'
+import type { UseInfiniteQueryOptions, UseInfiniteQueryResult } from './types.ts'
+import { useBaseQuery } from './useBaseQuery.ts'
 
 // HOOK
 

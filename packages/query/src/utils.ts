@@ -1,6 +1,7 @@
 import { untracked } from "@preact-signals/utils";
-import { ExecuteOptionsOnReferenceChangeProp } from "./types";
+import { ExecuteOptionsOnReferenceChangeProp } from "./types.ts";
 import {
+    ReadonlySignal,
   useComputed,
   useSignal,
   useSignalEffect,
@@ -38,7 +39,7 @@ export const useRefBasedOptions = <
   T extends ExecuteOptionsOnReferenceChangeProp,
 >(
   options: () => T
-) => {
+): ReadonlySignal<T> => {
   const optionsRef = useRef(options);
   optionsRef.current = options;
   const unstableCallbackButReferencesLatest = useCallback(

@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { useMutation$ } from "../useMutation$";
+import { useMutation$ } from "../useMutation$.ts";
 import { act } from "@testing-library/react";
 import {
   createHooksComponentElement,
@@ -8,10 +8,9 @@ import {
   queueSignal,
   renderWithClient,
   sleep,
-} from "./utils";
-import { StaticMutationOptions } from "../types";
+} from "./utils.tsx";
+import { StaticMutationOptions } from "../types.ts";
 import { signal } from "@preact-signals/unified-signals";
-import { QueryErrorResetBoundary } from "../react-query";
 import { ErrorBoundary } from "react-error-boundary";
 
 describe("useMutation$()", () => {

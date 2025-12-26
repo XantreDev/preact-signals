@@ -5,8 +5,8 @@ import { render, waitFor } from "@testing-library/react";
 import React, { Suspense, createElement } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { describe, expect, it, vi } from "vitest";
-import { QueryClientProvider, useQuery } from "../react-query";
-import { useQuery$ } from "../useQuery$";
+import { QueryClientProvider } from "../react-query/index.ts";
+import { useQuery$ } from "../useQuery$.ts";
 import {
   createHooksComponentElement,
   createQueryClient,
@@ -16,7 +16,7 @@ import {
   renderWithClient,
   sleep,
   sleepRaf,
-} from "./utils";
+} from "./utils.tsx";
 
 describe("useQuery$()", () => {
   it("should fetch", async () => {

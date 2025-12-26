@@ -1,2 +1,3 @@
 .turbo
 **/*.tsbuildinfo
+__tests__

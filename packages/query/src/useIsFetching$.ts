@@ -1,9 +1,10 @@
 import { Reactive, unwrapReactive } from "@preact-signals/utils";
 import { QueryClient, QueryFilters } from "@tanstack/query-core";
-import { ContextOptions } from "./react-query";
-import { useQueryClient$ } from "./react-query/QueryClientProvider";
-import { useObserverSignal } from "./useObserver";
-import { EMPTY_OBJECT } from "./utils";
+import { ContextOptions } from "./react-query/index.ts";
+import { useQueryClient$ } from "./react-query/QueryClientProvider.tsx";
+import { useObserverSignal } from "./useObserver.ts";
+import { EMPTY_OBJECT } from "./utils.ts";
+import type { ReadonlySignal } from "@preact-signals/unified-signals";
 
 const isFetching = (queryClient: QueryClient, filters: QueryFilters) =>
   queryClient.isFetching(filters);
@@ -18,7 +19,7 @@ const isFetching = (queryClient: QueryClient, filters: QueryFilters) =>
 export const useIsFetching$ = <T extends Reactive<QueryFilters | null>>(
   _filters: T,
   options?: ContextOptions
-) => {
+): ReadonlySignal<number> => {
   const $queryClient = useQueryClient$(options);
   const $queryCache = () => $queryClient.value.getQueryCache();
   const filters = () => unwrapReactive(_filters) ?? EMPTY_OBJECT;

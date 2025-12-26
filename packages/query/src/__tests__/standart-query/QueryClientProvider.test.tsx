@@ -9,8 +9,8 @@ import {
   QueryClientProvider,
   useQuery,
   useQueryClient,
-} from "../../react-query";
-import { createQueryClient, queryKey, sleep } from "../utils";
+} from "../../react-query/index.ts";
+import { createQueryClient, queryKey, sleep } from "../utils.tsx";
 
 describe("QueryClientProvider", () => {
   test("sets a specific cache for all queries to use", async () => {

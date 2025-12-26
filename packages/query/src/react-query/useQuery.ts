@@ -5,8 +5,8 @@ import type {
   DefinedUseQueryResult,
   UseQueryOptions,
   UseQueryResult,
-} from './types'
-import { useBaseQuery } from './useBaseQuery'
+} from './types.ts'
+import { useBaseQuery } from './useBaseQuery.ts'
 
 // HOOK
 

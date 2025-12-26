@@ -3,9 +3,9 @@ import * as React from 'react'
 import type { QueryKey, QueryFilters } from '@tanstack/query-core'
 import { notifyManager, parseFilterArgs } from '@tanstack/query-core'
 
-import { useSyncExternalStore } from './useSyncExternalStore'
-import type { ContextOptions } from './types'
-import { useQueryClient } from './QueryClientProvider'
+import { useSyncExternalStore } from './useSyncExternalStore.ts'
+import type { ContextOptions } from './types.ts'
+import { useQueryClient } from './QueryClientProvider.tsx'
 
 interface Options extends ContextOptions {}
 

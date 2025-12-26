@@ -1,12 +1,12 @@
 import type { DefaultedQueryObserverOptions } from '@tanstack/query-core'
 import type { QueryObserver } from '@tanstack/query-core'
-import type { QueryErrorResetBoundaryValue } from './QueryErrorResetBoundary'
+import type { QueryErrorResetBoundaryValue } from './QueryErrorResetBoundary.tsx'
 import type { QueryObserverResult } from '@tanstack/query-core'
 import type { QueryKey } from '@tanstack/query-core'
 
 export const ensureStaleTime = (
   defaultedOptions: DefaultedQueryObserverOptions<any, any, any, any, any>,
-) => {
+): void => {
   if (defaultedOptions.suspense) {
     // Always set stale time when using suspense to prevent
     // fetching again when directly mounting after suspending
@@ -19,7 +19,7 @@ export const ensureStaleTime = (
 export const willFetch = (
   result: QueryObserverResult<any, any>,
   isRestoring: boolean,
-) => result.isLoading && result.isFetching && !isRestoring
+): boolean => result.isLoading && result.isFetching && !isRestoring
 
 export const shouldSuspend = (
   defaultedOptions:
@@ -27,7 +27,7 @@ export const shouldSuspend = (
     | undefined,
   result: QueryObserverResult<any, any>,
   isRestoring: boolean,
-) => defaultedOptions?.suspense && willFetch(result, isRestoring)
+): boolean | undefined => defaultedOptions?.suspense && willFetch(result, isRestoring)
 
 export const fetchOptimistic = <
   TQueryFnData,
@@ -45,7 +45,7 @@ export const fetchOptimistic = <
   >,
   observer: QueryObserver<TQueryFnData, TError, TData, TQueryData, TQueryKey>,
   errorResetBoundary: QueryErrorResetBoundaryValue,
-) =>
+): Promise<void> =>
   observer
     .fetchOptimistic(defaultedOptions)
     .then(({ data }) => {

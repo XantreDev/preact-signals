@@ -1,19 +1,19 @@
 "use client";
 import * as React from "react";
-import { useSyncExternalStore } from "./useSyncExternalStore";
+import { useSyncExternalStore } from "./useSyncExternalStore.ts";
 
-import type { QueryKey, QueryObserver } from "@tanstack/query-core";
+import type { QueryKey, QueryObserver, QueryObserverResult } from "@tanstack/query-core";
 import { notifyManager } from "@tanstack/query-core";
-import { useQueryClient } from "./QueryClientProvider";
-import { useQueryErrorResetBoundary } from "./QueryErrorResetBoundary";
+import { useQueryClient } from "./QueryClientProvider.tsx";
+import { useQueryErrorResetBoundary } from "./QueryErrorResetBoundary.tsx";
 import {
   ensurePreventErrorBoundaryRetry,
   getHasError,
   useClearResetErrorBoundary,
-} from "./errorBoundaryUtils";
-import { useIsRestoring } from "./isRestoring";
-import { ensureStaleTime, fetchOptimistic, shouldSuspend } from "./suspense";
-import type { UseBaseQueryOptions } from "./types";
+} from "./errorBoundaryUtils.ts";
+import { useIsRestoring } from "./isRestoring.tsx";
+import { ensureStaleTime, fetchOptimistic, shouldSuspend } from "./suspense.ts";
+import type { UseBaseQueryOptions } from "./types.ts";
 
 export function useBaseQuery<
   TQueryFnData,
@@ -30,7 +30,7 @@ export function useBaseQuery<
     TQueryKey
   >,
   Observer: typeof QueryObserver
-) {
+): QueryObserverResult<TData, TError> {
   const queryClient = useQueryClient({ context: options.context });
   const isRestoring = useIsRestoring();
   const errorResetBoundary = useQueryErrorResetBoundary();

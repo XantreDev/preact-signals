@@ -3,15 +3,15 @@ import * as React from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { describe, expect, it } from "vitest";
 
-import type { QueryClient } from "../../react-query";
-import { QueryCache, useIsFetching, useQuery } from "../../react-query";
+import type { QueryClient } from "../../react-query/index.ts";
+import { QueryCache, useIsFetching, useQuery } from "../../react-query/index.ts";
 import {
   createQueryClient,
   queryKey,
   renderWithClient,
   setActTimeout,
   sleep,
-} from "../utils";
+} from "../utils.tsx";
 
 describe("useIsFetching", () => {
   // See https://github.com/tannerlinsley/react-query/issues/105
