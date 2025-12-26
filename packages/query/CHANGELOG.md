@@ -1,5 +1,14 @@
 # @preact-signals/query
 
+## 2.1.2
+
+### Patch Changes
+
+- b1ef022: Fixed [invalid types with "NodeNext"](https://github.com/XantreDev/preact-signals/issues/282) moduleResolution (`tsconfig.json`)
+- Updated dependencies [9de62c1]
+- Updated dependencies [9de62c1]
+  - @preact-signals/safe-react@0.10.0
+
 ## 2.1.1
 
 ### Patch Changes
