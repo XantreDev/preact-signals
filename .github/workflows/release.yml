@@ -15,7 +15,7 @@ jobs:
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
     permissions:
       id-token: write  # Required for OIDC
-      contents: read
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
