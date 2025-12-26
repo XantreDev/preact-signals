@@ -95,8 +95,8 @@ importers:
         specifier: ^18
         version: 18.2.23
       autoprefixer:
-        specifier: ^10.4.19
-        version: 10.4.19(postcss@8.4.49)
+        specifier: ^10.4.22
+        version: 10.4.22(postcss@8.4.49)
       postcss:
         specifier: ^8
         version: 8.4.49
@@ -126,8 +126,8 @@ importers:
         specifier: ^2.10.1
         version: 2.10.1(@babel/core@7.28.5)(preact@10.24.3)(vite@5.2.11(@types/node@24.10.1)(terser@5.44.1))
       autoprefixer:
-        specifier: ^10.4.19
-        version: 10.4.19(postcss@8.4.49)
+        specifier: ^10.4.22
+        version: 10.4.22(postcss@8.4.49)
       daisyui:
         specifier: ^3.9.4
         version: 3.9.4
@@ -187,8 +187,8 @@ importers:
         specifier: ^3.6.0
         version: 3.6.0(vite@5.2.11(@types/node@24.10.1)(terser@5.44.1))
       autoprefixer:
-        specifier: ^10.4.19
-        version: 10.4.19(postcss@8.4.49)
+        specifier: ^10.4.22
+        version: 10.4.22(postcss@8.4.49)
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -269,8 +269,8 @@ importers:
         specifier: ^4.3.1
         version: 4.3.1(vite@5.2.11(@types/node@24.10.1)(terser@5.44.1))
       autoprefixer:
-        specifier: ^10.4.19
-        version: 10.4.19(postcss@8.4.49)
+        specifier: ^10.4.22
+        version: 10.4.22(postcss@8.4.49)
       daisyui:
         specifier: ^4.9.0
         version: 4.9.0(postcss@8.4.49)
@@ -3001,8 +3001,8 @@ packages:
   asynckit@0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
 
-  autoprefixer@10.4.19:
-    resolution: {integrity: sha512-BaENR2+zBZ8xXhM4pUaKUxlVdxZ0EZhjvbopwnXmxRUfqDmwSpC2lAi/QXvx7NRdPCo1WKEcEF6mV64si1z4Ew==}
+  autoprefixer@10.4.22:
+    resolution: {integrity: sha512-ARe0v/t9gO28Bznv6GgqARmVqcWOV3mfgUPn9becPHMiD3o9BwlRgaeccZnwTpZ7Zwqrm+c1sUSsMxIzQzc8Xg==}
     engines: {node: ^10 || ^12 || >=14}
     hasBin: true
     peerDependencies:
@@ -3054,8 +3054,8 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
-  baseline-browser-mapping@2.9.3:
-    resolution: {integrity: sha512-8QdH6czo+G7uBsNo0GiUfouPN1lRzKdJTGnKXwe12gkFbnnOUaUKGN55dMkfy+mnxmvjwl9zcI4VncczcVXDhA==}
+  baseline-browser-mapping@2.9.4:
+    resolution: {integrity: sha512-ZCQ9GEWl73BVm8bu5Fts8nt7MHdbt5vY9bP6WGnUh+r3l8M7CgfyTlwsgCbMC66BNxPr6Xoce3j66Ms5YUQTNA==}
     hasBin: true
 
   basic-ftp@5.0.3:
@@ -3915,8 +3915,8 @@ packages:
     resolution: {integrity: sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g==}
     engines: {node: '>=12.20.0'}
 
-  fraction.js@4.3.7:
-    resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
+  fraction.js@5.3.4:
+    resolution: {integrity: sha512-1X1NTtiJphryn/uLQz3whtY6jK3fTqoE3ohKs0tT+Ujr1W59oopxmoEh7Lu5p6vBaPbgoM0bzveAW4Qi5RyWDQ==}
 
   fresh@0.5.2:
     resolution: {integrity: sha512-zJ2mQYM18rEFOudeV4GShTGIQ7RbzA7ozbU9I/XBpm7kqgMywgmylMwXHxZJmkVoYkna9d2pVXVXPdYTP9ej8Q==}
@@ -9405,11 +9405,11 @@ snapshots:
 
   asynckit@0.4.0: {}
 
-  autoprefixer@10.4.19(postcss@8.4.49):
+  autoprefixer@10.4.22(postcss@8.4.49):
     dependencies:
       browserslist: 4.28.1
       caniuse-lite: 1.0.30001759
-      fraction.js: 4.3.7
+      fraction.js: 5.3.4
       normalize-range: 0.1.2
       picocolors: 1.1.1
       postcss: 8.4.49
@@ -9469,7 +9469,7 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  baseline-browser-mapping@2.9.3: {}
+  baseline-browser-mapping@2.9.4: {}
 
   basic-ftp@5.0.3: {}
 
@@ -9515,7 +9515,7 @@ snapshots:
 
   browserslist@4.28.1:
     dependencies:
-      baseline-browser-mapping: 2.9.3
+      baseline-browser-mapping: 2.9.4
       caniuse-lite: 1.0.30001759
       electron-to-chromium: 1.5.266
       node-releases: 2.0.27
@@ -10498,7 +10498,7 @@ snapshots:
     dependencies:
       fetch-blob: 3.2.0
 
-  fraction.js@4.3.7: {}
+  fraction.js@5.3.4: {}
 
   fresh@0.5.2: {}
 
