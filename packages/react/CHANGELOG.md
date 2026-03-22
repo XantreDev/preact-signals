@@ -1,5 +1,11 @@
 # @preact-signals/safe-react
 
+## 0.11.0
+
+### Minor Changes
+
+- 99569d3: Added support for Next.js version 16.2.1
+
 ## 0.10.0
 
 ### Minor Changes
