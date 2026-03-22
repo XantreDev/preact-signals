@@ -1,9 +1,9 @@
 use regex::Regex;
 use swc_core::{
+    atoms::Wtf8Atom,
     common::{sync::Lazy, Mark, Span, SyntaxContext, DUMMY_SP},
     ecma::{
         ast::*,
-        atoms::Atom,
         utils::private_ident,
         visit::{Visit, VisitWith},
     },
@@ -67,9 +67,9 @@ impl MaybeComponentName for str {
     }
 }
 
-impl MaybeComponentName for Str {
+impl MaybeComponentName for Wtf8Atom {
     fn is_trackable(&self) -> Option<Trackable> {
-        self.value.as_str().is_trackable()
+        self.as_str().and_then(|it| it.is_trackable())
     }
 }
 impl MaybeComponentName for Ident {
@@ -123,7 +123,7 @@ impl MaybeComponentName for MemberProp {
                     is_component_name(left_str.value.as_str())
                 }  */
 
-                value.as_str().is_trackable()
+                value.is_trackable()
             }
         }
     }
@@ -133,7 +133,7 @@ impl MaybeComponentName for Expr {
         match self.unwrap_parens() {
             Expr::Ident(ident) => ident.is_trackable(),
             Expr::Member(member_expr) => member_expr.prop.is_trackable(),
-            Expr::Lit(Lit::Str(str)) => str.is_trackable(),
+            Expr::Lit(Lit::Str(str)) => str.value.is_trackable(),
             _ => None,
         }
     }
@@ -142,7 +142,7 @@ impl MaybeComponentName for PropName {
     fn is_trackable(&self) -> Option<Trackable> {
         match self {
             PropName::Computed(computed_expr) => computed_expr.expr.is_trackable(),
-            PropName::Str(str) => str.is_trackable(),
+            PropName::Str(str) => str.value.is_trackable(),
             PropName::Ident(ident) => ident.sym.is_trackable(),
             _ => None,
         }
@@ -371,7 +371,7 @@ impl Visit for HasDotValue {
                     raw: _,
                 })) = expr.unwrap_parens()
                 {
-                    value.as_str() == "value"
+                    value.as_str().unwrap_or("") == "value"
                 } else {
                     false
                 }
