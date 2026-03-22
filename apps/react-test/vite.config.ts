@@ -51,7 +51,7 @@ export default defineConfig({
                   ],
                 },
               }
-            : undefined
+            : undefined,
         ) as PluginOption[]),
   ].filter(Boolean),
 });
