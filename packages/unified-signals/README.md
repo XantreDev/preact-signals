@@ -44,32 +44,7 @@ into your `package.json`:
 
 ## API Overview
 
-Basic `@preact/signals` API and untracked-polyfill
-
-### `untrackedPolyfill`
-
-On old versions of preact signals untracked is not implemented, so it can be reasonable to use polyfill
-
-```ts
-import * as signals from '@preact-signals/unified-signals'
-import {untrackedPolyfill} from '@preact-signals/unified-signals/untracked-polyfill'
-
-const {
-  signal,
-  computed
-} = signals
-const untracked = signals?.untracked ?? untrackedPolyfill
-
-const a = signal(1);
-const b = signal(2);
-const c = computed(() => a.value + untracked(() => b.value));
-
-console.log(c.value); // 3
-a.value = 2;
-console.log(c.value); // 4
-b.value = 3;
-console.log(c.value); // 4
-```
+Basic `@preact/signals-react` API and untracked-polyfill, for `@preact/signals-core` prior to v2
 
 ## License
 
