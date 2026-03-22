@@ -1,7 +1,7 @@
 {
   "name": "react-test",
   "private": true,
-  "version": "0.0.57",
+  "version": "0.0.58",
   "type": "module",
   "scripts": {
     "dev:patching": "cross-env TRACKING_METHOD='patching' vite",
