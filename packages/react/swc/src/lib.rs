@@ -1,7 +1,7 @@
-#![feature(box_patterns, let_chains, if_let_guard, slice_take)]
+#![feature(box_patterns, let_chains, if_let_guard)]
 
 pub mod utils;
-use swc_core::common::SyntaxContext;
+use swc_core::{atoms::Wtf8Atom, common::SyntaxContext};
 use utils::*;
 
 use std::{
@@ -41,20 +41,17 @@ fn is_no_track_signals_directive(string: &str) -> bool {
 
 trait StrExt {
     fn from_str(str: &str) -> Str;
-    fn signals_default_source() -> Str;
 }
 impl StrExt for Str {
     fn from_str(str: &str) -> Str {
         Str {
             span: DUMMY_SP,
-            value: Atom::new(str),
+            value: Wtf8Atom::new(str),
             raw: None,
         }
     }
-    fn signals_default_source() -> Str {
-        Str::from_str("@preact-signals/safe-react/tracking")
-    }
 }
+
 trait IdentExt {
     fn use_signals(ctxt: SyntaxContext) -> Ident;
 }
